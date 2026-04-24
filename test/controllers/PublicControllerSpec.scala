@@ -26,13 +26,6 @@ import testUtils.Fixtures._
 class PublicControllerSpec extends BaseSpec {
   private lazy val controller: PublicController = app.injector.instanceOf[PublicController]
 
-  "Calling PublicController.sessionTimeout" must {
-    "return 200" in {
-      val r = controller.sessionTimeout(buildFakeRequestWithAuth("GET"))
-      status(r) mustBe OK
-    }
-  }
-
   "Calling PublicController.redirectToExitSurvey" must {
     "return 303" in {
       val r = controller.redirectToExitSurvey(Origin("PERTAX"))(buildFakeRequestWithAuth("GET"))

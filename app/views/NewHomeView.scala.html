@@ -17,11 +17,11 @@
 @import components.{H2, H3, MyServiceView, OtherServiceView}
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import uk.gov.hmrc.play.language.LanguageUtils
 @import viewmodels.NewHomeViewModel
 @import views.MainView
 @import views.html.components.alertBanner.AlertBanner
 @import views.html.home.options.TaskListView
-@import uk.gov.hmrc.play.language.LanguageUtils
 
 @this(
         main: MainView,
@@ -70,7 +70,7 @@
         ))
     }
 
-    @alertBanner(viewModel.alertBannerContent)
+    @alertBanner(viewModel.alertBannerContent.map(_.content))
 
     <header class="hmrc-page-heading">
 
@@ -97,25 +97,26 @@
         @messages("label.view_and_save_your_national_insurance_number")</a></p>
 
     <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
-            @taskListView(viewModel.tasks)
+        @taskListView(viewModel.tasks)
 
-            @h2("label.taxes_and_benefits_heading", classes = Some("govuk-heading-m govuk-!-margin-top-8"), elmId = Some("taxes-and-benefits-heading"))
-            @h3("label.taxes_and_benefits_subheading")
-            <ul class="govuk-list">
-                @for(myService <- viewModel.myServices) {
-                    @myServiceView(myService)
-                }
-            </ul>
-
-            @if(viewModel.otherServices.nonEmpty) {
-                @h3("label.other_taxes_and_benefits_heading", classes = Some("govuk-!-margin-top-6"))
-                <ul class="govuk-list">
-                @for(otherService <- viewModel.otherServices) {
-                    @otherServiceView(otherService)
-                }
-                </ul>
+        @h2("label.taxes_and_benefits_heading", classes = Some("govuk-heading-m govuk-!-margin-top-8"), elmId = Some("taxes-and-benefits-heading"))
+        @h3("label.taxes_and_benefits_subheading")
+        <ul class="govuk-list">
+            @for(myService <- viewModel.myServices) {
+                @myServiceView(myService)
             }
+        </ul>
 
-            @viewModel.newsAndUpdates
+        @if(viewModel.otherServices.nonEmpty) {
+            @h3("label.other_taxes_and_benefits_heading", classes = Some("govuk-!-margin-top-6"))
+            <ul class="govuk-list">
+            @for(otherService <- viewModel.otherServices) {
+                @otherServiceView(otherService)
+            }
+            </ul>
+        }
 
+        @viewModel.newsAndUpdates.map { newsAndUpdates =>
+            @newsAndUpdates.content
+        }
 }

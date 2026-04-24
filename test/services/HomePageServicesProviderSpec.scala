@@ -55,7 +55,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
 
   private def buildRequest(
     saUserType: SelfAssessmentUserType = NonFilerSelfAssessmentUser,
-    trustedHelper: Option[uk.gov.hmrc.sca.models.TrustedHelper] = None
+    trustedHelper: Option[TrustedHelper] = None
   ): UserRequest[AnyContent] =
     UserRequest(
       authNino = generatedNino,
@@ -107,32 +107,32 @@ class HomePageServicesProviderSpec extends BaseSpec {
       result.myServices mustBe Seq(
         MyService(
           "Pay As You Earn (PAYE)",
-          controllers.routes.RedirectToPayeController.redirectToPaye.url,
-          "",
+          Some(controllers.routes.RedirectToPayeController.redirectToPaye.url),
+          None,
           Map(),
           Some("Income"),
           Some("Pay As You Earn (PAYE)")
         ),
         MyService(
           s"Your tax calculation — PAYE ${TaxYear.current.back(4).startYear} to ${TaxYear.current.startYear}",
-          "taxcalc/",
-          "",
+          Some("taxcalc/"),
+          None,
           Map(),
           Some("Income"),
           Some("Tax Calculation")
         ),
         MyService(
           "Self Assessment",
-          controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url,
-          "",
+          Some(controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url),
+          None,
           Map(),
           Some("Income"),
           Some("Self Assessment")
         ),
         MyService(
           "National Insurance and State Pension",
-          controllers.interstitials.routes.InterstitialController.displayNISP.url,
-          "",
+          Some(controllers.interstitials.routes.InterstitialController.displayNISP.url),
+          None,
           Map(),
           Some("Income"),
           Some("National Insurance and State Pension"),
@@ -187,10 +187,10 @@ class HomePageServicesProviderSpec extends BaseSpec {
 
       val result = service.getHomePageServices.futureValue
 
-      result.myServices.map(_.link)    must contain(
+      result.myServices.flatMap(_.link) must contain(
         controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url
       )
-      result.otherServices.map(_.link) must not contain
+      result.otherServices.map(_.link)  must not contain
         controllers.routes.SelfAssessmentController.requestAccess.url
     }
 
@@ -203,8 +203,8 @@ class HomePageServicesProviderSpec extends BaseSpec {
       result.myServices    must contain(
         MyService(
           "Self Assessment",
-          controllers.routes.SaWrongCredentialsController.landingPage().url,
-          messages("title.signed_in_wrong_account.h1"),
+          Some(controllers.routes.SaWrongCredentialsController.landingPage().url),
+          Some(messages("title.signed_in_wrong_account.h1")),
           Map(),
           Some("Income"),
           Some("Self Assessment")
@@ -316,16 +316,16 @@ class HomePageServicesProviderSpec extends BaseSpec {
       result.myServices mustBe Seq(
         MyService(
           "Pay As You Earn (PAYE)",
-          controllers.routes.RedirectToPayeController.redirectToPaye.url,
-          "",
+          Some(controllers.routes.RedirectToPayeController.redirectToPaye.url),
+          None,
           Map(),
           Some("Income"),
           Some("Pay As You Earn (PAYE)")
         ),
         MyService(
           "National Insurance and State Pension",
-          controllers.interstitials.routes.InterstitialController.displayNISP.url,
-          "",
+          Some(controllers.interstitials.routes.InterstitialController.displayNISP.url),
+          None,
           Map(),
           Some("Income"),
           Some("National Insurance and State Pension"),
@@ -363,8 +363,8 @@ class HomePageServicesProviderSpec extends BaseSpec {
       result.myServices must contain(
         MyService(
           s"Your tax calculation — PAYE ${TaxYear.current.back(4).startYear} to ${TaxYear.current.startYear}",
-          "taxcalc/",
-          "",
+          Some("taxcalc/"),
+          None,
           Map(),
           Some("Income"),
           Some("Tax Calculation")
@@ -384,8 +384,8 @@ class HomePageServicesProviderSpec extends BaseSpec {
       result.myServices must contain(
         MyService(
           "Marriage Allowance",
-          "/marriage-allowance-application/history",
-          "You currently transfer part of your Personal Allowance to your partner.",
+          Some("/marriage-allowance-application/history"),
+          Some("You currently transfer part of your Personal Allowance to your partner."),
           Map(),
           Some("Benefits"),
           Some("Marriage Allowance"),
@@ -408,8 +408,8 @@ class HomePageServicesProviderSpec extends BaseSpec {
       result.myServices must contain(
         MyService(
           "Marriage Allowance",
-          "/marriage-allowance-application/history",
-          "Your partner currently transfers part of their Personal Allowance to you.",
+          Some("/marriage-allowance-application/history"),
+          Some("Your partner currently transfers part of their Personal Allowance to you."),
           Map(),
           Some("Benefits"),
           Some("Marriage Allowance"),
@@ -453,8 +453,8 @@ class HomePageServicesProviderSpec extends BaseSpec {
       result.myServices must contain(
         MyService(
           "Trusted helpers",
-          "trusted-helpers-url",
-          "",
+          Some("trusted-helpers-url"),
+          None,
           Map(),
           Some("Account"),
           Some("Trusted helpers"),

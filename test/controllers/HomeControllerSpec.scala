@@ -90,6 +90,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     reset(mockTaiService)
     reset(mockBreathingSpaceService)
     reset(mockHomeCardGenerator)
+    reset(mockHomeOptionsGenerator)
     reset(mockAlertBannerHelper)
     reset(mockFeatureFlagService)
     reset(mockHomePageServicesProvider)
@@ -98,26 +99,27 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
     when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any()))
       .thenReturn(Future.successful(WithinPeriod))
-    when(mockHomeCardGenerator.getIncomeCards(any(), any())).thenReturn(
-      Future.successful(Seq.empty)
-    )
-    when(mockHomeCardGenerator.getATSCard()(any(), any())).thenReturn(
-      Future.successful(Seq.empty)
-    )
-    when(mockHomeCardGenerator.getBenefitCards(any(), any())(any())).thenReturn(
-      List.empty
-    )
-    when(mockHomeCardGenerator.getTrustedHelpersCard()(any())).thenReturn(
-      Html("<div class='trusted-helpers-card'></div>")
-    )
 
-    when(mockTasksService.getListOfTasks(any(), any())).thenReturn(
-      Future.successful(Seq.empty)
-    )
+    when(mockHomeCardGenerator.getIncomeCards(any(), any()))
+      .thenReturn(Future.successful(Seq.empty))
 
-    when(mockAlertBannerHelper.getContent(any(), any(), any())).thenReturn(
-      Future.successful(List.empty)
-    )
+    when(mockHomeCardGenerator.getATSCard()(any(), any()))
+      .thenReturn(Future.successful(Seq.empty))
+
+    when(mockHomeCardGenerator.getBenefitCards(any(), any())(any()))
+      .thenReturn(List.empty)
+
+    when(mockHomeCardGenerator.getTrustedHelpersCard()(any()))
+      .thenReturn(Html("<div class='trusted-helpers-card'></div>"))
+
+    when(mockHomeOptionsGenerator.getLatestNewsAndUpdatesCard()(any[Messages], any[UserRequest[AnyContent]]))
+      .thenReturn(None)
+
+    when(mockTasksService.getListOfTasks(any(), any()))
+      .thenReturn(Future.successful(Seq.empty))
+
+    when(mockAlertBannerHelper.getContent(any(), any(), any()))
+      .thenReturn(Future.successful(List.empty))
 
     when(mockTaiService.getTaxComponentsList(any(), any())(any(), any()))
       .thenReturn(Future.successful(taxComponents))
@@ -134,11 +136,11 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     when(mockFandfConnector.showFandfBanner(any())(any(), any()))
       .thenReturn(Future.successful(false))
 
-    when(mockHomePageServicesProvider.getHomePageServices(any(), any(), any())).thenReturn(
-      Future.successful(HomePageServices(Seq.empty))
-    )
+    when(mockHomePageServicesProvider.getHomePageServices(any(), any(), any()))
+      .thenReturn(Future.successful(HomePageServices(Seq.empty)))
 
-    when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList).thenReturn(Seq.empty)
+    when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList)
+      .thenReturn(Seq.empty)
   }
 
   def currentRequest[A]: Request[A] =

@@ -189,7 +189,6 @@ class InterstitialController @Inject() (
         saPartial   <- saPartial
       } yield Ok(
         selfAssessmentSummaryView(
-          // TODO: FormPartialUpgrade to be deleted. See DDCNL-6008
           formPartial = formPartial successfulContentOrElse Html(""),
           saPartial = saPartial successfulContentOrElse Html("")
         )
