@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,5 +24,6 @@ case class NewsAndContentModel(
   content: String,
   isDynamic: Boolean,
   startDate: LocalDate,
-  toBeDisplayed: Boolean
+  toBeDisplayed: Boolean,
+  pinToTop: Boolean = false
 )
