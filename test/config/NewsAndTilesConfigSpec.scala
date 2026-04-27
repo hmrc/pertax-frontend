@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -246,6 +246,35 @@ class NewsAndTilesConfigSpec extends BaseSpec {
 
       sut.getNewsAndContentModelList().length mustBe 3
 
+    }
+    "read configuration and place pinned item at top of the list" in {
+      val app = localGuiceApplicationBuilder()
+        .configure(
+          "feature.news.max"                                  -> 3,
+          "feature.news.override-start-and-end-dates.enabled" -> true,
+          "feature.news.items.0.name"                         -> "childBenefits",
+          "feature.news.items.0.start-date"                   -> LocalDate.now().format(formatter),
+          "feature.news.items.0.dynamic-content"              -> true,
+          "feature.news.items.1.name"                         -> "homepageUpdate",
+          "feature.news.items.1.start-date"                   -> LocalDate.now().minusDays(5).format(formatter),
+          "feature.news.items.1.dynamic-content"              -> true,
+          // Older item pinned to top
+          "feature.news.items.1.pin-to-top"                   -> true,
+          "feature.news.items.2.name"                         -> "hmrcApp",
+          "feature.news.items.2.start-date"                   -> LocalDate.now().minusDays(10).format(formatter),
+          "feature.news.items.2.dynamic-content"              -> true,
+          "play.cache.bindCaches"                             -> List("controller-cache", "document-cache"),
+          "play.cache.createBoundCaches"                      -> false
+        )
+        .build()
+
+      val sut = app.injector.instanceOf[NewsAndTilesConfig]
+
+      sut.getNewsAndContentModelList().map(_.newsSectionName) mustBe List(
+        "homepageUpdate",
+        "childBenefits",
+        "hmrcApp"
+      )
     }
   }
 }
