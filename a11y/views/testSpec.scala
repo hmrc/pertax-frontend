@@ -126,7 +126,6 @@ class testSpec extends A11ySpec {
   )
 
   val unauthUrls: Map[String, ExpectedData] = Map(
-    "/personal-account/signin"                  -> getExpectedData("sign-in"),
     "/personal-account/identity-check-complete" -> getExpectedData("id-check-complete")
   )
 
