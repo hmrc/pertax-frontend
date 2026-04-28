@@ -133,6 +133,15 @@ class StartDateController @Inject() (
                           case _                           => true
                         }
 
+                      val scotlandMoveContext: Option[String] =
+                        (currentCountryCode.map(_.trim.toUpperCase), newCountryCode.map(_.trim.toUpperCase)) match {
+                          case (Some("GB-SCT"), Some(next)) if next != "GB-SCT"       =>
+                            Some("label.moving_from_scotland_affects")
+                          case (Some(current), Some("GB-SCT")) if current != "GB-SCT" =>
+                            Some("label.moving_to_scotland_affects")
+                          case _                                                      => None
+                        }
+
                       startDateDecisionService
                         .determineStartDate(
                           requestedDate = proposedStartDate,
@@ -184,7 +193,8 @@ class StartDateController @Inject() (
                                       cannotUpdateAddressEarlyDateView(
                                         typ,
                                         languageUtils.Dates.formatDate(proposedStartDate),
-                                        overseasMove
+                                        overseasMove,
+                                        scotlandMoveContext
                                       )
                                     )
                                   )
