@@ -18,5 +18,5 @@
 
 @()(implicit messages: Messages)
 <p class="govuk-notification-banner__heading">
- @messages("new_home_page_banner.text")<a class="govuk-notification-banner__link" href="/personal-account/news/homepageUpdate"> @messages("new_home_page_banner.link_text")</a>
+ @messages("new_home_page_banner.text")<a class="govuk-notification-banner__link" href="@controllers.interstitials.routes.InterstitialController.displayNewsAndUpdates("homepageUpdate").url"> @messages("new_home_page_banner.link_text")</a>
 </p>

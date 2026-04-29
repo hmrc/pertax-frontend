@@ -21,7 +21,7 @@ import com.google.inject.Inject
 import connectors.{FandFConnector, PreferencesFrontendConnector}
 import controllers.auth.requests.UserRequest
 import models.*
-import models.admin.{AlertBannerPaperlessStatusToggle, HomePageChangeBannerToggle, PeakDemandBannerToggle, ShowPlannedOutageBannerToggle, VoluntaryContributionsAlertToggle}
+import models.admin.{AlertBannerPaperlessStatusToggle, HomePageChangesBannerToggle, PeakDemandBannerToggle, ShowPlannedOutageBannerToggle, VoluntaryContributionsAlertToggle}
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.twirl.api.Html
@@ -131,7 +131,7 @@ class AlertBannerHelper @Inject() (
   def getHomePageChangesBannerContent(
     newDesign: Boolean
   )(implicit ec: ExecutionContext, messages: Messages): Future[Option[Html]] =
-    featureFlagService.get(HomePageChangeBannerToggle).map {
+    featureFlagService.get(HomePageChangesBannerToggle).map {
       case toggle if toggle.isEnabled =>
         if (newDesign) Some(newHomePageChangesBannerView()) else Some(oldHomePageChangesBannerView())
       case _                          => None

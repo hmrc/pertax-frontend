@@ -19,7 +19,7 @@ package util
 import cats.data.EitherT
 import connectors.{FandFConnector, PreferencesFrontendConnector}
 import controllers.auth.requests.UserRequest
-import models.admin.{AlertBannerPaperlessStatusToggle, HomePageChangeBannerToggle, PeakDemandBannerToggle, ShowPlannedOutageBannerToggle, VoluntaryContributionsAlertToggle}
+import models.admin.{AlertBannerPaperlessStatusToggle, HomePageChangesBannerToggle, PeakDemandBannerToggle, ShowPlannedOutageBannerToggle, VoluntaryContributionsAlertToggle}
 import models.{PaperlessMessagesStatus, PaperlessStatusBounced, PaperlessStatusNewCustomer, PaperlessStatusNoEmail, PaperlessStatusOptIn, PaperlessStatusOptOut, PaperlessStatusReopt, PaperlessStatusReoptModified, PaperlessStatusUnverified}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
@@ -61,8 +61,8 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
 
     when(mockFandFConnector.showFandfBanner(any())(any(), any())).thenReturn(Future.successful(false))
 
-    when(mockFeatureFlagService.get(HomePageChangeBannerToggle))
-      .thenReturn(Future.successful(FeatureFlag(HomePageChangeBannerToggle, isEnabled = false)))
+    when(mockFeatureFlagService.get(HomePageChangesBannerToggle))
+      .thenReturn(Future.successful(FeatureFlag(HomePageChangesBannerToggle, isEnabled = false)))
   }
 
   override lazy val app: Application = localGuiceApplicationBuilder()
@@ -169,8 +169,8 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
         EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusOptIn(): PaperlessMessagesStatus)
       )
 
-      when(mockFeatureFlagService.get(HomePageChangeBannerToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePageChangeBannerToggle, isEnabled = true)))
+      when(mockFeatureFlagService.get(HomePageChangesBannerToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageChangesBannerToggle, isEnabled = true)))
 
       val result = alertBannerHelper.getContent(None, false).futureValue
 
@@ -182,8 +182,8 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
         EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusOptIn(): PaperlessMessagesStatus)
       )
 
-      when(mockFeatureFlagService.get(HomePageChangeBannerToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePageChangeBannerToggle, isEnabled = true)))
+      when(mockFeatureFlagService.get(HomePageChangesBannerToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageChangesBannerToggle, isEnabled = true)))
 
       val result = alertBannerHelper.getContent(None, true).futureValue
 

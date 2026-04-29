@@ -42,7 +42,7 @@ object AllFeatureFlags {
     ClaimMtdFromPtaToggle,
     HomePageNewLayoutToggle,
     FandFBannerToggle,
-    HomePageChangeBannerToggle
+    HomePageChangesBannerToggle
   )
 }
 
@@ -225,7 +225,7 @@ case object ClaimMtdFromPtaToggle extends FeatureFlagName {
     Seq(Environment.Staging, Environment.Qa, Environment.Production)
 }
 
-case object HomePageChangeBannerToggle extends FeatureFlagName {
+case object HomePageChangesBannerToggle extends FeatureFlagName {
   override val name: String = "home-change-banner-toggle"
 
   override val description: Option[String] = Some(
