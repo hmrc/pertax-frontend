@@ -41,7 +41,8 @@ object AllFeatureFlags {
     GetMatchingFromCitizenDetailsToggle,
     ClaimMtdFromPtaToggle,
     HomePageNewLayoutToggle,
-    FandFBannerToggle
+    FandFBannerToggle,
+    HomePageChangeBannerToggle
   )
 }
 
