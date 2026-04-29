@@ -81,7 +81,7 @@ class HomeController @Inject() (
         listOfTasks             <- fListOfTasks
         homePageServices        <- fHomePageServices
         eitherPersonDetails     <- fEitherPersonDetails
-        alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten, newDesign = false)
+        alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten, newDesign = true)
       } yield {
         val personDetailsOpt = eitherPersonDetails.toOption.flatten
         val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
