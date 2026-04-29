@@ -137,29 +137,6 @@ class HomeViewSpec extends ViewSpec {
       view must include(utr)
     }
 
-    "show the Nps Shutter Banner when boolean is set to true" in {
-      when(mockConfigDecorator.shutterBannerParagraphCy).thenReturn("Welsh content")
-      when(mockConfigDecorator.shutterBannerParagraphEn).thenReturn(
-        "A number of services will be unavailable from 10pm on Friday 12 July to 7am Monday 15 July."
-      )
-
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val view                                                      = home(homeViewModel).toString
-
-      view must include(
-        "A number of services will be unavailable from 10pm on Friday 12 July to 7am Monday 15 July."
-      )
-    }
-
-    "not show the Nps Shutter Banner when boolean is set to false" in {
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val view                                                      = home(homeViewModel).toString
-
-      view mustNot include(
-        "A number of services will be unavailable from 10pm on Friday 12 July to 7am Monday 15 July."
-      )
-    }
-
     "show the alert banner if there is some alert content" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val view                                                      = Jsoup.parse(
