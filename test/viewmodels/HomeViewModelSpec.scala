@@ -32,11 +32,11 @@ class HomeViewModelSpec extends BaseSpec {
       showUserResearchBanner = true,
       NonFilerSelfAssessmentUser,
       breathingSpaceIndicator = false,
-      alertBannerContent = List.empty,
+      alertBannerContent = None,
       None,
       None
     )
-    homeViewModel mustBe new HomeViewModel(Nil, Nil, Nil, true, None, false, List.empty, None, None)
+    homeViewModel mustBe new HomeViewModel(Nil, Nil, Nil, true, None, false, None, None, None)
   }
 
   Seq(
@@ -46,8 +46,8 @@ class HomeViewModelSpec extends BaseSpec {
     NotEnrolledSelfAssessmentUser(SaUtr(utr))
   ).foreach { saUserType =>
     s"have a UTR for a ${saUserType.toString}" in {
-      val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, saUserType, true, List.empty, None, None)
-      homeViewModel mustBe new HomeViewModel(Nil, Nil, Nil, true, Some(utr), true, List.empty, None, None)
+      val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, saUserType, true, None, None, None)
+      homeViewModel mustBe new HomeViewModel(Nil, Nil, Nil, true, Some(utr), true, None, None, None)
     }
   }
 }

@@ -16,9 +16,7 @@
 
 package controllers
 
-import cats.data.EitherT
 import config.ConfigDecorator
-import connectors.FandFConnector
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
@@ -41,9 +39,9 @@ import repositories.JourneyCacheRepository
 import services.*
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.fakes.{FakeAuthJourney, FakePaperlessInterruptHelper, FakeRlsInterruptHelper}
-import testUtils.{BaseSpec, CitizenDetailsFixtures, Fixtures, WireMockHelper}
+import testUtils.{BaseSpec, CitizenDetailsFixtures, WireMockHelper}
 import uk.gov.hmrc.domain.{Generator, Nino}
-import uk.gov.hmrc.http.{HeaderNames, UpstreamErrorResponse}
+import uk.gov.hmrc.http.HeaderNames
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.sca.models.TrustedHelper
@@ -61,7 +59,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
   val mockHomeOptionsGenerator: HomeOptionsGenerator         = mock[HomeOptionsGenerator]
   val mockAlertBannerHelper: AlertBannerHelper               = mock[AlertBannerHelper]
   val mockTaiService: TaiService                             = mock[TaiService]
-  val mockFandfConnector: FandFConnector                     = mock[FandFConnector]
   val mockHomePageServicesProvider: HomePageServicesProvider = mock[HomePageServicesProvider]
   val mockTasksService: TasksService                         = mock[TasksService]
   val mockConfigDecorator: ConfigDecorator                   = mock[ConfigDecorator]
@@ -76,7 +73,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
       bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
       bind[TaiService].toInstance(mockTaiService),
-      bind[FandFConnector].toInstance(mockFandfConnector),
       bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
       bind[TasksService].toInstance(mockTasksService)
     )
@@ -93,7 +89,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     reset(mockAlertBannerHelper)
     reset(mockFeatureFlagService)
     reset(mockHomePageServicesProvider)
-    reset(mockFandfConnector)
     reset(mockConfigDecorator)
 
     when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any()))
@@ -115,8 +110,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       Future.successful(Seq.empty)
     )
 
-    when(mockAlertBannerHelper.getContent(any(), any(), any())).thenReturn(
-      Future.successful(List.empty)
+    when(mockAlertBannerHelper.getContent(any(), any())(any(), any(), any())).thenReturn(
+      Future.successful(None)
     )
 
     when(mockTaiService.getTaxComponentsList(any(), any())(any(), any()))
@@ -130,9 +125,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
     when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
       .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = false)))
-
-    when(mockFandfConnector.showFandfBanner(any())(any(), any()))
-      .thenReturn(Future.successful(false))
 
     when(mockHomePageServicesProvider.getHomePageServices(any(), any(), any())).thenReturn(
       Future.successful(HomePageServices(Seq.empty))
@@ -213,42 +205,12 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       }
     }
 
-    "Shuttering is displayed if toggled on" in {
-      val expectedHtmlString =
-        "A number of services will be unavailable from"
-
-      when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
-        .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = true)))
-
-      val appLocal: Application = appBuilder.build()
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(currentRequest)
-      status(result) mustBe OK
-      assert(contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
-    }
-
-    "Shuttering is not displayed if toggled off" in {
-      val expectedHtmlString =
-        "A number of services will be unavailable from"
-
-      when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
-        .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = false)))
-
-      val appLocal: Application = appBuilder.build()
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(currentRequest)
-      status(result) mustBe OK
-      assert(!contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
-    }
-
     "Alert Banner content is displayed as returned from the alertBannerContent" in {
       val expectedHtmlString = "<div class='alertBannerContent'></div>"
       val expectedHtml: Html = Html(expectedHtmlString)
 
-      when(mockAlertBannerHelper.getContent(any(), any(), any()))
-        .thenReturn(Future.successful(List(expectedHtml)))
+      when(mockAlertBannerHelper.getContent(any(), any())(any(), any(), any()))
+        .thenReturn(Future.successful(Some(expectedHtml)))
 
       val appLocal: Application = appBuilder.build()
 
@@ -297,7 +259,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
             bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
             bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
             bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
-            bind[FandFConnector].toInstance(mockFandfConnector),
             bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
             bind[TasksService].toInstance(mockTasksService)
           )
@@ -350,7 +311,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
             bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
             bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
             bind[TaiService].toInstance(mockTaiService),
-            bind[FandFConnector].toInstance(mockFandfConnector),
             bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
             bind[TasksService].toInstance(mockTasksService),
             bind[ConfigDecorator].toInstance(mockConfigDecorator),
@@ -410,7 +370,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
             bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
             bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
             bind[TaiService].toInstance(mockTaiService),
-            bind[FandFConnector].toInstance(mockFandfConnector),
             bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
             bind[TasksService].toInstance(mockTasksService),
             bind[ConfigDecorator].toInstance(mockConfigDecorator),
@@ -470,7 +429,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
             bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
             bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
             bind[TaiService].toInstance(mockTaiService),
-            bind[FandFConnector].toInstance(mockFandfConnector),
             bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
             bind[TasksService].toInstance(mockTasksService),
             bind[ConfigDecorator].toInstance(mockConfigDecorator),
@@ -528,7 +486,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
             bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
             bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
             bind[TaiService].toInstance(mockTaiService),
-            bind[FandFConnector].toInstance(mockFandfConnector),
             bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
             bind[TasksService].toInstance(mockTasksService),
             bind[ConfigDecorator].toInstance(mockConfigDecorator),
@@ -673,48 +630,12 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       }
     }
 
-    "Shuttering is displayed if toggled on" in {
-      val expectedHtmlString =
-        "A number of services will be unavailable from"
-
-      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
-
-      when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
-        .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = true)))
-
-      val appLocal: Application = appBuilder.build()
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(currentRequest)
-      status(result) mustBe OK
-      assert(contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
-    }
-
-    "Shuttering is not displayed if toggled off" in {
-      val expectedHtmlString =
-        "A number of services will be unavailable from"
-
-      when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
-        .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = false)))
-
-      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
-
-      val appLocal: Application = appBuilder.build()
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(currentRequest)
-      status(result) mustBe OK
-      assert(!contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
-    }
-
     "Alert Banner content is displayed as returned from the alertBannerContent" in {
       val expectedHtmlString = "<div class='alertBannerContent'></div>"
       val expectedHtml: Html = Html(expectedHtmlString)
 
-      when(mockAlertBannerHelper.getContent(any(), any(), any()))
-        .thenReturn(Future.successful(List(expectedHtml)))
+      when(mockAlertBannerHelper.getContent(any(), any())(any(), any(), any()))
+        .thenReturn(Future.successful(Some(expectedHtml)))
 
       when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
@@ -729,128 +650,13 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
   }
 
   "Alert Banner content is not displayed if empty" in {
-    when(mockAlertBannerHelper.getContent(any(), any(), any()))
-      .thenReturn(Future.successful(List.empty))
+    when(mockAlertBannerHelper.getContent(any(), any())(any(), any(), any()))
+      .thenReturn(Future.successful(None))
 
     val appLocal: Application      = appBuilder.build()
     val controller: HomeController = appLocal.injector.instanceOf[HomeController]
     val result: Future[Result]     = controller.index()(currentRequest)
     status(result) mustBe OK
     assert(!contentAsString(result).contains("alertBannerContent"))
-  }
-
-  "Fandf Banner content is displayed if connector returns true" in {
-    val th = TrustedHelper("principalName", "attorneyName", "returnUrl", Some(generatedTrustedHelperNino.nino))
-
-    val appLocal: Application =
-      localGuiceApplicationBuilder()
-        .overrides(
-          bind[AuthJourney].toInstance(new AuthJourney {
-            override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
-              new testUtils.ActionBuilderFixture {
-                override def invokeBlock[A](
-                  request: Request[A],
-                  block: UserRequest[A] => Future[Result]
-                ): Future[Result] =
-                  block(
-                    buildUserRequest(
-                      request = request,
-                      trustedHelper = Some(th)
-                    )
-                  )
-              }
-          }),
-          bind[RlsInterruptHelper].toInstance(fakeRlsInterruptHelper),
-          bind[PaperlessInterruptHelper].toInstance(fakePaperlessInterruptHelper),
-          bind[TaiService].toInstance(mockTaiService),
-          bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
-          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
-          bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
-          bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
-          bind[FandFConnector].toInstance(mockFandfConnector),
-          bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
-          bind[TasksService].toInstance(mockTasksService)
-        )
-        .build()
-
-    when(mockFandfConnector.showFandfBanner(ArgumentMatchers.eq(Fixtures.fakeNino))(any(), any()))
-      .thenReturn(Future.successful(true))
-
-    val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-    val result: Future[Result]     = controller.index()(currentRequest)
-    status(result) mustBe OK
-    //    assert(contentAsString(result).contains("Your trusted helper relationship ends at midnight"))
-    verify(mockFandfConnector, times(1)).showFandfBanner(ArgumentMatchers.eq(Fixtures.fakeNino))(any(), any())
-    verify(mockFandfConnector, times(0)).showFandfBanner(ArgumentMatchers.eq(generatedTrustedHelperNino))(any(), any())
-
-  }
-
-  "Address error banner appears when address features ADDRESS - NOT KNOWN" must {
-    val mockCitizenDetailsService = mock[CitizenDetailsService]
-
-    val appLocal: Application =
-      localGuiceApplicationBuilder()
-        .overrides(
-          bind[AuthJourney].toInstance(new AuthJourney {
-            override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
-              new testUtils.ActionBuilderFixture {
-                override def invokeBlock[A](
-                  request: Request[A],
-                  block: UserRequest[A] => Future[Result]
-                ): Future[Result] =
-                  block(
-                    buildUserRequest(
-                      request = request,
-                      trustedHelper = None
-                    )
-                  )
-              }
-          }),
-          bind[RlsInterruptHelper].toInstance(fakeRlsInterruptHelper),
-          bind[PaperlessInterruptHelper].toInstance(fakePaperlessInterruptHelper),
-          bind[TaiService].toInstance(mockTaiService),
-          bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
-          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
-          bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
-          bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
-          bind[FandFConnector].toInstance(mockFandfConnector),
-          bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
-          bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
-          bind[TasksService].toInstance(mockTasksService)
-        )
-        .build()
-    "when issue is main address " in {
-      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
-        .thenReturn(
-          EitherT.rightT[Future, UpstreamErrorResponse](
-            Some(
-              buildPersonDetailsWithPersonalAndCorrespondenceAddress.copy(address =
-                Some(buildFakeAddress.copy(country = Some("ABROAD - NOT KNOWN")))
-              )
-            )
-          )
-        )
-      val controller = appLocal.injector.instanceOf[HomeController]
-      val result     = controller.index()(currentRequest)
-      status(result) mustBe OK
-      contentAsString(result) must include("There was a problem updating your postcode")
-    }
-
-    "when issue is postal address " in {
-      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
-        .thenReturn(
-          EitherT.rightT[Future, UpstreamErrorResponse](
-            Some(
-              buildPersonDetailsWithPersonalAndCorrespondenceAddress.copy(correspondenceAddress =
-                Some(buildFakeAddress.copy(country = Some("ABROAD - NOT KNOWN")))
-              )
-            )
-          )
-        )
-      val controller = appLocal.injector.instanceOf[HomeController]
-      val result     = controller.index()(currentRequest)
-      status(result) mustBe OK
-      contentAsString(result) must include("There was a problem updating your postcode")
-    }
   }
 }

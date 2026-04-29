@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,22 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package viewmodels
+@import config.ConfigDecorator
 
-import models.{MyService, OtherService}
-import play.twirl.api.Html
+@this(configDecorator: ConfigDecorator)
 
-// todo: refactor Html type into meaningful type
-final case class NewHomeViewModel(
-  tasks: Seq[Task],
-  newsAndUpdates: Option[Html],
-  showUserResearchBanner: Boolean,
-  saUtr: Option[String],
-  breathingSpaceIndicator: Boolean,
-  alertBannerContent: Option[Html],
-  name: Option[String],
-  myServices: Seq[MyService],
-  otherServices: Seq[OtherService]
-)
+@()(implicit messages: Messages)
+<p class="govuk-notification-banner__heading">
+ @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerParagraphCy }else {@configDecorator.shutterBannerParagraphEn}<br/>
+<a class="govuk-notification-banner__link" href="@controllers.interstitials.routes.InterstitialController.displayShutteringPage.url"> @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerLinkTextCy }else {@configDecorator.shutterBannerLinkTextEn}</a>.
+</p>

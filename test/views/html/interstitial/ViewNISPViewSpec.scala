@@ -35,13 +35,13 @@ class ViewNISPViewSpec extends ViewSpec {
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
     buildUserRequest(request = FakeRequest())
 
-  val emptyBannerViewModel: AlertBannerViewModel = AlertBannerViewModel(Nil)
+  val emptyBannerViewModel: AlertBannerViewModel = AlertBannerViewModel(None)
 
   "Rendering ViewNISPView.scala.html" must {
 
     "render alert banner content if present" in {
       val bannerHtml      = Html("<div class='govuk-notification-banner'>Voluntary Contributions Banner</div>")
-      val bannerViewModel = AlertBannerViewModel(List(bannerHtml))
+      val bannerViewModel = AlertBannerViewModel(Some(bannerHtml))
 
       val document = asDocument(view(Html(""), None, bannerViewModel).toString)
       document.body().toString must include("Voluntary Contributions Banner")

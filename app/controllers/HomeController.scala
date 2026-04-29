@@ -18,13 +18,12 @@ package controllers
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import connectors.FandFConnector
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.SelfAssessmentUser
-import models.admin.{HomePageNewLayoutToggle, ShowPlannedOutageBannerToggle}
+import models.admin.HomePageNewLayoutToggle
 import play.api.mvc.*
 import services.*
 import uk.gov.hmrc.domain.Nino
@@ -52,8 +51,7 @@ class HomeController @Inject() (
   homeView: HomeView,
   newHomeView: NewHomeView,
   rlsInterruptHelper: RlsInterruptHelper,
-  alertBannerHelper: AlertBannerHelper,
-  fandFConnector: FandFConnector
+  alertBannerHelper: AlertBannerHelper
 )(implicit configDecorator: ConfigDecorator, val ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with CurrentTaxYear {
@@ -76,19 +74,14 @@ class HomeController @Inject() (
       val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
       val fListOfTasks             = tasksService.getListOfTasks
       val fHomePageServices        = homePageServicesProvider.getHomePageServices
-      val fShutteringMessaging     = featureFlagService.get(ShowPlannedOutageBannerToggle)
-      val fAlertBannerContent      = alertBannerHelper.getContent
       val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
-      val fShowFandfBanner         = fandFConnector.showFandfBanner(request.authNino)
 
       for {
         breathingSpaceIndicator <- fBreathingSpaceIndicator
         listOfTasks             <- fListOfTasks
         homePageServices        <- fHomePageServices
-        shutteringMessaging     <- fShutteringMessaging
-        alertBannerContent      <- fAlertBannerContent
         eitherPersonDetails     <- fEitherPersonDetails
-        showFandfBanner         <- fShowFandfBanner
+        alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten, newDesign = false)
       } yield {
         val personDetailsOpt = eitherPersonDetails.toOption.flatten
         val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
@@ -105,9 +98,7 @@ class HomeController @Inject() (
               name = nameToDisplay,
               myServices = homePageServices.myServices,
               otherServices = homePageServices.otherServices
-            ),
-            shutteringMessaging.isEnabled,
-            showFandfBanner
+            )
           )
         )
       }
@@ -125,28 +116,18 @@ class HomeController @Inject() (
       val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
       val fIncomeCards             = homeCardGenerator.getIncomeCards
       val fAtsCard                 = homeCardGenerator.getATSCard()
-      val fShutteringMessaging     = featureFlagService.get(ShowPlannedOutageBannerToggle)
-      val fAlertBannerContent      = alertBannerHelper.getContent
       val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
-      val fShowFandfBanner         = fandFConnector.showFandfBanner(request.authNino)
 
       for {
         taxComponents           <- fTaxComponents
         breathingSpaceIndicator <- fBreathingSpaceIndicator
         incomeCards             <- fIncomeCards
         atsCard                 <- fAtsCard
-        shutteringMessaging     <- fShutteringMessaging
-        alertBannerContent      <- fAlertBannerContent
         eitherPersonDetails     <- fEitherPersonDetails
-        showFandfBanner         <- fShowFandfBanner
+        alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten, newDesign = false)
       } yield {
-        val personDetailsOpt           = eitherPersonDetails.toOption.flatten
-        val nameToDisplay              = Some(personalDetailsNameOrDefault(personDetailsOpt))
-        val showAddressBanner: Boolean =
-          eitherPersonDetails.fold(
-            _ => false,
-            _.exists(_.notKnownAddress)
-          )
+        val personDetailsOpt = eitherPersonDetails.toOption.flatten
+        val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
 
         val benefitCards       = homeCardGenerator.getBenefitCards(taxComponents, request.trustedHelper)
         val trustedHelpersCard = if (request.trustedHelper.isDefined) {
@@ -167,10 +148,7 @@ class HomeController @Inject() (
               alertBannerContent,
               nameToDisplay,
               trustedHelpersCard
-            ),
-            shutteringMessaging.isEnabled,
-            showFandfBanner,
-            showAddressBanner
+            )
           )
         )
       }
