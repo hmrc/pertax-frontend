@@ -477,7 +477,9 @@ class InterstitialControllerSpec extends BaseSpec {
       val result = controller.mtditRedirect(fakeRequest)
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("https://www.gov.uk/guidance/use-making-tax-digital-for-income-tax")
+      redirectLocation(result) mustBe Some(
+        "https://www.gov.uk/government/collections/making-tax-digital-for-income-tax-for-businesses-step-by-step"
+      )
     }
   }
 }
