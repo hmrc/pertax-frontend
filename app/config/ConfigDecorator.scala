@@ -194,7 +194,8 @@ class ConfigDecorator @Inject() (
   lazy val pegaSaRegistrationUrl: String = runModeConfiguration.get[String]("external-url.pegaSaRegistration.url")
 
   lazy val childBenefitTaxCharge: String = "https://www.gov.uk/child-benefit-tax-charge"
-  lazy val useMTDIT: String              = "https://www.gov.uk/guidance/use-making-tax-digital-for-income-tax"
+  lazy val useMTDIT: String              =
+    "https://www.gov.uk/government/collections/making-tax-digital-for-income-tax-for-businesses-step-by-step"
 
   lazy val childBenefitTaxChargeWelsh: String = "https://www.gov.uk/tal-treth-budd-dal-plant"
 
