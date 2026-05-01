@@ -1,5 +1,5 @@
 @*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,9 @@
  * limitations under the License.
  *@
 
-@this(govukNotificationBanner : GovukNotificationBanner)
+@this()
 
-@(contents: Option[Html])(implicit messages: Messages)
-
- 
-@contents.map { content =>     
-    @govukNotificationBanner(NotificationBanner(
-        content = HtmlContent(content),
-        attributes = Map("id" -> "alert-banner")
-    ))
-}
+@()(implicit messages: Messages)
+<p class="govuk-notification-banner__heading">
+ @messages("new_home_page_banner.text")<a class="govuk-notification-banner__link" href="@controllers.interstitials.routes.InterstitialController.displayNewsAndUpdates("homepageUpdate").url"> @messages("new_home_page_banner.link_text")</a>
+</p>

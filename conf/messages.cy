@@ -872,6 +872,12 @@ label.task_paragraph=Gall gymryd hyd at 10 diwrnod i’r tasgau sydd wedi’u cw
 fandf.banner.text=Mae’ch perthynas â’ch cynorthwyydd dibynadwy yn dod i ben am hanner nos ar {0}.
 fandf.banner.linkText=Dysgwch sut mae cynorthwywyr dibynadwy yn newid.
 
+old_home_page_banner.text=Rydym yn gwneud newidiadau i hafan eich Cyfrif Treth Personol.
+old_home_page_banner.link_text=Darllenwch fwy am yr hyn sy’n newid
+new_home_page_banner.text=Mae hafan eich Cyfrif Treth Personol wedi’i diweddaru.
+new_home_page_banner.link_text=Dysgwch rhagor am yr hyn sydd wedi newid.
+
+
 label.mtdit.claim.p1.prefix=Rydych wedi’ch cofrestru ar gyfer y cynllun
 label.mtdit.claim.p1.linkText=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.mtdit.claim.p1.suffix=(yn agor tab newydd). Mae angen i chi ychwanegu’r gwasanaeth at eich Cyfrif Treth Personol cyn y cewch fynediad ato.

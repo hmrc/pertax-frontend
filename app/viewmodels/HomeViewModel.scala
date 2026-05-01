@@ -26,7 +26,7 @@ final case class HomeViewModel(
   showUserResearchBanner: Boolean,
   saUtr: Option[String],
   breathingSpaceIndicator: Boolean,
-  alertBannerContent: List[Html],
+  alertBannerContent: Option[Html],
   name: Option[String],
   trustedHelpersCard: Option[Html]
 )
@@ -39,7 +39,7 @@ object HomeViewModel {
     showUserResearchBanner: Boolean,
     selfAssessmentUserType: SelfAssessmentUserType,
     breathingSpaceIndicator: Boolean,
-    alertBannerContent: List[Html],
+    alertBannerContent: Option[Html],
     name: Option[String],
     trustedHelpersCard: Option[Html]
   ): HomeViewModel = {

@@ -397,6 +397,15 @@ trait IntegrationSpec
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(FandFBannerToggle)))
       .thenReturn(Future.successful(FeatureFlag(FandFBannerToggle, isEnabled = false)))
 
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(HomePageChangesBannerToggle)))
+      .thenReturn(Future.successful(FeatureFlag(HomePageChangesBannerToggle, isEnabled = false)))
+
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowPlannedOutageBannerToggle)))
+      .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = false)))
+
+    when(mockFeatureFlagService.get(ArgumentMatchers.eq(PeakDemandBannerToggle)))
+      .thenReturn(Future.successful(FeatureFlag(PeakDemandBannerToggle, isEnabled = false)))
+
     server.stubFor(
       post(urlEqualTo("/auth/authorise"))
         .willReturn(aResponse().withBody(authResponse))
