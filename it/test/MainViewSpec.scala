@@ -251,7 +251,7 @@ class MainViewSpec extends IntegrationSpec {
           assertContainsText(doc, principalName)
           assertContainsLink(
             doc,
-            "Return to your account",
+            "Go back to your account",
             url
           )
         }
