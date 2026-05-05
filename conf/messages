@@ -861,9 +861,9 @@ fandf.banner.text=Your trusted helper relationship ends at midnight on {0}.
 fandf.banner.linkText=Find out how trusted helpers is changing
 
 old_home_page_banner.text=We’re making changes to your personal tax account homepage.
-old_home_page_banner.link_text=Read more about what’s changing.
+old_home_page_banner.link_text=Read more about what’s changing
 new_home_page_banner.text=Your personal tax account homepage has been updated.
-new_home_page_banner.link_text=Find out what’s changed.
+new_home_page_banner.link_text=Find out what’s changed
 
 label.mtdit.claim.p1.prefix=You are signed up for
 label.mtdit.claim.p1.linkText=Making Tax Digital for Income Tax
