@@ -875,7 +875,7 @@ fandf.banner.linkText=Dysgwch sut mae cynorthwywyr dibynadwy yn newid.
 old_home_page_banner.text=Rydym yn gwneud newidiadau i hafan eich Cyfrif Treth Personol.
 old_home_page_banner.link_text=Darllenwch fwy am yr hyn sy’n newid
 new_home_page_banner.text=Mae hafan eich Cyfrif Treth Personol wedi’i diweddaru.
-new_home_page_banner.link_text=Dysgwch rhagor am yr hyn sydd wedi newid.
+new_home_page_banner.link_text=Dysgwch rhagor am yr hyn sydd wedi newid
 
 
 label.mtdit.claim.p1.prefix=Rydych wedi’ch cofrestru ar gyfer y cynllun
