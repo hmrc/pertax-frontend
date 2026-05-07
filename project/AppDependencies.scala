@@ -5,14 +5,14 @@ object AppDependencies {
 
   private val playVersion               = "play-30"
   private val cryptoVersion             = "8.4.0"
-  private val scaWrapperVersion         = "4.14.0"
+  private val scaWrapperVersion         = "5.1.0"
   private val mongoFeatureClientVersion = "2.5.0"
 
   val compile: Seq[ModuleID] = Seq(
     ws,
     "uk.gov.hmrc"       %% "tax-year"                                   % "6.0.0",
     "io.lemonlabs"      %% "scala-uri"                                  % "4.0.3",
-    "org.jsoup"          % "jsoup"                                      % "1.22.1",
+    "org.jsoup"          % "jsoup"                                      % "1.22.2",
     "org.typelevel"     %% "cats-core"                                  % "2.13.0",
     "org.typelevel"     %% "cats-effect"                                % "3.7.0",
     "org.apache.commons" % "commons-text"                               % "1.15.0",
