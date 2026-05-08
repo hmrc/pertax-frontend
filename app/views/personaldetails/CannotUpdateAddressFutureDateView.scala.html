@@ -37,12 +37,15 @@
 
     @h1("label.future_date_than_record_h1")
 
-    @p(HtmlContent(messages("label.go_back_to_change_before_link") +
+    @p(HtmlContent(Messages("label.go_back_to_change_before_link", proposedStartDate) +
                 link(controllers.address.routes.StartDateController.onPageLoad(typ).url, "label.go_back_to_change_link_text", inParagraph = true)+ " " +
-                Messages("label.go_back_to_change_after_link", proposedStartDate)
+                messages("label.go_back_to_change_after_link")
     ))
 
     @if(p85Enabled) {
         @p85Content()
     }
+
+    @link(controllers.address.routes.PersonalDetailsController.onPageLoad.url, "label.back_to_profile")
+
 }

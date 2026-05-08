@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtili
       .map { i =>
         val newsSection                                          = configuration.get[String](s"feature.news.items.$i.name")
         val enrolmentsNeeded                                     = configuration.getOptional[String](s"feature.news.items.$i.enrolment")
+        val pinToTop                                             = configuration.getOptional[Boolean](s"feature.news.items.$i.pin-to-top").getOrElse(false)
         val formatter                                            = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         val localStartDate                                       =
           LocalDate.parse(configuration.get[String](s"feature.news.items.$i.start-date"), formatter)
@@ -65,7 +66,8 @@ class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtili
         )
         val toDisplay                                            = displayedByEnrolment && displayedByDate
         configuration.getOptional[Boolean](s"feature.news.items.$i.dynamic-content") match {
-          case Some(_) => NewsAndContentModel(newsSection, "", "", isDynamic = true, localStartDate, toDisplay)
+          case Some(_) =>
+            NewsAndContentModel(newsSection, "", "", isDynamic = true, localStartDate, toDisplay, pinToTop)
           case None    =>
             val shortDescription = if (messages.lang.code equals "en") {
               configuration.get[String](s"feature.news.items.$i.short-description-en")
@@ -77,11 +79,19 @@ class NewsAndTilesConfig @Inject() (configuration: Configuration, localDateUtili
             } else {
               configuration.get[String](s"feature.news.items.$i.content-cy")
             }
-            NewsAndContentModel(newsSection, shortDescription, content, isDynamic = false, localStartDate, toDisplay)
+            NewsAndContentModel(
+              newsSection,
+              shortDescription,
+              content,
+              isDynamic = false,
+              localStartDate,
+              toDisplay,
+              pinToTop
+            )
         }
       }
       .toList
       .filter(_.toBeDisplayed)
-      .sortBy(_.startDate)
+      .sortBy(item => (!item.pinToTop, item.startDate))
   }
 }

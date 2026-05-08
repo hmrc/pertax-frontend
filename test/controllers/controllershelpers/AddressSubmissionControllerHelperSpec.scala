@@ -26,20 +26,19 @@ import models.dto.{AddressDto, DateDto}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
-import play.api
-import play.api.i18n.{Lang, Messages, MessagesImpl, MessagesProvider}
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
-import services.{AddressMovedService, CitizenDetailsService}
-import testUtils.BaseSpec
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
+import play.api.i18n.{Lang, Messages, MessagesImpl, MessagesProvider}
 import play.api.mvc.Request
+import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
+import services.{AddressCountryService, AddressMovedService, CitizenDetailsService}
+import testUtils.BaseSpec
+import testUtils.Fixtures.buildPersonDetails
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.play.language.LanguageUtils
 import views.html.personaldetails.{CannotUpdateAddressEarlyDateView, UpdateAddressConfirmationView}
-import testUtils.Fixtures.buildPersonDetails
 
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -56,6 +55,7 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
     inject[CannotUpdateAddressEarlyDateView]
   val mockLanguageUtils: LanguageUtils                                           = mock[LanguageUtils]
   val mockConfigDecorator: ConfigDecorator                                       = mock[ConfigDecorator]
+  val mockAddressCountryService: AddressCountryService                           = mock[AddressCountryService]
 
   implicit lazy val messageProvider: MessagesProvider = inject[MessagesProvider]
   implicit lazy val messages: Messages                = MessagesImpl(Lang("en"), messagesApi)
@@ -72,7 +72,8 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
       mockCitizenDetailsService,
       mockLanguageUtils,
       mockEditAddressLockRepository,
-      mockConfigDecorator
+      mockConfigDecorator,
+      mockAddressCountryService
     )
   }
 
@@ -84,7 +85,8 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
     injectedUpdateAddressConfirmationView,
     mockCitizenDetailsService,
     injectedCannotUpdateAddressEarlyDateView,
-    mockLanguageUtils
+    mockLanguageUtils,
+    mockAddressCountryService
   )(mockConfigDecorator, global)
 
   "Calling updateCitizenDetailsAddress" must {
@@ -104,6 +106,8 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
         when(mockAddressMovedService.toMessageKey(any())).thenReturn(
           Some("label.mockAddressMovedService")
         )
+        when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
+          .thenReturn(Future.successful(Some("GB-ENG")), Future.successful(Some("GB-ENG")))
 
         val addressJourneyData = AddressJourneyData(
           None,
@@ -156,6 +160,8 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
         when(mockAddressMovedService.toMessageKey(any())).thenReturn(
           Some("label.mockAddressMovedService")
         )
+        when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
+          .thenReturn(Future.successful(Some("GB-ENG")), Future.successful(Some("GB-ENG")))
 
         val addressJourneyData = AddressJourneyData(
           None,
@@ -208,6 +214,8 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
         when(mockAddressMovedService.toMessageKey(any())).thenReturn(
           Some("label.mockAddressMovedService")
         )
+        when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
+          .thenReturn(Future.successful(Some("GB-ENG")), Future.successful(Some("FR")))
 
         val addressJourneyData = AddressJourneyData(
           None,
@@ -257,6 +265,8 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
             )
           )
         )
+      when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
+        .thenReturn(Future.successful(Some("GB-ENG")), Future.successful(Some("FR")))
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(
         Future.successful(AuditResult.Success)
       )
@@ -305,6 +315,59 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
       verify(mockAddressMovedService, times(0)).toMessageKey(any())
     }
 
+    "return start date error response with moving to Scotland messaging when the fallback path is cross-border into Scotland" in {
+      when(mockCitizenDetailsService.updateAddress(any(), any(), any(), any())(any(), any(), any()))
+        .thenReturn(
+          EitherT.leftT[Future, Boolean](
+            UpstreamErrorResponse(
+              "Start date is before current address start date",
+              BAD_REQUEST,
+              BAD_REQUEST
+            )
+          )
+        )
+      when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
+        .thenReturn(Future.successful(Some("GB-ENG")), Future.successful(Some("GB-SCT")))
+      when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(
+        Future.successful(AuditResult.Success)
+      )
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(
+        Future.successful(true)
+      )
+      when(mockAddressMovedService.moved(any(), any(), any())(any(), any())).thenReturn(
+        Future.successful(AnyOtherMove)
+      )
+      when(mockAddressMovedService.toMessageKey(any())).thenReturn(
+        Some("label.mockAddressMovedService")
+      )
+
+      val addressJourneyData = AddressJourneyData(
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        Some(DateDto(LocalDate.of(2000, 1, 1))),
+        None
+      )
+
+      val address: AddressDto =
+        AddressDto("AddressLine1", Some("AddressLine2"), None, None, None, Some("TestPostcode"), None, None, None)
+
+      val result = sut.updateCitizenDetailsAddress(
+        generatedNino,
+        ResidentialAddrType,
+        addressJourneyData,
+        buildPersonDetails,
+        address
+      )(hc, buildUserRequest(request = fakeRequest))
+
+      status(result) mustBe BAD_REQUEST
+      contentAsString(result) must include("Moving to Scotland can affect how your tax is calculated")
+    }
+
     "return an error" in {
       when(mockCitizenDetailsService.updateAddress(any(), any(), any(), any())(any(), any(), any()))
         .thenReturn(
@@ -316,6 +379,8 @@ class AddressSubmissionControllerHelperSpec extends BaseSpec {
             )
           )
         )
+      when(mockAddressCountryService.deriveCountryForPostcode(any())(any()))
+        .thenReturn(Future.successful(Some("GB-ENG")), Future.successful(Some("GB-ENG")))
       when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(
         Future.successful(AuditResult.Success)
       )

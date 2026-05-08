@@ -18,7 +18,6 @@ package controllers
 
 import cats.data.EitherT
 import config.ConfigDecorator
-import connectors.FandFConnector
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
@@ -41,7 +40,7 @@ import repositories.JourneyCacheRepository
 import services.*
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.fakes.{FakeAuthJourney, FakePaperlessInterruptHelper, FakeRlsInterruptHelper}
-import testUtils.{BaseSpec, CitizenDetailsFixtures, Fixtures, WireMockHelper}
+import testUtils.{BaseSpec, CitizenDetailsFixtures, WireMockHelper}
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.{HeaderNames, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
@@ -52,6 +51,7 @@ import util.AlertBannerHelper
 import scala.concurrent.Future
 
 class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetailsFixtures {
+
   val fakeAuthJourney              = new FakeAuthJourney
   val fakeRlsInterruptHelper       = new FakeRlsInterruptHelper
   val fakePaperlessInterruptHelper = new FakePaperlessInterruptHelper
@@ -61,25 +61,28 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
   val mockHomeOptionsGenerator: HomeOptionsGenerator         = mock[HomeOptionsGenerator]
   val mockAlertBannerHelper: AlertBannerHelper               = mock[AlertBannerHelper]
   val mockTaiService: TaiService                             = mock[TaiService]
-  val mockFandfConnector: FandFConnector                     = mock[FandFConnector]
   val mockHomePageServicesProvider: HomePageServicesProvider = mock[HomePageServicesProvider]
   val mockTasksService: TasksService                         = mock[TasksService]
   val mockConfigDecorator: ConfigDecorator                   = mock[ConfigDecorator]
+  val mockCitizenDetailsService: CitizenDetailsService       = mock[CitizenDetailsService]
 
-  lazy val appBuilder: GuiceApplicationBuilder = localGuiceApplicationBuilder()
-    .overrides(
-      bind[AuthJourney].toInstance(fakeAuthJourney),
-      bind[RlsInterruptHelper].toInstance(fakeRlsInterruptHelper),
-      bind[PaperlessInterruptHelper].toInstance(fakePaperlessInterruptHelper),
-      bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
-      bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
-      bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
-      bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
-      bind[TaiService].toInstance(mockTaiService),
-      bind[FandFConnector].toInstance(mockFandfConnector),
-      bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
-      bind[TasksService].toInstance(mockTasksService)
-    )
+  lazy val appBuilder: GuiceApplicationBuilder =
+    localGuiceApplicationBuilder()
+      .overrides(
+        bind[AuthJourney].toInstance(fakeAuthJourney),
+        bind[RlsInterruptHelper].toInstance(fakeRlsInterruptHelper),
+        bind[PaperlessInterruptHelper].toInstance(fakePaperlessInterruptHelper),
+        bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
+        bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
+        bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
+        bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
+        bind[TaiService].toInstance(mockTaiService),
+        bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
+        bind[TasksService].toInstance(mockTasksService),
+        bind[ConfigDecorator].toInstance(mockConfigDecorator),
+        bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
+        bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
+      )
 
   private val taxComponents = List("EmployerProvidedServices", "PersonalPensionPayments")
 
@@ -87,15 +90,17 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
   override def beforeEach(): Unit = {
     super.beforeEach()
+
     reset(mockTaiService)
     reset(mockBreathingSpaceService)
-    reset(mockHomeCardGenerator)
     reset(mockHomeOptionsGenerator)
+    reset(mockHomeCardGenerator)
     reset(mockAlertBannerHelper)
     reset(mockFeatureFlagService)
     reset(mockHomePageServicesProvider)
-    reset(mockFandfConnector)
+    reset(mockTasksService)
     reset(mockConfigDecorator)
+    reset(mockCitizenDetailsService)
 
     when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any()))
       .thenReturn(Future.successful(WithinPeriod))
@@ -106,20 +111,20 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     when(mockHomeCardGenerator.getATSCard()(any(), any()))
       .thenReturn(Future.successful(Seq.empty))
 
+    when(mockHomeOptionsGenerator.getLatestNewsAndUpdatesCard()(any[Messages], any[UserRequest[AnyContent]]))
+      .thenReturn(None)
+
+    when(mockAlertBannerHelper.getContent(any(), any())(any(), any(), any()))
+      .thenReturn(Future.successful(None))
+
     when(mockHomeCardGenerator.getBenefitCards(any(), any())(any()))
       .thenReturn(List.empty)
 
     when(mockHomeCardGenerator.getTrustedHelpersCard()(any()))
       .thenReturn(Html("<div class='trusted-helpers-card'></div>"))
 
-    when(mockHomeOptionsGenerator.getLatestNewsAndUpdatesCard()(any[Messages], any[UserRequest[AnyContent]]))
-      .thenReturn(None)
-
     when(mockTasksService.getListOfTasks(any(), any()))
       .thenReturn(Future.successful(Seq.empty))
-
-    when(mockAlertBannerHelper.getContent(any(), any(), any()))
-      .thenReturn(Future.successful(List.empty))
 
     when(mockTaiService.getTaxComponentsList(any(), any())(any(), any()))
       .thenReturn(Future.successful(taxComponents))
@@ -133,14 +138,17 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
       .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = false)))
 
-    when(mockFandfConnector.showFandfBanner(any())(any(), any()))
-      .thenReturn(Future.successful(false))
+    when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList)
+      .thenReturn(Seq.empty)
+
+    when(mockConfigDecorator.getFeedbackSurveyUrl(any()))
+      .thenReturn("/personal-account/signed-out")
 
     when(mockHomePageServicesProvider.getHomePageServices(any(), any(), any()))
       .thenReturn(Future.successful(HomePageServices(Seq.empty)))
 
-    when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList)
-      .thenReturn(Seq.empty)
+    when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
+      .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](None))
   }
 
   def currentRequest[A]: Request[A] =
@@ -148,50 +156,55 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
       .asInstanceOf[Request[A]]
 
-  "Calling HomeController.index with feature toggle on" must {
+  private def appWithAuthJourney(authJourney: AuthJourney): Application =
+    localGuiceApplicationBuilder()
+      .overrides(
+        bind[AuthJourney].toInstance(authJourney),
+        bind[RlsInterruptHelper].toInstance(fakeRlsInterruptHelper),
+        bind[PaperlessInterruptHelper].toInstance(fakePaperlessInterruptHelper),
+        bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
+        bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
+        bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
+        bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
+        bind[TaiService].toInstance(mockTaiService),
+        bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
+        bind[TasksService].toInstance(mockTasksService),
+        bind[ConfigDecorator].toInstance(mockConfigDecorator),
+        bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
+        bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
+      )
+      .build()
+
+  "Calling HomeController.index with feature toggle off" must {
+
     "Return a Html that is returned as part of Benefit Cards incl tax components" in {
       val expectedHtmlString = "<div class='TestingForBenefitCards'></div>"
-      val expectedHtml: Html = Html(expectedHtmlString)
-      when(mockHomeCardGenerator.getBenefitCards(ArgumentMatchers.eq(taxComponents), any())(any())).thenReturn(
-        List(expectedHtml)
-      )
+      val expectedHtml       = Html(expectedHtmlString)
 
-      val appLocal: Application = appBuilder.build()
+      when(mockHomeCardGenerator.getBenefitCards(ArgumentMatchers.eq(taxComponents), any())(any()))
+        .thenReturn(List(expectedHtml))
 
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(currentRequest)
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(currentRequest)
+
       status(result) mustBe OK
-      assert(contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
+      contentAsString(result).replaceAll("\\s", "") must include(expectedHtmlString.replaceAll("\\s", ""))
     }
 
     "Return a Breathing space if that is returned within period" in {
       val expectedHtmlString =
         "<a class=\"govuk-link govuk-link--no-visited-state\" href=\"/personal-account/breathing-space\">"
-      when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any())).thenReturn(
-        Future.successful(BreathingSpaceIndicatorResponse.WithinPeriod)
-      )
 
-      val appLocal: Application = appBuilder.build()
+      when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any()))
+        .thenReturn(Future.successful(BreathingSpaceIndicatorResponse.WithinPeriod))
 
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(currentRequest)
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(currentRequest)
+
       status(result) mustBe OK
-      assert(contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
-    }
-
-    "Does not return a Breathing space if that is returned within period" in {
-      val expectedHtmlString =
-        "<a class=\"govuk-link govuk-link--no-visited-state\" href=\"/personal-account/breathing-space\">"
-      when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any())).thenReturn(
-        Future.successful(BreathingSpaceIndicatorResponse.OutOfPeriod)
-      )
-
-      val appLocal: Application = appBuilder.build()
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(currentRequest)
-      status(result) mustBe OK
-      assert(!contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
+      contentAsString(result).replaceAll("\\s", "") must include(expectedHtmlString.replaceAll("\\s", ""))
     }
 
     List(
@@ -202,552 +215,54 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       s"Does not return a Breathing space if that is returned $breathingSpaceResponse" in {
         val expectedHtmlString =
           "<a class=\"govuk-link govuk-link--no-visited-state\" href=\"/personal-account/breathing-space\">"
-        when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any())).thenReturn(
-          Future.successful(breathingSpaceResponse)
-        )
 
-        val appLocal: Application = appBuilder.build()
+        when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any()))
+          .thenReturn(Future.successful(breathingSpaceResponse))
 
-        val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-        val result: Future[Result]     = controller.index()(currentRequest)
+        val appLocal   = appBuilder.build()
+        val controller = appLocal.injector.instanceOf[HomeController]
+        val result     = controller.index()(currentRequest)
+
         status(result) mustBe OK
-        assert(!contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
+        contentAsString(result).replaceAll("\\s", "") must not include expectedHtmlString.replaceAll("\\s", "")
       }
-    }
-
-    "Shuttering is displayed if toggled on" in {
-      val expectedHtmlString =
-        "A number of services will be unavailable from"
-
-      when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
-        .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = true)))
-
-      val appLocal: Application = appBuilder.build()
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(currentRequest)
-      status(result) mustBe OK
-      assert(contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
-    }
-
-    "Shuttering is not displayed if toggled off" in {
-      val expectedHtmlString =
-        "A number of services will be unavailable from"
-
-      when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
-        .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = false)))
-
-      val appLocal: Application = appBuilder.build()
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(currentRequest)
-      status(result) mustBe OK
-      assert(!contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
     }
 
     "Alert Banner content is displayed as returned from the alertBannerContent" in {
       val expectedHtmlString = "<div class='alertBannerContent'></div>"
-      val expectedHtml: Html = Html(expectedHtmlString)
+      val expectedHtml       = Html(expectedHtmlString)
 
-      when(mockAlertBannerHelper.getContent(any(), any(), any()))
-        .thenReturn(Future.successful(List(expectedHtml)))
+      when(mockAlertBannerHelper.getContent(any(), any())(any(), any(), any()))
+        .thenReturn(Future.successful(Some(expectedHtml)))
 
-      val appLocal: Application = appBuilder.build()
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(currentRequest)
 
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(currentRequest)
       status(result) mustBe OK
-      assert(contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
+      contentAsString(result).replaceAll("\\s", "") must include(expectedHtmlString.replaceAll("\\s", ""))
     }
 
     "Trusted helpers card is displayed" in {
       val expectedHtmlString = "<div class='trusted-helpers-card'></div>"
+
       when(mockHomeCardGenerator.getTrustedHelpersCard()(any()))
         .thenReturn(Html(expectedHtmlString))
 
-      val appLocal: Application = appBuilder.build()
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(currentRequest)
 
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(currentRequest)
       status(result) mustBe OK
-      assert(contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
+      contentAsString(result).replaceAll("\\s", "") must include(expectedHtmlString.replaceAll("\\s", ""))
     }
 
     "Trusted helpers card is hidden when acting as a trusted helper" in {
       val th = TrustedHelper("principalName", "attorneyName", "returnUrl", Some(generatedTrustedHelperNino.nino))
 
-      val appLocal: Application =
-        localGuiceApplicationBuilder()
-          .overrides(
-            bind[AuthJourney].toInstance(new AuthJourney {
-              override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
-                new testUtils.ActionBuilderFixture {
-                  override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result])
-                    : Future[Result] =
-                    block(
-                      buildUserRequest(
-                        request = request,
-                        trustedHelper = Some(th)
-                      )
-                    )
-                }
-            }),
-            bind[RlsInterruptHelper].toInstance(fakeRlsInterruptHelper),
-            bind[PaperlessInterruptHelper].toInstance(fakePaperlessInterruptHelper),
-            bind[TaiService].toInstance(mockTaiService),
-            bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
-            bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
-            bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
-            bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
-            bind[FandFConnector].toInstance(mockFandfConnector),
-            bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
-            bind[TasksService].toInstance(mockTasksService)
-          )
-          .build()
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-
-      val result = controller.index()(FakeRequest())
-      status(result) mustBe OK
-
-      val html = contentAsString(result).replaceAll("\\s", "")
-      html must not include "<divclass='trusted-helpers-card'></div>"
-
-      verify(mockHomeCardGenerator, times(0)).getTrustedHelpersCard()(any())
-    }
-  }
-
-  "Calling HomeController.index with layout toggle on" must {
-
-    "Return the new home page design when NINO last numeric digit is in onboarding list" in {
-      val path             = "/personal-account"
-      val newDesignRequest = FakeRequest("GET", path)
-        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
-        .asInstanceOf[Request[AnyContent]]
-
-      val generatedNino: Nino = new Generator().nextNino
-      val onboardingNiNoList  = Seq(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
-
-      val appLocal: Application =
-        localGuiceApplicationBuilder()
-          .overrides(
-            bind[AuthJourney].toInstance(new AuthJourney {
-              override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
-                new testUtils.ActionBuilderFixture {
-                  override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result])
-                    : Future[Result] =
-                    block(
-                      buildUserRequest(
-                        request = request,
-                        authNino = generatedNino,
-                        trustedHelper = None
-                      )
-                    )
-                }
-            }),
-            bind[RlsInterruptHelper].toInstance(fakeRlsInterruptHelper),
-            bind[PaperlessInterruptHelper].toInstance(fakePaperlessInterruptHelper),
-            bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
-            bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
-            bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
-            bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
-            bind[TaiService].toInstance(mockTaiService),
-            bind[FandFConnector].toInstance(mockFandfConnector),
-            bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
-            bind[TasksService].toInstance(mockTasksService),
-            bind[ConfigDecorator].toInstance(mockConfigDecorator),
-            bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
-          )
-          .build()
-
-      // Mock the feature flag to be enabled
-      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
-
-      when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList).thenReturn(onboardingNiNoList)
-
-      when(mockConfigDecorator.getFeedbackSurveyUrl(any())).thenReturn("/personal-account/signed-out")
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(newDesignRequest)
-      status(result) mustBe OK
-
-      val htmlContent = contentAsString(result)
-      htmlContent must include("""id="taxes-and-benefits-heading""")
-
-      val content                 = Jsoup.parse(htmlContent)
-      val taxesAndBenefitsElement = content.getElementById("taxes-and-benefits-heading")
-      assert(taxesAndBenefitsElement != null)
-    }
-
-    "Return the new home page design when NINO last numeric digit is not in onboarding list and newDesign is true" in {
-      val path             = "/personal-account?newDesign=true"
-      val newDesignRequest = FakeRequest("GET", path)
-        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
-        .asInstanceOf[Request[AnyContent]]
-
-      val generatedNino: Nino = new Generator().nextNino
-
-      val appLocal: Application =
-        localGuiceApplicationBuilder()
-          .overrides(
-            bind[AuthJourney].toInstance(new AuthJourney {
-              override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
-                new testUtils.ActionBuilderFixture {
-                  override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result])
-                    : Future[Result] =
-                    block(
-                      buildUserRequest(
-                        request = request,
-                        authNino = generatedNino,
-                        trustedHelper = None
-                      )
-                    )
-                }
-            }),
-            bind[RlsInterruptHelper].toInstance(fakeRlsInterruptHelper),
-            bind[PaperlessInterruptHelper].toInstance(fakePaperlessInterruptHelper),
-            bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
-            bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
-            bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
-            bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
-            bind[TaiService].toInstance(mockTaiService),
-            bind[FandFConnector].toInstance(mockFandfConnector),
-            bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
-            bind[TasksService].toInstance(mockTasksService),
-            bind[ConfigDecorator].toInstance(mockConfigDecorator),
-            bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
-          )
-          .build()
-
-      // Mock the feature flag to be enabled
-      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
-
-      when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList).thenReturn(Seq(11))
-
-      when(mockConfigDecorator.getFeedbackSurveyUrl(any())).thenReturn("/personal-account/signed-out")
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(newDesignRequest)
-      status(result) mustBe OK
-
-      val htmlContent = contentAsString(result)
-      htmlContent must include("""id="taxes-and-benefits-heading""")
-
-      val content                 = Jsoup.parse(htmlContent)
-      val taxesAndBenefitsElement = content.getElementById("taxes-and-benefits-heading")
-      assert(taxesAndBenefitsElement != null)
-    }
-
-    "Return the old home page design when NINO last numeric digit is not in onboarding list" in {
-      val path             = "/personal-account"
-      val newDesignRequest = FakeRequest("GET", path)
-        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
-        .asInstanceOf[Request[AnyContent]]
-
-      val generatedNino: Nino = new Generator().nextNino
-
-      val appLocal: Application =
-        localGuiceApplicationBuilder()
-          .overrides(
-            bind[AuthJourney].toInstance(new AuthJourney {
-              override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
-                new testUtils.ActionBuilderFixture {
-                  override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result])
-                    : Future[Result] =
-                    block(
-                      buildUserRequest(
-                        request = request,
-                        authNino = generatedNino,
-                        trustedHelper = None
-                      )
-                    )
-                }
-            }),
-            bind[RlsInterruptHelper].toInstance(fakeRlsInterruptHelper),
-            bind[PaperlessInterruptHelper].toInstance(fakePaperlessInterruptHelper),
-            bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
-            bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
-            bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
-            bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
-            bind[TaiService].toInstance(mockTaiService),
-            bind[FandFConnector].toInstance(mockFandfConnector),
-            bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
-            bind[TasksService].toInstance(mockTasksService),
-            bind[ConfigDecorator].toInstance(mockConfigDecorator),
-            bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
-          )
-          .build()
-
-      // Mock the feature flag to be enabled
-      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
-
-      when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList).thenReturn(Seq(11))
-
-      when(mockConfigDecorator.getFeedbackSurveyUrl(any())).thenReturn("/personal-account/signed-out")
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(newDesignRequest)
-      status(result) mustBe OK
-
-      val content                 = Jsoup.parse(contentAsString(result))
-      val taxesAndBenefitsElement = content.getElementById("taxes-and-benefits-heading")
-      assert(taxesAndBenefitsElement == null)
-    }
-
-    "Return the old home page design when NINO last numeric digit is in onboarding list and newDesign is false" in {
-      val path             = "/personal-account?newDesign=false"
-      val newDesignRequest = FakeRequest("GET", path)
-        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
-        .asInstanceOf[Request[AnyContent]]
-
-      val generatedNino: Nino = new Generator().nextNino
-      val onboardingNiNoList  = Seq(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
-
-      val appLocal: Application =
-        localGuiceApplicationBuilder()
-          .overrides(
-            bind[AuthJourney].toInstance(new AuthJourney {
-              override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
-                new testUtils.ActionBuilderFixture {
-                  override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result])
-                    : Future[Result] =
-                    block(
-                      buildUserRequest(
-                        request = request,
-                        authNino = generatedNino,
-                        trustedHelper = None
-                      )
-                    )
-                }
-            }),
-            bind[RlsInterruptHelper].toInstance(fakeRlsInterruptHelper),
-            bind[PaperlessInterruptHelper].toInstance(fakePaperlessInterruptHelper),
-            bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
-            bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
-            bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
-            bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
-            bind[TaiService].toInstance(mockTaiService),
-            bind[FandFConnector].toInstance(mockFandfConnector),
-            bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
-            bind[TasksService].toInstance(mockTasksService),
-            bind[ConfigDecorator].toInstance(mockConfigDecorator),
-            bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
-          )
-          .build()
-
-      // Mock the feature flag to be enabled
-      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
-
-      when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList).thenReturn(onboardingNiNoList)
-
-      when(mockConfigDecorator.getFeedbackSurveyUrl(any())).thenReturn("/personal-account/signed-out")
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(newDesignRequest)
-      status(result) mustBe OK
-
-      val content                 = Jsoup.parse(contentAsString(result))
-      val taxesAndBenefitsElement = content.getElementById("taxes-and-benefits-heading")
-      assert(taxesAndBenefitsElement == null)
-    }
-
-    "Return the new home page design when newDesign parameter is true " in {
-      val path             = "/personal-account?newDesign=true"
-      val newDesignRequest = FakeRequest("GET", path)
-        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
-        .asInstanceOf[Request[AnyContent]]
-
-      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
-
-      val appLocal: Application = appBuilder.build()
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(newDesignRequest)
-      status(result) mustBe OK
-
-      val htmlContent = contentAsString(result)
-      htmlContent must include("""id="taxes-and-benefits-heading""")
-
-      val content                 = Jsoup.parse(htmlContent)
-      val taxesAndBenefitsElement = content.getElementById("taxes-and-benefits-heading")
-      assert(taxesAndBenefitsElement != null)
-    }
-
-    "Return the old home page design when newDesign parameter is false " in {
-      val path             = "/personal-account?newDesign=false"
-      val newDesignRequest = FakeRequest("GET", path)
-        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
-        .asInstanceOf[Request[AnyContent]]
-
-      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
-
-      val appLocal: Application = appBuilder.build()
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(newDesignRequest)
-      status(result) mustBe OK
-
-      val content                 = Jsoup.parse(contentAsString(result))
-      val taxesAndBenefitsElement = content.getElementById("taxes-and-benefits-heading")
-      assert(taxesAndBenefitsElement == null)
-    }
-
-    "Return the old home page design when HomePageNewLayoutToggle is false " in {
-      val path             = "/personal-account?newDesign=true"
-      val newDesignRequest = FakeRequest("GET", path)
-        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
-        .asInstanceOf[Request[AnyContent]]
-
-      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = false)))
-
-      val appLocal: Application = appBuilder.build()
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(newDesignRequest)
-      status(result) mustBe OK
-      val content                    = Jsoup.parse(contentAsString(result))
-      val taxesAndBenefitsElement    = content.getElementById("taxes-and-benefits-heading")
-      assert(taxesAndBenefitsElement == null)
-    }
-
-    "Return a Breathing space if that is returned within period" in {
-      val expectedHtmlString =
-        "<a class=\"govuk-link govuk-link--no-visited-state\" href=\"/personal-account/breathing-space\">"
-      when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any())).thenReturn(
-        Future.successful(BreathingSpaceIndicatorResponse.WithinPeriod)
-      )
-      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
-
-      val appLocal: Application = appBuilder.build()
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(currentRequest)
-      status(result) mustBe OK
-      assert(contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
-    }
-
-    "Does not return a Breathing space if that is returned within period" in {
-      val expectedHtmlString =
-        "<a class=\"govuk-link govuk-link--no-visited-state\" href=\"/personal-account/breathing-space\">"
-      when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any())).thenReturn(
-        Future.successful(BreathingSpaceIndicatorResponse.OutOfPeriod)
-      )
-
-      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
-
-      val appLocal: Application = appBuilder.build()
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(currentRequest)
-      status(result) mustBe OK
-      assert(!contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
-    }
-
-    List(
-      BreathingSpaceIndicatorResponse.OutOfPeriod,
-      BreathingSpaceIndicatorResponse.NotFound,
-      BreathingSpaceIndicatorResponse.StatusUnknown
-    ).foreach { breathingSpaceResponse =>
-      s"Does not return a Breathing space if that is returned $breathingSpaceResponse" in {
-        val expectedHtmlString =
-          "<a class=\"govuk-link govuk-link--no-visited-state\" href=\"/personal-account/breathing-space\">"
-        when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any())).thenReturn(
-          Future.successful(breathingSpaceResponse)
-        )
-        when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
-          .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
-
-        val appLocal: Application = appBuilder.build()
-
-        val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-        val result: Future[Result]     = controller.index()(currentRequest)
-        status(result) mustBe OK
-        assert(!contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
-      }
-    }
-
-    "Shuttering is displayed if toggled on" in {
-      val expectedHtmlString =
-        "A number of services will be unavailable from"
-
-      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
-
-      when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
-        .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = true)))
-
-      val appLocal: Application = appBuilder.build()
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(currentRequest)
-      status(result) mustBe OK
-      assert(contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
-    }
-
-    "Shuttering is not displayed if toggled off" in {
-      val expectedHtmlString =
-        "A number of services will be unavailable from"
-
-      when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
-        .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = false)))
-
-      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
-
-      val appLocal: Application = appBuilder.build()
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(currentRequest)
-      status(result) mustBe OK
-      assert(!contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
-    }
-
-    "Alert Banner content is displayed as returned from the alertBannerContent" in {
-      val expectedHtmlString = "<div class='alertBannerContent'></div>"
-      val expectedHtml: Html = Html(expectedHtmlString)
-
-      when(mockAlertBannerHelper.getContent(any(), any(), any()))
-        .thenReturn(Future.successful(List(expectedHtml)))
-
-      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
-
-      val appLocal: Application = appBuilder.build()
-
-      val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-      val result: Future[Result]     = controller.index()(currentRequest)
-      status(result) mustBe OK
-      assert(contentAsString(result).replaceAll("\\s", "").contains(expectedHtmlString.replaceAll("\\s", "")))
-    }
-  }
-
-  "Alert Banner content is not displayed if empty" in {
-    when(mockAlertBannerHelper.getContent(any(), any(), any()))
-      .thenReturn(Future.successful(List.empty))
-
-    val appLocal: Application      = appBuilder.build()
-    val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-    val result: Future[Result]     = controller.index()(currentRequest)
-    status(result) mustBe OK
-    assert(!contentAsString(result).contains("alertBannerContent"))
-  }
-
-  "Fandf Banner content is displayed if connector returns true" in {
-    val th = TrustedHelper("principalName", "attorneyName", "returnUrl", Some(generatedTrustedHelperNino.nino))
-
-    val appLocal: Application =
-      localGuiceApplicationBuilder()
-        .overrides(
-          bind[AuthJourney].toInstance(new AuthJourney {
+      val appLocal =
+        appWithAuthJourney(
+          new AuthJourney {
             override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
               new testUtils.ActionBuilderFixture {
                 override def invokeBlock[A](
@@ -761,39 +276,33 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
                     )
                   )
               }
-          }),
-          bind[RlsInterruptHelper].toInstance(fakeRlsInterruptHelper),
-          bind[PaperlessInterruptHelper].toInstance(fakePaperlessInterruptHelper),
-          bind[TaiService].toInstance(mockTaiService),
-          bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
-          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
-          bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
-          bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
-          bind[FandFConnector].toInstance(mockFandfConnector),
-          bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
-          bind[TasksService].toInstance(mockTasksService)
+          }
         )
-        .build()
 
-    when(mockFandfConnector.showFandfBanner(ArgumentMatchers.eq(Fixtures.fakeNino))(any(), any()))
-      .thenReturn(Future.successful(true))
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(FakeRequest())
 
-    val controller: HomeController = appLocal.injector.instanceOf[HomeController]
-    val result: Future[Result]     = controller.index()(currentRequest)
-    status(result) mustBe OK
-    //    assert(contentAsString(result).contains("Your trusted helper relationship ends at midnight"))
-    verify(mockFandfConnector, times(1)).showFandfBanner(ArgumentMatchers.eq(Fixtures.fakeNino))(any(), any())
-    verify(mockFandfConnector, times(0)).showFandfBanner(ArgumentMatchers.eq(generatedTrustedHelperNino))(any(), any())
+      status(result) mustBe OK
 
+      val html = contentAsString(result).replaceAll("\\s", "")
+      html must not include "<divclass='trusted-helpers-card'></div>"
+
+      verify(mockHomeCardGenerator, times(0)).getTrustedHelpersCard()(any())
+    }
   }
 
-  "Address error banner appears when address features ADDRESS - NOT KNOWN" must {
-    val mockCitizenDetailsService = mock[CitizenDetailsService]
+  "Calling HomeController.index with layout toggle on" must {
 
-    val appLocal: Application =
-      localGuiceApplicationBuilder()
-        .overrides(
-          bind[AuthJourney].toInstance(new AuthJourney {
+    "Return the new home page design when NINO last numeric digit is in onboarding list" in {
+      val request = FakeRequest("GET", "/personal-account")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      val generatedNino: Nino = new Generator().nextNino
+
+      val appLocal =
+        appWithAuthJourney(
+          new AuthJourney {
             override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
               new testUtils.ActionBuilderFixture {
                 override def invokeBlock[A](
@@ -803,56 +312,279 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
                   block(
                     buildUserRequest(
                       request = request,
+                      authNino = generatedNino,
                       trustedHelper = None
                     )
                   )
               }
-          }),
-          bind[RlsInterruptHelper].toInstance(fakeRlsInterruptHelper),
-          bind[PaperlessInterruptHelper].toInstance(fakePaperlessInterruptHelper),
-          bind[TaiService].toInstance(mockTaiService),
-          bind[BreathingSpaceService].toInstance(mockBreathingSpaceService),
-          bind[HomeCardGenerator].toInstance(mockHomeCardGenerator),
-          bind[HomeOptionsGenerator].toInstance(mockHomeOptionsGenerator),
-          bind[AlertBannerHelper].toInstance(mockAlertBannerHelper),
-          bind[FandFConnector].toInstance(mockFandfConnector),
-          bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
-          bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
-          bind[TasksService].toInstance(mockTasksService)
+          }
         )
-        .build()
-    "when issue is main address " in {
-      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
-        .thenReturn(
-          EitherT.rightT[Future, UpstreamErrorResponse](
-            Some(
-              buildPersonDetailsWithPersonalAndCorrespondenceAddress.copy(address =
-                Some(buildFakeAddress.copy(country = Some("ABROAD - NOT KNOWN")))
-              )
-            )
-          )
-        )
+
+      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
+
+      when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList)
+        .thenReturn(Seq(0, 1, 2, 3, 4, 5, 6, 7, 8, 9))
+
       val controller = appLocal.injector.instanceOf[HomeController]
-      val result     = controller.index()(currentRequest)
+      val result     = controller.index()(request)
+
       status(result) mustBe OK
-      contentAsString(result) must include("There was a problem updating your postcode")
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.getElementById("taxes-and-benefits-heading") must not be null
     }
 
-    "when issue is postal address " in {
-      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
-        .thenReturn(
-          EitherT.rightT[Future, UpstreamErrorResponse](
-            Some(
-              buildPersonDetailsWithPersonalAndCorrespondenceAddress.copy(correspondenceAddress =
-                Some(buildFakeAddress.copy(country = Some("ABROAD - NOT KNOWN")))
-              )
-            )
-          )
+    "Return the new home page design when NINO last numeric digit is not in onboarding list and newDesign is true" in {
+      val request = FakeRequest("GET", "/personal-account?newDesign=true")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      val generatedNino: Nino = new Generator().nextNino
+
+      val appLocal =
+        appWithAuthJourney(
+          new AuthJourney {
+            override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
+              new testUtils.ActionBuilderFixture {
+                override def invokeBlock[A](
+                  request: Request[A],
+                  block: UserRequest[A] => Future[Result]
+                ): Future[Result] =
+                  block(
+                    buildUserRequest(
+                      request = request,
+                      authNino = generatedNino,
+                      trustedHelper = None
+                    )
+                  )
+              }
+          }
         )
+
+      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
+
+      when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList)
+        .thenReturn(Seq(11))
+
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(request)
+
+      status(result) mustBe OK
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.getElementById("taxes-and-benefits-heading") must not be null
+    }
+
+    "Return the old home page design when NINO last numeric digit is not in onboarding list" in {
+      val request = FakeRequest("GET", "/personal-account")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      val generatedNino: Nino = new Generator().nextNino
+
+      val appLocal =
+        appWithAuthJourney(
+          new AuthJourney {
+            override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
+              new testUtils.ActionBuilderFixture {
+                override def invokeBlock[A](
+                  request: Request[A],
+                  block: UserRequest[A] => Future[Result]
+                ): Future[Result] =
+                  block(
+                    buildUserRequest(
+                      request = request,
+                      authNino = generatedNino,
+                      trustedHelper = None
+                    )
+                  )
+              }
+          }
+        )
+
+      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
+
+      when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList)
+        .thenReturn(Seq(11))
+
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(request)
+
+      status(result) mustBe OK
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.getElementById("taxes-and-benefits-heading") mustBe null
+    }
+
+    "Return the old home page design when NINO last numeric digit is in onboarding list and newDesign is false" in {
+      val request = FakeRequest("GET", "/personal-account?newDesign=false")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      val generatedNino: Nino = new Generator().nextNino
+
+      val appLocal =
+        appWithAuthJourney(
+          new AuthJourney {
+            override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
+              new testUtils.ActionBuilderFixture {
+                override def invokeBlock[A](
+                  request: Request[A],
+                  block: UserRequest[A] => Future[Result]
+                ): Future[Result] =
+                  block(
+                    buildUserRequest(
+                      request = request,
+                      authNino = generatedNino,
+                      trustedHelper = None
+                    )
+                  )
+              }
+          }
+        )
+
+      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
+
+      when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList)
+        .thenReturn(Seq(0, 1, 2, 3, 4, 5, 6, 7, 8, 9))
+
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(request)
+
+      status(result) mustBe OK
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.getElementById("taxes-and-benefits-heading") mustBe null
+    }
+
+    "Return the new home page design when newDesign parameter is true" in {
+      val request = FakeRequest("GET", "/personal-account?newDesign=true")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(request)
+
+      status(result) mustBe OK
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.getElementById("taxes-and-benefits-heading") must not be null
+    }
+
+    "Return the old home page design when newDesign parameter is false" in {
+      val request = FakeRequest("GET", "/personal-account?newDesign=false")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(request)
+
+      status(result) mustBe OK
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.getElementById("taxes-and-benefits-heading") mustBe null
+    }
+
+    "Return the old home page design when HomePageNewLayoutToggle is false" in {
+      val request = FakeRequest("GET", "/personal-account?newDesign=true")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = false)))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(request)
+
+      status(result) mustBe OK
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.getElementById("taxes-and-benefits-heading") mustBe null
+    }
+
+    "Return a Breathing space if that is returned within period" in {
+      val expectedHtmlString =
+        "<a class=\"govuk-link govuk-link--no-visited-state\" href=\"/personal-account/breathing-space\">"
+
+      when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any()))
+        .thenReturn(Future.successful(BreathingSpaceIndicatorResponse.WithinPeriod))
+
+      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
+
+      val appLocal   = appBuilder.build()
       val controller = appLocal.injector.instanceOf[HomeController]
       val result     = controller.index()(currentRequest)
+
       status(result) mustBe OK
-      contentAsString(result) must include("There was a problem updating your postcode")
+      contentAsString(result).replaceAll("\\s", "") must include(expectedHtmlString.replaceAll("\\s", ""))
     }
+
+    List(
+      BreathingSpaceIndicatorResponse.OutOfPeriod,
+      BreathingSpaceIndicatorResponse.NotFound,
+      BreathingSpaceIndicatorResponse.StatusUnknown
+    ).foreach { breathingSpaceResponse =>
+      s"Does not return a Breathing space if that is returned $breathingSpaceResponse" in {
+        val expectedHtmlString =
+          "<a class=\"govuk-link govuk-link--no-visited-state\" href=\"/personal-account/breathing-space\">"
+
+        when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any()))
+          .thenReturn(Future.successful(breathingSpaceResponse))
+
+        when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+          .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
+
+        val appLocal   = appBuilder.build()
+        val controller = appLocal.injector.instanceOf[HomeController]
+        val result     = controller.index()(currentRequest)
+
+        status(result) mustBe OK
+        contentAsString(result).replaceAll("\\s", "") must not include expectedHtmlString.replaceAll("\\s", "")
+      }
+    }
+
+    "Alert Banner content is displayed as returned from the alertBannerContent" in {
+      val expectedHtmlString = "<div class='alertBannerContent'></div>"
+      val expectedHtml       = Html(expectedHtmlString)
+
+      when(mockAlertBannerHelper.getContent(any(), any())(any(), any(), any()))
+        .thenReturn(Future.successful(Some(expectedHtml)))
+
+      when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = true)))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(currentRequest)
+
+      status(result) mustBe OK
+      contentAsString(result).replaceAll("\\s", "") must include(expectedHtmlString.replaceAll("\\s", ""))
+    }
+  }
+
+  "Alert Banner content is not displayed if empty" in {
+    when(mockAlertBannerHelper.getContent(any(), any())(any(), any(), any()))
+      .thenReturn(Future.successful(None))
+
+    val appLocal   = appBuilder.build()
+    val controller = appLocal.injector.instanceOf[HomeController]
+    val result     = controller.index()(currentRequest)
+
+    status(result) mustBe OK
+    contentAsString(result) must not include "alertBannerContent"
   }
 }

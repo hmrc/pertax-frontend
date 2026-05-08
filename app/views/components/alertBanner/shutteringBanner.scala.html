@@ -1,5 +1,5 @@
 @*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,10 @@
 
 @import config.ConfigDecorator
 
-@this(
-    h2: H2,
-    link: Link,
-    p: P,
-    configDecorator: ConfigDecorator
-)
+@this(configDecorator: ConfigDecorator)
 
 @()(implicit messages: Messages)
-
-
-    @h2("p85.heading")
-    @p(HtmlContent(messages("p85.p1.before_link") + " " + link(configDecorator.p85Link, "p85.p1.link_text", inParagraph=true, attrTarget = true) + " " + messages("p85.p1.after_link")))
-
-    <ul class="govuk-list govuk-list--bullet">
-        <li>@messages("p85.bullet1")</li>
-        <li>@messages("p85.bullet2")</li>
-        <li>@messages("p85.bullet3")</li>
-    </ul>
+<p class="govuk-notification-banner__heading">
+ @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerParagraphCy }else {@configDecorator.shutterBannerParagraphEn}<br/>
+<a class="govuk-notification-banner__link" href="@controllers.interstitials.routes.InterstitialController.displayShutteringPage.url"> @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerLinkTextCy }else {@configDecorator.shutterBannerLinkTextEn}</a>.
+</p>

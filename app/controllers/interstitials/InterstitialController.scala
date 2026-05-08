@@ -111,16 +111,13 @@ class InterstitialController @Inject() (
       nispPartial <- nispPartialFuture
       maybeNino   <- ninoFuture
       bannerOpt   <- alertBannerFuture
-    } yield {
-      val bannerList = bannerOpt.toList
-      Ok(
-        viewNISPView(
-          formPartial = nispPartial.successfulContentOrEmpty,
-          nino = maybeNino,
-          alertBannerViewModel = AlertBannerViewModel(alertBannerContent = bannerList)
-        )
+    } yield Ok(
+      viewNISPView(
+        formPartial = nispPartial.successfulContentOrEmpty,
+        nino = maybeNino,
+        alertBannerViewModel = AlertBannerViewModel(alertBannerContent = bannerOpt)
       )
-    }
+    )
   }
 
   def displayChildBenefits: Action[AnyContent] = authenticate {

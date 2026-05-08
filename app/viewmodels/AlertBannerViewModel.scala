@@ -19,9 +19,9 @@ package viewmodels
 import play.twirl.api.Html
 
 final case class AlertBannerViewModel(
-  alertBannerContent: List[Html]
+  alertBannerContent: Option[Html]
 )
 
 object AlertBannerViewModel {
-  def apply(): AlertBannerViewModel = new AlertBannerViewModel(List.empty)
+  def apply(): AlertBannerViewModel = new AlertBannerViewModel(None)
 }

@@ -161,20 +161,22 @@ label.all_messages=All messages
 label.your_messages=Your Messages
 label.sorry_theres_been_a_technical_problem_retrieving_your_messages=Sorry, there has been a technical problem retrieving your messages
 label.sorry_theres_been_a_techinal_problem_retrieving_your_message=Sorry, there has been a technical problem retrieving your message
+
 label.the_date_you_entered_is_earlier_than_a_date_previously_held_=The date you entered is earlier than the one HMRC already has for you
-label.go_back_to_change_before_link=You can
-label.go_back_to_change_link_text=go back to change the date
-label.go_back_to_change_after_link=if you entered {0} by mistake.
-label.earlier_date_than_record_before_link=If the date you entered is correct,
-label.earlier_date_than_record_link_text=contact HMRC (opens in a new tab)
-label.earlier_date_than_record_after_link=to update your details
-label.future_date_than_record_h1=You cannot update your address until the date you move
-label.if_you_entered_proposedStartDate_by_mistake_text_before_link_1=If you entered
-label.if_you_entered_proposedStartDate_by_mistake_text_before_link_2=by mistake you can
-label.if_you_entered_proposedStartDate_by_mistake_link_text=go back to enter another date
-label.if_you_entered_the_correct_date_contact_HMRC_text_before_link=If the date you entered is correct,
-label.if_you_entered_the_correct_date_contact_HMRC_link_text=contact HMRC
+label.moving_to_scotland_affects=Moving to {0} can affect how your tax is calculated, so it''s important that the date you started living at the new address is correct.
+label.moving_from_scotland_affects=Moving from {0} can affect how your tax is calculated, so it''s important that the date you started living at the new address is correct.
+label.go_back_to_change_before_link_early=You can also
+label.go_back_to_change_link_text_early=go back
+label.go_back_to_change_after_link_early=and change the date.
+label.if_you_entered_the_correct_date_contact_HMRC_text_before_link=If {0} is correct,
+label.if_you_entered_the_correct_date_contact_HMRC_link_text=contact HMRC (opens in new tab)
 label.if_you_entered_the_correct_date_contact_HMRC_text_after_link=to update your details
+label.future_date_than_record_h1=You can only update your address once you have started living there
+label.go_back_to_change_before_link=If you entered {0} by mistake, you can
+label.go_back_to_change_link_text=go back
+label.go_back_to_change_after_link=and change the date.
+label.back_to_profile=Back to profile and settings
+
 label.you_cannot_use_this_service_to_update_your_address=You cannot use this service to update your address
 label.your_address_cannot_be_updated=Your address cannot be updated
 
@@ -756,11 +758,12 @@ alert_banner.peak_demand.message = Some services are busier than usual. You migh
 # P85
 #*************************************************************
 p85.heading=Leaving the UK
-p85.p1.before_link=You need to let HMRC know if you are leaving the UK.
-p85.p1.link_text=Complete a P85 form (opens in new tab)
+p85.p1.before_link=You will need to
+p85.p1.link_text=complete a P85 form (opens in new tab)
 p85.p1.after_link=to:
-p85.bullet1=tell HMRC you are leaving the UK
-p85.bullet2=get your Income Tax right, including claiming tax relief or a tax refund
+p85.bullet1=let HMRC know you are leaving the UK
+p85.bullet2=get your Income Tax right
+p85.bullet3=claim a tax relief or tax refund
 
 #*************************************************************
 # Self Assessment Who Needs to Register
@@ -856,6 +859,11 @@ label.task_paragraph=It can take up to 10 days for completed tasks to be removed
 
 fandf.banner.text=Your trusted helper relationship ends at midnight on {0}.
 fandf.banner.linkText=Find out how trusted helpers is changing
+
+old_home_page_banner.text=We’re making changes to your personal tax account homepage.
+old_home_page_banner.link_text=Read more about what’s changing
+new_home_page_banner.text=Your personal tax account homepage has been updated.
+new_home_page_banner.link_text=Find out what’s changed
 
 label.mtdit.claim.p1.prefix=You are signed up for
 label.mtdit.claim.p1.linkText=Making Tax Digital for Income Tax

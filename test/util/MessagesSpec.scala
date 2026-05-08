@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,8 @@ class MessagesSpec extends BaseSpec {
     "sca-wrapper.timeout.signOut",
     "sca-wrapper.timeout.title",
     "attorney.banner.link",
-    "attorney.banner.using.service.for"
+    "attorney.banner.using.service.for",
+    "attorney.banner.heading"
   )
 
   "Application" must {

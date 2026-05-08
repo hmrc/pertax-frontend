@@ -28,7 +28,7 @@ final case class NewHomeViewModel(
   showUserResearchBanner: Boolean,
   saUtr: Option[String],
   breathingSpaceIndicator: Boolean,
-  alertBannerContent: List[AlertBanner],
+  alertBannerContent: Option[AlertBanner],
   name: Option[String],
   myServices: Seq[MyService],
   otherServices: Seq[OtherService]

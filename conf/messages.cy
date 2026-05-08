@@ -145,20 +145,22 @@ label.all_messages=Pob neges
 label.your_messages=Eich Negeseuon
 label.sorry_theres_been_a_technical_problem_retrieving_your_messages=Mae’n ddrwg gennym. Mae problem dechnegol wedi codi wrth gael eich negeseuon
 label.sorry_theres_been_a_techinal_problem_retrieving_your_message=Mae’n ddrwg gennym. Mae problem dechnegol wedi codi wrth gael eich neges
-label.the_date_you_entered_is_earlier_than_a_date_previously_held_=Mae’r dyddiad a nodwyd gennych yn gynharach na dyddiad a gadwyd yn flaenorol ar gofnod eich cyfeiriad.
-label.go_back_to_change_before_link=Gallwch
-label.go_back_to_change_link_text=ewch yn ôl i newid y dyddiad
-label.go_back_to_change_after_link=os gwnaethoch nodi {0} trwy gamgymeriad.
-label.earlier_date_than_record_before_link=Os yw’r dyddiad yn gywir,
-label.earlier_date_than_record_link_text=cysylltwch â CThEF (yn agor tab newydd)
-label.earlier_date_than_record_after_link=i ddiweddaru’ch manylion
-label.future_date_than_record_h1=Ni allwch ddiweddaru’ch cyfeiriad tan y dyddiad y byddwch yn symud
-label.if_you_entered_proposedStartDate_by_mistake_text_before_link_1=Os nodwyd
-label.if_you_entered_proposedStartDate_by_mistake_text_before_link_2=gennych drwy gamgymeriad, gallwch
-label.if_you_entered_proposedStartDate_by_mistake_link_text=fynd yn ôl i roi dyddiad arall
-label.if_you_entered_the_correct_date_contact_HMRC_text_before_link=Os nodwyd y dyddiad cywir gennych,
-label.if_you_entered_the_correct_date_contact_HMRC_link_text=cysylltwch â CThEM
-label.if_you_entered_the_correct_date_contact_HMRC_text_after_link=i ddiweddaru’ch cyfeiriad
+
+label.the_date_you_entered_is_earlier_than_a_date_previously_held_=Mae’r dyddiad a nodwyd gennych yn gynharach na’r un sydd eisoes gan CThEF ar eich cyfer
+label.moving_to_scotland_affects=Mae symud i: {0}, yn gallu effeithio ar sut mae’ch treth yn cael ei chyfrifo, felly mae’n bwysig bod y dyddiad y gwnaethoch ddechrau byw yn y cyfeiriad newydd yn gywir.
+label.moving_from_scotland_affects=Mae symud o: {0}, yn gallu effeithio ar sut mae’ch treth yn cael ei chyfrifo, felly mae’n bwysig bod y dyddiad y gwnaethoch ddechrau byw yn y cyfeiriad newydd yn gywir.
+label.go_back_to_change_before_link_early=Gallwch hefyd fynd
+label.go_back_to_change_link_text_early=yn ôl
+label.go_back_to_change_after_link_early=a newid y dyddiad.
+label.if_you_entered_the_correct_date_contact_HMRC_text_before_link=Os yw {0} yn gywir,
+label.if_you_entered_the_correct_date_contact_HMRC_link_text=cysylltwch â CThEF (yn agor tab newydd)
+label.if_you_entered_the_correct_date_contact_HMRC_text_after_link=i ddiweddaru’ch manylion
+label.future_date_than_record_h1=Dim ond ar ôl i chi ddechrau byw yno y gallwch ddiweddaru’ch cyfeiriad
+label.go_back_to_change_before_link=Os gwnaethoch nodi {0} mewn camgymeriad, gallwch fynd 
+label.go_back_to_change_link_text=yn ôl
+label.go_back_to_change_after_link=a newid y dyddiad.
+label.back_to_profile=Yn ôl i’r proffil a gosodiadau
+
 label.you_cannot_use_this_service_to_update_your_address=Ni allwch ddefnyddio’r gwasanaeth hwn i ddiweddaru’ch cyfeiriad
 label.your_address_cannot_be_updated=Ni ellir diweddaru’ch cyfeiriad
 label.name=Enw
@@ -315,7 +317,7 @@ label.tax_calc_heading=Your tax calculation
 # News
 #
 label.latest_news_and_updates=Y newyddion diweddaraf a diweddariadau
-label.hmrc_news=HMRC News
+label.hmrc_news=Newyddion CThEF
 label.other_news_and_updates=Newyddion a diweddariadau eraill
 label.news_and_updates=Newyddion a Diweddariadau
 label.percentage_points_uplift_in_NIC=Cynnydd o 1.25 pwynt canrannol yng nghyfraniadau Yswiriant Gwladol
@@ -754,11 +756,12 @@ alert_banner.peak_demand.message = Mae ambell wasanaeth yn brysurach nag arfer. 
 # P85
 #*************************************************************
 p85.heading=Gadael y DU
-p85.p1.before_link=Mae angen i chi roi gwybod i CThEF os ydych yn gadael y DU.
+p85.p1.before_link=Bydd angen i chi
 p85.p1.link_text=Llenwch Ffurflen P85 (yn agor tab newydd)
-p85.p1.after_link=er mwyn:
+p85.p1.after_link=er mwyn gwneud y canlynol:
 p85.bullet1=rhoi gwybod i CThEF eich bod yn gadael y DU
-p85.bullet2=cael eich Treth Incwm yn iawn, gan gynnwys hawlio rhyddhad treth neu ad-daliad treth
+p85.bullet2=cael eich Treth Incwm yn gywir
+p85.bullet3=hawlio rhyddhad treth neu ad-daliad treth
 
 #*************************************************************
 # Self Assessment Who Needs to Register
@@ -858,16 +861,22 @@ personal_details.try_again.try.again.to.update = rhowch gynnig arall arni i ddiw
 label.trusted_helpers_heading=Cynorthwywyr dibynadwy
 label.trusted_helpers_content=Cael help gyda’ch treth ar-lein gan rywun dibynadwy, neu helpwch rywun rydych yn ei adnabod.
 
-label.taxes_and_benefits_heading=Taxes and benefits
-label.taxes_and_benefits_subheading=Your current HMRC online taxes and benefits
-label.other_taxes_and_benefits_heading=Other taxes and benefits that may be relevant to you
-label.tax_calc_option=Your tax calculation — PAYE {0} to {1}
+label.taxes_and_benefits_heading=Trethi a budd-daliadau
+label.taxes_and_benefits_subheading=Eich trethi a budd-daliadau CThEF ar-lein presennol
+label.other_taxes_and_benefits_heading=Trethi a budd-daliadau eraill a allai fod yn berthnasol i chi
+label.tax_calc_option=Eich cyfrifiad treth – TWE {0} i {1}
 
-label.task_heading=Refunds and tax you owe — Pay As You Earn (PAYE)
-label.task_paragraph=It can take up to 10 days for completed tasks to be removed from the list.
+label.task_heading=Ad-daliadau a’r dreth sydd arnoch – Talu Wrth Ennill (TWE)
+label.task_paragraph=Gall gymryd hyd at 10 diwrnod i’r tasgau sydd wedi’u cwblhau gael eu tynnu o’r rhestr.
 
 fandf.banner.text=Mae’ch perthynas â’ch cynorthwyydd dibynadwy yn dod i ben am hanner nos ar {0}.
 fandf.banner.linkText=Dysgwch sut mae cynorthwywyr dibynadwy yn newid.
+
+old_home_page_banner.text=Rydym yn gwneud newidiadau i hafan eich Cyfrif Treth Personol.
+old_home_page_banner.link_text=Darllenwch fwy am yr hyn sy’n newid
+new_home_page_banner.text=Mae hafan eich Cyfrif Treth Personol wedi’i diweddaru.
+new_home_page_banner.link_text=Dysgwch rhagor am yr hyn sydd wedi newid
+
 
 label.mtdit.claim.p1.prefix=Rydych wedi’ch cofrestru ar gyfer y cynllun
 label.mtdit.claim.p1.linkText=Troi Treth yn Ddigidol ar gyfer Treth Incwm
