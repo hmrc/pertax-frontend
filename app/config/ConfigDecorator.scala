@@ -268,9 +268,9 @@ class ConfigDecorator @Inject() (
   lazy val enrolmentStoreProxyTimeoutInMilliseconds: Int =
     servicesConfig.getInt("microservice.services.enrolment-store-proxy.timeoutInMilliseconds")
   lazy val ptaNinoSaveUrl: String                        = saveYourNationalInsuranceNumberHost + "/save-your-national-insurance-number"
-  lazy val guidanceForWhenYourChildTurnsSixteen          = "https://www.gov.uk/child-benefit-16-19"
+  lazy val tellUsYourChildIsStayingInFullTimeEducation   = "https://www.gov.uk/child-benefit-16-19"
 
-  lazy val guidanceForWhenYourChildTurnsSixteenWelsh = "https://www.gov.uk/budd-dal-plant-16-19"
+  lazy val tellUsYourChildIsStayingInFullTimeEducationWelsh = "https://www.gov.uk/budd-dal-plant-16-19"
 
   lazy val addressLookupTimeoutInSec: Int =
     servicesConfig.getInt("feature.address-lookup.timeoutInSec")

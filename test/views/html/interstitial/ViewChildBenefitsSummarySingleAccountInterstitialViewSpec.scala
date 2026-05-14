@@ -63,11 +63,6 @@ class ViewChildBenefitsSummarySingleAccountInterstitialViewSpec extends ViewSpec
 
       hasLink(
         doc,
-        Messages("label.guidance_for_when_your_child_turns_sixteen")
-      )
-
-      hasLink(
-        doc,
         Messages("label.view_your_child_benefit_payment_history")
       )
 
