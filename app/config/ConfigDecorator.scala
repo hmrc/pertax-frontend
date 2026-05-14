@@ -272,9 +272,6 @@ class ConfigDecorator @Inject() (
 
   lazy val guidanceForWhenYourChildTurnsSixteenWelsh = "https://www.gov.uk/budd-dal-plant-16-19"
 
-  lazy val extendYourPaymentWhileYourChildStaysInEducation: String =
-    runModeConfiguration.get[String]("external-url.child-benefits.extend-payments-location")
-
   lazy val addressLookupTimeoutInSec: Int =
     servicesConfig.getInt("feature.address-lookup.timeoutInSec")
 
