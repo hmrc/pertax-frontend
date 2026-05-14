@@ -16,12 +16,10 @@
 
 package models
 
-//todo: change link to an Option so we can disable an access
-//todo: change hintMessage to an Option as well
 final case class MyService(
   title: String,
-  link: String,
-  hintText: String,
+  link: Option[String],
+  hintText: Option[String],
   divAttr: Map[String, String] = Map.empty,
   gaAction: Option[String] = None,
   gaLabel: Option[String] = None,

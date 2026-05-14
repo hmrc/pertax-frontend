@@ -25,14 +25,14 @@ class HomePageServicesSpec extends BaseSpec {
     "return only MyService entries" in {
       val myService1 = MyService(
         title = "Service 1",
-        link = "/service-1",
-        hintText = "Hint 1"
+        link = Some("/service-1"),
+        hintText = Some("Hint 1")
       )
 
       val myService2 = MyService(
         title = "Service 2",
-        link = "/service-2",
-        hintText = "Hint 2"
+        link = Some("/service-2"),
+        hintText = Some("Hint 2")
       )
 
       val otherService = OtherService(
@@ -75,8 +75,8 @@ class HomePageServicesSpec extends BaseSpec {
     "return only OtherService entries" in {
       val myService = MyService(
         title = "Service 1",
-        link = "/service-1",
-        hintText = "Hint 1"
+        link = Some("/service-1"),
+        hintText = Some("Hint 1")
       )
 
       val otherService1 = OtherService(
@@ -99,14 +99,14 @@ class HomePageServicesSpec extends BaseSpec {
     "return an empty sequence when there are no OtherService entries" in {
       val myService1 = MyService(
         title = "Service 1",
-        link = "/service-1",
-        hintText = "Hint 1"
+        link = Some("/service-1"),
+        hintText = Some("Hint 1")
       )
 
       val myService2 = MyService(
         title = "Service 2",
-        link = "/service-2",
-        hintText = "Hint 2"
+        link = Some("/service-2"),
+        hintText = Some("Hint 2")
       )
 
       val result = HomePageServices(Seq(myService1, myService2))

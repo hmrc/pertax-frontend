@@ -88,8 +88,8 @@ class HomePageServicesProvider @Inject() (
   private def combinedMtdSaTile(href: String)(implicit messages: Messages): MyService =
     MyService(
       messages("label.mtd_for_itsa"),
-      href,
-      "",
+      Some(href),
+      None,
       gaAction = Some("Income"),
       gaLabel = Some("MTD IT & SA")
     )
@@ -97,8 +97,8 @@ class HomePageServicesProvider @Inject() (
   private def mySaTile(href: String, body: String)(implicit messages: Messages): MyService =
     MyService(
       messages("label.self_assessment"),
-      href,
-      body,
+      Some(href),
+      Option(body).filter(_.nonEmpty),
       gaAction = Some("Income"),
       gaLabel = Some("Self Assessment")
     )
@@ -224,8 +224,8 @@ class HomePageServicesProvider @Inject() (
       Some(
         MyService(
           messages("label.pay_as_you_earn_paye"),
-          controllers.routes.RedirectToPayeController.redirectToPaye.url,
-          "",
+          Some(controllers.routes.RedirectToPayeController.redirectToPaye.url),
+          None,
           gaAction = Some("Income"),
           gaLabel = Some("Pay As You Earn (PAYE)")
         )
@@ -245,8 +245,8 @@ class HomePageServicesProvider @Inject() (
                 s"${current.back(configDecorator.taxCalcYearsToShow).startYear}",
                 s"${current.startYear}"
               ),
-              configDecorator.taxCalcHomePageUrl,
-              "",
+              Some(configDecorator.taxCalcHomePageUrl),
+              None,
               gaAction = Some("Income"),
               gaLabel = Some("Tax Calculation")
             )
@@ -262,8 +262,8 @@ class HomePageServicesProvider @Inject() (
       Some(
         MyService(
           messages("label.new_national_insurance_and_state_pension"),
-          controllers.interstitials.routes.InterstitialController.displayNISP.url,
-          "",
+          Some(controllers.interstitials.routes.InterstitialController.displayNISP.url),
+          None,
           gaAction = Some("Income"),
           gaLabel = Some("National Insurance and State Pension")
         )
@@ -312,8 +312,8 @@ class HomePageServicesProvider @Inject() (
         Seq(
           MyService(
             messages("title.marriage_allowance"),
-            "/marriage-allowance-application/history",
-            messages("label.your_partner_currently_transfers_part_of_their_personal_allowance_to_you"),
+            Some("/marriage-allowance-application/history"),
+            Some(messages("label.your_partner_currently_transfers_part_of_their_personal_allowance_to_you")),
             gaAction = Some("Benefits"),
             gaLabel = Some("Marriage Allowance")
           )
@@ -323,8 +323,8 @@ class HomePageServicesProvider @Inject() (
         Seq(
           MyService(
             messages("title.marriage_allowance"),
-            "/marriage-allowance-application/history",
-            messages("label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner"),
+            Some("/marriage-allowance-application/history"),
+            Some(messages("label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner")),
             gaAction = Some("Benefits"),
             gaLabel = Some("Marriage Allowance")
           )
@@ -348,8 +348,8 @@ class HomePageServicesProvider @Inject() (
       Seq(
         MyService(
           messages("label.trusted_helpers_heading"),
-          configDecorator.manageTrustedHelpersUrl,
-          "",
+          Some(configDecorator.manageTrustedHelpersUrl),
+          None,
           gaAction = Some("Account"),
           gaLabel = Some("Trusted helpers")
         )

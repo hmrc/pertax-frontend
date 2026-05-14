@@ -164,30 +164,62 @@ class StartDateController @Inject() (
                               )
 
                             case StartDateDecisionService.EarlyDateError =>
+                              val maybeEarliestAllowedDate = existingStartDate.map(_.plusDays(1))
+
                               (
                                 typ,
                                 personDetails.notKnownMainAddress,
                                 personDetails.notKnownCorrespondenceAddress
                               ) match {
-                                case (PostalAddrType, _, true)      =>
-                                  Future.successful(
-                                    BadRequest(
-                                      cannotUpdateAddressErrorAddressEarlyDateView(
-                                        typ,
-                                        languageUtils.Dates.formatDate(existingStartDate.get.plusDays(1))
+                                case (PostalAddrType, _, true) =>
+                                  maybeEarliestAllowedDate match {
+                                    case Some(earliestAllowedDate) =>
+                                      Future.successful(
+                                        BadRequest(
+                                          cannotUpdateAddressErrorAddressEarlyDateView(
+                                            typ,
+                                            languageUtils.Dates.formatDate(earliestAllowedDate)
+                                          )
+                                        )
                                       )
-                                    )
-                                  )
+                                    case None                      =>
+                                      Future.successful(
+                                        BadRequest(
+                                          cannotUpdateAddressEarlyDateView(
+                                            typ,
+                                            languageUtils.Dates.formatDate(proposedStartDate),
+                                            overseasMove,
+                                            scotlandMoveContext
+                                          )
+                                        )
+                                      )
+                                  }
+
                                 case (ResidentialAddrType, true, _) =>
-                                  Future.successful(
-                                    BadRequest(
-                                      cannotUpdateAddressErrorAddressEarlyDateView(
-                                        typ,
-                                        languageUtils.Dates.formatDate(existingStartDate.get.plusDays(1))
+                                  maybeEarliestAllowedDate match {
+                                    case Some(earliestAllowedDate) =>
+                                      Future.successful(
+                                        BadRequest(
+                                          cannotUpdateAddressErrorAddressEarlyDateView(
+                                            typ,
+                                            languageUtils.Dates.formatDate(earliestAllowedDate)
+                                          )
+                                        )
                                       )
-                                    )
-                                  )
-                                case _                              =>
+                                    case None                      =>
+                                      Future.successful(
+                                        BadRequest(
+                                          cannotUpdateAddressEarlyDateView(
+                                            typ,
+                                            languageUtils.Dates.formatDate(proposedStartDate),
+                                            overseasMove,
+                                            scotlandMoveContext
+                                          )
+                                        )
+                                      )
+                                  }
+
+                                case _ =>
                                   Future.successful(
                                     BadRequest(
                                       cannotUpdateAddressEarlyDateView(

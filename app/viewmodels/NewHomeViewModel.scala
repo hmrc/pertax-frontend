@@ -19,14 +19,16 @@ package viewmodels
 import models.{MyService, OtherService}
 import play.twirl.api.Html
 
-// todo: refactor Html type into meaningful type
+final case class NewsAndUpdates(content: Html) extends AnyVal
+final case class AlertBanner(content: Html) extends AnyVal
+
 final case class NewHomeViewModel(
   tasks: Seq[Task],
-  newsAndUpdates: Option[Html],
+  newsAndUpdates: Option[NewsAndUpdates],
   showUserResearchBanner: Boolean,
   saUtr: Option[String],
   breathingSpaceIndicator: Boolean,
-  alertBannerContent: Option[Html],
+  alertBannerContent: Option[AlertBanner],
   name: Option[String],
   myServices: Seq[MyService],
   otherServices: Seq[OtherService]

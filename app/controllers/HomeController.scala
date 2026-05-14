@@ -30,7 +30,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
-import viewmodels.{HomeViewModel, NewHomeViewModel}
+import viewmodels.{AlertBanner, HomeViewModel, NewHomeViewModel, NewsAndUpdates}
 import views.html.{HomeView, NewHomeView}
 
 import java.time.LocalDate
@@ -90,11 +90,11 @@ class HomeController @Inject() (
           newHomeView(
             NewHomeViewModel(
               listOfTasks,
-              homeOptionsGenerator.getLatestNewsAndUpdatesCard(),
+              homeOptionsGenerator.getLatestNewsAndUpdatesCard().map(NewsAndUpdates.apply),
               showUserResearchBanner = false,
               utr,
               breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
-              alertBannerContent = alertBannerContent,
+              alertBannerContent = alertBannerContent.map(AlertBanner.apply),
               name = nameToDisplay,
               myServices = homePageServices.myServices,
               otherServices = homePageServices.otherServices
@@ -158,7 +158,8 @@ class HomeController @Inject() (
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     val shouldShowNewLayoutForNino = configDecorator.onboardingByNiNoLastNumericDigitList
       .contains(request.helpeeNinoOrElse.nino.charAt(6).asDigit)
-    val isNewDesign: Boolean       = request.queryString
+
+    val isNewDesign: Boolean = request.queryString
       .get("newDesign")
       .flatMap(_.headOption)
       .fold(shouldShowNewLayoutForNino)(_ == "true")
@@ -166,12 +167,10 @@ class HomeController @Inject() (
     featureFlagService.get(HomePageNewLayoutToggle).flatMap { toggle =>
       if (!toggle.isEnabled) {
         oldHomePage
+      } else if (!isNewDesign) {
+        oldHomePage
       } else {
-        if (!isNewDesign) {
-          oldHomePage
-        } else {
-          newHomePage
-        }
+        newHomePage
       }
     }
   }
