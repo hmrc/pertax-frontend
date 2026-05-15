@@ -63,7 +63,7 @@ class ViewChildBenefitsSummarySingleAccountInterstitialViewSpec extends ViewSpec
 
       hasLink(
         doc,
-        Messages("label.guidance_for_when_your_child_turns_sixteen")
+        Messages("label.tell_us_your_child_is_staying_in_full_time_education")
       )
 
       hasLink(
