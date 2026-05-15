@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package models
 
 import play.twirl.api.Html
@@ -33,5 +34,5 @@ case class HmrcCardModel(
   cardType: Type,
   heading: Heading,
   body: Option[Body],
-  hint: Option[Hint],
+  hint: Option[Hint]
 )

@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *@
-@import models.HmrcCardModel.HmrcCardModel
+
+@import models.HmrcCardModel
 @(hmrcCard: HmrcCardModel)
 
-@hmrcCard.cardType match {
+@{hmrcCard.cardType match {
   case Type.BasicCard => 
     <div class="hmrc-card">
       <div class="hmrc-card__heading">
@@ -47,8 +48,8 @@
         </a>
       </h3>
       <p class="govuk-body">@hmrcCard.body.content</p>
-      @hmrcCard.hint.content.map{ hint_content =>
-        <p class="govuk-hint">@hint_content</p>
+      @if(hmrcCard.hint.content.isDefined){
+        <p class="govuk-hint">@hmrcCard.hint.content.get</p>
       }
     </div>
   case Type.NoLinkCard =>
@@ -63,11 +64,12 @@
   case Type.NewTabCard =>
     <div class="hmrc-card">
       <h3 class="hmrc-card__heading">
-        <a href=@hmrcCard.heading.url>
+        <a href="@hmrcCard.heading.url">
           @hmrcCard.heading.text
-          <span class="hmrc-card__chevron" aria-hidden="true"></span><br>
+          <span class="hmrc-card__chevron" aria-hidden="true"></span><br/>
           <span class="govuk-!-font-weight-regular">(opens in new tab)</span>
         </a>
       </h3>
     </div>
+}
 }
