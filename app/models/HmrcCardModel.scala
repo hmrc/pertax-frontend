@@ -15,7 +15,7 @@ class Body(val content: Html)
 class Hint(val content: Option[String], val tag: Option[Tag])
 
 case class HmrcCardModel(
-  card_type: Type,
+  cardType: Type,
   heading: Heading,
   body: Option[Body],
   hint: Option[Hint],

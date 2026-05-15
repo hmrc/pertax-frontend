@@ -16,11 +16,58 @@
 @import models.HmrcCardModel.HmrcCardModel
 @(hmrcCard: HmrcCardModel)
 
- <div class="hmrc-card">
-  <div class="hmrc-card__heading">
-    <a href=@hmrcCard.heading.url>
-      @hmrcCard.heading.text
-      <span class="hmrc-card__chevron" aria-hidden="true"></span>
-    </a>
-  </div>
-</div>
+@hmrcCard.cardType match {
+  case Type.BasicCard => 
+    <div class="hmrc-card">
+      <div class="hmrc-card__heading">
+        <a href="@hmrcCard.heading.url.get">
+          @hmrcCard.heading.text
+          <span class="hmrc-card__chevron" aria-hidden="true"></span>
+        </a>
+      </div>
+    </div>
+  case Type.BasicCardWithDueDate =>
+    <div class="hmrc-card">
+      <h3 class="hmrc-card__heading">
+        <a href="@hmrcCard.heading.url.get">
+          @hmrcCard.heading.text
+          <span class="hmrc-card__chevron" aria-hidden="true"></span>
+        </a>
+      </h3>
+      <p class="govuk-body">
+        @hmrcCard.hint.tag.flatMap(t => t)
+      </p>
+    </div>
+  case Type.SectionCard =>
+    <div class="hmrc-card">
+      <h3 class="hmrc-card__heading">
+        <a href="@hmrcCard.heading.url.get">
+          @hmrcCard.heading.text
+          <span class="hmrc-card__chevron" aria-hidden="true"></span>
+        </a>
+      </h3>
+      <p class="govuk-body">@hmrcCard.body.content</p>
+      @hmrcCard.hint.content.map{ hint_content =>
+        <p class="govuk-hint">@hint_content</p>
+      }
+    </div>
+  case Type.NoLinkCard =>
+    <div class="hmrc-card">
+      <h3 class="hmrc-card__heading">
+        @hmrcCard.heading.text
+      </h3>
+      <p class="govuk-body">
+        @hmrc.card.body.content
+      </p>
+    </div>
+  case Type.NewTabCard =>
+    <div class="hmrc-card">
+      <h3 class="hmrc-card__heading">
+        <a href=@hmrcCard.heading.url>
+          @hmrcCard.heading.text
+          <span class="hmrc-card__chevron" aria-hidden="true"></span><br>
+          <span class="govuk-!-font-weight-regular">(opens in new tab)</span>
+        </a>
+      </h3>
+    </div>
+}
