@@ -16,28 +16,33 @@
 
 @(model: viewmodels.SecondaryNavModel)
 
-@attributesHtml = @{
-  model.attributes.map { case (key, value) => 
-    val escapedKey = play.twirl.api.HtmlFormat.escape(key)
-    val escapedValue = play.twirl.api.HtmlFormat.escape(value)
-    s"""$escapedKey="$escapedValue""""
-  }.mkString(" ")
+@navClasses = @{
+  Seq(
+    Some("x-govuk-secondary-navigation"),
+    model.classes.map(_.trim).filter(_.nonEmpty)
+  ).flatten.mkString(" ")
 }
 
-<nav class="x-govuk-secondary-navigation@if(model.classes.isDefined) { @model.classes.get }" 
-     @if(model.labelledBy.isDefined) {aria-labelledby="@model.labelledBy.get"} else {aria-label="@model.visuallyHiddenTitle"}
-     @if(model.attributes.nonEmpty) {@Html(" " + attributesHtml)}>
+<nav class="@navClasses"
+     @if(model.labelledBy.isDefined) { aria-labelledby="@model.labelledBy.get" } else { aria-label="@model.visuallyHiddenTitle" }
+     @model.attributes.map { case (key, value) => @key="@value" }>
   <ul class="x-govuk-secondary-navigation__list">
     @for(item <- model.items) {
       @if(item != null) {
-        <li class="x-govuk-secondary-navigation__list-item@if(item.current) { x-govuk-secondary-navigation__list-item--current }@if(item.classes.isDefined) { @item.classes.get }">
-          <a class="x-govuk-secondary-navigation__link" href="@item.href"@if(item.current) { aria-current="page"}>
-            @item.text
-            @item.notificationCount.map { count =>
-              <span class="x-govuk-secondary-navigation__badge">@count</span>
-            }
-          </a>
-        </li>
+        @defining(Seq(
+          Some("x-govuk-secondary-navigation__list-item"),
+          if(item.current) Some("x-govuk-secondary-navigation__list-item--current") else None,
+          item.classes.map(_.trim).filter(_.nonEmpty)
+        ).flatten.mkString(" ")) { itemClasses =>
+          <li class="@itemClasses">
+            <a class="x-govuk-secondary-navigation__link" href="@item.href" @if(item.current) { aria-current="page" }>
+              @item.text
+              @item.notificationCount.map { count =>
+                <span class="x-govuk-secondary-navigation__badge">@count</span>
+              }
+            </a>
+          </li>
+        }
       }
     }
   </ul>
