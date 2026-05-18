@@ -5,6 +5,8 @@ $govuk-include-default-font-face: false;
 @import "card";
 @import "flexbox";
 
+@import "hmrc-card";
+
 .pta-home-option {
   background-color: govuk-tint(govuk-colour("light-grey"), 50%);
 
