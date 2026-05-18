@@ -15,56 +15,64 @@
  *@
 
 @import models.HmrcCardModel
-@(hmrcCard: HmrcCardModel)
-
-@{hmrcCard.cardType match {
-  case Type.BasicCard => 
+@(hmrcCard: HmrcCardModel){
+  hmrcCard.cardType match {
+  case CardType.BasicCard => 
     <div class="hmrc-card">
       <div class="hmrc-card__heading">
-        <a href="@hmrcCard.heading.url.get">
+        <a href='@{hmrcCard.heading.url.getOrElse("")}'>
           @hmrcCard.heading.text
           <span class="hmrc-card__chevron" aria-hidden="true"></span>
         </a>
       </div>
     </div>
-  case Type.BasicCardWithDueDate =>
+  case CardType.BasicCardWithDueDate =>
     <div class="hmrc-card">
       <h3 class="hmrc-card__heading">
-        <a href="@hmrcCard.heading.url.get">
+        <a href='@{hmrcCard.heading.url.getOrElse("")}'>
           @hmrcCard.heading.text
           <span class="hmrc-card__chevron" aria-hidden="true"></span>
         </a>
       </h3>
       <p class="govuk-body">
-        @hmrcCard.hint.tag.flatMap(t => t)
+        @hmrcCard.hint match
+          case Some(x) => x.tag
+          case None =>
       </p>
     </div>
-  case Type.SectionCard =>
+  case CardType.SectionCard =>
     <div class="hmrc-card">
       <h3 class="hmrc-card__heading">
-        <a href="@hmrcCard.heading.url.get">
+        <a href='@{hmrcCard.heading.url.getOrElse("")}'>
           @hmrcCard.heading.text
           <span class="hmrc-card__chevron" aria-hidden="true"></span>
         </a>
       </h3>
-      <p class="govuk-body">@hmrcCard.body.content</p>
-      @if(hmrcCard.hint.content.isDefined){
-        <p class="govuk-hint">@hmrcCard.hint.content.get</p>
-      }
+      @hmrcCard.body match 
+        case Some(body) => body.content
+        case None =>
+     <p class="govuk-hint">
+      @hmrcCard.hint match
+          case Some(hint) => hint.content
+          case None =>
+     </p>
     </div>
-  case Type.NoLinkCard =>
+  case CardType.NoLinkCard =>
     <div class="hmrc-card">
       <h3 class="hmrc-card__heading">
         @hmrcCard.heading.text
       </h3>
       <p class="govuk-body">
-        @hmrc.card.body.content
+         @{hmrcCard.body match {
+          case Some(body) => body.content
+          case None =>
+        }}
       </p>
     </div>
-  case Type.NewTabCard =>
+  case CardType.NewTabCard =>
     <div class="hmrc-card">
       <h3 class="hmrc-card__heading">
-        <a href="@hmrcCard.heading.url">
+        <a href='@{hmrcCard.heading.url.getOrElse("")}'>
           @hmrcCard.heading.text
           <span class="hmrc-card__chevron" aria-hidden="true"></span><br/>
           <span class="govuk-!-font-weight-regular">(opens in new tab)</span>

@@ -19,7 +19,7 @@ package models
 import play.twirl.api.Html
 import uk.gov.hmrc.govukfrontend.views.html.components.GovukTag as Tag
 
-enum Type:
+enum CardType:
   case BasicCard
   case BasicCardWithDueDate
   case SectionCard
@@ -28,11 +28,11 @@ enum Type:
 
 class Heading(val text: String, val url: Option[String])
 class Body(val content: Html)
-class Hint(val content: Option[String], val tag: Option[Tag])
+class CardHint(val content: Option[String], val tag: Option[Tag])
 
 case class HmrcCardModel(
-  cardType: Type,
+  cardType: CardType,
   heading: Heading,
   body: Option[Body],
-  hint: Option[Hint]
+  hint: Option[CardHint]
 )
