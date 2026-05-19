@@ -50,12 +50,26 @@
     <p class="govuk-body">View your National Insurance record.</p>
 }
 
+@cardOneH4 = {
+    <h4 class="hmrc-card__heading">
+        <a class="govuk-link govuk-link--no-underline" href="#card-one-custom-heading">Pay As You Earn (PAYE)<span class="hmrc-card__chevron" aria-hidden="true"></span></a>
+    </h4>
+    <p class="govuk-body">View and update your PAYE details.</p>
+}
+
+@cardTwoH4 = {
+    <h4 class="hmrc-card__heading">
+        <a class="govuk-link govuk-link--no-underline" href="#card-two-custom-heading">Self Assessment<span class="hmrc-card__chevron" aria-hidden="true"></span></a>
+    </h4>
+    <p class="govuk-body">Check your Self Assessment tax return and payments.</p>
+}
+
 @main(
     pageTitle = "CardContainer Test Page",
-    showBackLink = false,
-    fullWidth = true
+    showBackLink = false
 ) {
-    <div class="govuk-width-container">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-xl">CardContainer Component Test Page</h1>
 
             <section class="govuk-!-margin-bottom-8" id="empty-state">
@@ -108,8 +122,8 @@
                     headingLevel = "h3",
                     headerId = Some("custom-heading-level-heading"),
                     cards = Seq(
-                        HMRCCardModel(cardOne),
-                        HMRCCardModel(cardTwo)
+                        HMRCCardModel(cardOneH4),
+                        HMRCCardModel(cardTwoH4)
                     )
                 ))
             </section>
@@ -124,5 +138,6 @@
                     )
                 ))
             </section>
+        </div>
     </div>
 }
