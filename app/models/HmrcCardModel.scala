@@ -17,7 +17,6 @@
 package models
 
 import play.twirl.api.Html
-import uk.gov.hmrc.govukfrontend.views.html.components.GovukTag as Tag
 
 enum CardType:
   case BasicCard
@@ -28,11 +27,90 @@ enum CardType:
 
 class Heading(val text: String, val url: Option[String])
 class Body(val content: Html)
-class CardHint(val content: Option[String], val tag: Option[Tag])
+class Tag(val content: String, val classes: String)
+class CardHint(val content: Option[String], val tag: Option[Tag]) {
+  def render_tag: Html =
+    this.tag match
+      case Some(tag) => Html(s"""
+        <strong class="${tag.classes}">
+          ${tag.content}
+        </strong>
+        """)
+      case None      => Html("")
+}
 
 case class HmrcCardModel(
   cardType: CardType,
   heading: Heading,
   body: Option[Body],
   hint: Option[CardHint]
-)
+) {
+  def render: Html =
+    this.cardType match
+      case CardType.BasicCard            =>
+        Html(s"""
+        <div class="hmrc-card">
+          <div class="hmrc-card__heading">
+            <a href='${this.heading.url.getOrElse("")}'>
+              ${this.heading.text}
+              <span class="hmrc-card__chevron" aria-hidden="true"></span>
+            </a>
+          </div>
+        </div>""")
+      case CardType.BasicCardWithDueDate =>
+        Html(s"""
+        <div class="hmrc-card">
+          <h3 class="hmrc-card__heading">
+            <a href='${this.heading.url.getOrElse("")}'>
+              ${this.heading.text}
+              <span class="hmrc-card__chevron" aria-hidden="true"></span>
+            </a>
+          </h3>
+          <p class="govuk-body">
+          ${this.hint match
+            case Some(h) => h.render_tag
+            case None    => Html("")
+          }
+          </p>
+        </div>""")
+      case CardType.SectionCard          =>
+        Html(s"""
+        <div class="hmrc-card">
+          <h3 class="hmrc-card__heading">
+            <a href='${this.heading.url.getOrElse("")}'>
+              ${this.heading.text}
+              <span class="hmrc-card__chevron" aria-hidden="true"></span>
+            </a>
+          </h3>
+          ${this.body match
+            case Some(body) => body.content
+            case None       => Html("")
+          }
+          ${this.hint match
+            case Some(x) => x.render_tag
+            case None    => Html("")
+          }
+        </div>""")
+      case CardType.NoLinkCard           =>
+        Html(s"""
+        <div class="hmrc-card">
+          <h3 class="hmrc-card__heading">
+            ${this.heading.text}
+          </h3>
+            ${this.body match
+            case Some(body) => body.content
+            case None       => Html("")
+          }
+        </div>""")
+      case CardType.NewTabCard           =>
+        Html(s"""
+        <div class="hmrc-card">
+          <h3 class="hmrc-card__heading">
+            <a href='${this.heading.url.getOrElse("")}'>
+              ${this.heading.text}
+              <span class="hmrc-card__chevron" aria-hidden="true"></span><br/>
+              <span class="govuk-!-font-weight-regular">(opens in new tab)</span>
+            </a>
+          </h3>
+        </div>""")
+}
