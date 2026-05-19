@@ -15,8 +15,9 @@
  *@
 
 @import models.HmrcCardModel
-@(hmrcCard: HmrcCardModel){
-  hmrcCard.cardType match {
+@(hmrcCard: HmrcCardModel)
+
+@{hmrcCard.cardType match {
   case CardType.BasicCard => 
     <div class="hmrc-card">
       <div class="hmrc-card__heading">
@@ -51,11 +52,11 @@
       @hmrcCard.body match 
         case Some(body) => body.content
         case None =>
-     <p class="govuk-hint">
+      <p class="govuk-hint">
       @hmrcCard.hint match
           case Some(hint) => hint.content
           case None =>
-     </p>
+      </p>
     </div>
   case CardType.NoLinkCard =>
     <div class="hmrc-card">
@@ -63,7 +64,7 @@
         @hmrcCard.heading.text
       </h3>
       <p class="govuk-body">
-         @{hmrcCard.body match {
+          @{hmrcCard.body match {
           case Some(body) => body.content
           case None =>
         }}
@@ -79,5 +80,4 @@
         </a>
       </h3>
     </div>
-}
-}
+}}
