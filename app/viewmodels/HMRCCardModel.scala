@@ -16,6 +16,26 @@
 
 package viewmodels
 
+import org.jsoup.Jsoup
 import play.twirl.api.Html
 
-final case class HMRCCardModel(content: Html)
+import scala.jdk.CollectionConverters.*
+
+final case class HMRCCardModel(content: Html) {
+  require(
+    HMRCCardModel.hasFocusableControl(content),
+    "HMRCCardModel content must include at least one focusable control"
+  )
+}
+
+object HMRCCardModel {
+  private val FocusableControlSelector =
+    "a[href], button:not([disabled]), input:not([disabled]):not([type=hidden]), select:not([disabled]), textarea:not([disabled]), [tabindex]"
+
+  def hasFocusableControl(content: Html): Boolean =
+    Jsoup
+      .parseBodyFragment(content.body)
+      .select(FocusableControlSelector)
+      .asScala
+      .exists(element => element.attr("tabindex") != "-1" && element.attr("aria-hidden") != "true")
+}

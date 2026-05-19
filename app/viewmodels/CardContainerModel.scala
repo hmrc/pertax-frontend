@@ -16,18 +16,18 @@
 
 package viewmodels
 
-import play.twirl.api.Html
+import play.twirl.api.{Html, HtmlFormat}
 
 final case class CardContainerModel(
   emptyView: Html,
-  header: Option[String] = None,
+  header: Option[CardContainerModel.Header] = None,
   cards: Seq[HMRCCardModel] = Seq.empty,
   headingLevel: String = "h2",
   listAriaLabel: Option[String] = None,
   headerId: Option[String] = None
 ) {
   val normalizedHeadingLevel: String          = headingLevel.trim.toLowerCase
-  val normalizedHeader: Option[String]        = header.map(_.trim).filter(_.nonEmpty)
+  val normalizedHeader: Option[Html]          = header.flatMap(CardContainerModel.normalizeHeader)
   val normalizedListAriaLabel: Option[String] = listAriaLabel.map(_.trim).filter(_.nonEmpty)
   val normalizedHeaderId: Option[String]      = headerId.map(_.trim).filter(_.nonEmpty)
 
@@ -43,5 +43,14 @@ final case class CardContainerModel(
 }
 
 object CardContainerModel {
+  type Header = String | Html
+
   private val ValidHeadingLevels = Set("h1", "h2", "h3", "h4", "h5", "h6")
+
+  private def normalizeHeader(header: Header): Option[Html] =
+    header match {
+      case text: String if text.trim.nonEmpty    => Some(HtmlFormat.escape(text.trim))
+      case html: Html if html.body.trim.nonEmpty => Some(html)
+      case _                                     => None
+    }
 }
