@@ -32,34 +32,36 @@ class CardContainerSpec extends ViewSpec {
         header = Some("Test Header"),
         cards = Seq.empty
       )
-      val doc = asDocument(cardContainer(model).toString)
+      val doc   = asDocument(cardContainer(model).toString)
       doc.text() must include("No cards")
       doc.select("ul").size() mustBe 0
+      doc.select(".hmrc-card").size() mustBe 0
     }
 
     "render single card without ul wrapper" in {
       val model = CardContainerModel(
         emptyView = Html(""),
-        cards = Seq(HMRCCardModel(Html("<div class=\"card\">Card 1</div>")))
+        cards = Seq(HMRCCardModel(Html("<h3 class=\"hmrc-card__heading\"><a href=\"#card-one\">Card 1</a></h3>")))
       )
-      val doc = asDocument(cardContainer(model).toString)
+      val doc   = asDocument(cardContainer(model).toString)
       doc.select("ul").size() mustBe 0
-      doc.select(".card").size() mustBe 1
+      doc.select(".hmrc-card").size() mustBe 1
+      doc.select(".hmrc-card a").text() mustBe "Card 1"
     }
 
     "render multiple cards in ul with li wrappers" in {
       val model = CardContainerModel(
         emptyView = Html(""),
         cards = Seq(
-          HMRCCardModel(Html("<div class=\"card\">Card 1</div>")),
-          HMRCCardModel(Html("<div class=\"card\">Card 2</div>"))
+          HMRCCardModel(Html("<h3 class=\"hmrc-card__heading\"><a href=\"#card-one\">Card 1</a></h3>")),
+          HMRCCardModel(Html("<h3 class=\"hmrc-card__heading\"><a href=\"#card-two\">Card 2</a></h3>"))
         ),
         header = Some("Test Header"),
         headerId = Some("test-container")
       )
-      val doc = asDocument(cardContainer(model).toString)
-      doc.select("ul.card-container-list").size() mustBe 1
-      doc.select("ul.card-container-list > li").size() mustBe 2
+      val doc   = asDocument(cardContainer(model).toString)
+      doc.select("ul.hmrc-card__container").size() mustBe 1
+      doc.select("ul.hmrc-card__container > li.hmrc-card").size() mustBe 2
     }
 
     "use aria-label from listAriaLabel when provided (precedence over header)" in {
@@ -72,7 +74,7 @@ class CardContainerSpec extends ViewSpec {
           HMRCCardModel(Html("<div>Card</div>"))
         )
       )
-      val doc = asDocument(cardContainer(model).toString)
+      val doc   = asDocument(cardContainer(model).toString)
       doc.select("ul").attr("aria-label") mustBe "Custom label"
       doc.select("ul").hasAttr("aria-labelledby") mustBe false
     }
@@ -86,7 +88,7 @@ class CardContainerSpec extends ViewSpec {
           HMRCCardModel(Html("<div>Card</div>"))
         )
       )
-      val doc = asDocument(cardContainer(model).toString)
+      val doc   = asDocument(cardContainer(model).toString)
       doc.select("ul").attr("aria-labelledby") mustBe "card-container-header"
       doc.select("ul").hasAttr("aria-label") mustBe false
     }
@@ -101,7 +103,7 @@ class CardContainerSpec extends ViewSpec {
           HMRCCardModel(Html("<div>Card</div>"))
         )
       )
-      val doc = asDocument(cardContainer(model).toString)
+      val doc   = asDocument(cardContainer(model).toString)
       doc.select("h2").attr("id") mustBe "custom-container-id"
       doc.select("ul").attr("aria-labelledby") mustBe "custom-container-id"
     }
@@ -110,13 +112,13 @@ class CardContainerSpec extends ViewSpec {
       val model = CardContainerModel(
         emptyView = Html(""),
         header = Some("Test Header"),
-        listAriaLabel = Some("   "),  // Whitespace only
+        listAriaLabel = Some("   "), // Whitespace only
         cards = Seq(
           HMRCCardModel(Html("<div>Card</div>")),
           HMRCCardModel(Html("<div>Card</div>"))
         )
       )
-      val doc = asDocument(cardContainer(model).toString)
+      val doc   = asDocument(cardContainer(model).toString)
       doc.select("ul").attr("aria-labelledby") mustBe "card-container-header"
       doc.select("ul").hasAttr("aria-label") mustBe false
     }
@@ -125,13 +127,13 @@ class CardContainerSpec extends ViewSpec {
       val model = CardContainerModel(
         emptyView = Html(""),
         header = Some("Test Header"),
-        headerId = Some("   "),  // Whitespace only
+        headerId = Some("   "), // Whitespace only
         cards = Seq(
           HMRCCardModel(Html("<div>Card</div>")),
           HMRCCardModel(Html("<div>Card</div>"))
         )
       )
-      val doc = asDocument(cardContainer(model).toString)
+      val doc   = asDocument(cardContainer(model).toString)
       doc.select("h2").attr("id") mustBe "card-container-header"
       doc.select("ul").attr("aria-labelledby") mustBe "card-container-header"
     }
@@ -139,10 +141,10 @@ class CardContainerSpec extends ViewSpec {
     "ignore empty header and not render heading" in {
       val model = CardContainerModel(
         emptyView = Html(""),
-        header = Some("   "),  // Whitespace only
+        header = Some("   "), // Whitespace only
         cards = Seq(HMRCCardModel(Html("<div>Card</div>")))
       )
-      val doc = asDocument(cardContainer(model).toString)
+      val doc   = asDocument(cardContainer(model).toString)
       doc.select("h2").size() mustBe 0
     }
 
@@ -153,22 +155,21 @@ class CardContainerSpec extends ViewSpec {
         headingLevel = " H3 ",
         cards = Seq(HMRCCardModel(Html("<div>Card</div>")))
       )
-      val doc = asDocument(cardContainer(model).toString)
+      val doc   = asDocument(cardContainer(model).toString)
       doc.select("h3").text() mustBe "Test Header"
     }
 
     "throw error for invalid heading level" in {
-      an[IllegalArgumentException] must be thrownBy {
+      an[IllegalArgumentException] must be thrownBy
         CardContainerModel(
           emptyView = Html(""),
           headingLevel = "h7",
           cards = Seq(HMRCCardModel(Html("<div>Card</div>")))
         )
-      }
     }
 
     "throw error when cards >= 2 and no accessible name" in {
-      an[IllegalArgumentException] must be thrownBy {
+      an[IllegalArgumentException] must be thrownBy
         CardContainerModel(
           emptyView = Html(""),
           cards = Seq(
@@ -176,7 +177,6 @@ class CardContainerSpec extends ViewSpec {
             HMRCCardModel(Html("<div>Card</div>"))
           )
         )
-      }
     }
   }
 }

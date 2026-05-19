@@ -26,10 +26,10 @@ final case class CardContainerModel(
   listAriaLabel: Option[String] = None,
   headerId: Option[String] = None
 ) {
-  val normalizedHeadingLevel: String = headingLevel.trim.toLowerCase
-  val normalizedHeader: Option[String] = header.map(_.trim).filter(_.nonEmpty)
+  val normalizedHeadingLevel: String          = headingLevel.trim.toLowerCase
+  val normalizedHeader: Option[String]        = header.map(_.trim).filter(_.nonEmpty)
   val normalizedListAriaLabel: Option[String] = listAriaLabel.map(_.trim).filter(_.nonEmpty)
-  val normalizedHeaderId: Option[String] = headerId.map(_.trim).filter(_.nonEmpty)
+  val normalizedHeaderId: Option[String]      = headerId.map(_.trim).filter(_.nonEmpty)
 
   require(
     CardContainerModel.ValidHeadingLevels.contains(normalizedHeadingLevel),

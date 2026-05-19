@@ -153,16 +153,63 @@
    transition: 0.1s ease-in-out;
 }
 
-.card-container-list {
-  list-style: none;
-  padding: 0;
+.hmrc-card__container {
   margin: 0;
+  padding: 0;
+}
 
-  > li {
-    margin-bottom: 1em;
+.hmrc-card {
+  box-sizing: border-box;
+  margin: 0 0 .25rem 0;
+  padding: 1rem;
+  background: $grey-4;
+  font-family: "GDS Transport", arial, sans-serif;
+  list-style-type: none;
+  text-decoration: none;
+
+  * {
+    margin-bottom: .5rem;
   }
 
-  > li:last-child {
+  *:last-child {
     margin-bottom: 0;
+  }
+}
+
+.hmrc-card__heading {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-top: 0;
+
+  a {
+    color: $govuk-blue;
+    display: block;
+    text-decoration: none;
+
+    &:hover {
+      color: $govuk-blue;
+      text-decoration: underline;
+      text-decoration-thickness: Max(3px, .1875rem, .12em);
+    }
+  }
+}
+
+.hmrc-card__chevron {
+  position: relative;
+  margin-left: 1rem;
+
+  &:before {
+    content: "";
+    border-right: 3px solid $govuk-blue;
+    border-top: 3px solid $govuk-blue;
+    display: block;
+    height: 10px;
+    width: 10px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto 0;
+    transform: translateY(0) rotate(45deg) scale(1);
   }
 }

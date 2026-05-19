@@ -1,0 +1,128 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import viewmodels.{CardContainerModel, HMRCCardModel}
+@import views.MainView
+@import views.html.tags.CardContainer
+
+@this(
+        main: MainView,
+        cardContainer: CardContainer
+)
+
+@()(implicit request: play.api.mvc.Request[_], messages: play.api.i18n.Messages)
+
+@emptyView = {
+    <p class="govuk-body">No cards available.</p>
+}
+
+@cardOne = {
+    <h3 class="hmrc-card__heading">
+        <a class="govuk-link govuk-link--no-underline" href="#card-one">Pay As You Earn (PAYE)<span class="hmrc-card__chevron" aria-hidden="true"></span></a>
+    </h3>
+    <p class="govuk-body">View and update your PAYE details.</p>
+}
+
+@cardTwo = {
+    <h3 class="hmrc-card__heading">
+        <a class="govuk-link govuk-link--no-underline" href="#card-two">Self Assessment<span class="hmrc-card__chevron" aria-hidden="true"></span></a>
+    </h3>
+    <p class="govuk-body">Check your Self Assessment tax return and payments.</p>
+}
+
+@cardThree = {
+    <h3 class="hmrc-card__heading">
+        <a class="govuk-link govuk-link--no-underline" href="#card-three">National Insurance<span class="hmrc-card__chevron" aria-hidden="true"></span></a>
+    </h3>
+    <p class="govuk-body">View your National Insurance record.</p>
+}
+
+@main(
+    pageTitle = "CardContainer Test Page",
+    showBackLink = false,
+    fullWidth = true
+) {
+    <div class="govuk-width-container">
+        <h1 class="govuk-heading-xl">CardContainer Component Test Page</h1>
+
+            <section class="govuk-!-margin-bottom-8" id="empty-state">
+                @cardContainer(CardContainerModel(
+                    emptyView = emptyView,
+                    header = Some("Empty state"),
+                    headerId = Some("empty-state-heading"),
+                    cards = Seq.empty
+                ))
+            </section>
+
+            <section class="govuk-!-margin-bottom-8" id="single-card">
+                @cardContainer(CardContainerModel(
+                    emptyView = emptyView,
+                    header = Some("Single card"),
+                    headerId = Some("single-card-heading"),
+                    cards = Seq(HMRCCardModel(cardOne))
+                ))
+            </section>
+
+            <section class="govuk-!-margin-bottom-8" id="multiple-cards-two">
+                @cardContainer(CardContainerModel(
+                    emptyView = emptyView,
+                    header = Some("Multiple cards, two items"),
+                    headerId = Some("multiple-cards-two-heading"),
+                    cards = Seq(
+                        HMRCCardModel(cardOne),
+                        HMRCCardModel(cardTwo)
+                    )
+                ))
+            </section>
+
+            <section class="govuk-!-margin-bottom-8" id="multiple-cards-three">
+                @cardContainer(CardContainerModel(
+                    emptyView = emptyView,
+                    header = Some("Multiple cards, three items"),
+                    headerId = Some("multiple-cards-three-heading"),
+                    cards = Seq(
+                        HMRCCardModel(cardOne),
+                        HMRCCardModel(cardTwo),
+                        HMRCCardModel(cardThree)
+                    )
+                ))
+            </section>
+
+            <section class="govuk-!-margin-bottom-8" id="custom-heading-level">
+                @cardContainer(CardContainerModel(
+                    emptyView = emptyView,
+                    header = Some("Custom heading level"),
+                    headingLevel = "h3",
+                    headerId = Some("custom-heading-level-heading"),
+                    cards = Seq(
+                        HMRCCardModel(cardOne),
+                        HMRCCardModel(cardTwo)
+                    )
+                ))
+            </section>
+
+            <section class="govuk-!-margin-bottom-8" id="custom-aria-label">
+                @cardContainer(CardContainerModel(
+                    emptyView = emptyView,
+                    listAriaLabel = Some("Cards with a custom accessible list label"),
+                    cards = Seq(
+                        HMRCCardModel(cardOne),
+                        HMRCCardModel(cardTwo)
+                    )
+                ))
+            </section>
+    </div>
+}
