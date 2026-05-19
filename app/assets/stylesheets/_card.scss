@@ -152,3 +152,17 @@
    background-color: $grey-4;
    transition: 0.1s ease-in-out;
 }
+
+.card-container-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  > li {
+    margin-bottom: 1em;
+  }
+
+  > li:last-child {
+    margin-bottom: 0;
+  }
+}
