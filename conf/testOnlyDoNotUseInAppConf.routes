@@ -17,4 +17,3 @@
 ->         /personal-account/  mongoFeatureTogglesTestOnly.Routes
 
 PUT         /personal-account/test-only/setDefaultFlags  controllers.testOnly.FeatureFlagsController.setDefaults()
-GET         /personal-account/test-only/card-container-test-page  controllers.testOnly.CardContainerTestController.show()
