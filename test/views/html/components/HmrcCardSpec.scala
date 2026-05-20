@@ -20,14 +20,16 @@ import play.twirl.api.Html
 import org.jsoup.nodes.Document
 import org.scalatest.matchers.must.Matchers
 import views.html.ViewSpec
-import models.{HmrcCardModel,CardType,Heading,Body,CardHint,Tag}
+import models.{Body, CardHint, CardType, Heading, HmrcCardModel, Tag}
 
 class HmrcCardSpec extends ViewSpec with Matchers {
   "HmrcCard component" must {
 
+    /** *      * Test arbitrary html in model renders correctly (e.g. lists of links required for support page)
+      */
     "render correctly with BasicCard CardType value" in {
-      val model = HmrcCardModel(CardType.BasicCard,Heading("Test Heading",Some("/test")),None,None)
-      
+      val model = HmrcCardModel(CardType.BasicCard, Heading("Test Heading", Some("/test")), None, None)
+
       val doc = asDocument(views.html.components.HmrcCard(model).toString)
 
       doc.select("div.hmrc-card").size mustBe 1
@@ -38,10 +40,11 @@ class HmrcCardSpec extends ViewSpec with Matchers {
     "render correctly with BasicCardWithDueDate CardType value" in {
       val model = HmrcCardModel(
         CardType.BasicCardWithDueDate,
-        Heading("Test Heading",Some("/test"))
-        ,None,Some(CardHint(None,Some(Tag("Due 31 January 2025","govuk-tag govuk-tag--orange"))))
+        Heading("Test Heading", Some("/test")),
+        None,
+        Some(CardHint(None, Some(Tag("Due 31 January 2025", "govuk-tag govuk-tag--orange"))))
       )
-      
+
       val doc = asDocument(views.html.components.HmrcCard(model).toString)
 
       doc.select("div.hmrc-card").size mustBe 1
@@ -55,14 +58,20 @@ class HmrcCardSpec extends ViewSpec with Matchers {
     "render correctly with SectionCard CardType value" in {
       val model = HmrcCardModel(
         CardType.SectionCard,
-        Heading("Test Heading",Some("/test"))
-        ,Some(Body(Html(
-          """
+        Heading("Test Heading", Some("/test")),
+        Some(
+          Body(
+            Html(
+              """
           <p class="govuk-body">We've received your Self Assessment tax return.</p>
           <p class="govuk-hint">Received 7 January 2024</p>
           """
-      ))),None)
-      
+            )
+          )
+        ),
+        None
+      )
+
       val doc = asDocument(views.html.components.HmrcCard(model).toString)
 
       doc.select("div.hmrc-card").size mustBe 1
@@ -77,15 +86,21 @@ class HmrcCardSpec extends ViewSpec with Matchers {
     "render correctly with NoLinkCard CardType value" in {
       val model = HmrcCardModel(
         CardType.NoLinkCard,
-        Heading("Test Heading",None),
-        Some(Body(Html(
-          """
+        Heading("Test Heading", None),
+        Some(
+          Body(
+            Html(
+              """
           <p class="govuk-body">
             Your tax information is available in your <a href="/test">Self Assessment</a>.
           </p>
           """
-      ))),None)
-      
+            )
+          )
+        ),
+        None
+      )
+
       val doc = asDocument(views.html.components.HmrcCard(model).toString)
 
       doc.select("div.hmrc-card").size mustBe 1
@@ -94,5 +109,20 @@ class HmrcCardSpec extends ViewSpec with Matchers {
       doc.select("p.govuk-body").size mustBe 1
       doc.select("p.govuk-body").text mustBe "Your tax information is available in your Self Assessment."
     }
+    "render correctly with NewTabCard CardType value" in {
+      val model = HmrcCardModel(CardType.NewTabCard, Heading("Test Heading", Some("/test")), None, None)
+
+      val doc = asDocument(views.html.components.HmrcCard(model).toString)
+
+      doc.select("div.hmrc-card").size mustBe 1
+      doc.select("h3.hmrc-card__heading").size mustBe 1
+      doc.select("h3.hmrc-card__heading").text mustBe "Test Heading (opens in new tab)"
+      doc.select("a[href=/test]").size mustBe 1
+      doc.select("span").size mustBe 2
+      doc.select("span.hmrc-card__chevron").size mustBe 1
+      doc.select("span.govuk-\\!-font-weight-regular").size mustBe 1
+      doc.select("span.govuk-\\!-font-weight-regular").text mustBe "(opens in new tab)"
+    }
+
   }
 }
