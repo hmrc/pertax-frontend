@@ -107,7 +107,6 @@ case class NoLinkCard(override val heading: Heading, body: Body) extends HmrcCar
             ${this.body.content} 
         </div>""")
 }
-
 case class NewTabCard(override val heading: Heading) extends HmrcCardModel(heading) {
   def render: Html =
     Html(s"""
