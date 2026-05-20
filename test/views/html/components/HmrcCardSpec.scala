@@ -20,15 +20,13 @@ import play.twirl.api.Html
 import org.jsoup.nodes.Document
 import org.scalatest.matchers.must.Matchers
 import views.html.ViewSpec
-import models.{Body, CardHint, CardType, Heading, HmrcCardModel, Tag}
+import models.{BasicCard, BasicCardWithDueDate, Body, CardHint, Heading, NewTabCard, NoLinkCard, SectionCard, Tag}
 
 class HmrcCardSpec extends ViewSpec with Matchers {
   "HmrcCard component" must {
 
-    /** *      * Test arbitrary html in model renders correctly (e.g. lists of links required for support page)
-      */
-    "render correctly with BasicCard CardType value" in {
-      val model = HmrcCardModel(CardType.BasicCard, Heading("Test Heading", Some("/test")), None, None)
+    "render correctly with BasicCard type HmrcCardModel." in {
+      val model = BasicCard(Heading("Test Heading", Some("/test")))
 
       val doc = asDocument(views.html.components.HmrcCard(model).toString)
 
@@ -37,12 +35,10 @@ class HmrcCardSpec extends ViewSpec with Matchers {
       doc.select("a[href]").text mustBe "Test Heading"
       doc.select("span.hmrc-card__chevron").size mustBe 1
     }
-    "render correctly with BasicCardWithDueDate CardType value" in {
-      val model = HmrcCardModel(
-        CardType.BasicCardWithDueDate,
+    "render correctly with BasicCardWithDueDate type HmrcCardModel." in {
+      val model = BasicCardWithDueDate(
         Heading("Test Heading", Some("/test")),
-        None,
-        Some(CardHint(None, Some(Tag("Due 31 January 2025", "govuk-tag govuk-tag--orange"))))
+        CardHint(None, Some(Tag("Due 31 January 2025", "govuk-tag govuk-tag--orange")))
       )
 
       val doc = asDocument(views.html.components.HmrcCard(model).toString)
@@ -55,21 +51,26 @@ class HmrcCardSpec extends ViewSpec with Matchers {
       doc.select("strong.govuk-tag").size mustBe 1
       doc.select("strong.govuk-tag").text mustBe "Due 31 January 2025"
     }
-    "render correctly with SectionCard CardType value" in {
-      val model = HmrcCardModel(
-        CardType.SectionCard,
+    "render correctly with SectionCard type HmrcCardModel." in {
+      val model = SectionCard(
         Heading("Test Heading", Some("/test")),
-        Some(
-          Body(
-            Html(
-              """
-          <p class="govuk-body">We've received your Self Assessment tax return.</p>
-          <p class="govuk-hint">Received 7 January 2024</p>
-          """
-            )
+        Body(
+          Html(
+            """
+            <p class="govuk-body">We've received your Self Assessment tax return.</p>
+            """
           )
         ),
-        None
+        CardHint(
+          Some(
+            Html(
+              """
+            <p class="govuk-hint">Received 7 January 2024</p>
+            """
+            )
+          ),
+          None
+        )
       )
 
       val doc = asDocument(views.html.components.HmrcCard(model).toString)
@@ -83,22 +84,18 @@ class HmrcCardSpec extends ViewSpec with Matchers {
       doc.select("p.govuk-body").text mustBe "We've received your Self Assessment tax return."
       doc.select("p.govuk-hint").text mustBe "Received 7 January 2024"
     }
-    "render correctly with NoLinkCard CardType value" in {
-      val model = HmrcCardModel(
-        CardType.NoLinkCard,
+    "render correctly with NoLinkCard type HmrcCardModel." in {
+      val model = NoLinkCard(
         Heading("Test Heading", None),
-        Some(
-          Body(
-            Html(
-              """
-          <p class="govuk-body">
-            Your tax information is available in your <a href="/test">Self Assessment</a>.
-          </p>
-          """
-            )
+        Body(
+          Html(
+            """
+            <p class="govuk-body">
+              Your tax information is available in your <a href="/test">Self Assessment</a>.
+            </p>
+            """
           )
-        ),
-        None
+        )
       )
 
       val doc = asDocument(views.html.components.HmrcCard(model).toString)
@@ -109,8 +106,8 @@ class HmrcCardSpec extends ViewSpec with Matchers {
       doc.select("p.govuk-body").size mustBe 1
       doc.select("p.govuk-body").text mustBe "Your tax information is available in your Self Assessment."
     }
-    "render correctly with NewTabCard CardType value" in {
-      val model = HmrcCardModel(CardType.NewTabCard, Heading("Test Heading", Some("/test")), None, None)
+    "render correctly with NewTabCard type HmrcCardModel." in {
+      val model = NewTabCard(Heading("Test Heading", Some("/test")))
 
       val doc = asDocument(views.html.components.HmrcCard(model).toString)
 
