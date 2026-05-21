@@ -105,6 +105,8 @@ GET         /personal-account/redirect-to-making-tax-digital                    
 GET         /personal-account/mtd/claim-from-pta/start                                 controllers.ClaimMtdFromPtaController.start
 POST        /personal-account/mtd/claim-from-pta/submit                                controllers.ClaimMtdFromPtaController.submit
 
+GET         /personal-account/support/understanding-account                            controllers.support.SupportController.understandingYourAccount
+
 ->         /admin                                                                      admin.Routes
 ->          /                                                                          health.Routes
 ->          /personal-account/hmrc-frontend                                            hmrcfrontend.Routes

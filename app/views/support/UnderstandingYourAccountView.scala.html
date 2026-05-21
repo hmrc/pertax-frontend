@@ -1,0 +1,95 @@
+@*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import tags._
+@import uk.gov.hmrc.domain.Nino
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukInsetText
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.insettext.InsetText
+@import viewmodels.AlertBannerViewModel
+@import views.MainView
+@import views.html.components.alertBanner.AlertBanner
+@import views.html.components.{H1, H2, H3, Link, P}
+
+@this(
+        main: MainView,
+        h1: H1,
+        h2: H2,
+        h3: H3,
+        p: P,
+        link: Link
+)
+
+@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+
+@main(
+    pageTitle = messages("ptap.support.uyoa.title")
+) {
+    @h1("ptap.support.uya.title")
+
+    @p(Text(messages("ptap.support.uya.p1")))
+    @p(Text(messages("ptap.support.uya.p1.list")))
+
+    <ul class="govuk-list govuk-list--bullet" id="accessList">
+        <li>@messages("ptap.support.uya.list.paye")</li>
+        <li>@messages("ptap.support.uya.list.sa")</li>
+        <li>@messages("ptap.support.uya.list.ni")</li>
+        <li>@messages("ptap.support.uya.list.ats")</li>
+        <li>@messages("ptap.support.uya.list.cb")</li>
+        <li>@messages("ptap.support.uya.list.ma")</li>
+    </ul>
+
+    @h2("ptap.support.uya.p2.header")
+    <p class="govuk-body">
+        @messages("ptap.support.uya.p2")
+        @link(configDecorator.personalAccount, messageKey = "ptap.support.uya.p2.link", id = Some("personalAccountLink"), inParagraph = true)
+    </p>
+
+    @h3("ptap.support.uya.p2.sub")
+
+    @p(Text(messages("ptap.support.uya.p2.tasks")))
+
+    @p(Text(messages("ptap.support.uya.p2.tasks.list")))
+
+    <ul class="govuk-list govuk-list--bullet" id="taskList">
+        <li>@messages("ptap.support.uya.list.paye")</li>
+        <li>@messages("ptap.support.uya.list.sa")</li>
+        <li>@messages("ptap.support.uya.list.ni")</li>
+        <li>@messages("ptap.support.uya.list.cb")</li>
+    </ul>
+
+    @p(Text(messages("ptap.support.uya.p2.tasks.list.other")))
+
+    <ul class="govuk-list govuk-list--bullet" id="otherList">
+        <li>@messages("ptap.support.uya.list.uos")</li>
+        <li>@link(configDecorator.notifyChangeOfDetails, messageKey = "ptap.support.uya.list.circumstances.link", id = Some("notifyChangeOfDetailsLink"))</li>
+        <li>@messages("ptap.support.uya.list.bta")</li>
+    </ul>
+
+    @h3("ptap.support.uya.p3.sub")
+
+    @p(Text(messages("ptap.support.uya.p3.recent")))
+
+    @h3("ptap.support.uya.p4.sub")
+
+    @p(Text(messages("ptap.support.uya.p4.tab")))
+
+    @h3("ptap.support.uya.p5.sub")
+
+    @p(Text(messages("ptap.support.uya.p5.hs")))
+}

@@ -324,6 +324,8 @@ class ConfigDecorator @Inject() (
   lazy val addressChangeProfileTextCy: String      =
     runModeConfiguration.get[String]("feature.address-change-error.profile.text.cy")
 
+  lazy val notifyChangeOfDetails = "https://www.gov.uk/tell-hmrc-change-of-details"
+
   def addressChangeStartDateParagraphEn(addressType: String, date: String): String =
     runModeConfiguration
       .get[String]("feature.address-change-error.start-date.paragraph.en")
