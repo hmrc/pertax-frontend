@@ -394,9 +394,6 @@ trait IntegrationSpec
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetMatchingFromCitizenDetailsToggle)))
       .thenReturn(Future.successful(FeatureFlag(GetMatchingFromCitizenDetailsToggle, isEnabled = true)))
 
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(FandFBannerToggle)))
-      .thenReturn(Future.successful(FeatureFlag(FandFBannerToggle, isEnabled = false)))
-
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(HomePageChangesBannerToggle)))
       .thenReturn(Future.successful(FeatureFlag(HomePageChangesBannerToggle, isEnabled = false)))
 
