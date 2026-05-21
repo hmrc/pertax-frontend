@@ -41,7 +41,9 @@
       @listLabel.map { label => aria-label="@label" }
       @if(listLabel.isEmpty) { aria-labelledby="@headerIdValue" }>
     @for(card <- model.cards) {
-      <li class="hmrc-card">@card.content</li>
+      <li class="hmrc-card__list-item">
+        <div class="hmrc-card">@card.content</div>
+      </li>
     }
   </ul>
 }

@@ -64,7 +64,8 @@ class CardContainerSpec extends ViewSpec {
       )
       val doc   = asDocument(cardContainer(model).toString)
       doc.select("ul.hmrc-card__container").size() mustBe 1
-      doc.select("ul.hmrc-card__container > li.hmrc-card").size() mustBe 2
+      doc.select("ul.hmrc-card__container > li.hmrc-card__list-item").size() mustBe 2
+      doc.select("ul.hmrc-card__container > li.hmrc-card__list-item > div.hmrc-card").size() mustBe 2
     }
 
     "render a native list so screen readers can announce the item count" in {
@@ -188,7 +189,7 @@ class CardContainerSpec extends ViewSpec {
         cards = Seq(cardOne, cardTwo)
       )
       val doc   = asDocument(cardContainer(model).toString)
-      doc.select("ul.hmrc-card__container > li.hmrc-card a[href]").size() mustBe 2
+      doc.select("ul.hmrc-card__container > li.hmrc-card__list-item > div.hmrc-card a[href]").size() mustBe 2
     }
 
     "throw error when a card has no focusable control" in {
