@@ -154,7 +154,7 @@ class HmrcCardSpec extends ViewSpec with Matchers {
 
       val doc = asDocument(views.html.components.HmrcCard(model).toString)
 
-      doc.html must contain noneOf ("&amp;", "&lt;", "&gt;", "&quot;", "&#x37;")
+      doc.html must not contain ("&amp;", "&lt;", "&gt;", "&quot;", "&#x37;")
 
     }
     "render arbitrary html in NoLinkCard correctly, without characters escaping" in {
@@ -163,7 +163,7 @@ class HmrcCardSpec extends ViewSpec with Matchers {
         Body(
           Html(
             """
-            <p class="govuk-body">&amp;
+            <p class="govuk-body">
               Your tax information is available in your <a href="/test">Self Assessment</a>.
             </p>
             """
@@ -172,8 +172,7 @@ class HmrcCardSpec extends ViewSpec with Matchers {
       )
 
       val doc = asDocument(views.html.components.HmrcCard(model).toString)
-
-      doc.html must contain noneOf ("&amp;", "&lt;", "&gt;", "&quot;", "&#x37;")
+      doc.html must not contain ("&amp;", "&lt;", "&gt;", "&quot;", "&#x37;")
 
     }
   }
