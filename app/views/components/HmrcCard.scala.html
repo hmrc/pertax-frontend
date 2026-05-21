@@ -14,8 +14,62 @@
  * limitations under the License.
  *@
 
-@import models.HmrcCardModel
+@import models.{HmrcCardModel, CardType}
+@import play.twirl.api.Html
 
 @(hmrcCard: HmrcCardModel)
 
-@hmrcCard.render
+@if(hmrcCard.heading.url.isDefined){
+    @if(!hmrcCard.body.isDefined && !hmrcCard.hint.isDefined){
+        @if(!hmrcCard.heading.opensNewTab){
+            <div class="hmrc-card">
+                <div class="hmrc-card__heading">
+                    <a href='@hmrcCard.heading.url.get'>
+                        @{hmrcCard.heading.text}
+                        <span class="hmrc-card__chevron" aria-hidden="true"></span>
+                    </a>
+                </div>
+            </div>
+        } else {
+            <div class="hmrc-card">
+                <h3 class="hmrc-card__heading">
+                <a href='@hmrcCard.heading.url.get'>
+                    @{hmrcCard.heading.text}
+                    <span class="hmrc-card__chevron" aria-hidden="true"></span><br/>
+                    <span class="govuk-!-font-weight-regular">(opens in new tab)</span>
+                </a>
+                </h3>
+            </div>
+        }
+    } else if(!hmrcCard.body.isDefined &&  hmrcCard.hint.isDefined){
+        <div class="hmrc-card">
+            <h3 class="hmrc-card__heading">
+            <a href='@hmrcCard.heading.url.get'>
+                @{hmrcCard.heading.text}
+                <span class="hmrc-card__chevron" aria-hidden="true"></span>
+            </a>
+            </h3>
+            <p class="govuk-body">
+            @{hmrcCard.hint.get.render_tag}
+            </p>
+        </div>
+    } else if(hmrcCard.body.isDefined && hmrcCard.hint.isDefined){
+        <div class="hmrc-card">
+            <h3 class="hmrc-card__heading">
+            <a href='@hmrcCard.heading.url.get'>
+                @{hmrcCard.heading.text}
+                <span class="hmrc-card__chevron" aria-hidden="true"></span>
+            </a>
+            </h3>
+            @{hmrcCard.body.get.content}
+            @{hmrcCard.hint.get.content.get}
+        </div>
+    }
+} else {
+    <div class="hmrc-card">
+        <h3 class="hmrc-card__heading">
+        @{hmrcCard.heading.text}
+        </h3>
+        @{hmrcCard.body.get.content} 
+    </div>
+}

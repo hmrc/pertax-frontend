@@ -25,7 +25,7 @@ enum CardType:
   case NoLinkCard
   case NewTabCard
 
-class Heading(val text: String, val url: Option[String])
+class Heading(val text: String, val url: Option[String], val opensNewTab: Boolean)
 class Body(val content: Html)
 class Tag(val content: String, val classes: String)
 class CardHint(val content: Option[Html], val tag: Option[Tag]) {
@@ -38,85 +38,4 @@ class CardHint(val content: Option[Html], val tag: Option[Tag]) {
         """)
       case None      => Html("")
 }
-trait hasBody {
-  val body: Body
-}
-trait hasHint {
-  val hint: CardHint
-}
-sealed abstract class HmrcCardModel(val heading: Heading) {
-  def render: Html
-}
-case class BasicCard(override val heading: Heading) extends HmrcCardModel(heading) {
-  def render: Html =
-    Html(s"""
-        <div class="hmrc-card">
-          <div class="hmrc-card__heading">
-            <a href='${this.heading.url.getOrElse("")}'>
-              ${this.heading.text}
-              <span class="hmrc-card__chevron" aria-hidden="true"></span>
-            </a>
-          </div>
-        </div>""")
-}
-case class BasicCardWithDueDate(override val heading: Heading, hint: CardHint) extends HmrcCardModel(heading), hasHint {
-  def render: Html =
-    Html(s"""
-        <div class="hmrc-card">
-          <h3 class="hmrc-card__heading">
-            <a href='${this.heading.url.getOrElse("")}'>
-              ${this.heading.text}
-              <span class="hmrc-card__chevron" aria-hidden="true"></span>
-            </a>
-          </h3>
-          <p class="govuk-body">
-            ${this.hint.tag match {
-        case Some(_) => this.hint.render_tag
-        case None    => Html("")
-      }}
-          </p>
-        </div>""")
-}
-case class SectionCard(override val heading: Heading, body: Body, hint: CardHint)
-    extends HmrcCardModel(heading),
-      hasBody,
-      hasHint {
-  def render: Html =
-    Html(s"""
-        <div class="hmrc-card">
-          <h3 class="hmrc-card__heading">
-            <a href='${this.heading.url.getOrElse("")}'>
-              ${this.heading.text}
-              <span class="hmrc-card__chevron" aria-hidden="true"></span>
-            </a>
-          </h3>
-          ${this.body.content}
-          ${this.hint.content match {
-        case Some(value) => value
-        case None        => Html("")
-      }}
-        </div>""")
-}
-case class NoLinkCard(override val heading: Heading, body: Body) extends HmrcCardModel(heading), hasBody {
-  def render: Html =
-    Html(s"""
-        <div class="hmrc-card">
-          <h3 class="hmrc-card__heading">
-            ${this.heading.text}
-          </h3>
-            ${this.body.content} 
-        </div>""")
-}
-case class NewTabCard(override val heading: Heading) extends HmrcCardModel(heading) {
-  def render: Html =
-    Html(s"""
-        <div class="hmrc-card">
-          <h3 class="hmrc-card__heading">
-            <a href='${this.heading.url.getOrElse("")}'>
-              ${this.heading.text}
-              <span class="hmrc-card__chevron" aria-hidden="true"></span><br/>
-              <span class="govuk-!-font-weight-regular">(opens in new tab)</span>
-            </a>
-          </h3>
-        </div>""")
-}
+case class HmrcCardModel(cardType: CardType, heading: Heading, body: Option[Body], hint: Option[CardHint])
