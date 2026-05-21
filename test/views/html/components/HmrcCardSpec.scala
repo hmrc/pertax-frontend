@@ -57,7 +57,7 @@ class HmrcCardSpec extends ViewSpec with Matchers {
         CardType.SectionCard,
         Heading(Html("Test Heading"), Some("/test"), false),
         Some(Body(Html("""We've received your Self Assessment tax return."""))),
-        Some(CardHint(Some(Html("""Received 7 January 2024""")),None))
+        Some(CardHint(Some(Html("""Received 7 January 2024""")), None))
       )
 
       val doc = asDocument(views.html.components.HmrcCard(model).toString)
@@ -118,7 +118,7 @@ class HmrcCardSpec extends ViewSpec with Matchers {
         CardType.SectionCard,
         Heading(Html("Test Heading"), Some("/test"), false),
         Some(Body(Html("""We've received your Self Assessment tax return."""))),
-        Some(CardHint(Some(Html("""Received 7 January 2024""")),None))
+        Some(CardHint(Some(Html("""Received 7 January 2024""")), None))
       )
 
       val doc = asDocument(views.html.components.HmrcCard(model).toString)
