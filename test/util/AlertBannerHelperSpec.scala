@@ -17,7 +17,7 @@
 package util
 
 import cats.data.EitherT
-import connectors.{FandFConnector, PreferencesFrontendConnector}
+import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import models.admin.{AlertBannerPaperlessStatusToggle, HomePageChangesBannerToggle, PeakDemandBannerToggle, ShowPlannedOutageBannerToggle, VoluntaryContributionsAlertToggle}
 import models.{PaperlessMessagesStatus, PaperlessStatusBounced, PaperlessStatusNewCustomer, PaperlessStatusNoEmail, PaperlessStatusOptIn, PaperlessStatusOptOut, PaperlessStatusReopt, PaperlessStatusReoptModified, PaperlessStatusUnverified}
@@ -35,20 +35,19 @@ import testUtils.{BaseSpec, UserRequestFixture}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import views.html.components.alertBanner.paperlessStatus.*
-import views.html.components.alertBanner.{addressFixBanner, fandfBanner, newHomePageChangesBanner, oldHomePageChangesBanner, peakDemandBanner, shutteringBanner, voluntaryContributionsAlertView}
+import views.html.components.alertBanner.{addressFixBanner, newHomePageChangesBanner, oldHomePageChangesBanner, peakDemandBanner, shutteringBanner, voluntaryContributionsAlertView}
 
 import scala.concurrent.Future
 
 class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
 
   lazy val mockPreferencesFrontendConnector: PreferencesFrontendConnector = mock[PreferencesFrontendConnector]
-  lazy val mockFandFConnector: FandFConnector                             = mock[FandFConnector]
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type]           =
     UserRequestFixture.buildUserRequest(request = FakeRequest().withSession("sessionId" -> "FAKE_SESSION_ID"))
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockPreferencesFrontendConnector, mockFeatureFlagService)
+    reset(mockPreferencesFrontendConnector)
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(AlertBannerPaperlessStatusToggle)))
       .thenReturn(Future.successful(FeatureFlag(AlertBannerPaperlessStatusToggle, isEnabled = true)))
@@ -59,16 +58,13 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
     when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
       .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = false)))
 
-    when(mockFandFConnector.showFandfBanner(any())(any(), any())).thenReturn(Future.successful(false))
-
     when(mockFeatureFlagService.get(HomePageChangesBannerToggle))
       .thenReturn(Future.successful(FeatureFlag(HomePageChangesBannerToggle, isEnabled = false)))
   }
 
   override lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
-      bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendConnector),
-      bind[FandFConnector].toInstance(mockFandFConnector)
+      bind[PreferencesFrontendConnector].toInstance(mockPreferencesFrontendConnector)
     )
     .build()
 
@@ -80,7 +76,6 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
   lazy val peakDemandBannerView: peakDemandBanner                 = app.injector.instanceOf[peakDemandBanner]
   lazy val addressFixBannerView: addressFixBanner                 = app.injector.instanceOf[addressFixBanner]
   lazy val shutteringBannerView: shutteringBanner                 = app.injector.instanceOf[shutteringBanner]
-  lazy val fandfBannerView: fandfBanner                           = app.injector.instanceOf[fandfBanner]
   lazy val newHomePageChangesBannerView: newHomePageChangesBanner = app.injector.instanceOf[newHomePageChangesBanner]
   lazy val oldHomePageChangesBannerView: oldHomePageChangesBanner = app.injector.instanceOf[oldHomePageChangesBanner]
 
@@ -128,18 +123,6 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       val result = alertBannerHelper.getContent(personDetails, false).futureValue
 
       result mustBe Some(addressFixBannerView())
-    }
-
-    "return fandf banner content" in {
-      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
-        EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusOptIn(): PaperlessMessagesStatus)
-      )
-
-      when(mockFandFConnector.showFandfBanner(any())(any(), any())).thenReturn(Future.successful(true))
-
-      val result = alertBannerHelper.getContent(None, false).futureValue
-
-      result mustBe Some(fandfBannerView())
     }
 
     "return bounce email content " in {

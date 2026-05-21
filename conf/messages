@@ -856,9 +856,6 @@ label.tax_calc_option=Your tax calculation — PAYE {0} to {1}
 label.task_heading=Refunds and tax you owe — Pay As You Earn (PAYE)
 label.task_paragraph=It can take up to 10 days for completed tasks to be removed from the list.
 
-fandf.banner.text=Your trusted helper relationship ends at midnight on {0}.
-fandf.banner.linkText=Find out how trusted helpers is changing
-
 old_home_page_banner.text=We’re making changes to your personal tax account homepage.
 old_home_page_banner.link_text=Read more about what’s changing
 new_home_page_banner.text=Your personal tax account homepage has been updated.

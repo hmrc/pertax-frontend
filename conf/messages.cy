@@ -868,9 +868,6 @@ label.tax_calc_option=Eich cyfrifiad treth – TWE {0} i {1}
 label.task_heading=Ad-daliadau a’r dreth sydd arnoch – Talu Wrth Ennill (TWE)
 label.task_paragraph=Gall gymryd hyd at 10 diwrnod i’r tasgau sydd wedi’u cwblhau gael eu tynnu o’r rhestr.
 
-fandf.banner.text=Mae’ch perthynas â’ch cynorthwyydd dibynadwy yn dod i ben am hanner nos ar {0}.
-fandf.banner.linkText=Dysgwch sut mae cynorthwywyr dibynadwy yn newid.
-
 old_home_page_banner.text=Rydym yn gwneud newidiadau i hafan eich Cyfrif Treth Personol.
 old_home_page_banner.link_text=Darllenwch fwy am yr hyn sy’n newid
 new_home_page_banner.text=Mae hafan eich Cyfrif Treth Personol wedi’i diweddaru.

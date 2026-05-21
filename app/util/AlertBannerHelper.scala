@@ -18,30 +18,26 @@ package util
 
 import cats.implicits.catsStdInstancesForFuture
 import com.google.inject.Inject
-import connectors.{FandFConnector, PreferencesFrontendConnector}
+import connectors.PreferencesFrontendConnector
 import controllers.auth.requests.UserRequest
 import models.*
 import models.admin.{AlertBannerPaperlessStatusToggle, HomePageChangesBannerToggle, PeakDemandBannerToggle, ShowPlannedOutageBannerToggle, VoluntaryContributionsAlertToggle}
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.twirl.api.Html
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.components.alertBanner.paperlessStatus.{bouncedEmail, unverifiedEmail}
-import views.html.components.alertBanner.{addressFixBanner, fandfBanner, newHomePageChangesBanner, oldHomePageChangesBanner, peakDemandBanner, shutteringBanner, voluntaryContributionsAlertView}
+import views.html.components.alertBanner.{addressFixBanner, newHomePageChangesBanner, oldHomePageChangesBanner, peakDemandBanner, shutteringBanner, voluntaryContributionsAlertView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class AlertBannerHelper @Inject() (
   preferencesFrontendConnector: PreferencesFrontendConnector,
   featureFlagService: FeatureFlagService,
-  fandFConnector: FandFConnector,
   bouncedEmailView: bouncedEmail,
   unverifiedEmailView: unverifiedEmail,
   voluntaryContributionsAlertView: voluntaryContributionsAlertView,
   peakDemandBannerView: peakDemandBanner,
-  fandfBannerView: fandfBanner,
   addressFixBannerView: addressFixBanner,
   shutteringBannerView: shutteringBanner,
   newHomePageChangesBannerView: newHomePageChangesBanner,
@@ -57,7 +53,6 @@ class AlertBannerHelper @Inject() (
       getShutteringBannerContent,
       getPeakDemandBannerContent,
       getAddressFixBannerContent(personDetails),
-      getFandfBannerContent,
       getPaperlessStatusBannerContent,
       getHomePageChangesBannerContent(newDesign)
     )
@@ -89,17 +84,6 @@ class AlertBannerHelper @Inject() (
     featureFlagService.get(PeakDemandBannerToggle).map {
       case toggle if toggle.isEnabled => Some(peakDemandBannerView())
       case _                          => None
-    }
-
-  private def getFandfBannerContent(implicit
-    request: UserRequest[AnyContent],
-    ec: ExecutionContext,
-    messages: Messages
-  ): Future[Option[Html]] =
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    fandFConnector.showFandfBanner(request.authNino).map {
-      case true => Some(fandfBannerView())
-      case _    => None
     }
 
   private def getShutteringBannerContent(implicit ec: ExecutionContext, messages: Messages): Future[Option[Html]] =
