@@ -16,13 +16,13 @@
 
 package controllers
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import models.admin.TaxComponentsRetrievalToggle
+import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
 import play.api.http.Status.*
-import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
@@ -91,7 +91,7 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
       )
 
       contentAsString(result).contains(
-        Messages("label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner")
+        "You currently transfer part of your Personal Allowance to your partner."
       ) mustBe true
       server.verify(
         1,
@@ -124,7 +124,7 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
       httpStatus(result) mustBe OK
 
       contentAsString(result).contains(
-        Messages("label.your_partner_currently_transfers_part_of_their_personal_allowance_to_you")
+        "Your partner currently transfers part of their Personal Allowance to you."
       ) mustBe true
       server.verify(
         1,
@@ -132,7 +132,7 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
       )
     }
 
-    "show correct message on the Marriage Allowance tile when not transferring or receiving Personal Allowance from partner" in {
+    "show Marriage Allowance in Other Services when not claiming it" in {
 
       val taxComponentsJson = Json
         .parse("""{
@@ -156,9 +156,11 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK
 
-      contentAsString(result).contains(
-        Messages("label.transfer_part_of_your_personal_allowance_to_your_partner_")
-      ) mustBe true
+      Jsoup
+        .parse(contentAsString(result))
+        .getElementById("other_taxes")
+        .text()
+        .contains("Marriage Allowance") mustBe true
       server.verify(
         1,
         getRequestedFor(urlEqualTo(s"/tai/$generatedNino/tax-account/$startTaxYear/tax-components"))

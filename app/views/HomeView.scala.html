@@ -74,7 +74,7 @@
 
         @h2("label.taxes_and_benefits_heading", classes = Some("govuk-heading-m govuk-!-margin-top-8"), elmId = Some("taxes-and-benefits-heading"))
         @h3("label.taxes_and_benefits_subheading")
-        <ul class="govuk-list">
+        <ul class="govuk-list" id="my_taxes">
             @for(myService <- viewModel.myServices) {
                 @myServiceView(myService)
             }
@@ -82,7 +82,7 @@
 
         @if(viewModel.otherServices.nonEmpty) {
             @h3("label.other_taxes_and_benefits_heading", classes = Some("govuk-!-margin-top-6"))
-            <ul class="govuk-list">
+            <ul class="govuk-list" id="other_taxes">
             @for(otherService <- viewModel.otherServices) {
                 @otherServiceView(otherService)
             }
