@@ -39,9 +39,21 @@ class CardContainerSpec extends ViewSpec {
         cards = Seq.empty
       )
       val doc   = asDocument(cardContainer(model).toString)
+      doc.select("h2.govuk-heading-m").text() mustBe "Test Header"
       doc.text() must include("No cards")
       doc.select("ul").size() mustBe 0
       doc.select(".hmrc-card").size() mustBe 0
+    }
+
+    "render header when provided" in {
+      val model = CardContainerModel(
+        emptyView = Html(""),
+        header = Some("Test Header"),
+        cards = Seq(cardOne)
+      )
+      val doc   = asDocument(cardContainer(model).toString)
+      doc.select("h2.govuk-heading-m").text() mustBe "Test Header"
+      doc.select("h2.govuk-heading-m").attr("id") mustBe "card-container-header"
     }
 
     "render single card without ul wrapper" in {
@@ -88,6 +100,18 @@ class CardContainerSpec extends ViewSpec {
         cards = Seq(cardOne, cardTwo)
       )
       val doc   = asDocument(cardContainer(model).toString)
+      doc.select("ul").attr("aria-label") mustBe "Custom label"
+      doc.select("ul").hasAttr("aria-labelledby") mustBe false
+    }
+
+    "use aria-label without rendering a heading when listAriaLabel is provided without header" in {
+      val model = CardContainerModel(
+        emptyView = Html(""),
+        listAriaLabel = Some("Custom label"),
+        cards = Seq(cardOne, cardTwo)
+      )
+      val doc   = asDocument(cardContainer(model).toString)
+      doc.select("h2.govuk-heading-m").size() mustBe 0
       doc.select("ul").attr("aria-label") mustBe "Custom label"
       doc.select("ul").hasAttr("aria-labelledby") mustBe false
     }

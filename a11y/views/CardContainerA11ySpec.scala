@@ -93,6 +93,21 @@ class CardContainerA11ySpec extends A11ySpec {
       html must passAccessibilityChecks(OutputFormat.Verbose)
     }
 
+    "pass accessibility checks for a single card" in {
+      val html = fullPage(
+        cardContainer(
+          CardContainerModel(
+            emptyView = emptyView,
+            header = Some("PAYE service"),
+            headerId = Some("paye-service-heading"),
+            cards = Seq(payeCard)
+          )
+        )
+      )
+
+      html must passAccessibilityChecks(OutputFormat.Verbose)
+    }
+
     "pass accessibility checks for multiple cards labelled by aria-label" in {
       val html = fullPage(
         cardContainer(
