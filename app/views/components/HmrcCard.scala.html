@@ -41,7 +41,7 @@
                 </h3>
             </div>
         }
-    } else if(!hmrcCard.body.isDefined &&  hmrcCard.hint.isDefined){
+    } else if(!hmrcCard.body.isDefined &&  hmrcCard.hint.isDefined && hmrcCard.hint.get.tag.isDefined){
         <div class="hmrc-card">
             <h3 class="hmrc-card__heading">
             <a href='@hmrcCard.heading.url.get'>
@@ -50,7 +50,9 @@
             </a>
             </h3>
             <p class="govuk-body">
-            @{hmrcCard.hint.get.render_tag}
+                <span class="@hmrcCard.hint.get.tag.get.classes">
+                    @{hmrcCard.hint.get.tag.get.content}
+                </span>
             </p>
         </div>
     } else if(hmrcCard.body.isDefined && hmrcCard.hint.isDefined){
@@ -61,8 +63,12 @@
                 <span class="hmrc-card__chevron" aria-hidden="true"></span>
             </a>
             </h3>
-            @{hmrcCard.body.get.content}
-            @{hmrcCard.hint.get.content.get}
+            <p class="govuk-body">
+                @{hmrcCard.body.get.content}
+            </p>
+            <p class="govuk-hint">
+                @{hmrcCard.hint.get.content.get}
+            </p>
         </div>
     }
 } else {
@@ -70,6 +76,8 @@
         <h3 class="hmrc-card__heading">
         @{hmrcCard.heading.text}
         </h3>
-        @{hmrcCard.body.get.content} 
+        <p class="govuk-body">
+            @{hmrcCard.body.get.content}
+        </p>
     </div>
 }

@@ -25,17 +25,25 @@ enum CardType:
   case NoLinkCard
   case NewTabCard
 
-class Heading(val text: String, val url: Option[String], val opensNewTab: Boolean)
+class Heading(val text: Html, val url: Option[String], val opensNewTab: Boolean)
 class Body(val content: Html)
-class Tag(val content: String, val classes: String)
-class CardHint(val content: Option[Html], val tag: Option[Tag]) {
-  def render_tag: Html =
-    this.tag match
-      case Some(tag) => Html(s"""
-        <span class="${tag.classes}">
-          ${tag.content}
-        </span>
-        """)
-      case None      => Html("")
+class Tag(val content: Html, val classes: String) {
+  val valid_classes: List[String] = List[String](
+    "govuk-tag",
+    "govuk-tag--grey",
+    "govuk-tag--green",
+    "govuk-tag--teal",
+    "govuk-tag--blue",
+    "govuk-tag--purple",
+    "govuk-tag--magenta",
+    "govuk-tag--red",
+    "govuk-tag--orange",
+    "govuk-tag--yellow"
+  )
+  if (!classes.split("\\s+").forall(valid_classes.contains)) {
+    throw new Exception("Invalid or malformed class supplied to tag. Please see GDS for defined tags.")
+  }
 }
+class CardHint(val content: Option[Html], val tag: Option[Tag])
+
 case class HmrcCardModel(cardType: CardType, heading: Heading, body: Option[Body], hint: Option[CardHint])

@@ -25,7 +25,7 @@ import models.{Body, CardHint, CardType, Heading, HmrcCardModel, Tag}
 class HmrcCardSpec extends ViewSpec with Matchers {
   "HmrcCard component" must {
     "render correctly with BasicCard type HmrcCardModel." in {
-      val model = HmrcCardModel(CardType.BasicCard, Heading("Test Heading", Some("/test"), false), None, None)
+      val model = HmrcCardModel(CardType.BasicCard, Heading(Html("Test Heading"), Some("/test"), false), None, None)
 
       val doc = asDocument(views.html.components.HmrcCard(model).toString)
 
@@ -37,9 +37,9 @@ class HmrcCardSpec extends ViewSpec with Matchers {
     "render correctly with BasicCardWithDueDate type HmrcCardModel." in {
       val model = HmrcCardModel(
         CardType.BasicCardWithDueDate,
-        Heading("Test Heading", Some("/test"), false),
+        Heading(Html("Test Heading"), Some("/test"), false),
         None,
-        Some(CardHint(None, Some(Tag("Due 31 January 2025", "govuk-tag govuk-tag--orange"))))
+        Some(CardHint(None, Some(Tag(Html("Due 31 January 2025"), "govuk-tag govuk-tag--orange"))))
       )
 
       val doc = asDocument(views.html.components.HmrcCard(model).toString)
@@ -55,28 +55,9 @@ class HmrcCardSpec extends ViewSpec with Matchers {
     "render correctly with SectionCard type HmrcCardModel." in {
       val model = HmrcCardModel(
         CardType.SectionCard,
-        Heading("Test Heading", Some("/test"), false),
-        Some(
-          Body(
-            Html(
-              """
-            <p class="govuk-body">We've received your Self Assessment tax return.</p>
-            """
-            )
-          )
-        ),
-        Some(
-          CardHint(
-            Some(
-              Html(
-                """
-            <p class="govuk-hint">Received 7 January 2024</p>
-            """
-              )
-            ),
-            None
-          )
-        )
+        Heading(Html("Test Heading"), Some("/test"), false),
+        Some(Body(Html("""We've received your Self Assessment tax return."""))),
+        Some(CardHint(Some(Html("""Received 7 January 2024""")),None))
       )
 
       val doc = asDocument(views.html.components.HmrcCard(model).toString)
@@ -93,18 +74,8 @@ class HmrcCardSpec extends ViewSpec with Matchers {
     "render correctly with NoLinkCard type HmrcCardModel." in {
       val model = HmrcCardModel(
         CardType.NoLinkCard,
-        Heading("Test Heading", None, false),
-        Some(
-          Body(
-            Html(
-              """
-            <p class="govuk-body">
-              Your tax information is available in your <a href="/test">Self Assessment</a>.
-            </p>
-            """
-            )
-          )
-        ),
+        Heading(Html("Test Heading"), None, false),
+        Some(Body(Html("""Your tax information is available in your <a href="/test">Self Assessment</a>."""))),
         None
       )
 
@@ -117,10 +88,10 @@ class HmrcCardSpec extends ViewSpec with Matchers {
       doc.select("p.govuk-body").text mustBe "Your tax information is available in your Self Assessment."
     }
     "render correctly with NewTabCard type HmrcCardModel." in {
-      val model = HmrcCardModel(CardType.NewTabCard, Heading("Test Heading", Some("/test"), true), None, None)
+      val model = HmrcCardModel(CardType.NewTabCard, Heading(Html("Test Heading"), Some("/test"), true), None, None)
 
       val doc = asDocument(views.html.components.HmrcCard(model).toString)
-      print(doc)
+
       doc.select("div.hmrc-card").size mustBe 1
       doc.select("h3.hmrc-card__heading").size mustBe 1
       doc.select("h3.hmrc-card__heading").text mustBe "Test Heading (opens in new tab)"
@@ -133,9 +104,9 @@ class HmrcCardSpec extends ViewSpec with Matchers {
     "render arbitrary html in BasicCardWithDueDate correctly, without characters escaping" in {
       val model = HmrcCardModel(
         CardType.BasicCardWithDueDate,
-        Heading("Test Heading", Some("/test"), false),
+        Heading(Html("Test Heading"), Some("/test"), false),
         None,
-        Some(CardHint(None, Some(Tag("Due 31 January 2025", "govuk-tag govuk-tag--orange"))))
+        Some(CardHint(None, Some(Tag(Html("Due 31 January 2025"), "govuk-tag govuk-tag--orange"))))
       )
 
       val doc = asDocument(views.html.components.HmrcCard(model).toString)
@@ -145,28 +116,9 @@ class HmrcCardSpec extends ViewSpec with Matchers {
     "render Arbitrary html in SectionCard correctly, without characters escaping" in {
       val model = HmrcCardModel(
         CardType.SectionCard,
-        Heading("Test Heading", Some("/test"), false),
-        Some(
-          Body(
-            Html(
-              """
-            <p class="govuk-body">We've received your Self Assessment tax return.</p>
-            """
-            )
-          )
-        ),
-        Some(
-          CardHint(
-            Some(
-              Html(
-                """
-            <p class="govuk-hint">Received 7 January 2024</p>
-            """
-              )
-            ),
-            None
-          )
-        )
+        Heading(Html("Test Heading"), Some("/test"), false),
+        Some(Body(Html("""We've received your Self Assessment tax return."""))),
+        Some(CardHint(Some(Html("""Received 7 January 2024""")),None))
       )
 
       val doc = asDocument(views.html.components.HmrcCard(model).toString)
@@ -177,18 +129,8 @@ class HmrcCardSpec extends ViewSpec with Matchers {
     "render arbitrary html in NoLinkCard correctly, without characters escaping" in {
       val model = HmrcCardModel(
         CardType.NoLinkCard,
-        Heading("Test Heading", None, false),
-        Some(
-          Body(
-            Html(
-              """
-            <p class="govuk-body">
-              Your tax information is available in your <a href="/test">Self Assessment</a>.
-            </p>
-            """
-            )
-          )
-        ),
+        Heading(Html("Test Heading"), None, false),
+        Some(Body(Html("""Your tax information is available in your <a href="/test">Self Assessment</a>."""))),
         None
       )
 
