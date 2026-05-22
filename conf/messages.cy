@@ -885,35 +885,35 @@ label.mtdit.claim.question=A ydych am ychwanegu’r cynllun Troi Treth yn Ddigid
 label.mtdit.claim.error=Dewiswch ‘Iawn’ i ychwanegu’r cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm i’ch cyfrif treth personol
 head.label.mtdit.claim.error=Dewiswch ‘Iawn’ i ychwanegu’r cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm i’ch cyfrif treth personol
 
-ptap.support.uya.title=Understanding your HMRC Online account
-ptap.support.uya.p1=Your HMRC Online account lets you manage your taxes and benefits in one place.
-ptap.support.uya.p1.list=You can use it to access:
+ptap.support.uya.title=TBC
+ptap.support.uya.p1=TBC
+ptap.support.uya.p1.list=TBC
 
-ptap.support.uya.p2.header=How to use your HMRC Online account
-ptap.support.uya.p2=Use your HMRC Online account by selecting the following sections within your
-ptap.support.uya.p2.link=Personal tax account.
+ptap.support.uya.p2.header=TBC
+ptap.support.uya.p2=TBC
+ptap.support.uya.p2.link=TBC
 
-ptap.support.uya.p2.sub=Your tasks
-ptap.support.uya.p2.tasks=Complete tasks, such as claiming a refund or paying a tax bill.
-ptap.support.uya.p2.tasks.list=You’ll only see tasks for:
-ptap.support.uya.p2.tasks.list.other=You may have other tasks if:
+ptap.support.uya.p2.sub=TBC
+ptap.support.uya.p2.tasks=TBC
+ptap.support.uya.p2.tasks.list=TBC
+ptap.support.uya.p2.tasks.list.other=TBC
 
-ptap.support.uya.p3.sub=Recent activity
-ptap.support.uya.p3.recent=View recent updates such as payments from your job or tax code changes.
+ptap.support.uya.p3.sub=TBC
+ptap.support.uya.p3.recent=TBC
 
-ptap.support.uya.p4.sub=Taxes and benefits
-ptap.support.uya.p4.tab=Check the taxes and benefits you currently have and find out about others that may be relevant to you.
+ptap.support.uya.p4.sub=TBC
+ptap.support.uya.p4.tab=TBC
 
-ptap.support.uya.p5.sub=HMRC support
-ptap.support.uya.p5.hs=Get technical support and help with taxes and benefits.
+ptap.support.uya.p5.sub=TBC
+ptap.support.uya.p5.hs=TBC
 
-ptap.support.uya.list.paye=Pay As You Earn (PAYE)
-ptap.support.uya.list.sa=Self Assessment
-ptap.support.uya.list.ni=National Insurance and State Pension
-ptap.support.uya.list.ats=Annual Tax Summary
-ptap.support.uya.list.cb=Child Benefit
-ptap.support.uya.list.ma=Marriage Allowance
+ptap.support.uya.list.paye=TBC
+ptap.support.uya.list.sa=TBC
+ptap.support.uya.list.ni=TBC
+ptap.support.uya.list.ats=TBC
+ptap.support.uya.list.cb=TBC
+ptap.support.uya.list.ma=TBC
 
-ptap.support.uya.list.uos=you use other HMRC services
-ptap.support.uya.list.circumstances.link=your circumstances change (opens in new tab)
-ptap.support.uya.list.bta=you have a Business Tax Account
+ptap.support.uya.list.uos=TBC
+ptap.support.uya.list.circumstances.link=TBC
+ptap.support.uya.list.bta=TBC
