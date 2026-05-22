@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import models.{HmrcCardModel, CardType}
+@import models.HmrcCardModel
 @import play.twirl.api.Html
 @import play.api.i18n.Messages
 
@@ -35,11 +35,11 @@
         } else {
             <div class="hmrc-card">
                 <h3 class="hmrc-card__heading">
-                <a href='@hmrcCard.heading.url.get' target="_blank" rel="noopener noreferrer">
-                    @{hmrcCard.heading.text}
-                    <span class="hmrc-card__chevron" aria-hidden="true"></span><br/>
-                    <span class="govuk-!-font-weight-regular">@messages("label.opens_in_a_new_window")</span>
-                </a>
+                    <a href='@hmrcCard.heading.url.get' target="_blank" rel="noopener noreferrer">
+                        @{hmrcCard.heading.text}
+                        <span class="hmrc-card__chevron" aria-hidden="true"></span><br/>
+                        <span class="govuk-!-font-weight-regular">@messages("label.opens_in_a_new_window")</span>
+                    </a>
                 </h3>
             </div>
         }
@@ -65,12 +65,10 @@
                 <span class="hmrc-card__chevron" aria-hidden="true"></span>
             </a>
             </h3>
-            <p class="govuk-body">
-                @{hmrcCard.body.get.content}
-            </p>
-            <p class="govuk-hint">
+            @{hmrcCard.body.get.content}
+            @if(hmrcCard.hint.get.content.isDefined){
                 @{hmrcCard.hint.get.content.get}
-            </p>
+            }
         </div>
     }
 } else {
@@ -78,8 +76,8 @@
         <h3 class="hmrc-card__heading">
         @{hmrcCard.heading.text}
         </h3>
-        <p class="govuk-body">
+        @if(hmrcCard.body.isDefined){
             @{hmrcCard.body.get.content}
-        </p>
+        }
     </div>
 }
