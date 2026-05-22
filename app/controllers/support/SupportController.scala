@@ -26,8 +26,11 @@ import views.html.support.UnderstandingYourAccountView
 
 import scala.concurrent.Future
 
-class SupportController @Inject(authJourney: AuthJourney)(cc: MessagesControllerComponents, understandingYourAccountView: UnderstandingYourAccountView)(implicit
-                                                                                                                      configDecorator: ConfigDecorator
+class SupportController @Inject (authJourney: AuthJourney)(
+  cc: MessagesControllerComponents,
+  understandingYourAccountView: UnderstandingYourAccountView
+)(implicit
+  configDecorator: ConfigDecorator
 ) extends PertaxBaseController(cc) {
 
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =

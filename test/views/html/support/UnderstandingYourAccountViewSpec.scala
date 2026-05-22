@@ -33,10 +33,10 @@ import views.html.ViewSpec
 import scala.jdk.CollectionConverters.*
 
 class UnderstandingYourAccountViewSpec extends ViewSpec {
-  implicit val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
+  implicit val mockConfigDecorator: ConfigDecorator             = mock[ConfigDecorator]
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
 
-  lazy val home: UnderstandingYourAccountView  = inject[UnderstandingYourAccountView]
+  lazy val home: UnderstandingYourAccountView = inject[UnderstandingYourAccountView]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
@@ -71,14 +71,22 @@ class UnderstandingYourAccountViewSpec extends ViewSpec {
     "show the expected paragraphs" in {
       val paragraphs = document.select("p").asScala
 
-      paragraphs.exists(e => e.text contains "Use your HMRC Online account by selecting the following sections within your") mustBe true
+      paragraphs.exists(e =>
+        e.text contains "Use your HMRC Online account by selecting the following sections within your"
+      ) mustBe true
       paragraphs.exists(e => e.text contains "Personal tax account.") mustBe true
 
-      paragraphs.exists(e => e.text contains "Complete tasks, such as claiming a refund or paying a tax bill.") mustBe true
+      paragraphs.exists(e =>
+        e.text contains "Complete tasks, such as claiming a refund or paying a tax bill."
+      ) mustBe true
       paragraphs.exists(e => e.text contains "You’ll only see tasks for:") mustBe true
       paragraphs.exists(e => e.text contains "You may have other tasks if:") mustBe true
-      paragraphs.exists(e => e.text contains "View recent updates such as payments from your job or tax code changes.") mustBe true
-      paragraphs.exists(e => e.text contains "Check the taxes and benefits you currently have and find out about others that may be relevant to you.") mustBe true
+      paragraphs.exists(e =>
+        e.text contains "View recent updates such as payments from your job or tax code changes."
+      ) mustBe true
+      paragraphs.exists(e =>
+        e.text contains "Check the taxes and benefits you currently have and find out about others that may be relevant to you."
+      ) mustBe true
       paragraphs.exists(e => e.text contains "Get technical support and help with taxes and benefits.") mustBe true
     }
 
