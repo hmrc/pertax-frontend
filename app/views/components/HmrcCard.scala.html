@@ -16,8 +16,10 @@
 
 @import models.{HmrcCardModel, CardType}
 @import play.twirl.api.Html
+@import play.api.i18n.Messages
 
-@(hmrcCard: HmrcCardModel)
+
+@(hmrcCard: HmrcCardModel)(implicit messages: Messages)
 
 @if(hmrcCard.heading.url.isDefined){
     @if(!hmrcCard.body.isDefined && !hmrcCard.hint.isDefined){
@@ -36,7 +38,7 @@
                 <a href='@hmrcCard.heading.url.get' target="_blank" rel="noopener noreferrer">
                     @{hmrcCard.heading.text}
                     <span class="hmrc-card__chevron" aria-hidden="true"></span><br/>
-                    <span class="govuk-!-font-weight-regular">(opens in new tab)</span>
+                    <span class="govuk-!-font-weight-regular">@messages("label.opens_in_a_new_window")</span>
                 </a>
                 </h3>
             </div>
