@@ -122,7 +122,7 @@ class HmrcCardSpec extends ViewSpec with Matchers {
         CardType.SectionCard,
         CardHeading("Test Heading", Some("/test"), false),
         Some(CardBody(Html("""<ul><li>entry 1</li><li>entry 2</li><li>entry 3</li></ul>"""))),
-        Some(CardHint(Some(Html("""<p class="govuk-hint">Updated 7 January 2024</p>""")), None))
+        Some(CardHint(Some(Html("""Updated 7 January 2024""")), None))
       )
 
       val doc = asDocument(views.html.components.HmrcCard(model)(messages).toString)
