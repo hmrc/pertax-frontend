@@ -29,6 +29,7 @@ import models.dto.AddressFinderDto
 import play.api.Logging
 import play.api.data.FormError
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import repositories.EditAddressLockRepository
 import routePages.{AddressFinderPage, SelectedAddressRecordPage, SelectedRecordSetPage}
 import services.CitizenDetailsService
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -50,7 +51,8 @@ class PostcodeLookupController @Inject() (
   postcodeLookupView: PostcodeLookupView,
   featureFlagService: FeatureFlagService,
   citizenDetailsService: CitizenDetailsService,
-  internalServerErrorView: InternalServerErrorView
+  internalServerErrorView: InternalServerErrorView,
+  editAddressLockRepository: EditAddressLockRepository
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(
       authJourney,
@@ -58,13 +60,14 @@ class PostcodeLookupController @Inject() (
       featureFlagService,
       errorRenderer,
       citizenDetailsService,
-      internalServerErrorView
+      internalServerErrorView,
+      editAddressLockRepository
     )
     with Logging {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personDetails =>
+      addressJourneyEnforcer(typ) { _ => personDetails =>
         cachingHelper.gettingCachedJourneyData(typ) { _ =>
           typ match {
             case PostalAddrType =>
@@ -84,7 +87,7 @@ class PostcodeLookupController @Inject() (
 
   def onSubmit(typ: AddrType, back: Option[Boolean] = None): Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => _ =>
+      addressJourneyEnforcer(typ) { _ => _ =>
         AddressFinderDto.form
           .bindFromRequest()
           .fold(

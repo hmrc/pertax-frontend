@@ -25,6 +25,7 @@ import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
 import models.dto.{AddressDto, DateDto}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import repositories.EditAddressLockRepository
 import routePages.{StartDateUpdatedPage, SubmittedAddressPage, SubmittedStartDatePage}
 import services.CitizenDetailsService
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -42,7 +43,8 @@ class UpdateAddressController @Inject() (
   errorRenderer: ErrorRenderer,
   featureFlagService: FeatureFlagService,
   citizenDetailsService: CitizenDetailsService,
-  internalServerErrorView: InternalServerErrorView
+  internalServerErrorView: InternalServerErrorView,
+  editAddressLockRepository: EditAddressLockRepository
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(
       authJourney,
@@ -50,7 +52,8 @@ class UpdateAddressController @Inject() (
       featureFlagService,
       errorRenderer,
       citizenDetailsService,
-      internalServerErrorView
+      internalServerErrorView,
+      editAddressLockRepository
     ) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
@@ -58,7 +61,7 @@ class UpdateAddressController @Inject() (
       cachingHelper.gettingCachedJourneyData[Result](typ) { journeyData =>
         val showEnterAddressHeader = journeyData.selectedAddressRecord.isEmpty
 
-        addressJourneyEnforcer { _ => _ =>
+        addressJourneyEnforcer(typ) { _ => _ =>
           val form = journeyData.getAddressToDisplay.fold(AddressDto.ukForm)(AddressDto.ukForm.fill)
           cachingHelper.enforceDisplayAddressPageVisited(
             Ok(updateAddressView(form.discardingErrors, typ, showEnterAddressHeader))
@@ -71,7 +74,7 @@ class UpdateAddressController @Inject() (
     authenticate.async { implicit request =>
       cachingHelper.gettingCachedJourneyData[Result](typ) { journeyData =>
         val showEnterAddressHeader = journeyData.selectedAddressRecord.isEmpty
-        addressJourneyEnforcer { _ => personDetails =>
+        addressJourneyEnforcer(typ) { _ => personDetails =>
           AddressDto.ukForm
             .bindFromRequest()
             .fold(

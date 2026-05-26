@@ -24,6 +24,7 @@ import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
 import models.dto.InternationalAddressChoiceDto
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.EditAddressLockRepository
 import routePages.SubmittedInternationalAddressChoicePage
 import services.CitizenDetailsService
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -40,7 +41,8 @@ class PostalDoYouLiveInTheUKController @Inject() (
   internationalAddressChoiceView: InternationalAddressChoiceView,
   featureFlagService: FeatureFlagService,
   citizenDetailsService: CitizenDetailsService,
-  internalServerErrorView: InternalServerErrorView
+  internalServerErrorView: InternalServerErrorView,
+  editAddressLockRepository: EditAddressLockRepository
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(
       authJourney,
@@ -48,12 +50,13 @@ class PostalDoYouLiveInTheUKController @Inject() (
       featureFlagService,
       errorRenderer,
       citizenDetailsService,
-      internalServerErrorView
+      internalServerErrorView,
+      editAddressLockRepository
     ) {
 
   def onPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => _ =>
+      addressJourneyEnforcer(PostalAddrType) { _ => _ =>
         cachingHelper.enforceDisplayAddressPageVisited(
           Ok(
             internationalAddressChoiceView(
@@ -67,7 +70,7 @@ class PostalDoYouLiveInTheUKController @Inject() (
 
   def onSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => _ =>
+      addressJourneyEnforcer(PostalAddrType) { _ => _ =>
         InternationalAddressChoiceDto
           .form("error.postal_address_uk_select")
           .bindFromRequest()

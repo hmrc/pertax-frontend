@@ -22,6 +22,7 @@ import controllers.auth.AuthJourney
 import controllers.bindable.AddrType
 import error.ErrorRenderer
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.EditAddressLockRepository
 import services.CitizenDetailsService
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.InternalServerErrorView
@@ -36,7 +37,8 @@ class AddressErrorController @Inject() (
   cannotUseServiceView: CannotUseServiceView,
   featureFlagService: FeatureFlagService,
   citizenDetailsService: CitizenDetailsService,
-  internalServerErrorView: InternalServerErrorView
+  internalServerErrorView: InternalServerErrorView,
+  editAddressLockRepository: EditAddressLockRepository
 )(implicit configDecorator: ConfigDecorator, executionContext: ExecutionContext)
     extends AddressController(
       authJourney,
@@ -44,7 +46,8 @@ class AddressErrorController @Inject() (
       featureFlagService,
       errorRenderer,
       citizenDetailsService,
-      internalServerErrorView
+      internalServerErrorView,
+      editAddressLockRepository
     ) {
 
   def cannotUseThisService(typ: AddrType): Action[AnyContent] =

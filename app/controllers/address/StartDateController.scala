@@ -26,6 +26,7 @@ import models.dto.DateDto
 import models.dto.InternationalAddressChoiceDto.OutsideUK
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import repositories.EditAddressLockRepository
 import routePages.{StartDateUpdatedPage, SubmittedStartDatePage}
 import services.{AddressCountryService, CitizenDetailsService, NormalizationUtils, StartDateDecisionService}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -55,7 +56,8 @@ class StartDateController @Inject() (
   internalServerErrorView: InternalServerErrorView,
   startDateDecisionService: StartDateDecisionService,
   addressCountryService: AddressCountryService,
-  normalizationUtils: NormalizationUtils
+  normalizationUtils: NormalizationUtils,
+  editAddressLockRepository: EditAddressLockRepository
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(
       authJourney,
@@ -63,7 +65,8 @@ class StartDateController @Inject() (
       featureFlagService,
       errorRenderer,
       citizenDetailsService,
-      internalServerErrorView
+      internalServerErrorView,
+      editAddressLockRepository
     ) {
 
   private def dateDtoForm: Form[DateDto] =
@@ -71,7 +74,7 @@ class StartDateController @Inject() (
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personDetails =>
+      addressJourneyEnforcer(typ) { _ => personDetails =>
         nonPostalJourneyEnforcer(typ) {
           cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
             journeyData.submittedAddressDto match {
@@ -98,7 +101,7 @@ class StartDateController @Inject() (
 
   def onSubmit(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personDetails =>
+      addressJourneyEnforcer(typ) { _ => personDetails =>
         nonPostalJourneyEnforcer(typ) {
           dateDtoForm
             .bindFromRequest()
