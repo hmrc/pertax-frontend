@@ -15,69 +15,56 @@
  *@
 
 @import models.HmrcCardModel
+@import models.{Tag => CardTag}
+@import models.{Body => CardBody}
+@import models.CardHint
+
 @import play.twirl.api.Html
+@import play.twirl.api.HtmlFormat
 @import play.api.i18n.Messages
 
 
 @(hmrcCard: HmrcCardModel)(implicit messages: Messages)
 
-@if(hmrcCard.heading.url.isDefined){
-    @if(!hmrcCard.body.isDefined && !hmrcCard.hint.isDefined){
-        @if(!hmrcCard.heading.opensNewTab){
-            <div class="hmrc-card">
-                <div class="hmrc-card__heading">
-                    <a href='@hmrcCard.heading.url.get'>
-                        @{hmrcCard.heading.text}
-                        <span class="hmrc-card__chevron" aria-hidden="true"></span>
-                    </a>
-                </div>
-            </div>
-        } else {
-            <div class="hmrc-card">
-                <h3 class="hmrc-card__heading">
-                    <a href='@hmrcCard.heading.url.get' target="_blank" rel="noopener noreferrer">
-                        @{hmrcCard.heading.text}
-                        <span class="hmrc-card__chevron" aria-hidden="true"></span><br/>
-                        <span class="govuk-!-font-weight-regular">@messages("label.opens_in_a_new_window")</span>
-                    </a>
-                </h3>
-            </div>
-        }
-    } else if(!hmrcCard.body.isDefined &&  hmrcCard.hint.isDefined && hmrcCard.hint.get.tag.isDefined){
-        <div class="hmrc-card">
-            <h3 class="hmrc-card__heading">
-            <a href='@hmrcCard.heading.url.get'>
-                @{hmrcCard.heading.text}
-                <span class="hmrc-card__chevron" aria-hidden="true"></span>
-            </a>
-            </h3>
-            <p class="govuk-body">
-                <span class="@hmrcCard.hint.get.tag.get.classes">
-                    @{hmrcCard.hint.get.tag.get.content}
-                </span>
-            </p>
-        </div>
-    } else if(hmrcCard.body.isDefined && hmrcCard.hint.isDefined){
-        <div class="hmrc-card">
-            <h3 class="hmrc-card__heading">
-            <a href='@hmrcCard.heading.url.get'>
-                @{hmrcCard.heading.text}
-                <span class="hmrc-card__chevron" aria-hidden="true"></span>
-            </a>
-            </h3>
-            @{hmrcCard.body.get.content}
-            @if(hmrcCard.hint.get.content.isDefined){
-                @{hmrcCard.hint.get.content.get}
-            }
-        </div>
+
+@headerWithLink(url:String)={
+    @if(hmrcCard.heading.opensNewTab){
+        <a href="@url" target="_blank" rel="noopener noreferrer">
+    } else {
+        <a href="@url">
     }
-} else {
-    <div class="hmrc-card">
-        <h3 class="hmrc-card__heading">
-        @{hmrcCard.heading.text}
-        </h3>
-        @if(hmrcCard.body.isDefined){
-            @{hmrcCard.body.get.content}
-        }
-    </div>
+    @hmrcCard.heading.text
+    <span class="hmrc-card__chevron" aria-hidden="true"></span>
+    @if(hmrcCard.heading.opensNewTab){
+        <span class="govuk-!-font-weight-regular">@messages("label.opens_in_a_new_window")</span>
+    }
+    </a>
 }
+
+
+
+@headerWithoutLink()={
+    @hmrcCard.heading.text
+}
+
+@cardTag(cardTag:CardTag) = {
+    <span class="@cardTag.classes">@{cardTag.content}</span>
+}
+
+@hint(cardHint:models.CardHint) = {
+    @cardHint.tag.map{(t: CardTag) => @{cardTag(t)}}.getOrElse{@{HtmlFormat.empty}}
+}
+
+@cardBody(cardBody:CardBody)={
+    <p class="govuk-body">
+        @{cardBody.content}
+        @hmrcCard.hint.map{(h:CardHint) => @{hint(h)}}.getOrElse{@HtmlFormat.empty}
+    </p>
+}
+
+<div class="hmrc-card">
+    <h3 class="hmrc-card__heading">
+        @{hmrcCard.heading.url.map{headerWithLink}.getOrElse{headerWithoutLink()}}
+    </h3>
+    @hmrcCard.body.map{ (b: CardBody) => @{cardBody{b}}}.getOrElse{@{HtmlFormat.empty}}
+</div>
