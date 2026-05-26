@@ -37,12 +37,12 @@ enum TagColour(val style: String):
   case Orange extends TagColour("govuk-tag govuk-tag--orange")
   case Yellow extends TagColour("govuk-tag govuk-tag--yellow")
 
-class Heading(val text: String, val url: Option[String], val opensNewTab: Boolean = false)
-class Body(val content: Html)
-class Tag(val content: Html, tag_colour: TagColour) {
+class CardHeading(val text: String, val url: Option[String], val opensNewTab: Boolean = false)
+class CardBody(val content: Html)
+class CardTag(val content: Html, tag_colour: TagColour) {
   val classes: String = tag_colour.style
 }
-class CardHint(val content: Option[Html], val tag: Option[Tag]) {
+class CardHint(val content: Option[Html], val tag: Option[CardTag]) {
   if (content.isDefined == tag.isDefined) {
     throw new Exception(
       "Invalid combination of content and tag in CardHint. CardHint must contain either content or tag, not both"
@@ -50,7 +50,7 @@ class CardHint(val content: Option[Html], val tag: Option[Tag]) {
   }
 }
 
-case class HmrcCardModel(cardType: CardType, heading: Heading, body: Option[Body], hint: Option[CardHint]) {
+case class HmrcCardModel(cardType: CardType, heading: CardHeading, body: Option[CardBody], hint: Option[CardHint]) {
   cardType match
     case CardType.BasicCard            =>
       if (!heading.url.isDefined || body.isDefined || hint.isDefined) {
