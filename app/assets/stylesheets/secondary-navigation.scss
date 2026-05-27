@@ -1,0 +1,102 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@import "modules/colors";
+
+$_current-link-border-width: 4px;
+
+.x-govuk-secondary-navigation {
+  border-bottom: 1px solid $grey-2;
+}
+
+.x-govuk-secondary-navigation__link {
+  text-decoration: none;
+  color: $link-colour;
+  &:visited {
+    color: $link-colour;
+  }
+  &:hover {
+    text-decoration: underline;
+    color: $link-colour;
+  }
+  &:focus {
+    outline: 3px solid $govuk-blue;
+    outline-offset: 0;
+  }
+}
+
+.x-govuk-secondary-navigation__list {
+  font-family: "GDS Transport", Arial, sans-serif;
+  font-size: 19px;
+  list-style: none;
+  margin: 0;
+  margin-bottom: 15px;
+  padding: 0;
+
+  @media (min-width: 641px) {
+    align-items: start;
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 0;
+  }
+
+  // IE11 trips over flexbox and doesn't wrap anything, making all of the items
+  // into a single, horizontally scrolling row. This CSS hack removes the
+  // flexbox definition for IE 10 & 11, reverting it a non-flexbox version.
+  @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+    display: block;
+  }
+}
+
+.x-govuk-secondary-navigation__list-item {
+  border: 0 solid $link-colour;
+  margin: 10px 0;
+  position: relative;
+
+  @media (min-width: 641px) {
+    margin-bottom: 0;
+    margin-top: 0;
+    padding: 15px 0;
+
+    &:not(:last-child) {
+      margin-right: 30px;
+    }
+  }
+}
+
+.x-govuk-secondary-navigation__list-item--current {
+  @media (max-width: 640px) {
+    border-left-width: $_current-link-border-width;
+    // Negative offset the left margin so we can place a current page indicator
+    // to the left without misaligning the list item text.
+    margin-left: -14px;
+    padding-left: 10px;
+  }
+
+  @media (min-width: 641px) {
+    border-bottom-width: $_current-link-border-width;
+    padding-bottom: 11px;
+  }
+}
+
+.x-govuk-secondary-navigation__badge {
+  background-color: #FF6347;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  margin-left: 8px;
+  font-size: 14px;
+}
