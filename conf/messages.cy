@@ -884,3 +884,39 @@ label.mtdit.claim.p1.suffix=(yn agor tab newydd). Mae angen i chi ychwanegu’r 
 label.mtdit.claim.question=A ydych am ychwanegu’r cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm i’ch Cyfrif Treth Personol nawr?
 label.mtdit.claim.error=Dewiswch ‘Iawn’ i ychwanegu’r cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm i’ch cyfrif treth personol
 head.label.mtdit.claim.error=Dewiswch ‘Iawn’ i ychwanegu’r cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm i’ch cyfrif treth personol
+
+ptap.support.uya.title=TBC
+ptap.support.uya.p1=TBC
+ptap.support.uya.p1.list=TBC
+
+ptap.support.uya.p2.header=TBC
+ptap.support.uya.p2=TBC
+ptap.support.uya.p2.link=TBC
+
+ptap.support.uya.p2.sub=TBC
+ptap.support.uya.p2.tasks=TBC
+ptap.support.uya.p2.tasks.list=TBC
+ptap.support.uya.p2.tasks.list.other=TBC
+
+ptap.support.uya.p3.sub=TBC
+ptap.support.uya.p3.recent=TBC
+
+ptap.support.uya.p4.sub=TBC
+ptap.support.uya.p4.tab=TBC
+
+ptap.support.uya.p5.sub=TBC
+ptap.support.uya.p5.hs=TBC
+
+ptap.support.uya.p6.sub=TBC
+ptap.support.uya.p6.hs=TBC
+
+ptap.support.uya.list.paye=TBC
+ptap.support.uya.list.sa=TBC
+ptap.support.uya.list.ni=TBC
+ptap.support.uya.list.ats=TBC
+ptap.support.uya.list.cb=TBC
+ptap.support.uya.list.ma=TBC
+
+ptap.support.uya.list.uos=TBC
+ptap.support.uya.list.circumstances.link=TBC
+ptap.support.uya.list.bta=TBC
