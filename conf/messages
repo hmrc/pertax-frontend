@@ -886,13 +886,16 @@ ptap.support.uya.p2.tasks.list=You’ll only see tasks for:
 ptap.support.uya.p2.tasks.list.other=You may have other tasks if:
 
 ptap.support.uya.p3.sub=Recent activity
-ptap.support.uya.p3.recent=View recent updates such as payments from your job or tax code changes.
+ptap.support.uya.p3.recent=View recent updates, such as payments from your employer or changes to your tax code.
 
 ptap.support.uya.p4.sub=Taxes and benefits
-ptap.support.uya.p4.tab=Check the taxes and benefits you currently have and find out about others that may be relevant to you.
+ptap.support.uya.p4.tab=Check the taxes and benefits you currently have and find others that may be relevant to you.
 
-ptap.support.uya.p5.sub=HMRC support
-ptap.support.uya.p5.hs=Get technical support and help with taxes and benefits.
+ptap.support.uya.p5.sub=HMRC news
+ptap.support.uya.p5.hs=Read the latest updates and announcements from HMRC.
+
+ptap.support.uya.p6.sub=HMRC support
+ptap.support.uya.p6.hs=Get technical support and help with taxes and benefits.
 
 ptap.support.uya.list.paye=Pay As You Earn (PAYE)
 ptap.support.uya.list.sa=Self Assessment

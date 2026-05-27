@@ -907,6 +907,9 @@ ptap.support.uya.p4.tab=TBC
 ptap.support.uya.p5.sub=TBC
 ptap.support.uya.p5.hs=TBC
 
+ptap.support.uya.p6.sub=TBC
+ptap.support.uya.p6.hs=TBC
+
 ptap.support.uya.list.paye=TBC
 ptap.support.uya.list.sa=TBC
 ptap.support.uya.list.ni=TBC
