@@ -15,15 +15,13 @@
  *@
 
 @import models.HmrcCardModel
-@import models.{CardTag,CardBody,CardHint}
+@import models.{CardBody,CardHint,TagColour,CardType}
 
 @import play.twirl.api.Html
 @import play.twirl.api.HtmlFormat
 @import play.api.i18n.Messages
 
-
 @(hmrcCard: HmrcCardModel)(implicit messages: Messages)
-
 
 @headerWithLink(url: String)={
     @if(hmrcCard.heading.opensNewTab){
@@ -43,39 +41,27 @@
     @hmrcCard.heading.text
 }
 
-@cardTag(cardTag: CardTag) = {
-    <span class="@cardTag.classes">@{cardTag.content}</span>
+@cardTag(cardHint: CardHint)={
+    @cardHint.tag_colour.map{(t: TagColour)=> <span class="@t.style">@cardHint.content</span>}.getOrElse{@cardHint.content}
 }
-@cardHintContent(cardHintContent: Html) = {
-    <p class="govuk-hint">
-        @cardHintContent
-    </p>
-}
-@hint(cardHint: CardHint) = {
-    @cardHint.tag.map{(t: CardTag) => @{cardTag(t)}}.getOrElse{@{HtmlFormat.empty}}
-}
-
 @cardBody(cardBody: CardBody)={
     <p class="govuk-body">
-        @{cardBody.content}
+        @cardBody.content
     </p>
 }
-@hintBody() = {
-    <p class="govuk-body">
-        @hmrcCard.hint.map{(h: CardHint) => @{hint(h)}}.getOrElse{@HtmlFormat.empty}
+@cardHint(cardHint: CardHint) = {
+    @if(hmrcCard.cardType == CardType.BasicCardWithDueDate){
+        <p class="govuk-body">
+    }else {
+        <p class="govuk-hint">
+    }
+    @cardTag(cardHint)
     </p>
 }
-
-
 <div class="hmrc-card">
     <h3 class="hmrc-card__heading">
         @{hmrcCard.heading.url.map{headerWithLink}.getOrElse{headerWithoutLink()}}
     </h3>
-    @if(hmrcCard.body.isDefined){
-        @hmrcCard.body.map{ (b: CardBody) => @{cardBody{b}}}.getOrElse{@HtmlFormat.empty}
-    } else if(hmrcCard.hint.isDefined){
-        @hmrcCard.hint.map((_)=> hintBody()).getOrElse(HtmlFormat.empty)
-    }
-    @hmrcCard.hint.map{(h: CardHint) => @{h.content.map((c: Html) => cardHintContent(c)).getOrElse(HtmlFormat.empty)}}
-    
+    @hmrcCard.body.map{(b: CardBody) => @{cardBody(b)}}.getOrElse{@HtmlFormat.empty}
+    @hmrcCard.hint.map{(h: CardHint) => @{cardHint(h)}}.getOrElse{@HtmlFormat.empty}
 </div>

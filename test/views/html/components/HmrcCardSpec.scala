@@ -20,7 +20,7 @@ import play.twirl.api.Html
 import org.jsoup.nodes.Document
 import org.scalatest.matchers.must.Matchers
 import views.html.ViewSpec
-import models.{CardBody, CardHeading, CardHint, CardTag, CardType, HmrcCardModel, TagColour}
+import models.{CardBody, CardHeading, CardHint, CardType, HmrcCardModel, TagColour}
 
 class HmrcCardSpec extends ViewSpec with Matchers {
   "HmrcCard component" must {
@@ -39,7 +39,7 @@ class HmrcCardSpec extends ViewSpec with Matchers {
         CardType.BasicCardWithDueDate,
         CardHeading("Test Heading", Some("/test"), false),
         None,
-        Some(CardHint(None, Some(CardTag(Html("Due 31 January 2025"), TagColour.Orange))))
+        Some(CardHint(Html("Due 31 January 2025"), Some(TagColour.Orange)))
       )
 
       val doc = asDocument(views.html.components.HmrcCard(model)(messages).toString)
@@ -57,11 +57,10 @@ class HmrcCardSpec extends ViewSpec with Matchers {
         CardType.SectionCard,
         CardHeading("Test Heading", Some("/test"), false),
         Some(CardBody(Html("""We've received your Self Assessment tax return."""))),
-        Some(CardHint(Some(Html("""Received 7 January 2024""")), None))
+        Some(CardHint(Html("""Received 7 January 2024"""), None))
       )
 
       val doc = asDocument(views.html.components.HmrcCard(model)(messages).toString)
-
       doc.select("div.hmrc-card").size mustBe 1
       doc.select("a[href=/test]").size mustBe 1
       doc.select("a[href]").text mustBe "Test Heading"
@@ -110,7 +109,7 @@ class HmrcCardSpec extends ViewSpec with Matchers {
         CardType.BasicCardWithDueDate,
         CardHeading("Test Heading", Some("/test"), false),
         None,
-        Some(CardHint(None, Some(CardTag(Html("""<svg>test</svg>"""), TagColour.Orange))))
+        Some(CardHint(Html("""Due 31st January 2026"""), Some(TagColour.Orange)))
       )
 
       val doc = asDocument(views.html.components.HmrcCard(model)(messages).toString)
@@ -122,7 +121,7 @@ class HmrcCardSpec extends ViewSpec with Matchers {
         CardType.SectionCard,
         CardHeading("Test Heading", Some("/test"), false),
         Some(CardBody(Html("""<ul><li>entry 1</li><li>entry 2</li><li>entry 3</li></ul>"""))),
-        Some(CardHint(Some(Html("""Updated 7 January 2024""")), None))
+        Some(CardHint(Html("""Updated 7 January 2024"""), None))
       )
 
       val doc = asDocument(views.html.components.HmrcCard(model)(messages).toString)

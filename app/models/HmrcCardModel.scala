@@ -39,16 +39,7 @@ enum TagColour(val style: String):
 
 class CardHeading(val text: String, val url: Option[String], val opensNewTab: Boolean = false)
 class CardBody(val content: Html)
-class CardTag(val content: Html, tag_colour: TagColour) {
-  val classes: String = tag_colour.style
-}
-class CardHint(val content: Option[Html], val tag: Option[CardTag]) {
-  if (content.isDefined == tag.isDefined) {
-    throw new Exception(
-      "Invalid combination of content and tag in CardHint. CardHint must contain either content or tag, not both"
-    )
-  }
-}
+class CardHint(val content: Html, val tag_colour: Option[TagColour])
 
 case class HmrcCardModel(cardType: CardType, heading: CardHeading, body: Option[CardBody], hint: Option[CardHint]) {
   cardType match
@@ -57,18 +48,14 @@ case class HmrcCardModel(cardType: CardType, heading: CardHeading, body: Option[
         throw new Exception("Invalid Parameters: BasicCard requires CardType and Heading with a url only.")
       }
     case CardType.BasicCardWithDueDate =>
-      if (
-        !heading.url.isDefined || body.isDefined || !hint.isDefined || hint.get.content.isDefined || !hint.get.tag.isDefined
-      ) {
+      if (!heading.url.isDefined || body.isDefined || !hint.isDefined || !hint.get.tag_colour.isDefined) {
         throw new Exception(
-          "Invalid Parameters: BasicCardWithDueDate requires CardType Heading and CardHint with a tag only."
+          "Invalid Parameters: BasicCardWithDueDate requires CardType Heading and CardHint only."
         )
       }
     case CardType.SectionCard          =>
-      if (
-        !heading.url.isDefined || !body.isDefined || !hint.isDefined || hint.get.tag.isDefined || !hint.get.content.isDefined
-      ) {
-        throw new Exception("Invalid Parameters: SectionCard requires CardType, Body and CardHint with content only.")
+      if (!heading.url.isDefined || !body.isDefined || !hint.isDefined) {
+        throw new Exception("Invalid Parameters: SectionCard requires CardType, Body and CardHint.")
       }
     case CardType.NoLinkCard           =>
       if (heading.url.isDefined || !body.isDefined || hint.isDefined) {
