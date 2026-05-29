@@ -103,7 +103,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     when(mockHomeOptionsGenerator.getLatestNewsAndUpdatesCard()(any[Messages], any[UserRequest[AnyContent]]))
       .thenReturn(None)
 
-    when(mockAlertBannerHelper.getContent(any(), any())(any(), any(), any()))
+    when(mockAlertBannerHelper.getContent(any())(any(), any(), any()))
       .thenReturn(Future.successful(None))
 
     when(mockTasksService.getListOfTasks(any(), any()))
@@ -229,7 +229,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       val expectedHtmlString = "<div class='alertBannerContent'></div>"
       val expectedHtml       = Html(expectedHtmlString)
 
-      when(mockAlertBannerHelper.getContent(any(), any())(any(), any(), any()))
+      when(mockAlertBannerHelper.getContent(any())(any(), any(), any()))
         .thenReturn(Future.successful(Some(expectedHtml)))
 
       val appLocal   = appBuilder.build()
@@ -241,7 +241,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     }
 
     "Alert Banner content is not displayed if empty" in {
-      when(mockAlertBannerHelper.getContent(any(), any())(any(), any(), any()))
+      when(mockAlertBannerHelper.getContent(any())(any(), any(), any()))
         .thenReturn(Future.successful(None))
 
       val appLocal   = appBuilder.build()

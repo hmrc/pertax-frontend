@@ -35,7 +35,7 @@ import testUtils.{BaseSpec, UserRequestFixture}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import views.html.components.alertBanner.paperlessStatus.*
-import views.html.components.alertBanner.{addressFixBanner, newHomePageChangesBanner, oldHomePageChangesBanner, peakDemandBanner, shutteringBanner, voluntaryContributionsAlertView}
+import views.html.components.alertBanner.{addressFixBanner, newHomePageChangesBanner, peakDemandBanner, shutteringBanner, voluntaryContributionsAlertView}
 
 import scala.concurrent.Future
 
@@ -77,7 +77,6 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
   lazy val addressFixBannerView: addressFixBanner                 = app.injector.instanceOf[addressFixBanner]
   lazy val shutteringBannerView: shutteringBanner                 = app.injector.instanceOf[shutteringBanner]
   lazy val newHomePageChangesBannerView: newHomePageChangesBanner = app.injector.instanceOf[newHomePageChangesBanner]
-  lazy val oldHomePageChangesBannerView: oldHomePageChangesBanner = app.injector.instanceOf[oldHomePageChangesBanner]
 
   lazy val voluntaryContributionsAlertView: voluntaryContributionsAlertView =
     app.injector.instanceOf[voluntaryContributionsAlertView]
@@ -91,7 +90,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
         .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = true)))
 
-      val result = alertBannerHelper.getContent(None, false).futureValue
+      val result = alertBannerHelper.getContent(None).futureValue
 
       result mustBe Some(shutteringBannerView())
     }
@@ -104,7 +103,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       when(mockFeatureFlagService.get(PeakDemandBannerToggle))
         .thenReturn(Future.successful(FeatureFlag(PeakDemandBannerToggle, isEnabled = true)))
 
-      val result = alertBannerHelper.getContent(None, false).futureValue
+      val result = alertBannerHelper.getContent(None).futureValue
 
       result mustBe Some(peakDemandBannerView())
     }
@@ -120,7 +119,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
         )
       )
 
-      val result = alertBannerHelper.getContent(personDetails, false).futureValue
+      val result = alertBannerHelper.getContent(personDetails).futureValue
 
       result mustBe Some(addressFixBannerView())
     }
@@ -131,7 +130,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
         EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusBounced(link): PaperlessMessagesStatus)
       )
 
-      val result = alertBannerHelper.getContent(None, false).futureValue
+      val result = alertBannerHelper.getContent(None).futureValue
 
       result mustBe Some(bouncedEmailView(link))
     }
@@ -142,22 +141,9 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
         EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusUnverified(link): PaperlessMessagesStatus)
       )
 
-      val result = alertBannerHelper.getContent(None, false).futureValue
+      val result = alertBannerHelper.getContent(None).futureValue
 
       result mustBe Some(unverifiedEmailView(link))
-    }
-
-    "return address old home page changes banner content" in {
-      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
-        EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusOptIn(): PaperlessMessagesStatus)
-      )
-
-      when(mockFeatureFlagService.get(HomePageChangesBannerToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePageChangesBannerToggle, isEnabled = true)))
-
-      val result = alertBannerHelper.getContent(None, false).futureValue
-
-      result mustBe Some(oldHomePageChangesBannerView())
     }
 
     "return address new home page changes banner content" in {
@@ -168,7 +154,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       when(mockFeatureFlagService.get(HomePageChangesBannerToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePageChangesBannerToggle, isEnabled = true)))
 
-      val result = alertBannerHelper.getContent(None, true).futureValue
+      val result = alertBannerHelper.getContent(None).futureValue
 
       result mustBe Some(newHomePageChangesBannerView())
     }
@@ -187,7 +173,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
             EitherT.rightT[Future, UpstreamErrorResponse](paperlessStatusResponse: PaperlessMessagesStatus)
           )
 
-          val result = alertBannerHelper.getContent(None, false).futureValue
+          val result = alertBannerHelper.getContent(None).futureValue
 
           result mustBe None
         }

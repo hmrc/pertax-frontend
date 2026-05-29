@@ -507,8 +507,6 @@ label.view_manage_sa_return=More details about your Self Assessment returns and 
 label.access_your_sa_returns=Access your Self Assessment tax returns
 label.old_way_sa_returns=The old way for filing your Self Assessment tax returns.
 label.self_assessment_tax_returns=Self Assessment tax returns
-label.view_manage_your_mtd_itsa=View and manage your Making Tax Digital for Income Tax or access your Self Assessment tax returns.
-label.view_manage_your_mtd_it=View and manage Making Tax Digital for Income Tax, and access Self Assessment.
 label.online_deadline_final_declarations=The deadline for final declarations or online returns is 31 January {0}.
 label.online_deadline_tax_returns=The deadline for tax returns is 31 January {0}.
 label.making_tax_digital=Making Tax Digital
@@ -856,8 +854,6 @@ label.tax_calc_option=Your tax calculation — PAYE {0} to {1}
 label.task_heading=Refunds and tax you owe — Pay As You Earn (PAYE)
 label.task_paragraph=It can take up to 10 days for completed tasks to be removed from the list.
 
-old_home_page_banner.text=We’re making changes to your personal tax account homepage.
-old_home_page_banner.link_text=Read more about what’s changing
 new_home_page_banner.text=Your personal tax account homepage has been updated.
 new_home_page_banner.link_text=Find out what’s changed
 

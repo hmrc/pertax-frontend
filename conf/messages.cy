@@ -503,7 +503,6 @@ label.view_manage_sa_return=Rhagor o fanylion am eich Ffurflenni Treth a’ch ta
 label.access_your_sa_returns=Cael at eich Ffurflenni Treth Hunanasesiad
 label.old_way_sa_returns=Yr hen ffordd o gyflwyno eich Ffurflenni Treth Hunanasesiad.
 label.self_assessment_tax_returns=Ffurflenni Treth Hunanasesiad
-label.view_manage_your_mtd_itsa=Bwrw golwg dros eich cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli, neu gael at eich Ffurflenni Treth Hunanasesiad.
 label.online_deadline_final_declarations=Y dyddiad cau ar gyfer datganiadau terfynol neu Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
 label.making_tax_digital=Troi Treth yn Ddigidol
 
@@ -829,8 +828,6 @@ label.mtd_for_it_sa=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.send_updates_sole_traders=Ar gyfer unig fasnachwyr a landlordiaid sy’n anfon diweddariadau chwarterol gan ddefnyddio meddalwedd.
 label.view_manage_your_mtd_for_it=Bwrw golwg dros y cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli
 label.it_header=Treth Incwm
-label.view_manage_your_mtd_itsa=Bwrw golwg dros eich cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli, neu gael at eich Ffurflenni Treth Hunanasesiad.
-label.view_manage_your_mtd_it=Bwrw golwg dros y cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli, a chael mynediad at Hunanasesiad.
 label.online_deadline_tax_returns=Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth yw 31 Ionawr {0}.
 
 waiting_for_callback=Os ydych yn aros i gael galwad ffôn yn ôl
@@ -868,8 +865,6 @@ label.tax_calc_option=Eich cyfrifiad treth – TWE {0} i {1}
 label.task_heading=Ad-daliadau a’r dreth sydd arnoch – Talu Wrth Ennill (TWE)
 label.task_paragraph=Gall gymryd hyd at 10 diwrnod i’r tasgau sydd wedi’u cwblhau gael eu tynnu o’r rhestr.
 
-old_home_page_banner.text=Rydym yn gwneud newidiadau i hafan eich Cyfrif Treth Personol.
-old_home_page_banner.link_text=Darllenwch fwy am yr hyn sy’n newid
 new_home_page_banner.text=Mae hafan eich Cyfrif Treth Personol wedi’i diweddaru.
 new_home_page_banner.link_text=Dysgwch rhagor am yr hyn sydd wedi newid
 

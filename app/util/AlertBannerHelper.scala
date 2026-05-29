@@ -27,7 +27,7 @@ import play.api.mvc.AnyContent
 import play.twirl.api.Html
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.components.alertBanner.paperlessStatus.{bouncedEmail, unverifiedEmail}
-import views.html.components.alertBanner.{addressFixBanner, newHomePageChangesBanner, oldHomePageChangesBanner, peakDemandBanner, shutteringBanner, voluntaryContributionsAlertView}
+import views.html.components.alertBanner.{addressFixBanner, newHomePageChangesBanner, peakDemandBanner, shutteringBanner, voluntaryContributionsAlertView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -40,11 +40,10 @@ class AlertBannerHelper @Inject() (
   peakDemandBannerView: peakDemandBanner,
   addressFixBannerView: addressFixBanner,
   shutteringBannerView: shutteringBanner,
-  newHomePageChangesBannerView: newHomePageChangesBanner,
-  oldHomePageChangesBannerView: oldHomePageChangesBanner
+  newHomePageChangesBannerView: newHomePageChangesBanner
 ) {
 
-  def getContent(personDetails: Option[PersonDetails], newDesign: Boolean)(implicit
+  def getContent(personDetails: Option[PersonDetails])(implicit
     request: UserRequest[AnyContent],
     ec: ExecutionContext,
     messages: Messages
@@ -54,7 +53,7 @@ class AlertBannerHelper @Inject() (
       getPeakDemandBannerContent,
       getAddressFixBannerContent(personDetails),
       getPaperlessStatusBannerContent,
-      getHomePageChangesBannerContent(newDesign)
+      getHomePageChangesBannerContent
     )
     Future.sequence(contentFutures).map(_.collectFirst { case Some(html) => html })
   }
@@ -112,12 +111,9 @@ class AlertBannerHelper @Inject() (
       }
     }
 
-  def getHomePageChangesBannerContent(
-    newDesign: Boolean
-  )(implicit ec: ExecutionContext, messages: Messages): Future[Option[Html]] =
+  def getHomePageChangesBannerContent(implicit ec: ExecutionContext, messages: Messages): Future[Option[Html]] =
     featureFlagService.get(HomePageChangesBannerToggle).map {
-      case toggle if toggle.isEnabled =>
-        if (newDesign) Some(newHomePageChangesBannerView()) else Some(oldHomePageChangesBannerView())
+      case toggle if toggle.isEnabled => Some(newHomePageChangesBannerView())
       case _                          => None
     }
 }
