@@ -540,7 +540,6 @@ label.manage_your_marriage_allowance=Rheoli’ch Lwfans Priodasol
 label.your_partner_currently_transfers_part_of_their_personal_allowance_to_you=Ar hyn o bryd, mae’ch partner yn trosglwyddo rhan o’i Lwfans Personol i chi.
 label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner=Ar hyn o bryd, rydych yn trosglwyddo rhan o’ch Lwfans Personol i’ch partner.
 
-label.a_payment_to_help_with_the_cost_of_bringing_up_children=Taliad i helpu gyda chostau magu plant
 label.make_or_manage_a_child_benefit_claim=Gwneud neu reoli hawliad am Fudd-dal Plant
 label.make_a_claim=Gwneud hawliad
 label.making_a_claim=Hawlio
