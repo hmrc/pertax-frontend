@@ -18,6 +18,7 @@ package testUtils
 
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
+import models.AddressesLock
 import models.admin.{AddressChangeAllowedToggle, AllFeatureFlags, DfsFormsFrontendAvailabilityToggle, GetPersonFromCitizenDetailsToggle, HomePageNewLayoutToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
@@ -124,6 +125,9 @@ trait BaseSpec
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(HomePageNewLayoutToggle)))
       .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = false)))
+
+    when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+      .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
   }
 
   val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(

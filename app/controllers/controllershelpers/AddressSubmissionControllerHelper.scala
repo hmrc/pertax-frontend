@@ -52,7 +52,8 @@ class AddressSubmissionControllerHelper @Inject() (
   citizenDetailsService: CitizenDetailsService,
   cannotUpdateAddressEarlyDateView: CannotUpdateAddressEarlyDateView,
   languageUtils: LanguageUtils,
-  addressCountryService: AddressCountryService
+  addressCountryService: AddressCountryService,
+  cachingHelper: AddressJourneyCachingHelper
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends Logging {
 
@@ -141,6 +142,7 @@ class AddressSubmissionControllerHelper @Inject() (
                       newAddress.postcode.getOrElse(""),
                       p85enabled
                     )
+                _                           <- cachingHelper.clearCache()
 
               } yield Ok(
                 updateAddressConfirmationView(

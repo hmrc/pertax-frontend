@@ -60,7 +60,8 @@ class PersonalDetailsController @Inject() (
       featureFlagService,
       errorRenderer,
       citizenDetailsService,
-      internalServerErrorView
+      internalServerErrorView,
+      editAddressLockRepository
     ) {
 
   def redirectToYourProfile: Action[AnyContent] = authenticate.async { _ =>

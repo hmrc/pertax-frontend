@@ -20,29 +20,29 @@ import cats.data.EitherT
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
+import controllers.controllershelpers.AddressSubmissionControllerHelper
 import models.dto.{AddressDto, DateDto, InternationalAddressChoiceDto}
 import models.{NonFilerSelfAssessmentUser, PersonDetails, UserAnswers}
-import controllers.controllershelpers.AddressSubmissionControllerHelper
-import uk.gov.hmrc.http.SessionKeys
 import org.mockito.ArgumentMatchers.{any, eq as meq}
 import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.Application
 import play.api.http.Status.OK
 import play.api.i18n.Messages
 import play.api.inject.bind
-import play.api.mvc.{ActionBuilder, AnyContent, BodyParser, Request, Result}
+import play.api.mvc.Results.Ok
+import play.api.mvc.*
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.JourneyCacheRepository
 import routePages.{SelectedAddressRecordPage, SubmittedAddressPage, SubmittedInternationalAddressChoicePage, SubmittedStartDatePage}
 import services.CitizenDetailsService
+import testUtils.BaseSpec
 import testUtils.Fixtures.*
 import testUtils.UserRequestFixture.buildUserRequest
-import testUtils.BaseSpec
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.model.DataEvent
-import play.api.mvc.Results.Ok
+
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -212,7 +212,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
 
   "onSubmit" must {
 
-    "Return an error if ResidentialSubmittedStartDate is missing from the cache, and the journey type is ResidentialAddrType" in {
+    "redirect to profile and settings when ResidentialSubmittedStartDate is missing from the cache, and the journey type is ResidentialAddrType" in {
       val addressDto: AddressDto = asAddressDto(fakeStreetTupleListAddressForUnmodified)
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
@@ -227,7 +227,8 @@ class AddressSubmissionControllerSpec extends BaseSpec {
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)
 
-      status(result) mustBe INTERNAL_SERVER_ERROR
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(routes.PersonalDetailsController.onPageLoad.url)
 
       verify(mockJourneyCacheRepository, times(1)).get(any())
     }
@@ -267,7 +268,7 @@ class AddressSubmissionControllerSpec extends BaseSpec {
         )
     }
 
-    "returns an error if residentialSubmittedAddress is missing from the cache" in {
+    "redirect to profile and settings when ResidentialSubmittedStartDate is missing from the cache" in {
       val submittedStartDateDto: DateDto = DateDto.build(15, 3, 2015)
       when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(
         Future.successful(
@@ -282,7 +283,9 @@ class AddressSubmissionControllerSpec extends BaseSpec {
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(fakePOSTRequest)
 
-      status(result) mustBe INTERNAL_SERVER_ERROR
+      status(result) mustBe SEE_OTHER
+
+      redirectLocation(result) mustBe Some(routes.PersonalDetailsController.onPageLoad.url)
 
       verify(mockJourneyCacheRepository, times(1)).get(any())
     }

@@ -26,7 +26,7 @@ import models.admin.{AddressChangeAllowedToggle, GetPersonFromCitizenDetailsTogg
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
 import play.api.i18n.{Lang, Messages, MessagesImpl}
-import play.api.mvc.Request
+import play.api.mvc.*
 import play.api.mvc.Results.*
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -54,7 +54,8 @@ class AddressControllerSpec extends BaseSpec {
         mockFeatureFlagService,
         mockErrorRenderer,
         mockCitizenDetailsService,
-        internalServerErrorView
+        internalServerErrorView,
+        mockEditAddressLockRepository
       )(mockAppConfigDecorator, implicitly)
 
   private lazy val controller: AddressController = Controller
@@ -64,6 +65,7 @@ class AddressControllerSpec extends BaseSpec {
     super.beforeEach()
     reset(mockCitizenDetailsService)
     reset(mockErrorRenderer)
+    reset(mockEditAddressLockRepository)
 
     when(mockErrorRenderer.error(any())(any(), any())).thenReturn(InternalServerError("error"))
 
@@ -182,6 +184,80 @@ class AddressControllerSpec extends BaseSpec {
       }(userRequest)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
+    }
+  }
+  "addressJourneyEnforcer(typ)" must {
+    import controllers.bindable.{PostalAddrType, ResidentialAddrType}
+    import models.AddressesLock
+
+    "run the block when no lock is present for the given typ" in {
+      when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
+        .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
+      when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
+        .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
+
+      def userRequest[A]: UserRequest[A] =
+        buildUserRequest(request = FakeRequest().asInstanceOf[Request[A]])
+
+      val result = controller.addressJourneyEnforcer(ResidentialAddrType) { _ => _ =>
+        Future.successful(Ok("OK"))
+      }(userRequest)
+
+      status(result) mustBe OK
+      contentAsString(result) mustBe "OK"
+    }
+
+    "redirect to PersonalDetailsController when the residential lock is present" in {
+      when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
+        .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
+      when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
+        .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        .thenReturn(Future.successful(AddressesLock(main = true, postal = false)))
+
+      def userRequest[A]: UserRequest[A] =
+        buildUserRequest(request = FakeRequest().asInstanceOf[Request[A]])
+
+      val result = controller.addressJourneyEnforcer(ResidentialAddrType) { _ => _ =>
+        Future.successful(Ok("should not run"))
+      }(userRequest)
+
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(routes.PersonalDetailsController.onPageLoad.url)
+    }
+
+    "redirect to PersonalDetailsController when the postal lock is present" in {
+      when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
+        .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
+      when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
+        .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        .thenReturn(Future.successful(AddressesLock(main = false, postal = true)))
+
+      val result = controller.addressJourneyEnforcer(PostalAddrType) { _ => _ =>
+        Future.successful(Ok("should not run"))
+      }(buildUserRequest(request = FakeRequest().asInstanceOf[Request[AnyContent]]))
+
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(routes.PersonalDetailsController.onPageLoad.url)
+    }
+
+    "not be blocked by the postal lock when typ = Residential" in {
+      when(mockFeatureFlagService.get(AddressChangeAllowedToggle))
+        .thenReturn(Future.successful(FeatureFlag(AddressChangeAllowedToggle, isEnabled = true)))
+      when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
+        .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+        .thenReturn(Future.successful(AddressesLock(main = false, postal = true)))
+
+      val result = controller.addressJourneyEnforcer(ResidentialAddrType) { _ => _ =>
+        Future.successful(Ok("ran"))
+      }(buildUserRequest(request = FakeRequest().asInstanceOf[Request[AnyContent]]))
+
+      status(result) mustBe OK
+      contentAsString(result) mustBe "ran"
     }
   }
 }
