@@ -19,7 +19,8 @@ package views
 import play.twirl.api.Html
 import testUtils.A11ySpec
 import uk.gov.hmrc.scalatestaccessibilitylinter.domain.OutputFormat
-import viewmodels.{CardContainerModel, HMRCCardModel}
+import viewmodels.CardContainerModel
+import models.{CardHeading, CardType, HmrcCardModel, TagColour}
 
 class CardContainerA11ySpec extends A11ySpec {
 
@@ -28,24 +29,20 @@ class CardContainerA11ySpec extends A11ySpec {
   private val emptyView: Html =
     Html("""<p class="govuk-body">No cards available.</p>""")
 
-  private val payeCard: HMRCCardModel =
-    HMRCCardModel(
-      Html(
-        """<h3 class="hmrc-card__heading">
-          |  <a href="/pay-as-you-earn">Pay As You Earn (PAYE)<span class="hmrc-card__chevron" aria-hidden="true"></span></a>
-          |</h3>
-          |<p class="govuk-body">View and update your PAYE details.</p>""".stripMargin
-      )
+  private val payeCard: HmrcCardModel =
+    HmrcCardModel(
+      CardType.SectionCard,
+      CardHeading("Pay As You Earn (PAYE)", Some("/pay-as-you-earn"), false),
+      Some(models.CardBody(Html("View and update your PAYE details."))),
+      Some(models.CardHint(Html(""), None))
     )
 
-  private val selfAssessmentCard: HMRCCardModel =
-    HMRCCardModel(
-      Html(
-        """<h3 class="hmrc-card__heading">
-          |  <a href="/self-assessment">Self Assessment<span class="hmrc-card__chevron" aria-hidden="true"></span></a>
-          |</h3>
-          |<p class="govuk-body">Check your Self Assessment tax return and payments.</p>""".stripMargin
-      )
+  private val selfAssessmentCard: HmrcCardModel =
+    HmrcCardModel(
+      CardType.SectionCard,
+      CardHeading("Self Assessment", Some("/self-assessment"), false),
+      Some(models.CardBody(Html("Check your Self Assessment tax return and payments."))),
+      Some(models.CardHint(Html(""), None))
     )
 
   private def fullPage(componentHtml: Html, beforeComponent: Html = Html("")): String =

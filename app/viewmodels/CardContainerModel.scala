@@ -16,12 +16,13 @@
 
 package viewmodels
 
+import models.HmrcCardModel
 import play.twirl.api.{Html, HtmlFormat}
 
 final case class CardContainerModel(
   emptyView: Html,
   header: Option[CardContainerModel.Header] = None,
-  cards: Seq[HMRCCardModel] = Seq.empty,
+  cards: Seq[HmrcCardModel] = Seq.empty,
   headingLevel: String = "h2",
   listAriaLabel: Option[String] = None,
   headerId: Option[String] = None
