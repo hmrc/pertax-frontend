@@ -20,29 +20,30 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.bindable.Origin
 import play.api.Logger
-import play.api.mvc._
-import services._
+import play.api.mvc.*
+import services.*
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl, SafeRedirectUrl}
 import uk.gov.hmrc.time.CurrentTaxYear
-import views.html.iv.failure._
+import views.html.iv.failure.*
 import views.html.iv.success.SuccessView
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedFunctions, NoActiveSession}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class ApplicationController @Inject() (
   val identityVerificationFrontendService: IdentityVerificationFrontendService,
+  val authConnector: AuthConnector,
   cc: MessagesControllerComponents,
   successView: SuccessView,
-  cannotConfirmIdentityView: CannotConfirmIdentityView,
-  failedIvIncompleteView: FailedIvIncompleteView,
-  lockedOutView: LockedOutView,
-  timeOutView: TimeOutView,
   technicalIssuesView: TechnicalIssuesView
 )(implicit configDecorator: ConfigDecorator, val ec: ExecutionContext)
     extends PertaxBaseController(cc)
-    with CurrentTaxYear {
+    with CurrentTaxYear
+    with AuthorisedFunctions {
 
   private val logger = Logger(this.getClass)
 
@@ -60,10 +61,22 @@ class ApplicationController @Inject() (
 
   def showUpliftJourneyOutcome(continueUrl: Option[RedirectUrl]): Action[AnyContent] =
     Action.async { implicit request =>
-      val safeUrl: Either[String, Option[SafeRedirectUrl]] =
-        continueUrl.map(_.getEither(OnlyRelative).map(Some.apply)).getOrElse(Right(None))
+      implicit val hc: HeaderCarrier =
+        HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-      processSafeUrl(safeUrl, continueUrl)
+      authorised() {
+        val safeUrl: Either[String, Option[SafeRedirectUrl]] =
+          continueUrl.map(_.getEither(OnlyRelative).map(Some.apply)).getOrElse(Right(None))
+
+        processSafeUrl(safeUrl, continueUrl)
+      } recover {
+        case _: NoActiveSession        =>
+          logger.warn("NoActiveSession encountered during authorisation")
+          Redirect(routes.HomeController.index.url)
+        case e: AuthorisationException =>
+          logger.warn(s"AuthorisationException encountered: ${e.getMessage}")
+          Redirect(routes.HomeController.index.url)
+      }
     }
 
   private def processSafeUrl(safeUrl: Either[String, Option[SafeRedirectUrl]], continueUrl: Option[RedirectUrl])(
@@ -97,32 +110,16 @@ class ApplicationController @Inject() (
 
             case InsufficientEvidence => Redirect(routes.SelfAssessmentController.ivExemptLandingPage(continueUrl))
 
-            case UserAborted =>
-              logErrorMessage(UserAborted.toString)
-              Unauthorized(cannotConfirmIdentityView(retryUrl))
-
-            case FailedMatching =>
-              logErrorMessage(FailedMatching.toString)
-              Unauthorized(cannotConfirmIdentityView(retryUrl))
-
-            case Incomplete =>
-              logErrorMessage(Incomplete.toString)
-              Unauthorized(failedIvIncompleteView(retryUrl))
-
             case PrecondFailed =>
-              logErrorMessage(PrecondFailed.toString)
-              Unauthorized(cannotConfirmIdentityView(retryUrl))
-
-            case LockedOut =>
-              logErrorMessage(LockedOut.toString)
-              Unauthorized(lockedOutView())
-
-            case Timeout =>
-              logErrorMessage(Timeout.toString)
-              Unauthorized(timeOutView())
+              logger.error(
+                s"PreconditionFailed response from IdentityVerificationFrontendService for journeyId: $jid. " +
+                  "This outcome should not occur because the user should not have been able to enter the service. " +
+                  "Investigate the identity verification journey for this journeyId."
+              )
+              InternalServerError(technicalIssuesView(retryUrl))
 
             case TechnicalIssue =>
-              logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")
+              logger.warn(s"TechnicalIssue response from IdentityVerificationFrontendService for journeyId: $jid")
               InternalServerError(technicalIssuesView(retryUrl))
 
             case _ => InternalServerError(technicalIssuesView(retryUrl))
@@ -132,9 +129,6 @@ class ApplicationController @Inject() (
         logger.error("journeyId missing or incorrect")
         Future.successful(InternalServerError(technicalIssuesView(retryUrl)))
     }
-
-  private def logErrorMessage(reason: String): Unit =
-    logger.warn(s"Unable to confirm user identity: $reason")
 
   def signout(continueUrl: Option[RedirectUrl], origin: Option[Origin]): Action[AnyContent] =
     Action {

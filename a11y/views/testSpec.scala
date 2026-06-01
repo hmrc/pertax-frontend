@@ -320,7 +320,8 @@ class testSpec extends A11ySpec {
               .willReturn(ok(s""""{"journeyResult": "LockedOut"}""".stripMargin))
           )
 
-          val result: Future[Result] = route(app, FakeRequest(GET, url)).get
+          val result: Future[Result] =
+            route(app, FakeRequest(GET, url).withSession(SessionKeys.authToken -> "token")).get
 
           val content = Jsoup.parse(contentAsString(result))
           content.title() mustBe expectedData.title
