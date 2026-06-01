@@ -17,14 +17,17 @@
 package views
 
 import play.twirl.api.Html
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import testUtils.A11ySpec
 import uk.gov.hmrc.scalatestaccessibilitylinter.domain.OutputFormat
 import viewmodels.CardContainerModel
-import models.{CardHeading, CardType, HmrcCardModel, TagColour}
+import models.{CardHeading, CardType, HmrcCardModel}
 
 class CardContainerA11ySpec extends A11ySpec {
 
-  private lazy val cardContainer = app.injector.instanceOf[views.html.tags.CardContainer]
+  private lazy val cardContainer                     = app.injector.instanceOf[views.html.tags.CardContainer]
+  private implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+  private implicit lazy val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
   private val emptyView: Html =
     Html("""<p class="govuk-body">No cards available.</p>""")
