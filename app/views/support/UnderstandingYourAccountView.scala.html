@@ -38,7 +38,8 @@
 @()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @main(
-    pageTitle = messages("ptap.support.uyoa.title")
+    pageTitle = messages("ptap.support.uya.title"),
+    showBackLink = true
 ) {
     @h1("ptap.support.uya.title")
 
@@ -92,4 +93,8 @@
     @h3("ptap.support.uya.p5.sub")
 
     @p(Text(messages("ptap.support.uya.p5.hs")))
+
+    @h3("ptap.support.uya.p6.sub")
+
+    @p(Text(messages("ptap.support.uya.p6.hs")))
 }

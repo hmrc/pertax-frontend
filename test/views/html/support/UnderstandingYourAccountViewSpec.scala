@@ -36,7 +36,7 @@ class UnderstandingYourAccountViewSpec extends ViewSpec {
   implicit val mockConfigDecorator: ConfigDecorator             = mock[ConfigDecorator]
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
 
-  lazy val home: UnderstandingYourAccountView = inject[UnderstandingYourAccountView]
+  lazy val page: UnderstandingYourAccountView = inject[UnderstandingYourAccountView]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
@@ -49,13 +49,18 @@ class UnderstandingYourAccountViewSpec extends ViewSpec {
     super.beforeEach()
     reset(mockConfigDecorator)
     when(mockConfigDecorator.defaultOrigin).thenReturn(Origin("PERTAX"))
+    when(mockConfigDecorator.pertaxFrontendBackLink).thenReturn("/goBack")
     when(mockConfigDecorator.personalAccount).thenReturn("/personal-account")
     when(mockConfigDecorator.notifyChangeOfDetails).thenReturn("/notify-changes-of-details")
     when(mockConfigDecorator.getFeedbackSurveyUrl(any())).thenReturn("/feedback/url")
   }
 
   "Rendering UnderstandingYourAccountView.scala.html" must {
-    lazy val document: Document = asDocument(home().toString)
+    lazy val document: Document = asDocument(page().toString)
+
+    "show the expected title for Understanding your HMRC Online account page" in {
+      document.select("title").asScala.exists(e => e.text contains "Understanding your HMRC Online account") mustBe true
+    }
 
     "show the expected headers for Understanding your HMRC Online account page" in {
       document.select("h1").asScala.exists(e => e.text == "Understanding your HMRC Online account") mustBe true
@@ -65,6 +70,7 @@ class UnderstandingYourAccountViewSpec extends ViewSpec {
       h3s.exists(e => e.text == "Your tasks")
       h3s.exists(e => e.text == "Recent activity")
       h3s.exists(e => e.text == "Taxes and benefits")
+      h3s.exists(e => e.text == "HMRC news")
       h3s.exists(e => e.text == "HMRC support")
     }
 
@@ -87,6 +93,7 @@ class UnderstandingYourAccountViewSpec extends ViewSpec {
       paragraphs.exists(e =>
         e.text contains "Check the taxes and benefits you currently have and find out about others that may be relevant to you."
       ) mustBe true
+      paragraphs.exists(e => e.text contains "Read the latest updates and announcements from HMRC.") mustBe true
       paragraphs.exists(e => e.text contains "Get technical support and help with taxes and benefits.") mustBe true
     }
 
@@ -133,6 +140,15 @@ class UnderstandingYourAccountViewSpec extends ViewSpec {
 
       link.exists(e => e.attribute("href").getValue == "/notify-changes-of-details") mustBe true
       link.exists(e => e.text contains "your circumstances change (opens in new tab)") mustBe true
+    }
+
+    "show the expected content for the back link" in {
+      val link = document.select("a[id*='menu.back']").asScala
+
+      println(link)
+
+      link.exists(e => e.attribute("href").getValue == "#") mustBe true
+      link.exists(e => e.text contains "Back") mustBe true
     }
   }
 }
