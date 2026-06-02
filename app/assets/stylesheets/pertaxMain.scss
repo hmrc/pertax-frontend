@@ -1,9 +1,13 @@
 $govuk-include-default-font-face: false;
 @import "lib/govuk-frontend/dist/govuk/settings/index";
+@import "lib/hmrc-frontend/hmrc/all";
 
 @import "modules/colors";
 @import "card";
 @import "flexbox";
+@import "secondary-navigation";
+
+@import "hmrc-card";
 
 .pta-home-option {
   background-color: govuk-tint(govuk-colour("light-grey"), 50%);
