@@ -18,17 +18,18 @@ package views.html.tags
 
 import play.twirl.api.Html
 import views.html.ViewSpec
-import viewmodels.{CardContainerModel, HMRCCardModel}
+import viewmodels.CardContainerModel
+import models.{CardHeading, CardType, HmrcCardModel}
 
 class CardContainerSpec extends ViewSpec {
 
   lazy val cardContainer = inject[views.html.tags.CardContainer]
 
-  private val cardOne: HMRCCardModel =
-    HMRCCardModel(Html("""<h3 class="hmrc-card__heading"><a href="#card-one">Card 1</a></h3>"""))
+  private val cardOne: HmrcCardModel =
+    HmrcCardModel(CardType.BasicCard, CardHeading("Card 1", Some("#card-one"), false), None, None)
 
-  private val cardTwo: HMRCCardModel =
-    HMRCCardModel(Html("""<h3 class="hmrc-card__heading"><a href="#card-two">Card 2</a></h3>"""))
+  private val cardTwo: HmrcCardModel =
+    HmrcCardModel(CardType.BasicCard, CardHeading("Card 2", Some("#card-two"), false), None, None)
 
   "CardContainer" must {
 
@@ -217,8 +218,8 @@ class CardContainerSpec extends ViewSpec {
     }
 
     "throw error when a card has no focusable control" in {
-      an[IllegalArgumentException] must be thrownBy
-        HMRCCardModel(Html("<p>Card with no link</p>"))
+      an[Exception] must be thrownBy
+        HmrcCardModel(CardType.BasicCard, CardHeading("Card 1", None, false), None, None)
     }
 
     "throw error for invalid heading level" in {

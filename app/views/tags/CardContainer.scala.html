@@ -15,10 +15,11 @@
  *@
 
 @import viewmodels.CardContainerModel
+@import components.HmrcCard
 
 @this()
 
-@(model: CardContainerModel)
+@(model: CardContainerModel)(implicit messages: play.api.i18n.Messages)
 
 @headerIdValue = @{model.normalizedHeaderId.getOrElse("card-container-header")}
 @headingTag = @{model.normalizedHeadingLevel}
@@ -33,16 +34,14 @@
 @if(model.cards.isEmpty) {
   @model.emptyView
 } else if(model.cards.length == 1) {
-  <div class="hmrc-card">
-    @model.cards.head.content
-  </div>
+  @HmrcCard(model.cards.head)
 } else {
   <ul class="hmrc-card__container"
       @listLabel.map { label => aria-label="@label" }
       @if(listLabel.isEmpty) { aria-labelledby="@headerIdValue" }>
     @for(card <- model.cards) {
       <li class="hmrc-card__list-item">
-        <div class="hmrc-card">@card.content</div>
+        @HmrcCard(card)
       </li>
     }
   </ul>
