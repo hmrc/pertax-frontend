@@ -21,10 +21,12 @@ import config.ConfigDecorator
 import controllers.PertaxBaseController
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
+import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
 import error.ErrorRenderer
 import models.PersonDetails
 import models.admin.{AddressChangeAllowedToggle, GetPersonFromCitizenDetailsToggle}
 import play.api.mvc.{ActionBuilder, AnyContent, MessagesControllerComponents, Result}
+import repositories.EditAddressLockRepository
 import services.CitizenDetailsService
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -38,7 +40,8 @@ abstract class AddressController @Inject() (
   featureFlagService: FeatureFlagService,
   errorRenderer: ErrorRenderer,
   citizenDetailsService: CitizenDetailsService,
-  internalServerErrorView: InternalServerErrorView
+  internalServerErrorView: InternalServerErrorView,
+  editAddressLockRepository: EditAddressLockRepository
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
@@ -68,4 +71,21 @@ abstract class AddressController @Inject() (
       }
     }
   }
+
+  def addressJourneyEnforcer(typ: AddrType)(
+    block: Nino => PersonDetails => Future[Result]
+  )(implicit request: UserRequest[_]): Future[Result] =
+    addressJourneyEnforcer { nino => personDetails =>
+      editAddressLockRepository.getAddressesLock(nino.withoutSuffix).flatMap { locks =>
+        val locked = typ match {
+          case ResidentialAddrType => locks.main
+          case PostalAddrType      => locks.postal
+        }
+        if (locked) {
+          Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad))
+        } else {
+          block(nino)(personDetails)
+        }
+      }
+    }
 }

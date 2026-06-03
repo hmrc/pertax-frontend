@@ -20,42 +20,34 @@
 
 @(myService: MyService)
 
-<li class="pta-home-option govuk-!-margin-bottom-2 govuk-!-padding-3 active"
-    @myService.id.map { i => id="@i" }
-    @myService.divAttr.map{ attr => @attr._1="@attr._2" }
-    data-journey-click="link - click:@myService.gaAction:@myService.gaLabel">
+    @defining(myService.gaAction.getOrElse("")) { action =>
+        @defining(myService.gaLabel.getOrElse("")) { label =>
+            <li class="pta-home-option govuk-!-margin-bottom-2 govuk-!-padding-3 @if(myService.link.isDefined) {active}"
+                @myService.id.map { i => id="@i" }
+                @myService.divAttr.map { attr => @attr._1="@attr._2" }
+                @if(myService.link.isDefined) {
+                    data-journey-click="link - click:@action:@label"
+                }
+            >
 
-    <a class="govuk-link govuk-!-font-weight-bold govuk-!-font-size-19 govuk-link--no-visited-state govuk-!-display-inline-block" href="@myService.link">
-    @myService.title
-    </a>
+                @myService.link match {
+                    case Some(url) => {
+                        <a class="govuk-link govuk-!-font-weight-bold govuk-!-font-size-19 govuk-link--no-visited-state govuk-!-display-inline-block" href="@url">
+                        @myService.title
+                        </a>
+                    }
+                    case None => {
+                        <span class="govuk-!-font-weight-bold govuk-!-font-size-19 govuk-!-display-inline-block">
+                        @myService.title
+                        </span>
+                    }
+                }
 
-    <p class="govuk-body govuk-!-margin-bottom-0">
-    @myService.hintText
-    </p>
-</li>
-
-@* Original design with optional link and extra content
- *
- * <li class="pta-home-option govuk-!-margin-bottom-2 govuk-!-padding-3 @if(url) {active}"
- *   @id.map { i => id="@i" }
- *   @divAttr.map{attr => @attr._1="@attr._2"}
- *   @if(url) { data-journey-click="link - click:@gaAction:@gaLabel"}>
- *
- * @if(url) {
- *    <a class="govuk-link govuk-!-font-weight-bold govuk-!-font-size-19 govuk-link--no-visited-state govuk-!-display-inline-block" href="@url">
- *      @heading
- *    </a>
- *   } else {
- *     @heading
- *   }
- *
- *   @if(bodyContent) {
- *     <p class="govuk-body govuk-!-margin-bottom-0">
- *       @bodyContent
- *     </p>
- *    }
- *
- *    @actionContent
- *   </li>
- *
- *@
+                @myService.hintText.map { hint =>
+                    <p class="govuk-body govuk-!-margin-bottom-0">
+                        @hint
+                    </p>
+                }
+            </li>
+        }
+    }

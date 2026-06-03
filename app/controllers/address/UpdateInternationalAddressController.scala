@@ -24,6 +24,7 @@ import controllers.controllershelpers.{AddressJourneyCachingHelper, CountryHelpe
 import error.ErrorRenderer
 import models.dto.{AddressDto, DateDto}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import repositories.EditAddressLockRepository
 import routePages.{StartDateUpdatedPage, SubmittedAddressPage, SubmittedStartDatePage}
 import services.CitizenDetailsService
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -45,7 +46,8 @@ class UpdateInternationalAddressController @Inject() (
   errorRenderer: ErrorRenderer,
   featureFlagService: FeatureFlagService,
   citizenDetailsService: CitizenDetailsService,
-  internalServerErrorView: InternalServerErrorView
+  internalServerErrorView: InternalServerErrorView,
+  editAddressLockRepository: EditAddressLockRepository
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(
       authJourney,
@@ -53,13 +55,14 @@ class UpdateInternationalAddressController @Inject() (
       featureFlagService,
       errorRenderer,
       citizenDetailsService,
-      internalServerErrorView
+      internalServerErrorView,
+      editAddressLockRepository
     ) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       cachingHelper.gettingCachedJourneyData[Result](typ) { journeyData =>
-        addressJourneyEnforcer { _ => personDetails =>
+        addressJourneyEnforcer(typ) { _ => personDetails =>
           typ match {
             case PostalAddrType =>
               auditConnector.sendEvent(
@@ -94,7 +97,7 @@ class UpdateInternationalAddressController @Inject() (
   def onSubmit(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       cachingHelper.gettingCachedJourneyData[Result](typ) { _ =>
-        addressJourneyEnforcer { _ => _ =>
+        addressJourneyEnforcer(typ) { _ => _ =>
           AddressDto.internationalForm
             .bindFromRequest()
             .fold(

@@ -20,40 +20,22 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.bindable.Origin
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import views.html.public.SessionTimeoutView
 
-import scala.concurrent.Future
-
-class PublicController @Inject() (cc: MessagesControllerComponents, sessionTimeoutView: SessionTimeoutView)(implicit
+class PublicController @Inject() (cc: MessagesControllerComponents)(implicit
   configDecorator: ConfigDecorator
 ) extends PertaxBaseController(cc) {
 
-  def governmentGatewayEntryPoint: Action[AnyContent] = Action.async { implicit request =>
-    Future.successful {
-      Redirect(routes.HomeController.index).withNewSession.addingToSession(
-        configDecorator.authProviderKey -> configDecorator.authProviderGG
-      )
-    }
+  def governmentGatewayEntryPoint: Action[AnyContent] = Action { implicit request =>
+    Redirect(routes.HomeController.index).withNewSession.addingToSession(
+      configDecorator.authProviderKey -> configDecorator.authProviderGG
+    )
   }
 
-  // TODO: SessionManagementController.timeOut now redirects via BAS Gateway.
-  //  This endpoint is no longer part of the pertax timeout flow.
-  //  Verify Kibana logs after deployment of DDCNL-11341 and remove if no longer in use.
-  def sessionTimeout: Action[AnyContent] = Action.async { implicit request =>
-    Future.successful {
-      Ok(sessionTimeoutView())
-    }
+  def redirectToExitSurvey(origin: Origin): Action[AnyContent] = Action { _ =>
+    Redirect(configDecorator.getFeedbackSurveyUrl(origin))
   }
 
-  def redirectToExitSurvey(origin: Origin): Action[AnyContent] = Action.async { _ =>
-    Future.successful {
-      Redirect(configDecorator.getFeedbackSurveyUrl(origin))
-    }
-  }
-
-  def redirectToYourProfile(): Action[AnyContent] = Action.async { _ =>
-    Future.successful {
-      Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad)
-    }
+  def redirectToYourProfile(): Action[AnyContent] = Action { _ =>
+    Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad)
   }
 }

@@ -59,11 +59,11 @@
         }
     }
 
-    @guidanceForWhenYourChildTurnsSixteenLink = @{
+    @tellUsYourChildIsStayingInFullTimeEducationLink = @{
         if(messages.lang.code == "cy") {
-            configDecorator.guidanceForWhenYourChildTurnsSixteenWelsh
+            configDecorator.tellUsYourChildIsStayingInFullTimeEducationWelsh
         } else {
-            configDecorator.guidanceForWhenYourChildTurnsSixteen
+            configDecorator.tellUsYourChildIsStayingInFullTimeEducation
         }
     }
 
@@ -79,8 +79,7 @@
         @h2(messages("label.manage_a_claim"))
         <ul class="govuk-list govuk-list--spaced">
             <li>@link(reportChangesChildBenefitLink, messageKey = "label.report_changes_that_affect_your_child_benefit", inParagraph = true)</li>
-            <li>@link(guidanceForWhenYourChildTurnsSixteenLink, messageKey = "label.guidance_for_when_your_child_turns_sixteen", inParagraph = true)</li>
-            <li>@link(configDecorator.extendYourPaymentWhileYourChildStaysInEducation, messageKey = "label.extend_your_payment_while_your_child_stays_in_education", inParagraph = true)</li>
+            <li>@link(tellUsYourChildIsStayingInFullTimeEducationLink, messageKey = "label.tell_us_your_child_is_staying_in_full_time_education", inParagraph = true)</li>
             <li>@link(configDecorator.viewPaymentHistory, messageKey = "label.view_your_child_benefit_payment_history", inParagraph = true)</li>
             <li>@link(configDecorator.changeBankDetails, messageKey = "label.change_your_bank_details", inParagraph = true)</li>
             <li>@link(configDecorator.viewProofEntitlement, messageKey = "label.view_your_proof_of_entitlement_to_child_benefit", inParagraph = true)</li>

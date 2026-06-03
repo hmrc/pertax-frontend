@@ -64,13 +64,14 @@ class ClosePostalAddressController @Inject() (
       featureFlagService,
       errorRenderer,
       citizenDetailsService,
-      internalServerErrorView
+      internalServerErrorView,
+      editAddressLockRepository
     )
     with Logging {
 
   def onPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personDetails =>
+      addressJourneyEnforcer(PostalAddrType) { _ => personDetails =>
         val address = getAddress(personDetails.address).fullAddress
         Future.successful(Ok(closeCorrespondenceAddressChoiceView(address, ClosePostalAddressChoiceDto.form)))
       }
@@ -78,7 +79,7 @@ class ClosePostalAddressController @Inject() (
 
   def onSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personalDetails =>
+      addressJourneyEnforcer(PostalAddrType) { _ => personalDetails =>
         ClosePostalAddressChoiceDto.form
           .bindFromRequest()
           .fold(
@@ -100,7 +101,7 @@ class ClosePostalAddressController @Inject() (
 
   def confirmPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personDetails =>
+      addressJourneyEnforcer(PostalAddrType) { _ => personDetails =>
         val address = getAddress(personDetails.address).fullAddress
         Future.successful(Ok(confirmCloseCorrespondenceAddressView(address)))
       }
@@ -108,7 +109,7 @@ class ClosePostalAddressController @Inject() (
 
   def confirmSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { nino => personDetails =>
+      addressJourneyEnforcer(PostalAddrType) { nino => personDetails =>
         EitherT
           .liftF(editAddressLockRepository.get(nino.withoutSuffix))
           .flatMap { addressChanges =>
@@ -153,10 +154,7 @@ class ClosePostalAddressController @Inject() (
              )
            )
       _ <- EitherT.liftF(editAddressLockRepository.insert(nino.withoutSuffix, PostalAddrType))
-      _ <- EitherT.liftF(
-             cachingHelper
-               .clearCache()
-           ) // This clears ENTIRE session cache, no way to target individual keys
+      _ <- EitherT.liftF(cachingHelper.clearCache())
     } yield Ok(
       updateAddressConfirmationView(
         PostalAddrType,

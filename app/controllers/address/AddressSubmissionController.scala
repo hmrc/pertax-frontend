@@ -25,12 +25,13 @@ import error.ErrorRenderer
 import models.dto.{AddressDto, InternationalAddressChoiceDto}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.EditAddressLockRepository
 import services.CitizenDetailsService
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.InternalServerErrorView
 import views.html.personaldetails.ReviewChangesView
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class AddressSubmissionController @Inject() (
   authJourney: AuthJourney,
@@ -41,7 +42,8 @@ class AddressSubmissionController @Inject() (
   featureFlagService: FeatureFlagService,
   citizenDetailsService: CitizenDetailsService,
   internalServerErrorView: InternalServerErrorView,
-  addressSubmissionControllerHelper: AddressSubmissionControllerHelper
+  addressSubmissionControllerHelper: AddressSubmissionControllerHelper,
+  editAddressLockRepository: EditAddressLockRepository
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(
       authJourney,
@@ -49,13 +51,14 @@ class AddressSubmissionController @Inject() (
       featureFlagService,
       errorRenderer,
       citizenDetailsService,
-      internalServerErrorView
+      internalServerErrorView,
+      editAddressLockRepository
     )
     with Logging {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personDetails =>
+      addressJourneyEnforcer(typ) { _ => personDetails =>
         cachingHelper.gettingCachedJourneyData(typ).map { journeyData =>
           (journeyData.submittedAddressDto, journeyData.submittedInternationalAddressChoiceDto) match {
             case (Some(address), Some(country)) =>
@@ -118,7 +121,7 @@ class AddressSubmissionController @Inject() (
     }
 
   def onSubmit(addressType: AddrType): Action[AnyContent] = authenticate.async { implicit request =>
-    addressJourneyEnforcer { nino => personDetails =>
+    addressJourneyEnforcer(addressType) { nino => personDetails =>
       cachingHelper.gettingCachedJourneyData(addressType).flatMap { journeyData =>
         val maybeSubmittedAddress = journeyData.submittedAddressDto
         val isStartDateValid      = addressSubmissionControllerHelper.isSubmittedAddressStartDateValid(
@@ -137,11 +140,11 @@ class AddressSubmissionController @Inject() (
             )
 
           case (false, _) =>
-            logger.error(s"Start date is missing and address type is $addressType")
-            errorRenderer.futureError(INTERNAL_SERVER_ERROR)
+            logger.warn(s"Start date missing for address type $addressType — redirecting to Profile & Settings")
+            Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
           case (_, None)  =>
-            logger.error(s"No submitted address found in journey data for address type: $addressType")
-            errorRenderer.futureError(INTERNAL_SERVER_ERROR)
+            logger.warn(s"No submitted address in journey data for $addressType — redirecting to Profile & Settings")
+            Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
         }
       }
     }

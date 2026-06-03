@@ -1,5 +1,4 @@
 GET         /personal-account/start-government-gateway                                 controllers.PublicController.governmentGatewayEntryPoint
-GET         /personal-account/signin                                                   controllers.PublicController.sessionTimeout
 GET         /personal-account/signed-out                                               controllers.PublicController.redirectToExitSurvey(origin: Origin)
 GET         /personal-account/your-address                                             controllers.PublicController.redirectToYourProfile()
 

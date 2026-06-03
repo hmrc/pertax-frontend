@@ -25,6 +25,5 @@ object HomePageServiceCategory {
 
 trait HomePageService {
   def title: String
-  def link: String
   def category: HomePageServiceCategory
 }
