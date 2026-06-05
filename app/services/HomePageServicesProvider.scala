@@ -145,7 +145,7 @@ class HomePageServicesProvider @Inject() (
           case (WrongCredentialsSelfAssessmentUser(_), true) =>
             Some(
               combinedMtdSaTile(
-                href = controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url
+                href = controllers.routes.SaWrongCredentialsController.landingPage().url
               )
             )
 
