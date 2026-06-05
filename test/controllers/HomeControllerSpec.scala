@@ -518,6 +518,24 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       content.getElementById("taxes-and-benefits-heading") mustBe null
     }
 
+    "Return the personalisation home page design when HomePagePersonalisationToggle is true" in {
+      val request = FakeRequest("GET", "/personal-account")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(request)
+
+      status(result) mustBe OK
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.getElementById("taxes-and-benefits-heading") mustBe null
+    }
+
     "Return a Breathing space if that is returned within period" in {
       val expectedHtmlString =
         "<a class=\"govuk-link govuk-link--no-visited-state\" href=\"/personal-account/breathing-space\">"
