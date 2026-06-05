@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import components.{H2, H3, MyServiceView, OtherServiceView}
+@import components.{H2, H3}
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.play.language.LanguageUtils
@@ -25,13 +25,8 @@
 
 @this(
         main: MainView,
-        myServiceView: MyServiceView,
-        otherServiceView: OtherServiceView,
-        taskListView: TaskListView,
         alertBanner: AlertBanner,
-        configDecorator: ConfigDecorator,
-        h2: H2,
-        h3: H3
+        configDecorator: ConfigDecorator
 )
 
 @(viewModel: PtapHomeViewModel)(implicit request: UserRequest[_], messages: Messages)
@@ -68,28 +63,4 @@
     }
     <p class="govuk-body" id="ninoLink"><a class="govuk-link govuk-link--no-visited-state" href="@configDecorator.ptaNinoSaveUrl">
         @messages("label.view_and_save_your_national_insurance_number")</a></p>
-
-    <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
-        @taskListView(viewModel.tasks)
-
-        @h2("label.taxes_and_benefits_heading", classes = Some("govuk-heading-m govuk-!-margin-top-8"), elmId = Some("taxes-and-benefits-heading"))
-        @h3("label.taxes_and_benefits_subheading")
-        <ul class="govuk-list">
-            @for(myService <- viewModel.myServices) {
-                @myServiceView(myService)
-            }
-        </ul>
-
-        @if(viewModel.otherServices.nonEmpty) {
-            @h3("label.other_taxes_and_benefits_heading", classes = Some("govuk-!-margin-top-6"))
-            <ul class="govuk-list">
-            @for(otherService <- viewModel.otherServices) {
-                @otherServiceView(otherService)
-            }
-            </ul>
-        }
-
-        @viewModel.newsAndUpdates.map { newsAndUpdates =>
-            @newsAndUpdates.content
-        }
 }

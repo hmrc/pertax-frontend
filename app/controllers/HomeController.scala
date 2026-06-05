@@ -74,13 +74,11 @@ class HomeController @Inject() (
     enforceInterrupts {
       val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
       val fListOfTasks             = tasksService.getListOfTasks
-      val fHomePageServices        = homePageServicesProvider.getHomePageServices
       val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
 
       for {
         breathingSpaceIndicator <- fBreathingSpaceIndicator
         listOfTasks             <- fListOfTasks
-        homePageServices        <- fHomePageServices
         eitherPersonDetails     <- fEitherPersonDetails
         alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten, newDesign = true)
       } yield {
@@ -96,9 +94,7 @@ class HomeController @Inject() (
               utr,
               breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
               alertBannerContent = alertBannerContent.map(PtapAlertBanner.apply),
-              name = nameToDisplay,
-              myServices = homePageServices.myServices,
-              otherServices = homePageServices.otherServices
+              name = nameToDisplay
             )
           )
         )

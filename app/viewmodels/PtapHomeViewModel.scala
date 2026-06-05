@@ -16,7 +16,6 @@
 
 package viewmodels
 
-import models.{MyService, OtherService}
 import play.twirl.api.Html
 
 final case class PtapNewsAndUpdates(content: Html) extends AnyVal
@@ -29,7 +28,5 @@ final case class PtapHomeViewModel(
   saUtr: Option[String],
   breathingSpaceIndicator: Boolean,
   alertBannerContent: Option[PtapAlertBanner],
-  name: Option[String],
-  myServices: Seq[MyService],
-  otherServices: Seq[OtherService]
+  name: Option[String]
 )
