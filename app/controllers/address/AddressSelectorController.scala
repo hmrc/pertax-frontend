@@ -28,11 +28,11 @@ import models.addresslookup.RecordSet
 import models.dto.{AddressDto, AddressSelectorDto, DateDto}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.JourneyCacheRepository
-import routePages.{SelectedAddressRecordPage, SelectedRecordSetPage, StartDateUpdatedPage, SubmittedAddressPage, SubmittedStartDatePage}
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
+import repositories.{EditAddressLockRepository, JourneyCacheRepository}
+import routePages.*
 import services.{AddressSelectorService, CitizenDetailsService}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import util.PertaxSessionKeys.{filter, postcode}
 import views.html.InternalServerErrorView
@@ -51,7 +51,8 @@ class AddressSelectorController @Inject() (
   addressSelectorService: AddressSelectorService,
   featureFlagService: FeatureFlagService,
   citizenDetailsService: CitizenDetailsService,
-  internalServerErrorView: InternalServerErrorView
+  internalServerErrorView: InternalServerErrorView,
+  editAddressLockRepository: EditAddressLockRepository
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(
       authJourney,
@@ -59,7 +60,8 @@ class AddressSelectorController @Inject() (
       featureFlagService,
       errorRenderer,
       citizenDetailsService,
-      internalServerErrorView
+      internalServerErrorView,
+      editAddressLockRepository
     )
     with Logging {
 
@@ -87,7 +89,7 @@ class AddressSelectorController @Inject() (
 
   def onSubmit(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personDetails =>
+      addressJourneyEnforcer(typ) { _ => personDetails =>
         cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
           AddressSelectorDto.form
             .bindFromRequest()

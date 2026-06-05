@@ -19,6 +19,7 @@ package testUtils
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import models.admin.{AddressChangeAllowedToggle, AllFeatureFlags, DfsFormsFrontendAvailabilityToggle, GetPersonFromCitizenDetailsToggle}
+import models.AddressesLock
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
@@ -121,6 +122,9 @@ trait BaseSpec
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsFormsFrontendAvailabilityToggle)))
       .thenReturn(Future.successful(FeatureFlag(DfsFormsFrontendAvailabilityToggle, isEnabled = true)))
+
+    when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
+      .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))
   }
 
   val wrapperDataResponse: WrapperDataResponse = WrapperDataResponse(

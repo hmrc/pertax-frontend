@@ -22,6 +22,7 @@ import controllers.auth.AuthJourney
 import controllers.bindable.AddrType
 import error.ErrorRenderer
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.EditAddressLockRepository
 import services.CitizenDetailsService
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import views.html.InternalServerErrorView
@@ -36,7 +37,8 @@ class StartChangeOfAddressController @Inject() (
   errorRenderer: ErrorRenderer,
   featureFlagService: FeatureFlagService,
   citizenDetailsService: CitizenDetailsService,
-  internalServerErrorView: InternalServerErrorView
+  internalServerErrorView: InternalServerErrorView,
+  editAddressLockRepository: EditAddressLockRepository
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends AddressController(
       authJourney,
@@ -44,12 +46,13 @@ class StartChangeOfAddressController @Inject() (
       featureFlagService: FeatureFlagService,
       errorRenderer: ErrorRenderer,
       citizenDetailsService: CitizenDetailsService,
-      internalServerErrorView: InternalServerErrorView
+      internalServerErrorView: InternalServerErrorView,
+      editAddressLockRepository: EditAddressLockRepository
     ) {
 
   def onPageLoad(addrType: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => _ =>
+      addressJourneyEnforcer(addrType) { _ => _ =>
         Future.successful(
           Ok(startChangeOfAddressView(addrType))
         )
