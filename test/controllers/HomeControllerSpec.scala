@@ -22,7 +22,7 @@ import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
-import models.admin.{GetPersonFromCitizenDetailsToggle, HomePageNewLayoutToggle, ShowPlannedOutageBannerToggle}
+import models.admin.{GetPersonFromCitizenDetailsToggle, HomePageNewLayoutToggle, HomePagePersonalisationToggle, ShowPlannedOutageBannerToggle}
 import models.{BreathingSpaceIndicatorResponse, HomePageServices}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
@@ -137,6 +137,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
     when(mockFeatureFlagService.get(HomePageNewLayoutToggle))
       .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = false)))
+
+    when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+      .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = false)))
 
     when(mockConfigDecorator.onboardingByNiNoLastNumericDigitList)
       .thenReturn(Seq.empty)

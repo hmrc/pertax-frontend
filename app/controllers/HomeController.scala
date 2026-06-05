@@ -23,7 +23,7 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeCardGenerator, HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.SelfAssessmentUser
-import models.admin.HomePageNewLayoutToggle
+import models.admin.{HomePageNewLayoutToggle, HomePagePersonalisationToggle}
 import play.api.mvc.*
 import services.*
 import uk.gov.hmrc.domain.Nino
@@ -209,16 +209,21 @@ class HomeController @Inject() (
       .flatMap(_.headOption)
       .fold(shouldShowNewLayoutForNino)(_ == "true")
 
-    featureFlagService.get(HomePageNewLayoutToggle).flatMap { toggle =>
-      if (!toggle.isEnabled) {
-        oldHomePage
-      } else if (!isNewDesign) {
-        oldHomePage
+    featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
+      if (toggle.isEnabled) {
+        personalisationHomePage
       } else {
-        newHomePage
+        featureFlagService.get(HomePageNewLayoutToggle).flatMap { toggle =>
+          if (!toggle.isEnabled) {
+            oldHomePage
+          } else if (!isNewDesign) {
+            oldHomePage
+          } else {
+            newHomePage
+          }
+        }
       }
     }
-    personalisationHomePage
   }
 
   private def enforceInterrupts(block: => Future[Result])(implicit request: UserRequest[AnyContent]): Future[Result] =
