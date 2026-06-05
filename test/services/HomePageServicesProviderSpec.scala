@@ -111,7 +111,8 @@ class HomePageServicesProviderSpec extends BaseSpec {
           None,
           Map(),
           Some("Income"),
-          Some("Pay As You Earn (PAYE)")
+          Some("Pay As You Earn (PAYE)"),
+          id = Some("paye")
         ),
         MyService(
           s"Your tax calculation — PAYE ${TaxYear.current.back(4).startYear} to ${TaxYear.current.startYear}",
@@ -119,7 +120,8 @@ class HomePageServicesProviderSpec extends BaseSpec {
           None,
           Map(),
           Some("Income"),
-          Some("Tax Calculation")
+          Some("Tax Calculation"),
+          id = Some("tax-calc")
         ),
         MyService(
           "Self Assessment",
@@ -127,7 +129,8 @@ class HomePageServicesProviderSpec extends BaseSpec {
           None,
           Map(),
           Some("Income"),
-          Some("Self Assessment")
+          Some("Self Assessment"),
+          id = Some("self-assessment")
         ),
         MyService(
           "National Insurance and State Pension",
@@ -136,7 +139,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
           Map(),
           Some("Income"),
           Some("National Insurance and State Pension"),
-          None
+          id = Some("state-pension")
         )
       )
 
@@ -146,21 +149,24 @@ class HomePageServicesProviderSpec extends BaseSpec {
           controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url,
           Map(),
           Some("MTDIT"),
-          Some("Making Tax Digital for Income Tax")
+          Some("Making Tax Digital for Income Tax"),
+          id = Some("mtdit")
         ),
         OtherService(
           "Child Benefit",
           controllers.interstitials.routes.InterstitialController.displayChildBenefitsSingleAccountView.url,
           Map(),
           Some("Benefits"),
-          Some("Child Benefit")
+          Some("Child Benefit"),
+          id = Some("child-benefit")
         ),
         OtherService(
           "Annual Tax Summary",
           "ats/",
           Map(),
           Some("Tax Summaries"),
-          Some("Annual Tax Summary")
+          Some("Annual Tax Summary"),
+          id = Some("tax-summary")
         ),
         OtherService(
           "Marriage Allowance",
@@ -168,7 +174,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
           Map(),
           Some("Benefits"),
           Some("Marriage Allowance"),
-          None
+          id = Some("marriage-allowance")
         ),
         OtherService(
           "Trusted helpers",
@@ -176,7 +182,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
           Map(),
           Some("Account"),
           Some("Trusted helpers"),
-          None
+          id = Some("trusted-helper")
         )
       )
     }
@@ -207,7 +213,8 @@ class HomePageServicesProviderSpec extends BaseSpec {
           Some(messages("title.signed_in_wrong_account.h1")),
           Map(),
           Some("Income"),
-          Some("Self Assessment")
+          Some("Self Assessment"),
+          id = Some("self-assessment")
         )
       )
       result.otherServices must contain(
@@ -215,7 +222,8 @@ class HomePageServicesProviderSpec extends BaseSpec {
           messages("label.mtd_for_it"),
           controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url,
           gaAction = Some("MTDIT"),
-          gaLabel = Some("Making Tax Digital for Income Tax")
+          gaLabel = Some("Making Tax Digital for Income Tax"),
+          id = Some("mtdit")
         )
       )
     }
@@ -233,7 +241,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
           Map(),
           Some("Income"),
           Some("Self Assessment"),
-          None
+          id = Some("self-assessment")
         )
       )
       result.otherServices must contain(
@@ -241,7 +249,8 @@ class HomePageServicesProviderSpec extends BaseSpec {
           messages("label.mtd_for_it"),
           controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url,
           gaAction = Some("MTDIT"),
-          gaLabel = Some("Making Tax Digital for Income Tax")
+          gaLabel = Some("Making Tax Digital for Income Tax"),
+          id = Some("mtdit")
         )
       )
 
@@ -261,7 +270,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
           Map(),
           Some("Income"),
           Some("Self Assessment"),
-          None
+          id = Some("self-assessment")
         )
       )
       result.otherServices           must contain(
@@ -269,7 +278,8 @@ class HomePageServicesProviderSpec extends BaseSpec {
           messages("label.mtd_for_it"),
           controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url,
           gaAction = Some("MTDIT"),
-          gaLabel = Some("Making Tax Digital for Income Tax")
+          gaLabel = Some("Making Tax Digital for Income Tax"),
+          id = Some("mtdit")
         )
       )
       result.myServices.map(_.title) must not contain "Self Assessment"
@@ -320,7 +330,8 @@ class HomePageServicesProviderSpec extends BaseSpec {
           None,
           Map(),
           Some("Income"),
-          Some("Pay As You Earn (PAYE)")
+          Some("Pay As You Earn (PAYE)"),
+          id = Some("paye")
         ),
         MyService(
           "National Insurance and State Pension",
@@ -329,7 +340,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
           Map(),
           Some("Income"),
           Some("National Insurance and State Pension"),
-          None
+          id = Some("state-pension")
         )
       )
 
@@ -367,7 +378,8 @@ class HomePageServicesProviderSpec extends BaseSpec {
           None,
           Map(),
           Some("Income"),
-          Some("Tax Calculation")
+          Some("Tax Calculation"),
+          id = Some("tax-calc")
         )
       )
     }
@@ -389,7 +401,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
           Map(),
           Some("Benefits"),
           Some("Marriage Allowance"),
-          None
+          id = Some("marriage-allowance")
         )
       )
 
@@ -413,7 +425,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
           Map(),
           Some("Benefits"),
           Some("Marriage Allowance"),
-          None
+          id = Some("marriage-allowance")
         )
       )
 
@@ -436,7 +448,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
           Map(),
           Some("Benefits"),
           Some("Marriage Allowance"),
-          None
+          id = Some("marriage-allowance")
         )
       )
     }
@@ -458,7 +470,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
           Map(),
           Some("Account"),
           Some("Trusted helpers"),
-          None
+          id = Some("trusted-helper")
         )
       )
 
@@ -481,7 +493,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
           Map(),
           Some("Account"),
           Some("Trusted helpers"),
-          None
+          id = Some("trusted-helper")
         )
       )
 

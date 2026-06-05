@@ -232,7 +232,7 @@ class HomePageServicesProvider @Inject() (
           None,
           gaAction = Some("Income"),
           gaLabel = Some("Pay As You Earn (PAYE)"),
-          id = Some("paye-card")
+          id = Some("paye")
         )
       )
     )
