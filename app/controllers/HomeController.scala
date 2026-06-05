@@ -30,8 +30,8 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
-import viewmodels.{AlertBanner, HomeViewModel, NewHomeViewModel, NewsAndUpdates}
-import views.html.{HomeView, NewHomeView}
+import viewmodels.{AlertBanner, HomeViewModel, NewHomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeViewModel, PtapNewsAndUpdates}
+import views.html.{HomeView, NewHomeView, PtapHomeView}
 
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
@@ -50,6 +50,7 @@ class HomeController @Inject() (
   cc: MessagesControllerComponents,
   homeView: HomeView,
   newHomeView: NewHomeView,
+  pTapHomeView: PtapHomeView,
   rlsInterruptHelper: RlsInterruptHelper,
   alertBannerHelper: AlertBannerHelper
 )(implicit configDecorator: ConfigDecorator, val ec: ExecutionContext)
@@ -60,6 +61,50 @@ class HomeController @Inject() (
 
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
+
+  private def personalisationHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
+
+    val nino: Nino = request.helpeeNinoOrElse
+
+    val utr: Option[String] = request.saUserType match {
+      case saUser: SelfAssessmentUser => Some(saUser.saUtr.utr)
+      case _                          => None
+    }
+
+    enforceInterrupts {
+      val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
+      val fListOfTasks             = tasksService.getListOfTasks
+      val fHomePageServices        = homePageServicesProvider.getHomePageServices
+      val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
+
+      for {
+        breathingSpaceIndicator <- fBreathingSpaceIndicator
+        listOfTasks             <- fListOfTasks
+        homePageServices        <- fHomePageServices
+        eitherPersonDetails     <- fEitherPersonDetails
+        alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten, newDesign = true)
+      } yield {
+        val personDetailsOpt = eitherPersonDetails.toOption.flatten
+        val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
+
+        Ok(
+          pTapHomeView(
+            PtapHomeViewModel(
+              listOfTasks,
+              homeOptionsGenerator.getLatestNewsAndUpdatesCard().map(PtapNewsAndUpdates.apply),
+              showUserResearchBanner = false,
+              utr,
+              breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
+              alertBannerContent = alertBannerContent.map(PtapAlertBanner.apply),
+              name = nameToDisplay,
+              myServices = homePageServices.myServices,
+              otherServices = homePageServices.otherServices
+            )
+          )
+        )
+      }
+    }
+  }
 
   private def newHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
 
@@ -173,6 +218,7 @@ class HomeController @Inject() (
         newHomePage
       }
     }
+    personalisationHomePage
   }
 
   private def enforceInterrupts(block: => Future[Result])(implicit request: UserRequest[AnyContent]): Future[Result] =

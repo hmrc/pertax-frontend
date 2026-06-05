@@ -19,16 +19,16 @@ package viewmodels
 import models.{MyService, OtherService}
 import play.twirl.api.Html
 
-final case class NewsAndUpdates(content: Html) extends AnyVal
-final case class AlertBanner(content: Html) extends AnyVal
+final case class PtapNewsAndUpdates(content: Html) extends AnyVal
+final case class PtapAlertBanner(content: Html) extends AnyVal
 
-final case class NewHomeViewModel(
+final case class PtapHomeViewModel(
   tasks: Seq[Task],
-  newsAndUpdates: Option[NewsAndUpdates],
+  newsAndUpdates: Option[PtapNewsAndUpdates],
   showUserResearchBanner: Boolean,
   saUtr: Option[String],
   breathingSpaceIndicator: Boolean,
-  alertBannerContent: Option[AlertBanner],
+  alertBannerContent: Option[PtapAlertBanner],
   name: Option[String],
   myServices: Seq[MyService],
   otherServices: Seq[OtherService]

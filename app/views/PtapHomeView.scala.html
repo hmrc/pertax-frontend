@@ -18,7 +18,7 @@
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.play.language.LanguageUtils
-@import viewmodels.NewHomeViewModel
+@import viewmodels.PtapHomeViewModel
 @import views.MainView
 @import views.html.components.alertBanner.AlertBanner
 @import views.html.home.options.TaskListView
@@ -34,7 +34,7 @@
         h3: H3
 )
 
-@(viewModel: NewHomeViewModel)(implicit request: UserRequest[_], messages: Messages)
+@(viewModel: PtapHomeViewModel)(implicit request: UserRequest[_], messages: Messages)
 
 @main(
     pageTitle = messages("label.account_home"),
