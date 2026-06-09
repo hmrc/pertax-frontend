@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import views.html.helper.CSPNonce
 
 @this(
 autocompleteJavascript: HmrcAccessibleAutocompleteJavascript
@@ -22,6 +21,5 @@ autocompleteJavascript: HmrcAccessibleAutocompleteJavascript
 
 @(scripts: Option[Html])(implicit request: Request[_])
 
-<script @CSPNonce.attr src='@controllers.routes.AssetsController.versioned("javascripts/card.js")'></script>
 @autocompleteJavascript()
 @scripts
