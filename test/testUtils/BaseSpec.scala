@@ -18,8 +18,8 @@ package testUtils
 
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
+import models.admin.{AddressChangeAllowedToggle, AllFeatureFlags, DfsFormsFrontendAvailabilityToggle, GetPersonFromCitizenDetailsToggle}
 import models.AddressesLock
-import models.admin.{AddressChangeAllowedToggle, AllFeatureFlags, DfsFormsFrontendAvailabilityToggle, GetPersonFromCitizenDetailsToggle, HomePageNewLayoutToggle}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
@@ -122,9 +122,6 @@ trait BaseSpec
 
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(DfsFormsFrontendAvailabilityToggle)))
       .thenReturn(Future.successful(FeatureFlag(DfsFormsFrontendAvailabilityToggle, isEnabled = true)))
-
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(HomePageNewLayoutToggle)))
-      .thenReturn(Future.successful(FeatureFlag(HomePageNewLayoutToggle, isEnabled = false)))
 
     when(mockEditAddressLockRepository.getAddressesLock(any())(any()))
       .thenReturn(Future.successful(AddressesLock(main = false, postal = false)))

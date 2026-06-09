@@ -58,9 +58,6 @@ class HomeControllerChildBenefitsISpec extends IntegrationSpec {
         Messages("label.child_benefit")
       ) mustBe true
       contentAsString(result).contains(
-        Messages("label.a_payment_to_help_with_the_cost_of_bringing_up_children")
-      ) mustBe true
-      contentAsString(result).contains(
         urlSingleChildBenefit
       ) mustBe true
 

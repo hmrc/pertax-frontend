@@ -31,17 +31,13 @@ import play.twirl.api.Html
 import repositories.JourneyCacheRepository
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.domain.SaUtrGenerator
-import viewmodels.HomeViewModel
-import views.html.cards.home.PayAsYouEarnView
-import java.time.LocalDate
+import viewmodels.{AlertBanner, HomeViewModel}
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class HomeViewSpec extends ViewSpec {
 
-  lazy val home: HomeView             = inject[HomeView]
-  lazy val payeCard: PayAsYouEarnView = inject[PayAsYouEarnView]
-
+  lazy val home: HomeView                           = inject[HomeView]
   implicit val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
@@ -56,23 +52,29 @@ class HomeViewSpec extends ViewSpec {
     reset(mockConfigDecorator)
     when(mockConfigDecorator.defaultOrigin).thenReturn(Origin("PERTAX"))
     when(mockConfigDecorator.personalAccount).thenReturn("/personal-account")
+    when(mockConfigDecorator.ptaNinoSaveUrl).thenReturn("/personal-account/national-insurance-number")
+
     when(mockConfigDecorator.getFeedbackSurveyUrl(any())).thenReturn("/feedback/url")
-    when(mockConfigDecorator.fandfBannerLink).thenReturn("/trusted-helpers")
-    when(mockConfigDecorator.fandfBannerDate).thenReturn(LocalDate.of(2026, 1, 1))
-    when(mockConfigDecorator.addressChangeBannerTextEn).thenReturn("There was a problem updating your postcode")
+    when(mockConfigDecorator.shutterBannerParagraphCy).thenReturn("Welsh content")
+    when(mockConfigDecorator.shutterBannerParagraphEn).thenReturn(
+      "A number of services will be unavailable from 10pm on Friday 12 July to 7am Monday 15 July."
+    )
+    when(mockConfigDecorator.shutterBannerLinkTextCy).thenReturn("Welsh link")
+    when(mockConfigDecorator.shutterBannerLinkTextEn).thenReturn("Find out more")
+
   }
 
   val homeViewModel: HomeViewModel =
     HomeViewModel(
-      Nil,
-      Nil,
-      Nil,
+      tasks = Seq.empty,
+      newsAndUpdates = None,
       showUserResearchBanner = true,
-      None,
+      saUtr = None,
       breathingSpaceIndicator = true,
-      None,
-      None,
-      None
+      alertBannerContent = None,
+      name = None,
+      myServices = Seq.empty,
+      otherServices = Seq.empty
     )
 
   "Rendering HomeView.scala.html" must {
@@ -88,14 +90,13 @@ class HomeViewSpec extends ViewSpec {
           ).toString
         )
 
-      document.select("h1").asScala.exists(e => e.text == "Firstname Lastname") mustBe true
-      document.select("h1").asScala.exists(e => e.text == "Your account") mustBe false
+      document.select("h1").asScala.exists(_.text == "Firstname Lastname") mustBe true
+      document.select("h1").asScala.exists(_.text == "Your account") mustBe false
     }
 
     "show the users name and not 'Your account' when the user has no details but is a GG user" in {
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        request = FakeRequest()
-      )
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest())
 
       lazy val document: Document =
         asDocument(
@@ -104,8 +105,9 @@ class HomeViewSpec extends ViewSpec {
           ).toString
         )
 
-      document.select("h1").asScala.exists(e => e.text == "Firstname Lastname") mustBe true
-      document.select("h1").asScala.exists(e => e.text == "Your account") mustBe false
+      document.select("h1").asScala.exists(_.text == "Firstname Lastname") mustBe true
+      document.select("h1").asScala.exists(_.text == "Your account") mustBe false
+
     }
 
     "show 'Your account' and not the users name when the user has no details and is not a GG user" in {
@@ -113,11 +115,9 @@ class HomeViewSpec extends ViewSpec {
         buildUserRequest(request = FakeRequest())
 
       lazy val document: Document =
-        asDocument(
-          home(homeViewModel).toString
-        )
+        asDocument(home(homeViewModel).toString)
 
-      document.select("h1").asScala.exists(e => e.text == "Your account") mustBe true
+      document.select("h1").asScala.exists(_.text == "Your account") mustBe true
     }
 
     "must not show the UTR if the user is not a self assessment user" in {
@@ -138,12 +138,15 @@ class HomeViewSpec extends ViewSpec {
     }
 
     "show the alert banner if there is some alert content" in {
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val view                                                      = Jsoup.parse(
-        home(
-          homeViewModel.copy(alertBannerContent = Some(Html("something to alert")))
-        ).toString
-      )
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest())
+
+      val viewModelWithAlert =
+        homeViewModel.copy(
+          alertBannerContent = Some(AlertBanner(Html("something to alert")))
+        )
+
+      val view = Jsoup.parse(home(viewModelWithAlert).toString)
 
       view.getElementById("alert-banner") must not be null
       view.toString                       must include("something to alert")
@@ -151,21 +154,9 @@ class HomeViewSpec extends ViewSpec {
 
     "not show the alert banner if no alert content" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val view                                                      = Jsoup.parse(
-        home(homeViewModel).toString
-      )
+      val view                                                      = Jsoup.parse(home(homeViewModel).toString)
 
       view.getElementById("alert-banner") mustBe null
-    }
-
-    "show the trusted helpers card when supplied in the view model" in {
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val helpersHtml                                               = Html("<div class='trusted-helpers-card'></div>")
-      val view                                                      = home(
-        homeViewModel.copy(trustedHelpersCard = Some(helpersHtml))
-      ).toString
-
-      view must include("<div class='trusted-helpers-card'></div>")
     }
   }
 }

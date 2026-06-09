@@ -45,8 +45,7 @@ class FeatureFlagsController @Inject() (
           ShowPlannedOutageBannerToggle      -> false,
           AlertBannerPaperlessStatusToggle   -> true,
           DfsFormsFrontendAvailabilityToggle -> true,
-          AddressChangeAllowedToggle         -> true,
-          HomePageNewLayoutToggle            -> true
+          AddressChangeAllowedToggle         -> true
         )
       )
       .map(_ => Ok("Default flags set"))

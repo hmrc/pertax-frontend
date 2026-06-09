@@ -507,8 +507,6 @@ label.view_manage_sa_return=More details about your Self Assessment returns and 
 label.access_your_sa_returns=Access your Self Assessment tax returns
 label.old_way_sa_returns=The old way for filing your Self Assessment tax returns.
 label.self_assessment_tax_returns=Self Assessment tax returns
-label.view_manage_your_mtd_itsa=View and manage your Making Tax Digital for Income Tax or access your Self Assessment tax returns.
-label.view_manage_your_mtd_it=View and manage Making Tax Digital for Income Tax, and access Self Assessment.
 label.online_deadline_final_declarations=The deadline for final declarations or online returns is 31 January {0}.
 label.online_deadline_tax_returns=The deadline for tax returns is 31 January {0}.
 label.making_tax_digital=Making Tax Digital
@@ -545,7 +543,6 @@ label.manage_your_marriage_allowance=Manage your Marriage Allowance
 label.your_partner_currently_transfers_part_of_their_personal_allowance_to_you=Your partner currently transfers part of their Personal Allowance to you.
 label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner=You currently transfer part of your Personal Allowance to your partner.
 label.child_benefit=Child Benefit
-label.a_payment_to_help_with_the_cost_of_bringing_up_children=A payment to help with the cost of bringing up children.
 label.make_or_manage_a_child_benefit_claim=Make or manage a Child Benefit claim
 label.make_a_claim=Make a claim
 label.making_a_claim=Making a claim
@@ -856,11 +853,6 @@ label.tax_calc_option=Your tax calculation — PAYE {0} to {1}
 label.task_heading=Refunds and tax you owe — Pay As You Earn (PAYE)
 label.task_paragraph=It can take up to 10 days for completed tasks to be removed from the list.
 
-fandf.banner.text=Your trusted helper relationship ends at midnight on {0}.
-fandf.banner.linkText=Find out how trusted helpers is changing
-
-old_home_page_banner.text=We’re making changes to your personal tax account homepage.
-old_home_page_banner.link_text=Read more about what’s changing
 new_home_page_banner.text=Your personal tax account homepage has been updated.
 new_home_page_banner.link_text=Find out what’s changed
 

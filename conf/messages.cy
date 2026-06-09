@@ -503,7 +503,6 @@ label.view_manage_sa_return=Rhagor o fanylion am eich Ffurflenni Treth a’ch ta
 label.access_your_sa_returns=Cael at eich Ffurflenni Treth Hunanasesiad
 label.old_way_sa_returns=Yr hen ffordd o gyflwyno eich Ffurflenni Treth Hunanasesiad.
 label.self_assessment_tax_returns=Ffurflenni Treth Hunanasesiad
-label.view_manage_your_mtd_itsa=Bwrw golwg dros eich cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli, neu gael at eich Ffurflenni Treth Hunanasesiad.
 label.online_deadline_final_declarations=Y dyddiad cau ar gyfer datganiadau terfynol neu Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
 label.making_tax_digital=Troi Treth yn Ddigidol
 
@@ -541,7 +540,6 @@ label.manage_your_marriage_allowance=Rheoli’ch Lwfans Priodasol
 label.your_partner_currently_transfers_part_of_their_personal_allowance_to_you=Ar hyn o bryd, mae’ch partner yn trosglwyddo rhan o’i Lwfans Personol i chi.
 label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner=Ar hyn o bryd, rydych yn trosglwyddo rhan o’ch Lwfans Personol i’ch partner.
 
-label.a_payment_to_help_with_the_cost_of_bringing_up_children=Taliad i helpu gyda chostau magu plant
 label.make_or_manage_a_child_benefit_claim=Gwneud neu reoli hawliad am Fudd-dal Plant
 label.make_a_claim=Gwneud hawliad
 label.making_a_claim=Hawlio
@@ -829,8 +827,6 @@ label.mtd_for_it_sa=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.send_updates_sole_traders=Ar gyfer unig fasnachwyr a landlordiaid sy’n anfon diweddariadau chwarterol gan ddefnyddio meddalwedd.
 label.view_manage_your_mtd_for_it=Bwrw golwg dros y cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli
 label.it_header=Treth Incwm
-label.view_manage_your_mtd_itsa=Bwrw golwg dros eich cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli, neu gael at eich Ffurflenni Treth Hunanasesiad.
-label.view_manage_your_mtd_it=Bwrw golwg dros y cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli, a chael mynediad at Hunanasesiad.
 label.online_deadline_tax_returns=Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth yw 31 Ionawr {0}.
 
 waiting_for_callback=Os ydych yn aros i gael galwad ffôn yn ôl
@@ -868,11 +864,6 @@ label.tax_calc_option=Eich cyfrifiad treth – TWE {0} i {1}
 label.task_heading=Ad-daliadau a’r dreth sydd arnoch – Talu Wrth Ennill (TWE)
 label.task_paragraph=Gall gymryd hyd at 10 diwrnod i’r tasgau sydd wedi’u cwblhau gael eu tynnu o’r rhestr.
 
-fandf.banner.text=Mae’ch perthynas â’ch cynorthwyydd dibynadwy yn dod i ben am hanner nos ar {0}.
-fandf.banner.linkText=Dysgwch sut mae cynorthwywyr dibynadwy yn newid.
-
-old_home_page_banner.text=Rydym yn gwneud newidiadau i hafan eich Cyfrif Treth Personol.
-old_home_page_banner.link_text=Darllenwch fwy am yr hyn sy’n newid
 new_home_page_banner.text=Mae hafan eich Cyfrif Treth Personol wedi’i diweddaru.
 new_home_page_banner.link_text=Dysgwch rhagor am yr hyn sydd wedi newid
 
