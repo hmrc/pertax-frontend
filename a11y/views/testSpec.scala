@@ -18,7 +18,7 @@ package views
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.*
-import models.admin.{AddressChangeAllowedToggle, BreathingSpaceIndicatorToggle, FandFBannerToggle, GetPersonFromCitizenDetailsToggle}
+import models.admin.{AddressChangeAllowedToggle, BreathingSpaceIndicatorToggle, GetPersonFromCitizenDetailsToggle}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -200,9 +200,6 @@ class testSpec extends A11ySpec {
     when(mockFeatureFlagService.get(ArgumentMatchers.eq(GetPersonFromCitizenDetailsToggle)))
       .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
-    when(mockFeatureFlagService.get(ArgumentMatchers.eq(FandFBannerToggle)))
-      .thenReturn(Future.successful(FeatureFlag(FandFBannerToggle, isEnabled = false)))
-
     server.stubFor(
       get(urlEqualTo(personDetailsUrl))
         .willReturn(ok(FileHelper.loadFileInterpolatingNino("./it/test/resources/person-details.json", generatedNino)))
@@ -320,7 +317,8 @@ class testSpec extends A11ySpec {
               .willReturn(ok(s""""{"journeyResult": "LockedOut"}""".stripMargin))
           )
 
-          val result: Future[Result] = route(app, FakeRequest(GET, url)).get
+          val result: Future[Result] =
+            route(app, FakeRequest(GET, url).withSession(SessionKeys.authToken -> "token")).get
 
           val content = Jsoup.parse(contentAsString(result))
           content.title() mustBe expectedData.title

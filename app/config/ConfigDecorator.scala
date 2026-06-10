@@ -289,18 +289,12 @@ class ConfigDecorator @Inject() (
   def ssttpPtaStartUrl: String =
     servicesConfig.baseUrl("essttp-backend") + getExternalUrl("self-service-time-to-pay-pta-start.url").getOrElse("")
 
-  lazy val fandfBannerLink: String    = s"$fandfFrontendHost/trusted-helpers/trusted-helpers-interstitial"
-  lazy val fandfBannerDate: LocalDate = LocalDate.parse(runModeConfiguration.get[String]("feature.fandfBannerDate"))
-
   lazy val taxCalcYearsToShow: Int = runModeConfiguration.get[Int]("feature.taxCalcYearsToShow")
 
   lazy val mtdClaimFromPtaHandoffUrl: String =
     runModeConfiguration.get[String]("external-url.mtd-claim-from-pta.url")
 
   lazy val mtdGuidanceUrl: String = runModeConfiguration.get[String]("external-url.mtd-guidance.url")
-
-  val onboardingByNiNoLastNumericDigitList: Seq[Int] =
-    runModeConfiguration.get[Seq[Int]]("onboarding.by.nino.lastNumericDigit")
 
   lazy val addressChangeBannerTextEn: String       =
     runModeConfiguration.get[String]("feature.address-change-error.banner.paragraph.en")

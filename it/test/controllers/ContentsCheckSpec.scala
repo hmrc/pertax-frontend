@@ -393,7 +393,8 @@ class ContentsCheckSpec extends IntegrationSpec {
               .willReturn(ok(s""""{"journeyResult": "LockedOut"}""".stripMargin))
           )
           setupWrapperData(expectedData.attorneyBannerPresent)
-          val result: Future[Result] = route(app, FakeRequest(GET, url)).get
+          val result: Future[Result] =
+            route(app, FakeRequest(GET, url).withSession(SessionKeys.authToken -> "token")).get
           val content                = Jsoup.parse(contentAsString(result))
 
           content.title() mustBe expectedData.title

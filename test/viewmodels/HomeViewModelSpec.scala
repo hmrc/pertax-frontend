@@ -16,38 +16,22 @@
 
 package viewmodels
 
-import models._
 import testUtils.BaseSpec
-import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 
 class HomeViewModelSpec extends BaseSpec {
-
-  val utr: String = new SaUtrGenerator().nextSaUtr.utr
 
   "have no UTR for a non SA user" in {
     val homeViewModel = HomeViewModel(
       Nil,
-      Nil,
-      Nil,
+      None,
       showUserResearchBanner = true,
-      NonFilerSelfAssessmentUser,
+      None,
       breathingSpaceIndicator = false,
       alertBannerContent = None,
       None,
-      None
+      Nil,
+      Nil
     )
-    homeViewModel mustBe new HomeViewModel(Nil, Nil, Nil, true, None, false, None, None, None)
-  }
-
-  Seq(
-    ActivatedOnlineFilerSelfAssessmentUser(SaUtr(utr)),
-    NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr(utr)),
-    WrongCredentialsSelfAssessmentUser(SaUtr(utr)),
-    NotEnrolledSelfAssessmentUser(SaUtr(utr))
-  ).foreach { saUserType =>
-    s"have a UTR for a ${saUserType.toString}" in {
-      val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, saUserType, true, None, None, None)
-      homeViewModel mustBe new HomeViewModel(Nil, Nil, Nil, true, Some(utr), true, None, None, None)
-    }
+    homeViewModel mustBe new HomeViewModel(Nil, None, true, None, false, None, None, Nil, Nil)
   }
 }

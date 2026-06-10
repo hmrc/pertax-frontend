@@ -16,49 +16,20 @@
 
 package viewmodels
 
-import models.{SelfAssessmentUser, SelfAssessmentUserType}
+import models.{MyService, OtherService}
 import play.twirl.api.Html
 
+final case class NewsAndUpdates(content: Html) extends AnyVal
+final case class AlertBanner(content: Html) extends AnyVal
+
 final case class HomeViewModel(
-  incomeCards: Seq[Html],
-  benefitCards: Seq[Html],
-  atsCard: Seq[Html],
+  tasks: Seq[Task],
+  newsAndUpdates: Option[NewsAndUpdates],
   showUserResearchBanner: Boolean,
   saUtr: Option[String],
   breathingSpaceIndicator: Boolean,
-  alertBannerContent: Option[Html],
+  alertBannerContent: Option[AlertBanner],
   name: Option[String],
-  trustedHelpersCard: Option[Html]
+  myServices: Seq[MyService],
+  otherServices: Seq[OtherService]
 )
-
-object HomeViewModel {
-  def apply(
-    incomeCards: Seq[Html],
-    benefitCards: Seq[Html],
-    atsCard: Seq[Html],
-    showUserResearchBanner: Boolean,
-    selfAssessmentUserType: SelfAssessmentUserType,
-    breathingSpaceIndicator: Boolean,
-    alertBannerContent: Option[Html],
-    name: Option[String],
-    trustedHelpersCard: Option[Html]
-  ): HomeViewModel = {
-
-    val utr: Option[String] = selfAssessmentUserType match {
-      case saUser: SelfAssessmentUser => Some(saUser.saUtr.toString())
-      case _                          => None
-    }
-
-    HomeViewModel(
-      incomeCards,
-      benefitCards,
-      atsCard,
-      showUserResearchBanner,
-      utr,
-      breathingSpaceIndicator,
-      alertBannerContent,
-      name,
-      trustedHelpersCard
-    )
-  }
-}
