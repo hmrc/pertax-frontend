@@ -1,5 +1,5 @@
 @*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,16 @@
  * limitations under the License.
  *@
 
-@import components.{H2, H3}
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import uk.gov.hmrc.play.language.LanguageUtils
-@import viewmodels.{PtapHomeViewModel, SecondaryNavModel,TabModel}
+@import viewmodels.PtapHomeViewModel
 @import views.MainView
 @import views.html.components.alertBanner.AlertBanner
-@import views.html.components.{SecondaryNav}
-@import views.html.home.options.TaskListView
+@import views.html.components.{PtapHomeTabContent, SecondaryNav}
 
 @this(
         main: MainView,
+        ptapHomeTabContent: PtapHomeTabContent,
         alertBanner: AlertBanner,
         configDecorator: ConfigDecorator
 )
@@ -42,7 +40,6 @@
     @alertBanner(viewModel.alertBannerContent.map(_.content))
 
     <header class="hmrc-page-heading">
-
         <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">@viewModel.name.fold(messages("label.your_account"))(upperCaseToTitleCase)</h1>
         <p class="hmrc-caption govuk-caption-xl"><span class="govuk-visually-hidden">@messages("label.this.section.is") </span>@messages("label.account_home")</p>
     </header>
@@ -59,17 +56,20 @@
             </p>
         </div>
     }
+
     @viewModel.saUtr.map { utr =>
         <p class="govuk-body govuk-!-margin-bottom-2" id="utrNo">@messages("label.home_page.utr") <strong>@utr</strong></p>
     }
+
     <p class="govuk-body" id="ninoLink"><a class="govuk-link govuk-link--no-visited-state" href="@configDecorator.ptaNinoSaveUrl">
-        @messages("label.view_and_save_your_national_insurance_number")</a></p>\
-    @{SecondaryNav( SecondaryNavModel(items = Seq(
-          TabModel(text = messages("ptap.support.uya.p2.sub"), href = "task", current = "task" == viewModel.currentTab),
-          TabModel(text = messages("ptap.support.uya.p3.sub"), href = "activity", current = "activity" == viewModel.currentTab),
-          TabModel(text = messages("ptap.support.uya.p4.sub"), href = "tax", current = "tax" == viewModel.currentTab),
-          TabModel(text = messages("ptap.support.uya.p5.sub"), href = "news", current = "news" == viewModel.currentTab),
-          TabModel(text = messages("ptap.support.uya.p6.sub"), href = "support", current = "support" == viewModel.currentTab),
-        )
-      ))}
+        @messages("label.view_and_save_your_national_insurance_number")</a></p>
+
+    <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+
+    <h2 id="secondary-nav-label" class="govuk-visually-hidden">Account sections</h2>
+    @SecondaryNav(viewModel.secondaryNav)
+
+    <div id="ptap-tab-content" class="govuk-!-margin-top-6">
+        @ptapHomeTabContent(viewModel.tabContent.containers)
+    </div>
 }

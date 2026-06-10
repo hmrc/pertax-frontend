@@ -16,20 +16,7 @@
 
 package viewmodels
 
-import play.twirl.api.Html
-
-final case class PtapNewsAndUpdates(content: Html) extends AnyVal
-final case class PtapAlertBanner(content: Html) extends AnyVal
-
-final case class PtapHomeViewModel(
-  tasks: Seq[Task],
-  newsAndUpdates: Option[PtapNewsAndUpdates],
-  showUserResearchBanner: Boolean,
-  saUtr: Option[String],
-  breathingSpaceIndicator: Boolean,
-  alertBannerContent: Option[PtapAlertBanner],
-  name: Option[String],
-  currentTab: String,
-  secondaryNav: SecondaryNavModel,
-  tabContent: PtapHomeTabContentModel
+final case class PtapHomeTabContentModel(
+  containers: Seq[CardContainerModel],
+  taskCount: Int
 )

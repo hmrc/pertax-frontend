@@ -29,7 +29,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
-import viewmodels.{AlertBanner, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeViewModel, PtapNewsAndUpdates}
+import viewmodels.{AlertBanner, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeTab, PtapHomeViewModel, PtapNewsAndUpdates}
 import views.html.{HomeView, PtapHomeView}
 
 import java.time.LocalDate
@@ -48,7 +48,8 @@ class HomeController @Inject() (
   homeView: HomeView,
   pTapHomeView: PtapHomeView,
   rlsInterruptHelper: RlsInterruptHelper,
-  alertBannerHelper: AlertBannerHelper
+  alertBannerHelper: AlertBannerHelper,
+  tabContentService: TabContentService
 )(implicit val ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with CurrentTaxYear {
@@ -62,8 +63,7 @@ class HomeController @Inject() (
     personalisationHomePageTab(tab)
   }
   private def personalisationHomePageTab(tab: String)(implicit request: UserRequest[AnyContent]): Future[Result] = {
-    val validTabs: Set[String] = Set("task", "activity", "tax", "news", "support")
-    val currentTab: String     = if (validTabs.contains(tab)) tab else "task"
+    val currentTab: PtapHomeTab = PtapHomeTab.fromKey(tab)
 
     val nino: Nino = request.helpeeNinoOrElse
 
@@ -85,18 +85,21 @@ class HomeController @Inject() (
       } yield {
         val personDetailsOpt = eitherPersonDetails.toOption.flatten
         val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
+        val taskCount        = tabContentService.getTaskCount(listOfTasks)
 
         Ok(
           pTapHomeView(
             PtapHomeViewModel(
-              listOfTasks,
-              homeOptionsGenerator.getLatestNewsAndUpdatesCard().map(PtapNewsAndUpdates.apply),
+              tasks = listOfTasks,
+              newsAndUpdates = homeOptionsGenerator.getLatestNewsAndUpdatesCard().map(PtapNewsAndUpdates.apply),
               showUserResearchBanner = false,
-              utr,
+              saUtr = utr,
               breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
               alertBannerContent = alertBannerContent.map(PtapAlertBanner.apply),
               name = nameToDisplay,
-              currentTab = currentTab
+              currentTab = currentTab.key,
+              secondaryNav = tabContentService.getSecondaryNavModel(currentTab, taskCount),
+              tabContent = tabContentService.getTabContentModel(currentTab, taskCount)
             )
           )
         )
@@ -104,7 +107,7 @@ class HomeController @Inject() (
     }
   }
   private def personalisationHomePage: Future[Result]                                                            =
-    Future.successful(Redirect(routes.HomeController.homePageTab("task")))
+    Future.successful(Redirect(routes.HomeController.homePageTab(PtapHomeTab.default.key)))
 
   private def newHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
 

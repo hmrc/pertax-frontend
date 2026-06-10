@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,24 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package viewmodels
+@import viewmodels.CardContainerModel
+@import views.html.tags.CardContainer
 
-import play.twirl.api.Html
+@this(cardContainer: CardContainer)
 
-final case class PtapNewsAndUpdates(content: Html) extends AnyVal
-final case class PtapAlertBanner(content: Html) extends AnyVal
+@(containers: Seq[CardContainerModel])(implicit messages: play.api.i18n.Messages)
 
-final case class PtapHomeViewModel(
-  tasks: Seq[Task],
-  newsAndUpdates: Option[PtapNewsAndUpdates],
-  showUserResearchBanner: Boolean,
-  saUtr: Option[String],
-  breathingSpaceIndicator: Boolean,
-  alertBannerContent: Option[PtapAlertBanner],
-  name: Option[String],
-  currentTab: String,
-  secondaryNav: SecondaryNavModel,
-  tabContent: PtapHomeTabContentModel
-)
+@for(container <- containers) {
+    @cardContainer(container)
+}

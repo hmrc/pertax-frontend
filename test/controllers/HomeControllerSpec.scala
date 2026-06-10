@@ -23,10 +23,10 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.{GetPersonFromCitizenDetailsToggle, HomePagePersonalisationToggle, ShowPlannedOutageBannerToggle}
-import models.{BreathingSpaceIndicatorResponse, HomePageServices}
+import models.{BreathingSpaceIndicatorResponse, HomePageServices, PtapHomePlaceholderCardData}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesImpl}
 import play.api.inject.bind
@@ -45,6 +45,7 @@ import uk.gov.hmrc.http.{HeaderNames, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import util.AlertBannerHelper
+import viewmodels.{Task, TaskStatus}
 
 import scala.concurrent.Future
 
@@ -223,7 +224,104 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       status(result) mustBe OK
       redirectLocation(result) must not be Some(routes.HomeController.homePageTab("task").url)
+    }
 
+    "render task tab card content and use the task retrieval path for the nav count" in {
+      val request = FakeRequest("GET", routes.HomeController.homePageTab("task").url)
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+      val tasks   = Seq(
+        Task("Complete task one", TaskStatus.Incomplete, "/task-one"),
+        Task("Complete task two", TaskStatus.Incomplete, "/task-two")
+      )
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+      when(mockTasksService.getListOfTasks(any(), any()))
+        .thenReturn(Future.successful(tasks))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.homePageTab("task")(request)
+
+      status(result) mustBe OK
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.getElementById("tasks-heading").text() mustBe "Tasks"
+      content.getElementById("activities-heading") mustBe null
+      PtapHomePlaceholderCardData.taskCards.foreach(card => content.text() must include(card.heading.text))
+      PtapHomePlaceholderCardData.activityCards.foreach(card => content.text() must not include card.heading.text)
+      content.select(".x-govuk-secondary-navigation__badge").text() mustBe "2"
+      verify(mockTasksService, times(1)).getListOfTasks(any(), any())
+    }
+
+    "render activity tab card content while still calling the task retrieval path for the nav count" in {
+      val request = FakeRequest("GET", routes.HomeController.homePageTab("activity").url)
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+      val tasks   = Seq(Task("Complete task one", TaskStatus.Incomplete, "/task-one"))
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+      when(mockTasksService.getListOfTasks(any(), any()))
+        .thenReturn(Future.successful(tasks))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.homePageTab("activity")(request)
+
+      status(result) mustBe OK
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.getElementById("tasks-heading") mustBe null
+      content.getElementById("activities-heading").text() mustBe "Activities"
+      PtapHomePlaceholderCardData.activityCards.foreach(card => content.text() must include(card.heading.text))
+      PtapHomePlaceholderCardData.taskCards.foreach(card => content.text() must not include card.heading.text)
+      content.select(".x-govuk-secondary-navigation__badge").text() mustBe "1"
+      verify(mockTasksService, times(1)).getListOfTasks(any(), any())
+    }
+
+    "render no PTAD-142 placeholder content for tabs owned by later stories" in {
+      val request = FakeRequest("GET", routes.HomeController.homePageTab("tax").url)
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.homePageTab("tax")(request)
+
+      status(result) mustBe OK
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.getElementById("ptap-tab-content") must not be null
+      content.getElementById("tasks-heading") mustBe null
+      content.getElementById("activities-heading") mustBe null
+      content.select("#ptap-tab-content .hmrc-card").size() mustBe 0
+      verify(mockTasksService, times(1)).getListOfTasks(any(), any())
+    }
+
+    "render the tasks content when an unknown tab key is supplied" in {
+      val request = FakeRequest("GET", "/personal-account/unknown")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.homePageTab("unknown")(request)
+
+      status(result) mustBe OK
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.getElementById("tasks-heading").text() mustBe "Tasks"
+      content.select("li.x-govuk-secondary-navigation__list-item--current a").attr("href") mustBe
+        routes.HomeController.homePageTab("task").url
+      verify(mockTasksService, times(1)).getListOfTasks(any(), any())
     }
 
     "Return a Breathing space if that is returned within period" in {
@@ -289,4 +387,5 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       contentAsString(result) must not include "alertBannerContent"
     }
   }
+
 }
