@@ -1,5 +1,5 @@
-@*
- * Copyright 2025 HM Revenue & Customs
+/*
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,20 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import controllers.auth.requests.UserRequest
-@import tags.card
-@this()
+package viewmodels
 
-@()(implicit messages: Messages)
-
-@card(
-    id = Some("paye-card"),
-    url = Some(routes.RedirectToPayeController.redirectToPaye.url),
-    gaAction = Some("Income"),
-    gaLabel = Some("Pay As You Earn (PAYE)"),
-    heading = messages("label.pay_as_you_earn_paye"),
-    bodyContent = Some(Html("<p class=\"govuk-body\">" + messages("label.your_income_from_employers_and_private_pensions_") + "</p>"))
-) {
-}
+final case class TabModel(
+  text: String,
+  href: String,
+  current: Boolean = false,
+  notificationCount: Option[Int] = None,
+  classes: Option[String] = None
+)

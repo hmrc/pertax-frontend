@@ -17,20 +17,19 @@
 package controllers
 
 import com.google.inject.Inject
-import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
-import controllers.controllershelpers.{HomeCardGenerator, HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
+import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.SelfAssessmentUser
-import models.admin.{HomePageNewLayoutToggle, HomePagePersonalisationToggle}
+import models.admin.HomePagePersonalisationToggle
 import play.api.mvc.*
 import services.*
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
-import viewmodels.{AlertBanner, HomeViewModel, NewHomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeViewModel, PtapNewsAndUpdates}
+import viewmodels.{AlertBanner, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeViewModel, PtapNewsAndUpdates}
 import views.html.{HomeView, NewHomeView, PtapHomeView}
 
 import java.time.LocalDate
@@ -38,22 +37,19 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
   paperlessInterruptHelper: PaperlessInterruptHelper,
-  taiService: TaiService,
   breathingSpaceService: BreathingSpaceService,
   featureFlagService: FeatureFlagService,
   citizenDetailsService: CitizenDetailsService,
   homePageServicesProvider: HomePageServicesProvider,
   tasksService: TasksService,
-  homeCardGenerator: HomeCardGenerator,
   homeOptionsGenerator: HomeOptionsGenerator,
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   homeView: HomeView,
-  newHomeView: NewHomeView,
   pTapHomeView: PtapHomeView,
   rlsInterruptHelper: RlsInterruptHelper,
   alertBannerHelper: AlertBannerHelper
-)(implicit configDecorator: ConfigDecorator, val ec: ExecutionContext)
+)(implicit val ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with CurrentTaxYear {
 
@@ -80,7 +76,7 @@ class HomeController @Inject() (
         breathingSpaceIndicator <- fBreathingSpaceIndicator
         listOfTasks             <- fListOfTasks
         eitherPersonDetails     <- fEitherPersonDetails
-        alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten, newDesign = true)
+        alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten)
       } yield {
         val personDetailsOpt = eitherPersonDetails.toOption.flatten
         val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
@@ -102,7 +98,7 @@ class HomeController @Inject() (
     }
   }
 
-  private def newHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
+  private def oldHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
 
     val nino: Nino = request.helpeeNinoOrElse
 
@@ -122,14 +118,14 @@ class HomeController @Inject() (
         listOfTasks             <- fListOfTasks
         homePageServices        <- fHomePageServices
         eitherPersonDetails     <- fEitherPersonDetails
-        alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten, newDesign = true)
+        alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten)
       } yield {
         val personDetailsOpt = eitherPersonDetails.toOption.flatten
         val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
 
         Ok(
-          newHomeView(
-            NewHomeViewModel(
+          homeView(
+            HomeViewModel(
               listOfTasks,
               homeOptionsGenerator.getLatestNewsAndUpdatesCard().map(NewsAndUpdates.apply),
               showUserResearchBanner = false,
@@ -145,79 +141,13 @@ class HomeController @Inject() (
       }
     }
   }
-
-  private def oldHomePage(implicit request: UserRequest[AnyContent]) = {
-    val saUserType = request.saUserType
-
-    val nino: Nino   = request.helpeeNinoOrElse
-    val taxYear: Int = current.currentYear
-
-    enforceInterrupts {
-      val fTaxComponents           = taiService.getTaxComponentsList(nino, taxYear)
-      val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
-      val fIncomeCards             = homeCardGenerator.getIncomeCards
-      val fAtsCard                 = homeCardGenerator.getATSCard()
-      val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
-
-      for {
-        taxComponents           <- fTaxComponents
-        breathingSpaceIndicator <- fBreathingSpaceIndicator
-        incomeCards             <- fIncomeCards
-        atsCard                 <- fAtsCard
-        eitherPersonDetails     <- fEitherPersonDetails
-        alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten, newDesign = false)
-      } yield {
-        val personDetailsOpt = eitherPersonDetails.toOption.flatten
-        val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
-
-        val benefitCards       = homeCardGenerator.getBenefitCards(taxComponents, request.trustedHelper)
-        val trustedHelpersCard = if (request.trustedHelper.isDefined) {
-          None
-        } else {
-          Some(homeCardGenerator.getTrustedHelpersCard())
-        }
-
-        Ok(
-          homeView(
-            HomeViewModel(
-              incomeCards,
-              benefitCards,
-              atsCard,
-              showUserResearchBanner = false,
-              saUserType,
-              breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
-              alertBannerContent,
-              nameToDisplay,
-              trustedHelpersCard
-            )
-          )
-        )
-      }
-    }
-  }
-
+  
   def index: Action[AnyContent] = authenticate.async { implicit request =>
-    val shouldShowNewLayoutForNino = configDecorator.onboardingByNiNoLastNumericDigitList
-      .contains(request.helpeeNinoOrElse.nino.charAt(6).asDigit)
-
-    val isNewDesign: Boolean = request.queryString
-      .get("newDesign")
-      .flatMap(_.headOption)
-      .fold(shouldShowNewLayoutForNino)(_ == "true")
-
     featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
       if (toggle.isEnabled) {
         personalisationHomePage
       } else {
-        featureFlagService.get(HomePageNewLayoutToggle).flatMap { toggle =>
-          if (!toggle.isEnabled) {
-            oldHomePage
-          } else if (!isNewDesign) {
-            oldHomePage
-          } else {
-            newHomePage
-          }
-        }
+        oldHomePage
       }
     }
   }

@@ -1,5 +1,5 @@
-@*
- * Copyright 2025 HM Revenue & Customs
+/*
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,11 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@this()
+package viewmodels
 
-@()(implicit messages: Messages)
-<p class="govuk-notification-banner__heading">
- @messages("old_home_page_banner.text") <a class="govuk-notification-banner__link" href="@controllers.interstitials.routes.InterstitialController.displayNewsAndUpdates("homepageUpdate").url">@messages("old_home_page_banner.link_text")</a>.
-</p>
+final case class SecondaryNavModel(
+  items: Seq[TabModel],
+  labelledBy: Option[String] = None,
+  visuallyHiddenTitle: String = "Secondary menu",
+  classes: Option[String] = None,
+  attributes: Map[String, String] = Map.empty
+)

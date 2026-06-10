@@ -91,7 +91,8 @@ class HomePageServicesProvider @Inject() (
       Some(href),
       None,
       gaAction = Some("Income"),
-      gaLabel = Some("MTD IT & SA")
+      gaLabel = Some("MTD IT & SA"),
+      id = Some("itsa")
     )
 
   private def mySaTile(href: String, body: String)(implicit messages: Messages): MyService =
@@ -100,7 +101,8 @@ class HomePageServicesProvider @Inject() (
       Some(href),
       Option(body).filter(_.nonEmpty),
       gaAction = Some("Income"),
-      gaLabel = Some("Self Assessment")
+      gaLabel = Some("Self Assessment"),
+      id = Some("self-assessment")
     )
 
   private def otherSaTile(title: String, linkUrl: String): OtherService =
@@ -108,7 +110,8 @@ class HomePageServicesProvider @Inject() (
       title,
       linkUrl,
       gaAction = Some("Income"),
-      gaLabel = Some("Self Assessment")
+      gaLabel = Some("Self Assessment"),
+      id = Some("self-assessment")
     )
 
   private def mtdTile(linkUrl: String)(implicit messages: Messages): OtherService =
@@ -116,7 +119,8 @@ class HomePageServicesProvider @Inject() (
       messages("label.mtd_for_it"),
       linkUrl,
       gaAction = Some("MTDIT"),
-      gaLabel = Some("Making Tax Digital for Income Tax")
+      gaLabel = Some("Making Tax Digital for Income Tax"),
+      id = Some("mtdit")
     )
 
   private def getMySelfAssessment(
@@ -134,14 +138,14 @@ class HomePageServicesProvider @Inject() (
           case (_: ActivatedOnlineFilerSelfAssessmentUser, true) =>
             Some(
               combinedMtdSaTile(
-                href = controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url
+                href = controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url
               )
             )
 
           case (WrongCredentialsSelfAssessmentUser(_), true) =>
             Some(
               combinedMtdSaTile(
-                href = controllers.routes.SaWrongCredentialsController.landingPage().url
+                href = controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url
               )
             )
 
@@ -227,7 +231,8 @@ class HomePageServicesProvider @Inject() (
           Some(controllers.routes.RedirectToPayeController.redirectToPaye.url),
           None,
           gaAction = Some("Income"),
-          gaLabel = Some("Pay As You Earn (PAYE)")
+          gaLabel = Some("Pay As You Earn (PAYE)"),
+          id = Some("paye")
         )
       )
     )
@@ -248,7 +253,8 @@ class HomePageServicesProvider @Inject() (
               Some(configDecorator.taxCalcHomePageUrl),
               None,
               gaAction = Some("Income"),
-              gaLabel = Some("Tax Calculation")
+              gaLabel = Some("Tax Calculation"),
+              id = Some("tax-calc")
             )
           )
         } else {
@@ -265,7 +271,8 @@ class HomePageServicesProvider @Inject() (
           Some(controllers.interstitials.routes.InterstitialController.displayNISP.url),
           None,
           gaAction = Some("Income"),
-          gaLabel = Some("National Insurance and State Pension")
+          gaLabel = Some("National Insurance and State Pension"),
+          id = Some("state-pension")
         )
       )
     )
@@ -280,7 +287,8 @@ class HomePageServicesProvider @Inject() (
             messages("label.child_benefit"),
             controllers.interstitials.routes.InterstitialController.displayChildBenefitsSingleAccountView.url,
             gaAction = Some("Benefits"),
-            gaLabel = Some("Child Benefit")
+            gaLabel = Some("Child Benefit"),
+            id = Some("child-benefit")
           )
         )
       }
@@ -298,7 +306,8 @@ class HomePageServicesProvider @Inject() (
             messages("card.ats.heading"),
             configDecorator.annualTaxSaSummariesTileLinkShow,
             gaAction = Some("Tax Summaries"),
-            gaLabel = Some("Annual Tax Summary")
+            gaLabel = Some("Annual Tax Summary"),
+            id = Some("tax-summary")
           )
         )
       }
@@ -315,7 +324,8 @@ class HomePageServicesProvider @Inject() (
             Some("/marriage-allowance-application/history"),
             Some(messages("label.your_partner_currently_transfers_part_of_their_personal_allowance_to_you")),
             gaAction = Some("Benefits"),
-            gaLabel = Some("Marriage Allowance")
+            gaLabel = Some("Marriage Allowance"),
+            id = Some("marriage-allowance")
           )
         )
 
@@ -326,7 +336,8 @@ class HomePageServicesProvider @Inject() (
             Some("/marriage-allowance-application/history"),
             Some(messages("label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner")),
             gaAction = Some("Benefits"),
-            gaLabel = Some("Marriage Allowance")
+            gaLabel = Some("Marriage Allowance"),
+            id = Some("marriage-allowance")
           )
         )
 
@@ -336,7 +347,8 @@ class HomePageServicesProvider @Inject() (
             messages("title.marriage_allowance"),
             "/marriage-allowance-application/history",
             gaAction = Some("Benefits"),
-            gaLabel = Some("Marriage Allowance")
+            gaLabel = Some("Marriage Allowance"),
+            id = Some("marriage-allowance")
           )
         )
     }
@@ -351,7 +363,8 @@ class HomePageServicesProvider @Inject() (
           Some(configDecorator.manageTrustedHelpersUrl),
           None,
           gaAction = Some("Account"),
-          gaLabel = Some("Trusted helpers")
+          gaLabel = Some("Trusted helpers"),
+          id = Some("trusted-helper")
         )
       )
     } else {
@@ -360,7 +373,8 @@ class HomePageServicesProvider @Inject() (
           messages("label.trusted_helpers_heading"),
           configDecorator.manageTrustedHelpersUrl,
           gaAction = Some("Account"),
-          gaLabel = Some("Trusted helpers")
+          gaLabel = Some("Trusted helpers"),
+          id = Some("trusted-helper")
         )
       )
     }

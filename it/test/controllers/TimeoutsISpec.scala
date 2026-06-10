@@ -208,7 +208,7 @@ class TimeoutsISpec extends IntegrationSpec {
         Messages("label.this.section.is") + " " + Messages("label.account_home")
 
       contentAsString(result).contains(
-        Messages("label.transfer_part_of_your_personal_allowance_to_your_partner_")
+        "Marriage Allowance"
       ) mustBe true
       server.verify(1, getRequestedFor(urlEqualTo(taxComponentsUrl)))
     }

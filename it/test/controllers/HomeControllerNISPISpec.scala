@@ -65,7 +65,7 @@ class HomeControllerNISPISpec extends IntegrationSpec {
 
         val result: Future[Result] = route(app, request).get
         httpStatus(result) mustBe OK
-        contentAsString(result).contains(Messages("label.your_national_insurance_and_state_pension")) mustBe true
+        contentAsString(result).contains("National Insurance and State Pension") mustBe true
 
         val nispViewURL = "/personal-account/your-national-insurance-state-pension"
         val nispViewReq = FakeRequest(GET, nispViewURL)
@@ -88,7 +88,7 @@ class HomeControllerNISPISpec extends IntegrationSpec {
 
         val result: Future[Result] = route(app, request).get
         httpStatus(result) mustBe OK
-        contentAsString(result).contains(Messages("label.your_national_insurance_and_state_pension")) mustBe true
+        contentAsString(result).contains("National Insurance and State Pension") mustBe true
 
         val nispViewURL = "/personal-account/your-national-insurance-state-pension"
         val nispViewReq = FakeRequest(GET, nispViewURL)
