@@ -58,7 +58,14 @@ class HomeController @Inject() (
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
 
-  private def personalisationHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
+  def homePageTab(tab: String): Action[AnyContent]                                                                   = {
+    val validTabs: Set[String] = Set("/task", "/activity", "/tax", "/news", "/support")
+    val currentTab: String     = if (validTabs.contains(tab)) tab else "/task"
+    // also need to add redirect for STANDARD /personal-account  path
+
+    index(Some(currentTab))
+  }
+  private def personalisationHomePage(currentTab: String)(implicit request: UserRequest[AnyContent]): Future[Result] = {
 
     val nino: Nino = request.helpeeNinoOrElse
 
@@ -90,7 +97,8 @@ class HomeController @Inject() (
               utr,
               breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
               alertBannerContent = alertBannerContent.map(PtapAlertBanner.apply),
-              name = nameToDisplay
+              name = nameToDisplay,
+              currentTab = currentTab
             )
           )
         )
@@ -142,10 +150,12 @@ class HomeController @Inject() (
     }
   }
 
-  def index: Action[AnyContent] = authenticate.async { implicit request =>
+  def index(currentTab: Option[String] = None): Action[AnyContent] = authenticate.async { implicit request =>
     featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
       if (toggle.isEnabled) {
-        personalisationHomePage
+        currentTab match
+          case Some(tab) => personalisationHomePage(tab)
+          case None      => personalisationHomePage("/task")
       } else {
         newHomePage
       }

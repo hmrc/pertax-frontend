@@ -28,5 +28,6 @@ final case class PtapHomeViewModel(
   saUtr: Option[String],
   breathingSpaceIndicator: Boolean,
   alertBannerContent: Option[PtapAlertBanner],
-  name: Option[String]
+  name: Option[String],
+  currentTab: String
 )

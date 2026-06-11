@@ -66,11 +66,11 @@
         @messages("label.view_and_save_your_national_insurance_number")</a></p>
         @*Here, get it to render, then check the control flow*@
     @{SecondaryNav( SecondaryNavModel(items = Seq(
-          TabModel(text = messages("ptap.support.uya.p2.sub"), href = "/", current = true),
-          TabModel(text = messages("ptap.support.uya.p3.sub"), href = "/"),
-          TabModel(text = messages("ptap.support.uya.p4.sub"), href = "/"),
-          TabModel(text = messages("ptap.support.uya.p5.sub"), href = "/"),
-          TabModel(text = messages("ptap.support.uya.p6.sub"), href = "/"),
+          TabModel(text = messages("ptap.support.uya.p2.sub"), href = "/task", current = "/task" == viewModel.currentTab),
+          TabModel(text = messages("ptap.support.uya.p3.sub"), href = "/activity", current = "/activity" == viewModel.currentTab),
+          TabModel(text = messages("ptap.support.uya.p4.sub"), href = "/tax", current = "/tax" == viewModel.currentTab),
+          TabModel(text = messages("ptap.support.uya.p5.sub"), href = "/news", current = "/news" == viewModel.currentTab),
+          TabModel(text = messages("ptap.support.uya.p6.sub"), href = "/support", current = "/support" == viewModel.currentTab),
         )
       ))}
 }
