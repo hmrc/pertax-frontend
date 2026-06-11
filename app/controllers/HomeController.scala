@@ -98,7 +98,7 @@ class HomeController @Inject() (
     }
   }
 
-  private def oldHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
+  private def newHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
 
     val nino: Nino = request.helpeeNinoOrElse
 
@@ -147,7 +147,7 @@ class HomeController @Inject() (
       if (toggle.isEnabled) {
         personalisationHomePage
       } else {
-        oldHomePage
+        newHomePage
       }
     }
   }
