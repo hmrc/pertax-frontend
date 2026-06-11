@@ -200,9 +200,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
 
-      val appLocal = appBuilder.build()
+      val appLocal   = appBuilder.build()
       val controller = appLocal.injector.instanceOf[HomeController]
-      val result = controller.index()(request)
+      val result     = controller.index()(request)
 
       status(result) mustBe OK
 

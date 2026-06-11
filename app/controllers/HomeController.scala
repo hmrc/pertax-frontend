@@ -30,7 +30,7 @@ import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
 import viewmodels.{AlertBanner, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeViewModel, PtapNewsAndUpdates}
-import views.html.{HomeView, NewHomeView, PtapHomeView}
+import views.html.{HomeView, PtapHomeView}
 
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
@@ -141,7 +141,7 @@ class HomeController @Inject() (
       }
     }
   }
-  
+
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
       if (toggle.isEnabled) {
