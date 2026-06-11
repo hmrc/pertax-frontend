@@ -22,7 +22,7 @@ import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
-import models.admin.{GetPersonFromCitizenDetailsToggle, ShowPlannedOutageBannerToggle}
+import models.admin.{GetPersonFromCitizenDetailsToggle, HomePagePersonalisationToggle, ShowPlannedOutageBannerToggle}
 import models.{BreathingSpaceIndicatorResponse, HomePageServices}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
@@ -118,6 +118,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
       .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
+    when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+      .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = false)))
+
     when(mockConfigDecorator.getFeedbackSurveyUrl(any()))
       .thenReturn("/personal-account/signed-out")
 
@@ -187,6 +190,24 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       val content = Jsoup.parse(contentAsString(result))
       content.getElementById("taxes-and-benefits-heading") must not be null
+    }
+
+    "Return the personalisation home page design when HomePagePersonalisationToggle is true" in {
+      val request = FakeRequest("GET", "/personal-account")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(request)
+
+      status(result) mustBe OK
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.getElementById("taxes-and-benefits-heading") mustBe null
     }
 
     "Return a Breathing space if that is returned within period" in {

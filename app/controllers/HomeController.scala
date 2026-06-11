@@ -22,13 +22,15 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.SelfAssessmentUser
+import models.admin.HomePagePersonalisationToggle
 import play.api.mvc.*
 import services.*
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
-import viewmodels.{AlertBanner, HomeViewModel, NewsAndUpdates}
-import views.html.HomeView
+import viewmodels.{AlertBanner, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeViewModel, PtapNewsAndUpdates}
+import views.html.{HomeView, PtapHomeView}
 
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
@@ -36,6 +38,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class HomeController @Inject() (
   paperlessInterruptHelper: PaperlessInterruptHelper,
   breathingSpaceService: BreathingSpaceService,
+  featureFlagService: FeatureFlagService,
   citizenDetailsService: CitizenDetailsService,
   homePageServicesProvider: HomePageServicesProvider,
   tasksService: TasksService,
@@ -43,6 +46,7 @@ class HomeController @Inject() (
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   homeView: HomeView,
+  pTapHomeView: PtapHomeView,
   rlsInterruptHelper: RlsInterruptHelper,
   alertBannerHelper: AlertBannerHelper
 )(implicit val ec: ExecutionContext)
@@ -54,7 +58,47 @@ class HomeController @Inject() (
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
 
-  def index: Action[AnyContent] = authenticate.async { implicit request =>
+  private def personalisationHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
+
+    val nino: Nino = request.helpeeNinoOrElse
+
+    val utr: Option[String] = request.saUserType match {
+      case saUser: SelfAssessmentUser => Some(saUser.saUtr.utr)
+      case _                          => None
+    }
+
+    enforceInterrupts {
+      val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
+      val fListOfTasks             = tasksService.getListOfTasks
+      val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
+
+      for {
+        breathingSpaceIndicator <- fBreathingSpaceIndicator
+        listOfTasks             <- fListOfTasks
+        eitherPersonDetails     <- fEitherPersonDetails
+        alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten)
+      } yield {
+        val personDetailsOpt = eitherPersonDetails.toOption.flatten
+        val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
+
+        Ok(
+          pTapHomeView(
+            PtapHomeViewModel(
+              listOfTasks,
+              homeOptionsGenerator.getLatestNewsAndUpdatesCard().map(PtapNewsAndUpdates.apply),
+              showUserResearchBanner = false,
+              utr,
+              breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
+              alertBannerContent = alertBannerContent.map(PtapAlertBanner.apply),
+              name = nameToDisplay
+            )
+          )
+        )
+      }
+    }
+  }
+
+  private def newHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
 
     val nino: Nino = request.helpeeNinoOrElse
 
@@ -94,6 +138,16 @@ class HomeController @Inject() (
             )
           )
         )
+      }
+    }
+  }
+
+  def index: Action[AnyContent] = authenticate.async { implicit request =>
+    featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
+      if (toggle.isEnabled) {
+        personalisationHomePage
+      } else {
+        newHomePage
       }
     }
   }
