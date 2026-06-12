@@ -105,6 +105,7 @@ GET         /personal-account/mtd/claim-from-pta/start                          
 POST        /personal-account/mtd/claim-from-pta/submit                                controllers.ClaimMtdFromPtaController.submit
 
 GET         /support/understanding-your-account                                        controllers.support.SupportController.understandingYourAccount
+GET         /personal-account/:tab                                                     controllers.HomeController.homePageTab(tab: String)
 
 ->         /admin                                                                      admin.Routes
 ->          /                                                                          health.Routes

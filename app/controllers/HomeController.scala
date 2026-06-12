@@ -58,7 +58,12 @@ class HomeController @Inject() (
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
 
-  private def personalisationHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
+  def homePageTab(tab: String)                                                                                   = authenticate.async { implicit request =>
+    personalisationHomePageTab(tab)
+  }
+  private def personalisationHomePageTab(tab: String)(implicit request: UserRequest[AnyContent]): Future[Result] = {
+    val validTabs: Set[String] = Set("task", "activity", "tax", "news", "support")
+    val currentTab: String     = if (validTabs.contains(tab)) tab else "task"
 
     val nino: Nino = request.helpeeNinoOrElse
 
@@ -90,13 +95,16 @@ class HomeController @Inject() (
               utr,
               breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
               alertBannerContent = alertBannerContent.map(PtapAlertBanner.apply),
-              name = nameToDisplay
+              name = nameToDisplay,
+              currentTab = currentTab
             )
           )
         )
       }
     }
   }
+  private def personalisationHomePage: Future[Result]                                                            =
+    Future.successful(Redirect(routes.HomeController.homePageTab("task")))
 
   private def newHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
 

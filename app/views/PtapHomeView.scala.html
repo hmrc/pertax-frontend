@@ -18,9 +18,10 @@
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.play.language.LanguageUtils
-@import viewmodels.PtapHomeViewModel
+@import viewmodels.{PtapHomeViewModel, SecondaryNavModel,TabModel}
 @import views.MainView
 @import views.html.components.alertBanner.AlertBanner
+@import views.html.components.{SecondaryNav}
 @import views.html.home.options.TaskListView
 
 @this(
@@ -62,5 +63,13 @@
         <p class="govuk-body govuk-!-margin-bottom-2" id="utrNo">@messages("label.home_page.utr") <strong>@utr</strong></p>
     }
     <p class="govuk-body" id="ninoLink"><a class="govuk-link govuk-link--no-visited-state" href="@configDecorator.ptaNinoSaveUrl">
-        @messages("label.view_and_save_your_national_insurance_number")</a></p>
+        @messages("label.view_and_save_your_national_insurance_number")</a></p>\
+    @{SecondaryNav( SecondaryNavModel(items = Seq(
+          TabModel(text = messages("ptap.support.uya.p2.sub"), href = "task", current = "task" == viewModel.currentTab),
+          TabModel(text = messages("ptap.support.uya.p3.sub"), href = "activity", current = "activity" == viewModel.currentTab),
+          TabModel(text = messages("ptap.support.uya.p4.sub"), href = "tax", current = "tax" == viewModel.currentTab),
+          TabModel(text = messages("ptap.support.uya.p5.sub"), href = "news", current = "news" == viewModel.currentTab),
+          TabModel(text = messages("ptap.support.uya.p6.sub"), href = "support", current = "support" == viewModel.currentTab),
+        )
+      ))}
 }
