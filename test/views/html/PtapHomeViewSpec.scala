@@ -37,7 +37,7 @@ import scala.jdk.CollectionConverters.*
 
 class PtapHomeViewSpec extends ViewSpec {
 
-  lazy val home: PtapHomeView                           = inject[PtapHomeView]
+  lazy val home: PtapHomeView                       = inject[PtapHomeView]
   implicit val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
@@ -76,7 +76,7 @@ class PtapHomeViewSpec extends ViewSpec {
       currentTab = "task"
     )
 
-  "Rendering HomeView.scala.html" must {
+  "Rendering PtapHomeView.scala.html" must {
 
     "show the users name and not 'Your account' when the user has details and is not a GG user" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
@@ -156,6 +156,34 @@ class PtapHomeViewSpec extends ViewSpec {
       val view                                                      = Jsoup.parse(home(homeViewModel).toString)
 
       view.getElementById("alert-banner") mustBe null
+    }
+    "must render SecondaryNav with the correct tab content" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val doc: Document                                             = asDocument(home(homeViewModel).toString())
+
+      println(doc.toString)
+      doc.select("nav.x-govuk-secondary-navigation").size mustBe 1
+      doc.select("ul.x-govuk-secondary-navigation__list").size mustBe 1
+
+      doc.select("a.x-govuk-secondary-navigation__link").size mustBe 5
+
+      doc.select("a[href=task].x-govuk-secondary-navigation__link")     must not be null
+      doc.select("a[href=activity].x-govuk-secondary-navigation__link") must not be null
+      doc.select("a[href=tax].x-govuk-secondary-navigation__link")      must not be null
+      doc.select("a[href=news].x-govuk-secondary-navigation__link")     must not be null
+      doc.select("a[href=support].x-govuk-secondary-navigation__link")  must not be null
+
+      doc.select("a[href=task].x-govuk-secondary-navigation__link").attr("href") mustBe "task"
+      doc.select("a[href=activity].x-govuk-secondary-navigation__link").attr("href") mustBe "activity"
+      doc.select("a[href=tax].x-govuk-secondary-navigation__link").attr("href") mustBe "tax"
+      doc.select("a[href=news].x-govuk-secondary-navigation__link").attr("href") mustBe "news"
+      doc.select("a[href=support].x-govuk-secondary-navigation__link").attr("href") mustBe "support"
+
+      doc.select("a[href=task].x-govuk-secondary-navigation__link").text mustBe messages("ptap.support.uya.p2.sub")
+      doc.select("a[href=activity].x-govuk-secondary-navigation__link").text mustBe messages("ptap.support.uya.p3.sub")
+      doc.select("a[href=tax].x-govuk-secondary-navigation__link").text mustBe messages("ptap.support.uya.p4.sub")
+      doc.select("a[href=news].x-govuk-secondary-navigation__link").text mustBe messages("ptap.support.uya.p5.sub")
+      doc.select("a[href=support].x-govuk-secondary-navigation__link").text mustBe messages("ptap.support.uya.p6.sub")
     }
   }
 }
