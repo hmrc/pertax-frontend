@@ -59,11 +59,18 @@ class HomeController @Inject() (
     authJourney.authWithPersonalDetails
 
   def homePageTab(tab: String)                                                                                   = authenticate.async { implicit request =>
-    personalisationHomePageTab(tab)
+    featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
+      if (toggle.isEnabled) {
+        personalisationHomePageTab(tab)
+      } else {
+        newHomePage
+      }
+    }
   }
   private def personalisationHomePageTab(tab: String)(implicit request: UserRequest[AnyContent]): Future[Result] = {
     val validTabs: Set[String] = Set("task", "activity", "tax", "news", "support")
-    val currentTab: String     = if (validTabs.contains(tab)) tab else "task"
+
+    val currentTab: String = if (validTabs.contains(tab)) tab else "task"
 
     val nino: Nino = request.helpeeNinoOrElse
 

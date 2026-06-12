@@ -161,29 +161,48 @@ class PtapHomeViewSpec extends ViewSpec {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val doc: Document                                             = asDocument(home(homeViewModel).toString())
 
-      println(doc.toString)
       doc.select("nav.x-govuk-secondary-navigation").size mustBe 1
       doc.select("ul.x-govuk-secondary-navigation__list").size mustBe 1
 
       doc.select("a.x-govuk-secondary-navigation__link").size mustBe 5
 
-      doc.select("a[href=task].x-govuk-secondary-navigation__link")     must not be null
-      doc.select("a[href=activity].x-govuk-secondary-navigation__link") must not be null
-      doc.select("a[href=tax].x-govuk-secondary-navigation__link")      must not be null
-      doc.select("a[href=news].x-govuk-secondary-navigation__link")     must not be null
-      doc.select("a[href=support].x-govuk-secondary-navigation__link")  must not be null
+      doc.select("a[href=/personal-account/your-tasks].x-govuk-secondary-navigation__link")       must not be null
+      doc.select("a[href=/personal-account/recent-activity].x-govuk-secondary-navigation__link")  must not be null
+      doc.select("a[href=/personal-account/tax-and-benefits].x-govuk-secondary-navigation__link") must not be null
+      doc.select("a[href=/personal-account/hmrc-news].x-govuk-secondary-navigation__link")        must not be null
+      doc.select("a[href=/personal-account/support].x-govuk-secondary-navigation__link")          must not be null
 
-      doc.select("a[href=task].x-govuk-secondary-navigation__link").attr("href") mustBe "task"
-      doc.select("a[href=activity].x-govuk-secondary-navigation__link").attr("href") mustBe "activity"
-      doc.select("a[href=tax].x-govuk-secondary-navigation__link").attr("href") mustBe "tax"
-      doc.select("a[href=news].x-govuk-secondary-navigation__link").attr("href") mustBe "news"
-      doc.select("a[href=support].x-govuk-secondary-navigation__link").attr("href") mustBe "support"
+      doc
+        .select("a[href=/personal-account/your-tasks].x-govuk-secondary-navigation__link")
+        .attr("href") mustBe "/personal-account/your-tasks"
+      doc
+        .select("a[href=/personal-account/recent-activity].x-govuk-secondary-navigation__link")
+        .attr("href") mustBe "/personal-account/recent-activity"
+      doc
+        .select("a[href=/personal-account/tax-and-benefits].x-govuk-secondary-navigation__link")
+        .attr("href") mustBe "/personal-account/tax-and-benefits"
+      doc
+        .select("a[href=/personal-account/hmrc-news].x-govuk-secondary-navigation__link")
+        .attr("href") mustBe "/personal-account/hmrc-news"
+      doc
+        .select("a[href=/personal-account/support].x-govuk-secondary-navigation__link")
+        .attr("href") mustBe "/personal-account/support"
 
-      doc.select("a[href=task].x-govuk-secondary-navigation__link").text mustBe messages("ptap.support.uya.p2.sub")
-      doc.select("a[href=activity].x-govuk-secondary-navigation__link").text mustBe messages("ptap.support.uya.p3.sub")
-      doc.select("a[href=tax].x-govuk-secondary-navigation__link").text mustBe messages("ptap.support.uya.p4.sub")
-      doc.select("a[href=news].x-govuk-secondary-navigation__link").text mustBe messages("ptap.support.uya.p5.sub")
-      doc.select("a[href=support].x-govuk-secondary-navigation__link").text mustBe messages("ptap.support.uya.p6.sub")
+      doc.select("a[href=/personal-account/your-tasks].x-govuk-secondary-navigation__link").text mustBe messages(
+        "ptap.support.uya.p2.sub"
+      )
+      doc.select("a[href=/personal-account/recent-activity].x-govuk-secondary-navigation__link").text mustBe messages(
+        "ptap.support.uya.p3.sub"
+      )
+      doc.select("a[href=/personal-account/tax-and-benefits].x-govuk-secondary-navigation__link").text mustBe messages(
+        "ptap.support.uya.p4.sub"
+      )
+      doc.select("a[href=/personal-account/hmrc-news].x-govuk-secondary-navigation__link").text mustBe messages(
+        "ptap.support.uya.p5.sub"
+      )
+      doc.select("a[href=/personal-account/support].x-govuk-secondary-navigation__link").text mustBe messages(
+        "ptap.support.uya.p6.sub"
+      )
     }
   }
 }
