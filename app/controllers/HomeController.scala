@@ -58,14 +58,12 @@ class HomeController @Inject() (
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
 
-  def homePageTab(tab: String): Action[AnyContent]                                                                   = {
-    val validTabs: Set[String] = Set("/task", "/activity", "/tax", "/news", "/support")
-    val currentTab: String     = if (validTabs.contains(tab)) tab else "/task"
-    // also need to add redirect for STANDARD /personal-account  path
-
-    index(Some(currentTab))
+  def homePageTab(tab: String)                                                                                   = authenticate.async { implicit request =>
+    personalisationHomePageTab(tab)
   }
-  private def personalisationHomePage(currentTab: String)(implicit request: UserRequest[AnyContent]): Future[Result] = {
+  private def personalisationHomePageTab(tab: String)(implicit request: UserRequest[AnyContent]): Future[Result] = {
+    val validTabs: Set[String] = Set("task", "activity", "tax", "news", "support")
+    val currentTab: String     = if (validTabs.contains(tab)) tab else "task"
 
     val nino: Nino = request.helpeeNinoOrElse
 
@@ -105,6 +103,8 @@ class HomeController @Inject() (
       }
     }
   }
+  private def personalisationHomePage: Future[Result]                                                            =
+    Future.successful(Redirect(routes.HomeController.homePageTab("task")))
 
   private def newHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
 
@@ -150,12 +150,10 @@ class HomeController @Inject() (
     }
   }
 
-  def index(currentTab: Option[String] = None): Action[AnyContent] = authenticate.async { implicit request =>
+  def index: Action[AnyContent] = authenticate.async { implicit request =>
     featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
       if (toggle.isEnabled) {
-        currentTab match
-          case Some(tab) => personalisationHomePage(tab)
-          case None      => personalisationHomePage("/task")
+        personalisationHomePage
       } else {
         newHomePage
       }
