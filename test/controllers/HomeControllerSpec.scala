@@ -192,7 +192,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       content.getElementById("taxes-and-benefits-heading") must not be null
     }
 
-    "Return the personalisation home page design when HomePagePersonalisationToggle is true" in {
+    "Redirect to the tasks tab when HomePagePersonalisationToggle is true" in {
       val request = FakeRequest("GET", "/personal-account")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
@@ -204,10 +204,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       val controller = appLocal.injector.instanceOf[HomeController]
       val result     = controller.index()(request)
 
-      status(result) mustBe OK
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(routes.HomeController.homePageTab("task").url)
 
-      val content = Jsoup.parse(contentAsString(result))
-      content.getElementById("taxes-and-benefits-heading") mustBe null
     }
 
     "Return a Breathing space if that is returned within period" in {
