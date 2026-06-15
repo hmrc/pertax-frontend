@@ -24,12 +24,14 @@ import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.SelfAssessmentUser
 import models.admin.HomePagePersonalisationToggle
 import play.api.mvc.*
+import play.api.mvc.Results.NotFound
 import services.*
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
 import viewmodels.{AlertBanner, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeViewModel, PtapNewsAndUpdates, TabEnum}
+import viewmodels.TabEnum.*
 import views.html.{HomeView, PtapHomeView}
 
 import java.time.LocalDate
@@ -58,7 +60,7 @@ class HomeController @Inject() (
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
 
-  def homePageTab(tab: String)                                                                                   = authenticate.async { implicit request =>
+  def homePageTab(tab: String) = authenticate.async { implicit request =>
     featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
       if (toggle.isEnabled) {
         personalisationHomePageTab(tab)
@@ -69,55 +71,49 @@ class HomeController @Inject() (
   }
   private def personalisationHomePageTab(tab: String)(implicit request: UserRequest[AnyContent]): Future[Result] = {
 
-    val currentTab: String = tab match {
-      case TabEnum.TASK.name     => TabEnum.TASK.name
-      case TabEnum.ACTIVITY.name => TabEnum.ACTIVITY.name
-      case TabEnum.TAX.name      => TabEnum.TAX.name
-      case TabEnum.NEWS.name     => TabEnum.NEWS.name
-      case TabEnum.SUPPORT.name  => TabEnum.SUPPORT.name
-      case _                     => TabEnum.TASK.name
-    }
+    
+    withValidTab(tab){ currentTab => 
+      val nino: Nino          = request.helpeeNinoOrElse
 
-    val nino: Nino = request.helpeeNinoOrElse
+      val utr: Option[String] = request.saUserType match {
+        case saUser: SelfAssessmentUser => Some(saUser.saUtr.utr)
+        case _                          => None
+      }
 
-    val utr: Option[String] = request.saUserType match {
-      case saUser: SelfAssessmentUser => Some(saUser.saUtr.utr)
-      case _                          => None
-    }
+      enforceInterrupts {
+        val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
+        val fListOfTasks             = tasksService.getListOfTasks
+        val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
 
-    enforceInterrupts {
-      val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
-      val fListOfTasks             = tasksService.getListOfTasks
-      val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
+        for {
+          breathingSpaceIndicator <- fBreathingSpaceIndicator
+          listOfTasks             <- fListOfTasks
+          eitherPersonDetails     <- fEitherPersonDetails
+          alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten)
+        } yield {
+          val personDetailsOpt = eitherPersonDetails.toOption.flatten
+          val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
 
-      for {
-        breathingSpaceIndicator <- fBreathingSpaceIndicator
-        listOfTasks             <- fListOfTasks
-        eitherPersonDetails     <- fEitherPersonDetails
-        alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten)
-      } yield {
-        val personDetailsOpt = eitherPersonDetails.toOption.flatten
-        val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
-
-        Ok(
-          pTapHomeView(
-            PtapHomeViewModel(
-              listOfTasks,
-              homeOptionsGenerator.getLatestNewsAndUpdatesCard().map(PtapNewsAndUpdates.apply),
-              showUserResearchBanner = false,
-              utr,
-              breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
-              alertBannerContent = alertBannerContent.map(PtapAlertBanner.apply),
-              name = nameToDisplay,
-              currentTab = currentTab
+          Ok(
+            pTapHomeView(
+              PtapHomeViewModel(
+                listOfTasks,
+                homeOptionsGenerator.getLatestNewsAndUpdatesCard().map(PtapNewsAndUpdates.apply),
+                showUserResearchBanner = false,
+                utr,
+                breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
+                alertBannerContent = alertBannerContent.map(PtapAlertBanner.apply),
+                name = nameToDisplay,
+                currentTab = currentTab
+              )
             )
           )
-        )
+        }
       }
     }
   }
   private def personalisationHomePage: Future[Result] =
-    Future.successful(Redirect(routes.HomeController.homePageTab(TabEnum.TASK.name)))
+    Future.successful(Redirect(routes.HomeController.homePageTab(Task.name)))
 
   private def newHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
 
@@ -172,6 +168,20 @@ class HomeController @Inject() (
       }
     }
   }
+
+  private def withValidTab(tab: String)(block: TabEnum => Future[Result])
+  (implicit request: UserRequest[AnyContent]): Future[Result] =
+    val currentTab: TabEnum = tab match {
+      case Task.name     => Task
+      case Activity.name => Activity
+      case Tax.name      => Tax
+      case News.name     => News
+      case Support.name  => Support
+    }
+    currentTab match {
+      case Some(value) => block(currentTab)
+      case _             => Future.successful(NotFound("invalid url."))
+    }
 
   private def enforceInterrupts(block: => Future[Result])(implicit request: UserRequest[AnyContent]): Future[Result] =
     rlsInterruptHelper.enforceByRlsStatus(
