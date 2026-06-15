@@ -24,6 +24,7 @@ import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptH
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.{GetPersonFromCitizenDetailsToggle, HomePagePersonalisationToggle, ShowPlannedOutageBannerToggle}
 import models.{BreathingSpaceIndicatorResponse, HomePageServices}
+import viewmodels.TabEnum
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
@@ -205,7 +206,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       val result     = controller.index()(request)
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(routes.HomeController.homePageTab("task").url)
+      redirectLocation(result) mustBe Some(routes.HomeController.homePageTab(TabEnum.TASK.name).url)
 
     }
 
@@ -222,7 +223,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       val result     = controller.index()(request)
 
       status(result) mustBe OK
-      redirectLocation(result) must not be Some(routes.HomeController.homePageTab("task").url)
+      redirectLocation(result) must not be Some(routes.HomeController.homePageTab(TabEnum.TASK.name).url)
 
     }
 

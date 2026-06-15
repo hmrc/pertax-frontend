@@ -29,7 +29,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
-import viewmodels.{AlertBanner, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeViewModel, PtapNewsAndUpdates}
+import viewmodels.{AlertBanner, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeViewModel, PtapNewsAndUpdates, TabEnum}
 import views.html.{HomeView, PtapHomeView}
 
 import java.time.LocalDate
@@ -68,9 +68,15 @@ class HomeController @Inject() (
     }
   }
   private def personalisationHomePageTab(tab: String)(implicit request: UserRequest[AnyContent]): Future[Result] = {
-    val validTabs: Set[String] = Set("task", "activity", "tax", "news", "support")
 
-    val currentTab: String = if (validTabs.contains(tab)) tab else "task"
+    val currentTab: String = tab match {
+      case TabEnum.TASK.name     => TabEnum.TASK.name
+      case TabEnum.ACTIVITY.name => TabEnum.ACTIVITY.name
+      case TabEnum.TAX.name      => TabEnum.TAX.name
+      case TabEnum.NEWS.name     => TabEnum.NEWS.name
+      case TabEnum.SUPPORT.name  => TabEnum.SUPPORT.name
+      case _                     => TabEnum.TASK.name
+    }
 
     val nino: Nino = request.helpeeNinoOrElse
 
@@ -110,8 +116,8 @@ class HomeController @Inject() (
       }
     }
   }
-  private def personalisationHomePage: Future[Result]                                                            =
-    Future.successful(Redirect(routes.HomeController.homePageTab("task")))
+  private def personalisationHomePage: Future[Result] =
+    Future.successful(Redirect(routes.HomeController.homePageTab(TabEnum.TASK.name)))
 
   private def newHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
 
