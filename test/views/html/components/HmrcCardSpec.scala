@@ -23,11 +23,14 @@ import views.html.ViewSpec
 import models.{CardBody, CardHeading, CardHint, CardType, HmrcCardModel, TagColour}
 
 class HmrcCardSpec extends ViewSpec with Matchers {
+
+  lazy val hmrcCard = inject[views.html.components.HmrcCard]
+
   "HmrcCard component" must {
     "render correctly with BasicCard type HmrcCardModel." in {
       val model = HmrcCardModel(CardType.BasicCard, CardHeading("Test Heading", Some("/test"), false), None, None)
 
-      val doc = asDocument(views.html.components.HmrcCard(model)(messages).toString)
+      val doc = asDocument(hmrcCard(model)(messages).toString)
 
       doc.select("div.hmrc-card").size mustBe 1
       doc.select("a[href=/test]").size mustBe 1
@@ -42,7 +45,7 @@ class HmrcCardSpec extends ViewSpec with Matchers {
         Some(CardHint(Html("Due 31 January 2025"), Some(TagColour.Orange)))
       )
 
-      val doc = asDocument(views.html.components.HmrcCard(model)(messages).toString)
+      val doc = asDocument(hmrcCard(model)(messages).toString)
 
       doc.select("div.hmrc-card").size mustBe 1
       doc.select("a[href=/test]").size mustBe 1
@@ -60,7 +63,7 @@ class HmrcCardSpec extends ViewSpec with Matchers {
         Some(CardHint(Html("""Received 7 January 2024"""), None))
       )
 
-      val doc = asDocument(views.html.components.HmrcCard(model)(messages).toString)
+      val doc = asDocument(hmrcCard(model)(messages).toString)
       doc.select("div.hmrc-card").size mustBe 1
       doc.select("a[href=/test]").size mustBe 1
       doc.select("a[href]").text mustBe "Test Heading"
@@ -82,7 +85,7 @@ class HmrcCardSpec extends ViewSpec with Matchers {
         None
       )
 
-      val doc = asDocument(views.html.components.HmrcCard(model)(messages).toString)
+      val doc = asDocument(hmrcCard(model)(messages).toString)
 
       doc.select("div.hmrc-card").size mustBe 1
       doc.select("h3.hmrc-card__heading").size mustBe 1
@@ -93,7 +96,7 @@ class HmrcCardSpec extends ViewSpec with Matchers {
     "render correctly with NewTabCard type HmrcCardModel." in {
       val model = HmrcCardModel(CardType.NewTabCard, CardHeading("Test Heading", Some("/test"), true), None, None)
 
-      val doc = asDocument(views.html.components.HmrcCard(model)(messages).toString)
+      val doc = asDocument(hmrcCard(model)(messages).toString)
 
       doc.select("div.hmrc-card").size mustBe 1
       doc.select("h3.hmrc-card__heading").size mustBe 1
@@ -112,7 +115,7 @@ class HmrcCardSpec extends ViewSpec with Matchers {
         Some(CardHint(Html("""Due 31st January 2026"""), Some(TagColour.Orange)))
       )
 
-      val doc = asDocument(views.html.components.HmrcCard(model)(messages).toString)
+      val doc = asDocument(hmrcCard(model)(messages).toString)
 
       doc.html must contain noneOf ("&amp;", "&lt;", "&gt;", "&quot;", "&#x37;")
     }
@@ -124,7 +127,7 @@ class HmrcCardSpec extends ViewSpec with Matchers {
         Some(CardHint(Html("""Updated 7 January 2024"""), None))
       )
 
-      val doc = asDocument(views.html.components.HmrcCard(model)(messages).toString)
+      val doc = asDocument(hmrcCard(model)(messages).toString)
 
       doc.html must not contain ("&amp;", "&lt;", "&gt;", "&quot;", "&#x37;")
 
@@ -143,7 +146,7 @@ class HmrcCardSpec extends ViewSpec with Matchers {
         None
       )
 
-      val doc = asDocument(views.html.components.HmrcCard(model)(messages).toString)
+      val doc = asDocument(hmrcCard(model)(messages).toString)
       doc.html must not contain ("&amp;", "&lt;", "&gt;", "&quot;", "&#x37;")
 
     }

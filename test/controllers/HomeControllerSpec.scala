@@ -60,6 +60,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
   val mockTaiService: TaiService                             = mock[TaiService]
   val mockHomePageServicesProvider: HomePageServicesProvider = mock[HomePageServicesProvider]
   val mockTasksService: TasksService                         = mock[TasksService]
+  val mockTabContentService: TabContentService               = mock[TabContentService]
   val mockConfigDecorator: ConfigDecorator                   = mock[ConfigDecorator]
   val mockCitizenDetailsService: CitizenDetailsService       = mock[CitizenDetailsService]
 
@@ -75,6 +76,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
         bind[TaiService].toInstance(mockTaiService),
         bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
         bind[TasksService].toInstance(mockTasksService),
+        bind[TabContentService].toInstance(mockTabContentService),
         bind[ConfigDecorator].toInstance(mockConfigDecorator),
         bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
         bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
@@ -94,6 +96,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     reset(mockFeatureFlagService)
     reset(mockHomePageServicesProvider)
     reset(mockTasksService)
+    reset(mockTabContentService)
     reset(mockConfigDecorator)
     reset(mockCitizenDetailsService)
 
@@ -107,6 +110,12 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       .thenReturn(Future.successful(None))
 
     when(mockTasksService.getListOfTasks(any(), any()))
+      .thenReturn(Future.successful(Seq.empty))
+
+    when(mockTabContentService.getTaskCount(any(), any()))
+      .thenReturn(Future.successful(0))
+
+    when(mockTabContentService.getTaskCards(any(), any()))
       .thenReturn(Future.successful(Seq.empty))
 
     when(mockTaiService.getTaxComponentsList(any(), any())(any(), any()))
@@ -148,6 +157,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
         bind[TaiService].toInstance(mockTaiService),
         bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
         bind[TasksService].toInstance(mockTasksService),
+        bind[TabContentService].toInstance(mockTabContentService),
         bind[ConfigDecorator].toInstance(mockConfigDecorator),
         bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
         bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])

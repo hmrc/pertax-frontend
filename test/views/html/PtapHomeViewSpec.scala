@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package views.html
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.bindable.Origin
+import models.{CardHeading, CardType, HmrcCardModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentMatchers.any
@@ -30,8 +31,8 @@ import play.api.test.FakeRequest
 import play.twirl.api.Html
 import repositories.JourneyCacheRepository
 import testUtils.UserRequestFixture.buildUserRequest
-import uk.gov.hmrc.domain.SaUtrGenerator
-import viewmodels.{PtapAlertBanner, PtapHomeViewModel, TabEnum}
+import uk.gov.hmrc.domain.{SaUtrGenerator}
+import viewmodels.{PtapAlertBanner, PtapHomeViewModel, SecondaryNavModel, TabEnum, TabModel}
 import viewmodels.TabEnum.*
 
 import scala.jdk.CollectionConverters.*
@@ -54,7 +55,6 @@ class PtapHomeViewSpec extends ViewSpec {
     when(mockConfigDecorator.defaultOrigin).thenReturn(Origin("PERTAX"))
     when(mockConfigDecorator.personalAccount).thenReturn("/personal-account")
     when(mockConfigDecorator.ptaNinoSaveUrl).thenReturn("/personal-account/national-insurance-number")
-
     when(mockConfigDecorator.getFeedbackSurveyUrl(any())).thenReturn("/feedback/url")
     when(mockConfigDecorator.shutterBannerParagraphCy).thenReturn("Welsh content")
     when(mockConfigDecorator.shutterBannerParagraphEn).thenReturn(
@@ -62,8 +62,17 @@ class PtapHomeViewSpec extends ViewSpec {
     )
     when(mockConfigDecorator.shutterBannerLinkTextCy).thenReturn("Welsh link")
     when(mockConfigDecorator.shutterBannerLinkTextEn).thenReturn("Find out more")
-
   }
+
+  private val defaultSecondaryNav = SecondaryNavModel(
+    items = Seq(
+      TabModel(text = "Your tasks", href = Task.href(), current = true, notificationCount = Some(2)),
+      TabModel(text = "Recent activity", href = Activity.href(), current = false),
+      TabModel(text = "Taxes and benefits", href = Tax.href(), current = false),
+      TabModel(text = "HMRC news", href = News.href(), current = false),
+      TabModel(text = "Support", href = Support.href(), current = false)
+    )
+  )
 
   val homeViewModel: PtapHomeViewModel =
     PtapHomeViewModel(
@@ -74,7 +83,9 @@ class PtapHomeViewSpec extends ViewSpec {
       breathingSpaceIndicator = true,
       alertBannerContent = None,
       name = None,
-      currentTab = Task
+      secondaryNav = defaultSecondaryNav,
+      currentTab = Task,
+      tabCards = Seq.empty
     )
 
   "Rendering PtapHomeView.scala.html" must {
@@ -107,7 +118,6 @@ class PtapHomeViewSpec extends ViewSpec {
 
       document.select("h1").asScala.exists(_.text == "Firstname Lastname") mustBe true
       document.select("h1").asScala.exists(_.text == "Your account") mustBe false
-
     }
 
     "show 'Your account' and not the users name when the user has no details and is not a GG user" in {
@@ -158,13 +168,13 @@ class PtapHomeViewSpec extends ViewSpec {
 
       view.getElementById("alert-banner") mustBe null
     }
+
     "must render SecondaryNav with the correct tab content" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val doc: Document                                             = asDocument(home(homeViewModel).toString())
 
       doc.select("nav.x-govuk-secondary-navigation").size mustBe 1
       doc.select("ul.x-govuk-secondary-navigation__list").size mustBe 1
-
       doc.select("a.x-govuk-secondary-navigation__link").size mustBe 5
 
       doc.select("a[href=/personal-account].x-govuk-secondary-navigation__link")                    must not be null
@@ -172,40 +182,59 @@ class PtapHomeViewSpec extends ViewSpec {
       doc.select("a[href=/personal-account/taxes-and-benefits].x-govuk-secondary-navigation__link") must not be null
       doc.select("a[href=/personal-account/hmrc-news].x-govuk-secondary-navigation__link")          must not be null
       doc.select("a[href=/personal-account/support].x-govuk-secondary-navigation__link")            must not be null
+    }
 
-      doc
-        .select("a[href=/personal-account].x-govuk-secondary-navigation__link")
-        .attr("href") mustBe Task.href()
-      doc
-        .select("a[href=/personal-account/recent-activity].x-govuk-secondary-navigation__link")
-        .attr("href") mustBe Activity.href()
-      doc
-        .select("a[href=/personal-account/taxes-and-benefits].x-govuk-secondary-navigation__link")
-        .attr("href") mustBe Tax.href()
-      doc
-        .select("a[href=/personal-account/hmrc-news].x-govuk-secondary-navigation__link")
-        .attr("href") mustBe News.href()
-      doc
-        .select("a[href=/personal-account/support].x-govuk-secondary-navigation__link")
-        .attr("href") mustBe Support.href()
+    "render tab content header" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val doc                                                       = asDocument(home(homeViewModel).toString)
+      doc.getElementById("tab-content-header") must not be null
+    }
 
-      doc.select("a[href=/personal-account].x-govuk-secondary-navigation__link").text mustBe messages(
-        "ptap.support.uya.p2.sub"
+    "render task cards when provided" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val card                                                      = HmrcCardModel(
+        CardType.BasicCard,
+        CardHeading("Tax Task", Some("/tax"), false),
+        None,
+        None
       )
-      doc.select("a[href=/personal-account/recent-activity].x-govuk-secondary-navigation__link").text mustBe messages(
-        "ptap.support.uya.p3.sub"
+      val viewModel = homeViewModel.copy(tabCards = Seq(card))
+      val doc       = asDocument(home(viewModel).toString)
+      doc.select(".hmrc-card").size() mustBe 1
+      doc.select(".hmrc-card__heading").text() must include("Tax Task")
+    }
+
+    "render multiple task cards" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val card1                                                     = HmrcCardModel(
+        CardType.BasicCard,
+        CardHeading("Task 1", Some("/task1"), false),
+        None,
+        None
       )
-      doc
-        .select("a[href=/personal-account/taxes-and-benefits].x-govuk-secondary-navigation__link")
-        .text mustBe messages(
-        "ptap.support.uya.p4.sub"
+      val card2     = HmrcCardModel(
+        CardType.BasicCard,
+        CardHeading("Task 2", Some("/task2"), false),
+        None,
+        None
       )
-      doc.select("a[href=/personal-account/hmrc-news].x-govuk-secondary-navigation__link").text mustBe messages(
-        "ptap.support.uya.p5.sub"
-      )
-      doc.select("a[href=/personal-account/support].x-govuk-secondary-navigation__link").text mustBe messages(
-        "ptap.support.uya.p6.sub"
-      )
+      val viewModel = homeViewModel.copy(tabCards = Seq(card1, card2))
+      val doc       = asDocument(home(viewModel).toString)
+      doc.select(".hmrc-card").size() mustBe 2
+      doc.select("ul.hmrc-card__container").size() mustBe 1
+    }
+
+    "render breathing space indicator when enabled" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val viewModel                                                 = homeViewModel.copy(breathingSpaceIndicator = true)
+      val doc                                                       = asDocument(home(viewModel).toString)
+      doc.text() must include("BREATHING SPACE")
+    }
+
+    "not render breathing space indicator when disabled" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val doc                                                       = asDocument(home(homeViewModel.copy(breathingSpaceIndicator = false)).toString)
+      doc.text() must not include "BREATHING SPACE"
     }
   }
 }

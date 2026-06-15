@@ -24,13 +24,14 @@ import error.ErrorRenderer
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.SelfAssessmentUser
 import models.admin.HomePagePersonalisationToggle
+import play.api.i18n.Messages
 import play.api.mvc.*
 import services.*
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
-import viewmodels.{AlertBanner, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeViewModel, PtapNewsAndUpdates, TabEnum}
+import viewmodels.{AlertBanner, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeViewModel, PtapNewsAndUpdates, SecondaryNavModel, TabEnum, TabModel}
 import viewmodels.TabEnum.*
 import views.html.{HomeView, PtapHomeView}
 
@@ -44,6 +45,7 @@ class HomeController @Inject() (
   citizenDetailsService: CitizenDetailsService,
   homePageServicesProvider: HomePageServicesProvider,
   tasksService: TasksService,
+  tabContentService: TabContentService,
   homeOptionsGenerator: HomeOptionsGenerator,
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
@@ -61,7 +63,7 @@ class HomeController @Inject() (
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
 
-  def homePageTab(tab: String)                                                                                   =
+  def homePageTab(tab: String) =
     authenticate.async { implicit request =>
       featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
         if (toggle.isEnabled) {
@@ -71,8 +73,8 @@ class HomeController @Inject() (
         }
       }
     }
-  private def personalisationHomePageTab(tab: String)(implicit request: UserRequest[AnyContent]): Future[Result] =
 
+  private def personalisationHomePageTab(tab: String)(implicit request: UserRequest[AnyContent]): Future[Result] =
     withValidTab(tab) { currentTab =>
       val nino: Nino = request.helpeeNinoOrElse
 
@@ -85,15 +87,21 @@ class HomeController @Inject() (
         val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
         val fListOfTasks             = tasksService.getListOfTasks
         val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
+        val fTaskCount               = tabContentService.getTaskCount
+        val fTaskCards               = tabContentService.getTaskCards
 
         for {
           breathingSpaceIndicator <- fBreathingSpaceIndicator
           listOfTasks             <- fListOfTasks
           eitherPersonDetails     <- fEitherPersonDetails
           alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten)
+          taskCount               <- fTaskCount
+          taskCards               <- fTaskCards
         } yield {
           val personDetailsOpt = eitherPersonDetails.toOption.flatten
           val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
+
+          val secondaryNav = buildSecondaryNav(currentTab, taskCount)
 
           Ok(
             pTapHomeView(
@@ -105,13 +113,47 @@ class HomeController @Inject() (
                 breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
                 alertBannerContent = alertBannerContent.map(PtapAlertBanner.apply),
                 name = nameToDisplay,
-                currentTab = currentTab
+                secondaryNav = secondaryNav,
+                currentTab = currentTab,
+                tabCards = taskCards
               )
             )
           )
         }
       }
     }
+
+  private def buildSecondaryNav(currentTab: TabEnum, taskCount: Int)(implicit messages: Messages): SecondaryNavModel =
+    SecondaryNavModel(
+      items = Seq(
+        TabModel(
+          text = messages("ptap.support.uya.p2.sub"),
+          href = Task.href(),
+          current = currentTab == Task,
+          notificationCount = if (taskCount > 0) Some(taskCount) else None
+        ),
+        TabModel(
+          text = messages("ptap.support.uya.p3.sub"),
+          href = Activity.href(),
+          current = currentTab == Activity
+        ),
+        TabModel(
+          text = messages("ptap.support.uya.p4.sub"),
+          href = Tax.href(),
+          current = currentTab == Tax
+        ),
+        TabModel(
+          text = messages("ptap.support.uya.p5.sub"),
+          href = News.href(),
+          current = currentTab == News
+        ),
+        TabModel(
+          text = messages("ptap.support.uya.p6.sub"),
+          href = Support.href(),
+          current = currentTab == Support
+        )
+      )
+    )
 
   private def newHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
 
