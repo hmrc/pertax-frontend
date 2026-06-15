@@ -17,14 +17,12 @@
 package services
 
 import models.PtapHomePlaceholderCardData
-import play.api.i18n.{Lang, Messages, MessagesImpl}
 import testUtils.BaseSpec
-import viewmodels.{PtapHomeContentSection, PtapHomeTab, Task, TaskStatus}
+import viewmodels.{PtapHomeContentSection, TabEnum, Task, TaskStatus}
 
 class TabContentServiceSpec extends BaseSpec {
 
-  private val service                          = new TabContentService
-  private implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+  private val service = new TabContentService
 
   "TabContentService" must {
 
@@ -52,26 +50,33 @@ class TabContentServiceSpec extends BaseSpec {
       container.cards mustBe PtapHomePlaceholderCardData.activityCards
     }
 
-    "build only the Tasks card container for the task tab" in {
-      val containers = service.getTabContent(PtapHomeTab.Task)
+    "build only the Tasks card container for the Tasks content section" in {
+      val containers = service.getTabContent(Some(PtapHomeContentSection.Tasks))
 
       containers.size mustBe 1
       containers.head.normalizedHeader.map(_.body) mustBe Some("Tasks")
       containers.head.cards mustBe PtapHomePlaceholderCardData.taskCards
     }
 
-    "build only the Activities card container for the activity tab" in {
-      val containers = service.getTabContent(PtapHomeTab.Activity)
+    "build only the Activities card container for the Activities content section" in {
+      val containers = service.getTabContent(Some(PtapHomeContentSection.Activities))
 
       containers.size mustBe 1
       containers.head.normalizedHeader.map(_.body) mustBe Some("Activities")
       containers.head.cards mustBe PtapHomePlaceholderCardData.activityCards
     }
 
-    "build no placeholder card containers for tabs owned by later stories" in {
-      service.getTabContent(PtapHomeTab.Tax) mustBe empty
-      service.getTabContent(PtapHomeTab.News) mustBe empty
-      service.getTabContent(PtapHomeTab.Support) mustBe empty
+    "build no placeholder card containers when content section is None" in {
+      service.getTabContent(None) mustBe empty
+    }
+
+    "map tab names to content sections" in {
+      service.getContentSectionForTab(TabEnum.TASK.name) mustBe Some(PtapHomeContentSection.Tasks)
+      service.getContentSectionForTab(TabEnum.ACTIVITY.name) mustBe Some(PtapHomeContentSection.Activities)
+      service.getContentSectionForTab(TabEnum.TAX.name) mustBe None
+      service.getContentSectionForTab(TabEnum.NEWS.name) mustBe None
+      service.getContentSectionForTab(TabEnum.SUPPORT.name) mustBe None
+      service.getContentSectionForTab("unknown") mustBe None
     }
 
     "calculate task count from the fetched task list" in {
@@ -85,30 +90,12 @@ class TabContentServiceSpec extends BaseSpec {
 
     "expose selected card containers and task count in a content model" in {
       val contentModel = service.getTabContentModel(
-        currentTab = PtapHomeTab.Activity,
+        tabName = TabEnum.ACTIVITY.name,
         taskCount = 3
       )
 
       contentModel.containers.map(_.normalizedHeader.map(_.body)) mustBe Seq(Some("Activities"))
       contentModel.taskCount mustBe 3
-    }
-
-    "build a route-backed SecondaryNav model with a task count badge" in {
-      val navModel = service.getSecondaryNavModel(PtapHomeTab.Activity, taskCount = 4)
-
-      navModel.labelledBy mustBe Some("secondary-nav-label")
-      navModel.items.map(_.href) mustBe PtapHomeTab.all.map(tab =>
-        controllers.routes.HomeController.homePageTab(tab.key).url
-      )
-      navModel.items
-        .find(_.href == controllers.routes.HomeController.homePageTab(PtapHomeTab.Activity.key).url)
-        .map(_.current) mustBe Some(true)
-      navModel.items
-        .find(_.href == controllers.routes.HomeController.homePageTab(PtapHomeTab.Task.key).url)
-        .flatMap(_.notificationCount) mustBe Some(4)
-      navModel.items
-        .filterNot(_.href == controllers.routes.HomeController.homePageTab(PtapHomeTab.Task.key).url)
-        .flatMap(_.notificationCount) mustBe empty
     }
 
     "support empty card lists without losing the empty state" in {

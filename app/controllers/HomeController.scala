@@ -29,7 +29,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
-import viewmodels.{AlertBanner, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeTab, PtapHomeViewModel, PtapNewsAndUpdates}
+import viewmodels.{AlertBanner, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeViewModel, PtapNewsAndUpdates, TabEnum}
 import views.html.{HomeView, PtapHomeView}
 
 import java.time.LocalDate
@@ -59,11 +59,25 @@ class HomeController @Inject() (
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
 
-  def homePageTab(tab: String)                                                                                   = authenticate.async { implicit request =>
-    personalisationHomePageTab(tab)
+  def homePageTab(tab: String) = authenticate.async { implicit request =>
+    featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
+      if (toggle.isEnabled) {
+        personalisationHomePageTab(tab)
+      } else {
+        newHomePage
+      }
+    }
   }
+
   private def personalisationHomePageTab(tab: String)(implicit request: UserRequest[AnyContent]): Future[Result] = {
-    val currentTab: PtapHomeTab = PtapHomeTab.fromKey(tab)
+    val currentTab: String = tab match {
+      case TabEnum.TASK.name     => TabEnum.TASK.name
+      case TabEnum.ACTIVITY.name => TabEnum.ACTIVITY.name
+      case TabEnum.TAX.name      => TabEnum.TAX.name
+      case TabEnum.NEWS.name     => TabEnum.NEWS.name
+      case TabEnum.SUPPORT.name  => TabEnum.SUPPORT.name
+      case _                     => TabEnum.TASK.name
+    }
 
     val nino: Nino = request.helpeeNinoOrElse
 
@@ -97,8 +111,7 @@ class HomeController @Inject() (
               breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
               alertBannerContent = alertBannerContent.map(PtapAlertBanner.apply),
               name = nameToDisplay,
-              currentTab = currentTab.key,
-              secondaryNav = tabContentService.getSecondaryNavModel(currentTab, taskCount),
+              currentTab = currentTab,
               tabContent = tabContentService.getTabContentModel(currentTab, taskCount)
             )
           )
@@ -106,8 +119,9 @@ class HomeController @Inject() (
       }
     }
   }
-  private def personalisationHomePage: Future[Result]                                                            =
-    Future.successful(Redirect(routes.HomeController.homePageTab(PtapHomeTab.default.key)))
+
+  private def personalisationHomePage: Future[Result] =
+    Future.successful(Redirect(routes.HomeController.homePageTab(TabEnum.TASK.name)))
 
   private def newHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
 

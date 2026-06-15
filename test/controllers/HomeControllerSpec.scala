@@ -45,7 +45,7 @@ import uk.gov.hmrc.http.{HeaderNames, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import util.AlertBannerHelper
-import viewmodels.{Task, TaskStatus}
+import viewmodels.{TabEnum, Task, TaskStatus}
 
 import scala.concurrent.Future
 
@@ -193,7 +193,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       content.getElementById("taxes-and-benefits-heading") must not be null
     }
 
-    "Redirect to the tasks tab when HomePagePersonalisationToggle is true" in {
+    "redirect to default tab when HomePagePersonalisationToggle is true" in {
       val request = FakeRequest("GET", "/personal-account")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
@@ -206,28 +206,11 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       val result     = controller.index()(request)
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(routes.HomeController.homePageTab("task").url)
-
+      redirectLocation(result) mustBe Some(routes.HomeController.homePageTab(TabEnum.TASK.name).url)
     }
 
-    "not redirect to the tasks tab when HomePagePersonalisationToggle is false" in {
-      val request = FakeRequest("GET", "/personal-account")
-        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
-        .asInstanceOf[Request[AnyContent]]
-
-      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = false)))
-
-      val appLocal   = appBuilder.build()
-      val controller = appLocal.injector.instanceOf[HomeController]
-      val result     = controller.index()(request)
-
-      status(result) mustBe OK
-      redirectLocation(result) must not be Some(routes.HomeController.homePageTab("task").url)
-    }
-
-    "render task tab card content and use the task retrieval path for the nav count" in {
-      val request = FakeRequest("GET", routes.HomeController.homePageTab("task").url)
+    "render PTAD-142 tab content for Tasks tab when homePageTab is called" in {
+      val request = FakeRequest("GET", TabEnum.TASK.href)
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
       val tasks   = Seq(
@@ -242,7 +225,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       val appLocal   = appBuilder.build()
       val controller = appLocal.injector.instanceOf[HomeController]
-      val result     = controller.homePageTab("task")(request)
+      val result     = controller.homePageTab(TabEnum.TASK.name)(request)
 
       status(result) mustBe OK
 
@@ -251,12 +234,11 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       content.getElementById("activities-heading") mustBe null
       PtapHomePlaceholderCardData.taskCards.foreach(card => content.text() must include(card.heading.text))
       PtapHomePlaceholderCardData.activityCards.foreach(card => content.text() must not include card.heading.text)
-      content.select(".x-govuk-secondary-navigation__badge").text() mustBe "2"
       verify(mockTasksService, times(1)).getListOfTasks(any(), any())
     }
 
-    "render activity tab card content while still calling the task retrieval path for the nav count" in {
-      val request = FakeRequest("GET", routes.HomeController.homePageTab("activity").url)
+    "render PTAD-142 tab content for Activities tab when homePageTab is called" in {
+      val request = FakeRequest("GET", TabEnum.ACTIVITY.href)
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
       val tasks   = Seq(Task("Complete task one", TaskStatus.Incomplete, "/task-one"))
@@ -268,7 +250,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       val appLocal   = appBuilder.build()
       val controller = appLocal.injector.instanceOf[HomeController]
-      val result     = controller.homePageTab("activity")(request)
+      val result     = controller.homePageTab(TabEnum.ACTIVITY.name)(request)
 
       status(result) mustBe OK
 
@@ -277,21 +259,22 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       content.getElementById("activities-heading").text() mustBe "Activities"
       PtapHomePlaceholderCardData.activityCards.foreach(card => content.text() must include(card.heading.text))
       PtapHomePlaceholderCardData.taskCards.foreach(card => content.text() must not include card.heading.text)
-      content.select(".x-govuk-secondary-navigation__badge").text() mustBe "1"
       verify(mockTasksService, times(1)).getListOfTasks(any(), any())
     }
 
-    "render no PTAD-142 placeholder content for tabs owned by later stories" in {
-      val request = FakeRequest("GET", routes.HomeController.homePageTab("tax").url)
+    "render no PTAD-142 placeholder content for tabs without content (Tax, News, Support)" in {
+      val request = FakeRequest("GET", TabEnum.TAX.href)
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
       when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+      when(mockTasksService.getListOfTasks(any(), any()))
+        .thenReturn(Future.successful(Seq.empty))
 
       val appLocal   = appBuilder.build()
       val controller = appLocal.injector.instanceOf[HomeController]
-      val result     = controller.homePageTab("tax")(request)
+      val result     = controller.homePageTab(TabEnum.TAX.name)(request)
 
       status(result) mustBe OK
 
@@ -303,13 +286,15 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       verify(mockTasksService, times(1)).getListOfTasks(any(), any())
     }
 
-    "render the tasks content when an unknown tab key is supplied" in {
+    "render default tab content when an unknown tab is requested" in {
       val request = FakeRequest("GET", "/personal-account/unknown")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
       when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+      when(mockTasksService.getListOfTasks(any(), any()))
+        .thenReturn(Future.successful(Seq.empty))
 
       val appLocal   = appBuilder.build()
       val controller = appLocal.injector.instanceOf[HomeController]
@@ -319,8 +304,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       val content = Jsoup.parse(contentAsString(result))
       content.getElementById("tasks-heading").text() mustBe "Tasks"
-      content.select("li.x-govuk-secondary-navigation__list-item--current a").attr("href") mustBe
-        routes.HomeController.homePageTab("task").url
       verify(mockTasksService, times(1)).getListOfTasks(any(), any())
     }
 

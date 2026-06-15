@@ -32,7 +32,7 @@ import repositories.JourneyCacheRepository
 import services.TabContentService
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.domain.SaUtrGenerator
-import viewmodels.{PtapAlertBanner, PtapHomeTab, PtapHomeViewModel}
+import viewmodels.{PtapAlertBanner, PtapHomeContentSection, PtapHomeViewModel, TabEnum}
 
 import scala.jdk.CollectionConverters.*
 
@@ -65,7 +65,10 @@ class PtapHomeViewSpec extends ViewSpec {
     when(mockConfigDecorator.shutterBannerLinkTextEn).thenReturn("Find out more")
   }
 
-  private def viewModel(currentTab: PtapHomeTab = PtapHomeTab.Task, taskCount: Int = 2): PtapHomeViewModel =
+  private def viewModel(
+    tabName: String = TabEnum.TASK.name,
+    taskCount: Int = 2
+  ): PtapHomeViewModel =
     PtapHomeViewModel(
       tasks = Seq.empty,
       newsAndUpdates = None,
@@ -74,9 +77,8 @@ class PtapHomeViewSpec extends ViewSpec {
       breathingSpaceIndicator = false,
       alertBannerContent = None,
       name = None,
-      currentTab = currentTab.key,
-      secondaryNav = tabContentService.getSecondaryNavModel(currentTab, taskCount),
-      tabContent = tabContentService.getTabContentModel(currentTab, taskCount)
+      currentTab = tabName,
+      tabContent = tabContentService.getTabContentModel(tabName, taskCount)
     )
 
   private def render(model: PtapHomeViewModel): Document = {
@@ -130,24 +132,8 @@ class PtapHomeViewSpec extends ViewSpec {
       document.getElementById("alert-banner") mustBe null
     }
 
-    "render SecondaryNav with route-backed tabs and the task count badge" in {
-      val document = render(viewModel(taskCount = 3))
-
-      document.select("nav.x-govuk-secondary-navigation").size() mustBe 1
-      document.select("nav.x-govuk-secondary-navigation").first().attr("aria-labelledby") mustBe "secondary-nav-label"
-      document.select("a.x-govuk-secondary-navigation__link").size() mustBe 5
-
-      PtapHomeTab.all.foreach { tab =>
-        document.select(s"a[href='${controllers.routes.HomeController.homePageTab(tab.key).url}']").size() mustBe 1
-      }
-
-      document.select("li.x-govuk-secondary-navigation__list-item--current a").attr("href") mustBe
-        controllers.routes.HomeController.homePageTab(PtapHomeTab.Task.key).url
-      document.select(".x-govuk-secondary-navigation__badge").text() mustBe "3"
-    }
-
-    "render only the Tasks card content for the task tab" in {
-      val document = render(viewModel(PtapHomeTab.Task))
+    "render only the Tasks card content for the Tasks tab" in {
+      val document = render(viewModel(TabEnum.TASK.name))
 
       document.select("#ptap-tab-content").size() mustBe 1
       document.select("#tasks-heading").text() mustBe "Tasks"
@@ -163,8 +149,8 @@ class PtapHomeViewSpec extends ViewSpec {
       }
     }
 
-    "render only the Activities card content for the activity tab" in {
-      val document = render(viewModel(PtapHomeTab.Activity))
+    "render only the Activities card content for the Activities tab" in {
+      val document = render(viewModel(TabEnum.ACTIVITY.name))
 
       document.select("#ptap-tab-content").size() mustBe 1
       document.select("#tasks-heading").size() mustBe 0
@@ -180,8 +166,8 @@ class PtapHomeViewSpec extends ViewSpec {
       }
     }
 
-    "render no PTAD-142 placeholder content for tabs owned by later stories" in {
-      val document = render(viewModel(PtapHomeTab.Tax))
+    "render no PTAD-142 placeholder content for tabs without content (Tax, News, Support)" in {
+      val document = render(viewModel(TabEnum.TAX.name))
 
       document.select("#ptap-tab-content").size() mustBe 1
       document.select("#ptap-tab-content h2").size() mustBe 0

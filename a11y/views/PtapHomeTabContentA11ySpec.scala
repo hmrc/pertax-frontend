@@ -20,7 +20,7 @@ import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import services.TabContentService
 import testUtils.A11ySpec
 import uk.gov.hmrc.scalatestaccessibilitylinter.domain.OutputFormat
-import viewmodels.PtapHomeTab
+import viewmodels.TabEnum
 
 class PtapHomeTabContentA11ySpec extends A11ySpec {
 
@@ -47,8 +47,8 @@ class PtapHomeTabContentA11ySpec extends A11ySpec {
   "PtapHomeTabContent" must {
     "pass accessibility checks for Tasks and Activities card content" in {
       val containers =
-        tabContentService.getTabContentModel(PtapHomeTab.Task, taskCount = 1).containers ++
-          tabContentService.getTabContentModel(PtapHomeTab.Activity, taskCount = 1).containers
+        tabContentService.getTabContentModel(TabEnum.TASK.name, taskCount = 1).containers ++
+          tabContentService.getTabContentModel(TabEnum.ACTIVITY.name, taskCount = 1).containers
 
       fullPage(ptapHomeTabContent(containers).toString) must passAccessibilityChecks(OutputFormat.Verbose)
     }

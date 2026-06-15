@@ -18,9 +18,8 @@ package services
 
 import com.google.inject.Inject
 import models.*
-import play.api.i18n.Messages
 import play.twirl.api.Html
-import viewmodels.{CardContainerModel, PtapHomeContentSection, PtapHomeTab, PtapHomeTabContentModel, SecondaryNavModel, TabModel, Task}
+import viewmodels.{CardContainerModel, PtapHomeContentSection, PtapHomeTabContentModel, TabEnum, Task}
 
 class TabContentService @Inject() () {
 
@@ -43,10 +42,20 @@ class TabContentService @Inject() () {
       headerId = Some(section.headerId)
     )
 
+  /** Maps a tab name (from TabEnum) to its corresponding content section. Only TASK and ACTIVITY tabs have PTAD-142
+    * content. Other tabs return None (no placeholder content).
+    */
+  def getContentSectionForTab(tabName: String): Option[PtapHomeContentSection] =
+    tabName match {
+      case TabEnum.TASK.name     => Some(PtapHomeContentSection.Tasks)
+      case TabEnum.ACTIVITY.name => Some(PtapHomeContentSection.Activities)
+      case _                     => None
+    }
+
   def getTabContent(
-    currentTab: PtapHomeTab
+    contentSection: Option[PtapHomeContentSection]
   ): Seq[CardContainerModel] =
-    currentTab.contentSection.map { section =>
+    contentSection.map { section =>
       getCardContainer(
         section = section,
         cards = section match {
@@ -57,27 +66,11 @@ class TabContentService @Inject() () {
     }.toSeq
 
   def getTabContentModel(
-    currentTab: PtapHomeTab,
+    tabName: String,
     taskCount: Int
   ): PtapHomeTabContentModel =
     PtapHomeTabContentModel(
-      containers = getTabContent(currentTab),
+      containers = getTabContent(getContentSectionForTab(tabName)),
       taskCount = taskCount
-    )
-
-  def getSecondaryNavModel(
-    currentTab: PtapHomeTab,
-    taskCount: Int
-  )(implicit messages: Messages): SecondaryNavModel =
-    SecondaryNavModel(
-      items = PtapHomeTab.all.map { tab =>
-        TabModel(
-          text = messages(tab.messageKey),
-          href = controllers.routes.HomeController.homePageTab(tab.key).url,
-          current = tab == currentTab,
-          notificationCount = if (tab == PtapHomeTab.Task) Some(taskCount) else None
-        )
-      },
-      labelledBy = Some("secondary-nav-label")
     )
 }
