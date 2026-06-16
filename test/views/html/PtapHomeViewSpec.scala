@@ -19,7 +19,6 @@ package views.html
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.bindable.Origin
-import models.{CardHeading, CardType, HmrcCardModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentMatchers.any
@@ -30,9 +29,10 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import repositories.JourneyCacheRepository
+import testUtils.HmrcCardModelFixtures
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.domain.SaUtrGenerator
-import viewmodels.{PtapAlertBanner, PtapHomeViewModel, SecondaryNavModel, TabEnum, TabModel}
+import viewmodels.{CardContainerModel, PtapAlertBanner, PtapHomeViewModel, SecondaryNavModel, TabEnum, TabModel}
 import viewmodels.TabEnum.*
 
 import scala.jdk.CollectionConverters.*
@@ -74,6 +74,22 @@ class PtapHomeViewSpec extends ViewSpec {
     )
   )
 
+  private def taskTabContent(cards: Seq[models.HmrcCardModel] = Seq.empty): CardContainerModel =
+    CardContainerModel(
+      emptyView = Html(""),
+      header = Some("Your tasks"),
+      cards = cards,
+      headerId = Some("tab-content-header")
+    )
+
+  private def activityTabContent(cards: Seq[models.HmrcCardModel]): CardContainerModel =
+    CardContainerModel(
+      emptyView = Html(""),
+      header = Some("Recent activity"),
+      cards = cards,
+      headerId = Some("tab-content-header")
+    )
+
   val homeViewModel: PtapHomeViewModel =
     PtapHomeViewModel(
       tasks = Seq.empty,
@@ -84,8 +100,7 @@ class PtapHomeViewSpec extends ViewSpec {
       alertBannerContent = None,
       name = None,
       secondaryNav = defaultSecondaryNav,
-      currentTab = Task,
-      tabCards = Seq.empty
+      tabContent = taskTabContent()
     )
 
   "Rendering PtapHomeView.scala.html" must {
@@ -192,23 +207,18 @@ class PtapHomeViewSpec extends ViewSpec {
       header.text() mustBe messages("ptap.support.uya.p2.sub")
     }
 
-    "render task cards when provided" in {
+    "render task cards from fixtures when provided" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val card                                                      = HmrcCardModel(
-        CardType.BasicCard,
-        CardHeading("Tax Task", Some("/tax"), false),
-        None,
-        None
-      )
-      val viewModel                                                 = homeViewModel.copy(tabCards = Seq(card))
+      val viewModel                                                 = homeViewModel.copy(tabContent = taskTabContent(HmrcCardModelFixtures.taskCards))
       val doc                                                       = asDocument(home(viewModel).toString)
-      doc.select(".hmrc-card").size() mustBe 1
-      doc.select(".hmrc-card__heading").text() must include("Tax Task")
+      doc.select(".hmrc-card").size() mustBe 2
+      doc.select(".hmrc-card__heading").text() must include("You owe tax for 2023-24")
+      doc.select(".hmrc-card__heading").text() must include("HMRC owes you a refund for 2022-23")
     }
 
     "render an empty card container when no tab cards are provided" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val doc                                                       = asDocument(home(homeViewModel.copy(tabCards = Seq.empty)).toString)
+      val doc                                                       = asDocument(home(homeViewModel).toString)
       doc.select(".hmrc-card").size() mustBe 0
     }
 
@@ -218,43 +228,37 @@ class PtapHomeViewSpec extends ViewSpec {
       doc.select(".x-govuk-secondary-navigation__badge").text() mustBe "2"
     }
 
-    "render the correct heading for the Activity tab" in {
+    "render the correct heading for the Activity tab with activity cards" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val activityNav                                               = defaultSecondaryNav.copy(
         items = defaultSecondaryNav.items.map(i => i.copy(current = i.href == Activity.href()))
       )
       val doc                                                       = asDocument(
-        home(homeViewModel.copy(currentTab = Activity, secondaryNav = activityNav, tabCards = Seq.empty)).toString
+        home(
+          homeViewModel.copy(
+            secondaryNav = activityNav,
+            tabContent = activityTabContent(HmrcCardModelFixtures.activityCards)
+          )
+        ).toString
       )
       val header                                                    = doc.getElementById("tab-content-header")
-      header must not be null
-      header.text() mustBe messages("ptap.support.uya.p3.sub")
+      header                                   must not be null
+      header.text() mustBe "Recent activity"
+      doc.select(".hmrc-card").size() mustBe 2
+      doc.select(".hmrc-card__heading").text() must include("Tax code change")
     }
 
-    "render multiple task cards" in {
+    "render a list of card containers: Tasks tab container and cards" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val card1                                                     = HmrcCardModel(
-        CardType.BasicCard,
-        CardHeading("Task 1", Some("/task1"), false),
-        None,
-        None
-      )
-      val card2                                                     = HmrcCardModel(
-        CardType.BasicCard,
-        CardHeading("Task 2", Some("/task2"), false),
-        None,
-        None
-      )
-      val viewModel                                                 = homeViewModel.copy(tabCards = Seq(card1, card2))
+      val viewModel                                                 = homeViewModel.copy(tabContent = taskTabContent(HmrcCardModelFixtures.taskCards))
       val doc                                                       = asDocument(home(viewModel).toString)
-      doc.select(".hmrc-card").size() mustBe 2
       doc.select("ul.hmrc-card__container").size() mustBe 1
+      doc.select(".hmrc-card").size() mustBe HmrcCardModelFixtures.taskCards.size
     }
 
     "render breathing space indicator when enabled" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val viewModel                                                 = homeViewModel.copy(breathingSpaceIndicator = true)
-      val doc                                                       = asDocument(home(viewModel).toString)
+      val doc                                                       = asDocument(home(homeViewModel).toString)
       doc.text() must include("BREATHING SPACE")
     }
 

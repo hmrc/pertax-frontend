@@ -26,12 +26,13 @@ import models.SelfAssessmentUser
 import models.admin.HomePagePersonalisationToggle
 import play.api.i18n.Messages
 import play.api.mvc.*
+import play.twirl.api.Html
 import services.*
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
-import viewmodels.{AlertBanner, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeViewModel, PtapNewsAndUpdates, SecondaryNavModel, TabEnum, TabModel}
+import viewmodels.{AlertBanner, CardContainerModel, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeViewModel, PtapNewsAndUpdates, SecondaryNavModel, TabEnum, TabModel}
 import viewmodels.TabEnum.*
 import views.html.{HomeView, PtapHomeView}
 
@@ -86,23 +87,32 @@ class HomeController @Inject() (
       enforceInterrupts {
         val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
         val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
-        val fTaskCount               = tabContentService.getTaskCount
+        val fTaskCards               = tabContentService.getTaskCards
         val fTabCards                = currentTab match {
-          case Task => tabContentService.getTaskCards
-          case _    => Future.successful(Seq.empty)
+          case Task     => fTaskCards
+          case Activity => tabContentService.getActivityCards
+          case _        => Future.successful(Seq.empty)
         }
 
         for {
           breathingSpaceIndicator <- fBreathingSpaceIndicator
           eitherPersonDetails     <- fEitherPersonDetails
           alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten)
-          taskCount               <- fTaskCount
+          taskCards               <- fTaskCards
           tabCards                <- fTabCards
         } yield {
           val personDetailsOpt = eitherPersonDetails.toOption.flatten
           val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
 
-          val secondaryNav = buildSecondaryNav(currentTab, taskCount)
+          val taskCount               = taskCards.size
+          implicit val msgs: Messages = messagesApi.preferred(request)
+          val secondaryNav            = buildSecondaryNav(currentTab, taskCount)
+          val tabContent              = CardContainerModel(
+            emptyView = Html(""),
+            header = Some(msgs(currentTab.headingKey)),
+            cards = tabCards,
+            headerId = Some("tab-content-header")
+          )
 
           Ok(
             pTapHomeView(
@@ -115,8 +125,7 @@ class HomeController @Inject() (
                 alertBannerContent = alertBannerContent.map(PtapAlertBanner.apply),
                 name = nameToDisplay,
                 secondaryNav = secondaryNav,
-                currentTab = currentTab,
-                tabCards = tabCards
+                tabContent = tabContent
               )
             )
           )

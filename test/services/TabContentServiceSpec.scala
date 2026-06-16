@@ -44,29 +44,6 @@ class TabContentServiceSpec extends BaseSpec {
 
   private implicit val messages: Messages = messagesApi.preferred(FakeRequest())
 
-  "getTaskCount" must {
-    "return the number of tasks" in {
-      val tasks = Seq(
-        Task("Task 1", TaskStatus.Incomplete, "/task1"),
-        Task("Task 2", TaskStatus.Completed, "/task2")
-      )
-
-      when(mockTasksService.getListOfTasks(any(), any()))
-        .thenReturn(Future.successful(tasks))
-
-      val result = tabContentService.getTaskCount.futureValue
-      result mustBe 2
-    }
-
-    "return 0 when there are no tasks" in {
-      when(mockTasksService.getListOfTasks(any(), any()))
-        .thenReturn(Future.successful(Seq.empty))
-
-      val result = tabContentService.getTaskCount.futureValue
-      result mustBe 0
-    }
-  }
-
   "getTaskCards" must {
     "convert tasks to HmrcCardModels" in {
       val tasks = Seq(
@@ -94,9 +71,29 @@ class TabContentServiceSpec extends BaseSpec {
     }
   }
 
-  "getActivitiesCards" must {
-    "return an empty sequence until activity data is wired" in {
-      val result = tabContentService.getActivitiesCards.futureValue
+  "getActivityCards" must {
+    "convert tasks to HmrcCardModels for the Activity tab" in {
+      val tasks = Seq(
+        Task("Tax code change", TaskStatus.Incomplete, "/check-income-tax"),
+        Task("Payment received", TaskStatus.Completed, "/check-income-tax")
+      )
+
+      when(mockTasksService.getListOfTasks(any(), any()))
+        .thenReturn(Future.successful(tasks))
+
+      val result = tabContentService.getActivityCards.futureValue
+
+      result must have size 2
+      result.head.cardType mustBe CardType.BasicCard
+      result.head.heading.text mustBe "Tax code change"
+      result.head.heading.url mustBe Some("/check-income-tax")
+    }
+
+    "return empty sequence when there are no activities" in {
+      when(mockTasksService.getListOfTasks(any(), any()))
+        .thenReturn(Future.successful(Seq.empty))
+
+      val result = tabContentService.getActivityCards.futureValue
       result mustBe empty
     }
   }

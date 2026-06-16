@@ -19,8 +19,7 @@
 @import controllers.auth.requests.UserRequest
 @import tags.CardContainer
 @import uk.gov.hmrc.play.language.LanguageUtils
-@import viewmodels.{CardContainerModel, PtapHomeViewModel, TabEnum}
-@import viewmodels.TabEnum.*
+@import viewmodels.{CardContainerModel, PtapHomeViewModel}
 @import views.MainView
 @import views.html.components.alertBanner.AlertBanner
 
@@ -69,10 +68,5 @@
 
     @secondaryNav(viewModel.secondaryNav)
 
-    @cardContainer(CardContainerModel(
-        emptyView = Html(""),
-        header = Some(messages(viewModel.currentTab.headingKey)),
-        cards = viewModel.tabCards,
-        headerId = Some("tab-content-header")
-    ))
+    @cardContainer(viewModel.tabContent)
 }

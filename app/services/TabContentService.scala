@@ -27,25 +27,23 @@ class TabContentService @Inject() (
   tasksService: TasksService
 )(implicit ec: ExecutionContext) {
 
-  def getTaskCount(implicit request: UserRequest[?], messages: Messages): Future[Int] =
-    tasksService.getListOfTasks.map(_.size)
-
   def getTaskCards(implicit request: UserRequest[?], messages: Messages): Future[Seq[HmrcCardModel]] =
-    tasksService.getListOfTasks.map { tasks =>
-      tasks.map { task =>
-        HmrcCardModel(
-          cardType = CardType.BasicCard,
-          heading = CardHeading(
-            text = task.title,
-            url = Some(task.href),
-            opensNewTab = false
-          ),
-          body = None,
-          hint = None
-        )
-      }
-    }
+    tasksService.getListOfTasks.map(toCards)
 
-  def getActivitiesCards: Future[Seq[HmrcCardModel]] =
-    Future.successful(Seq.empty)
+  def getActivityCards(implicit request: UserRequest[?], messages: Messages): Future[Seq[HmrcCardModel]] =
+    tasksService.getListOfTasks.map(toCards)
+
+  private def toCards(tasks: Seq[viewmodels.Task]): Seq[HmrcCardModel] =
+    tasks.map { task =>
+      HmrcCardModel(
+        cardType = CardType.BasicCard,
+        heading = CardHeading(
+          text = task.title,
+          url = Some(task.href),
+          opensNewTab = false
+        ),
+        body = None,
+        hint = None
+      )
+    }
 }

@@ -16,7 +16,6 @@
 
 package viewmodels
 
-import models.HmrcCardModel
 import play.twirl.api.Html
 
 enum TabEnum(val name: String, val headingKey: String):
@@ -43,6 +42,5 @@ final case class PtapHomeViewModel(
   alertBannerContent: Option[PtapAlertBanner],
   name: Option[String],
   secondaryNav: SecondaryNavModel,
-  currentTab: TabEnum,
-  tabCards: Seq[HmrcCardModel]
+  tabContent: CardContainerModel
 )

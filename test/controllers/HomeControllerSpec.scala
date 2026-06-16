@@ -37,6 +37,7 @@ import play.api.test.Helpers.*
 import play.twirl.api.Html
 import repositories.JourneyCacheRepository
 import services.*
+import testUtils.HmrcCardModelFixtures
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.fakes.{FakeAuthJourney, FakePaperlessInterruptHelper, FakeRlsInterruptHelper}
 import testUtils.{BaseSpec, CitizenDetailsFixtures, WireMockHelper}
@@ -112,10 +113,10 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     when(mockTasksService.getListOfTasks(any(), any()))
       .thenReturn(Future.successful(Seq.empty))
 
-    when(mockTabContentService.getTaskCount(any(), any()))
-      .thenReturn(Future.successful(0))
-
     when(mockTabContentService.getTaskCards(any(), any()))
+      .thenReturn(Future.successful(Seq.empty))
+
+    when(mockTabContentService.getActivityCards(any(), any()))
       .thenReturn(Future.successful(Seq.empty))
 
     when(mockTaiService.getTaxComponentsList(any(), any())(any(), any()))
@@ -223,7 +224,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
     }
 
-    "call getTaskCards when on the Task tab" in {
+    "call getTaskCards for the Task tab and derive badge count from card count" in {
       val request = FakeRequest("GET", "/personal-account/your-tasks")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
@@ -231,15 +232,20 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
 
+      when(mockTabContentService.getTaskCards(any(), any()))
+        .thenReturn(Future.successful(HmrcCardModelFixtures.taskCards))
+
       val appLocal   = appBuilder.build()
       val controller = appLocal.injector.instanceOf[HomeController]
       val result     = controller.homePageTab("your-tasks")(request)
 
       status(result) mustBe OK
       verify(mockTabContentService).getTaskCards(any(), any())
+      verify(mockTabContentService, never()).getActivityCards(any(), any())
+      contentAsString(result) must include("2")
     }
 
-    "not call getTaskCards when on a non-Task tab" in {
+    "call getActivityCards for the Activity tab and not getTaskCards for tab cards" in {
       val request = FakeRequest("GET", "/personal-account/recent-activity")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
@@ -252,7 +258,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       val result     = controller.homePageTab("recent-activity")(request)
 
       status(result) mustBe OK
-      verify(mockTabContentService, never()).getTaskCards(any(), any())
+      verify(mockTabContentService).getTaskCards(any(), any())
+      verify(mockTabContentService).getActivityCards(any(), any())
     }
 
     "not render the tasks tab when HomePagePersonalisationToggle is false" in {
