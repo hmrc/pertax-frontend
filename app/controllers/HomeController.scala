@@ -20,6 +20,7 @@ import com.google.inject.Inject
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
+import error.ErrorRenderer
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.SelfAssessmentUser
 import models.admin.HomePagePersonalisationToggle
@@ -49,7 +50,8 @@ class HomeController @Inject() (
   homeView: HomeView,
   pTapHomeView: PtapHomeView,
   rlsInterruptHelper: RlsInterruptHelper,
-  alertBannerHelper: AlertBannerHelper
+  alertBannerHelper: AlertBannerHelper,
+  errorRenderer: ErrorRenderer
 )(implicit val ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with CurrentTaxYear {
@@ -110,8 +112,6 @@ class HomeController @Inject() (
         }
       }
     }
-  private def personalisationHomePage(implicit request: UserRequest[AnyContent]): Future[Result] =
-    personalisationHomePageTab(Task.name)
 
   private def newHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
 
@@ -160,14 +160,16 @@ class HomeController @Inject() (
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
       if (toggle.isEnabled) {
-        personalisationHomePage
+        personalisationHomePageTab(Task.name)
       } else {
         newHomePage
       }
     }
   }
 
-  private def withValidTab(tab: String)(block: TabEnum => Future[Result]): Future[Result] =
+  private def withValidTab(tab: String)(block: TabEnum => Future[Result])(implicit
+    request: UserRequest[AnyContent]
+  ): Future[Result] =
     val currentTab: Option[TabEnum] = tab match {
       case Task.name     => Some(Task)
       case Activity.name => Some(Activity)
@@ -178,7 +180,7 @@ class HomeController @Inject() (
     }
     currentTab match {
       case Some(value) => block(value)
-      case None        => Future.successful(NotFound("Invalid url."))
+      case None        => errorRenderer.futureError(NOT_FOUND)
     }
 
   private def enforceInterrupts(block: => Future[Result])(implicit request: UserRequest[AnyContent]): Future[Result] =
