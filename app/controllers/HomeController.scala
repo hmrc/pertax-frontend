@@ -24,7 +24,6 @@ import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.SelfAssessmentUser
 import models.admin.HomePagePersonalisationToggle
 import play.api.mvc.*
-import play.api.mvc.Results.NotFound
 import services.*
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -60,20 +59,20 @@ class HomeController @Inject() (
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
 
-  def homePageTab(tab: String) = authenticate.async { implicit request =>
-    featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
-      if (toggle.isEnabled) {
-        personalisationHomePageTab(tab)
-      } else {
-        newHomePage
+  def homePageTab(tab: String)                                                                                   =
+    authenticate.async { implicit request =>
+      featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
+        if (toggle.isEnabled) {
+          personalisationHomePageTab(tab)
+        } else {
+          newHomePage
+        }
       }
     }
-  }
-  private def personalisationHomePageTab(tab: String)(implicit request: UserRequest[AnyContent]): Future[Result] = {
+  private def personalisationHomePageTab(tab: String)(implicit request: UserRequest[AnyContent]): Future[Result] =
 
-    
-    withValidTab(tab){ currentTab => 
-      val nino: Nino          = request.helpeeNinoOrElse
+    withValidTab(tab) { currentTab =>
+      val nino: Nino = request.helpeeNinoOrElse
 
       val utr: Option[String] = request.saUserType match {
         case saUser: SelfAssessmentUser => Some(saUser.saUtr.utr)
@@ -111,9 +110,8 @@ class HomeController @Inject() (
         }
       }
     }
-  }
-  private def personalisationHomePage: Future[Result] =
-    Future.successful(Redirect(routes.HomeController.homePageTab(Task.name)))
+  private def personalisationHomePage(implicit request: UserRequest[AnyContent]): Future[Result] =
+    personalisationHomePageTab(Task.name)
 
   private def newHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
 
@@ -169,18 +167,18 @@ class HomeController @Inject() (
     }
   }
 
-  private def withValidTab(tab: String)(block: TabEnum => Future[Result])
-  (implicit request: UserRequest[AnyContent]): Future[Result] =
-    val currentTab: TabEnum = tab match {
-      case Task.name     => Task
-      case Activity.name => Activity
-      case Tax.name      => Tax
-      case News.name     => News
-      case Support.name  => Support
+  private def withValidTab(tab: String)(block: TabEnum => Future[Result]): Future[Result] =
+    val currentTab: Option[TabEnum] = tab match {
+      case Task.name     => Some(Task)
+      case Activity.name => Some(Activity)
+      case Tax.name      => Some(Tax)
+      case News.name     => Some(News)
+      case Support.name  => Some(Support)
+      case _             => None
     }
     currentTab match {
-      case Some(value) => block(currentTab)
-      case _             => Future.successful(NotFound("invalid url."))
+      case Some(value) => block(value)
+      case None        => Future.successful(NotFound("Invalid url."))
     }
 
   private def enforceInterrupts(block: => Future[Result])(implicit request: UserRequest[AnyContent]): Future[Result] =

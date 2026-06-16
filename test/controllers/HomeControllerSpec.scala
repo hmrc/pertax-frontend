@@ -24,7 +24,6 @@ import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptH
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.{GetPersonFromCitizenDetailsToggle, HomePagePersonalisationToggle, ShowPlannedOutageBannerToggle}
 import models.{BreathingSpaceIndicatorResponse, HomePageServices}
-import viewmodels.TabEnum.*
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
@@ -193,7 +192,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       content.getElementById("taxes-and-benefits-heading") must not be null
     }
 
-    "Redirect to the tasks tab when HomePagePersonalisationToggle is true" in {
+    "Render to the tasks tab without redirecting when HomePagePersonalisationToggle is true" in {
       val request = FakeRequest("GET", "/personal-account")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
@@ -205,12 +204,16 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       val controller = appLocal.injector.instanceOf[HomeController]
       val result     = controller.index()(request)
 
-      status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(routes.HomeController.homePageTab(Task.name).url)
+      status(result) mustBe OK
+      redirectLocation(result) mustBe None
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.select("nav.x-govuk-secondary-navigation").size mustBe 1
+      content.getElementById("taxes-and-benefits-heading") mustBe null
 
     }
 
-    "not redirect to the tasks tab when HomePagePersonalisationToggle is false" in {
+    "not render the tasks tab when HomePagePersonalisationToggle is false" in {
       val request = FakeRequest("GET", "/personal-account")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
@@ -223,8 +226,11 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       val result     = controller.index()(request)
 
       status(result) mustBe OK
-      redirectLocation(result) must not be Some(routes.HomeController.homePageTab(Task.name).url)
+      redirectLocation(result) mustBe None
 
+      val content = Jsoup.parse(contentAsString(result))
+      content.getElementById("taxes-and-benefits-heading") must not be null
+      content.select("nav.x-govuk-secondary-navigation").size mustBe 0
     }
 
     "Return a Breathing space if that is returned within period" in {
