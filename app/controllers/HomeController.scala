@@ -20,6 +20,7 @@ import com.google.inject.Inject
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
+import error.ErrorRenderer
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.SelfAssessmentUser
 import models.admin.HomePagePersonalisationToggle
@@ -30,6 +31,7 @@ import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
 import viewmodels.{AlertBanner, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeViewModel, PtapNewsAndUpdates, TabEnum}
+import viewmodels.TabEnum.*
 import views.html.{HomeView, PtapHomeView}
 
 import java.time.LocalDate
@@ -48,7 +50,8 @@ class HomeController @Inject() (
   homeView: HomeView,
   pTapHomeView: PtapHomeView,
   rlsInterruptHelper: RlsInterruptHelper,
-  alertBannerHelper: AlertBannerHelper
+  alertBannerHelper: AlertBannerHelper,
+  errorRenderer: ErrorRenderer
 )(implicit val ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with CurrentTaxYear {
@@ -58,66 +61,57 @@ class HomeController @Inject() (
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
 
-  def homePageTab(tab: String)                                                                                   = authenticate.async { implicit request =>
-    featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
-      if (toggle.isEnabled) {
-        personalisationHomePageTab(tab)
-      } else {
-        newHomePage
+  def homePageTab(tab: String)                                                                                   =
+    authenticate.async { implicit request =>
+      featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
+        if (toggle.isEnabled) {
+          personalisationHomePageTab(tab)
+        } else {
+          newHomePage
+        }
       }
     }
-  }
-  private def personalisationHomePageTab(tab: String)(implicit request: UserRequest[AnyContent]): Future[Result] = {
+  private def personalisationHomePageTab(tab: String)(implicit request: UserRequest[AnyContent]): Future[Result] =
 
-    val currentTab: String = tab match {
-      case TabEnum.TASK.name     => TabEnum.TASK.name
-      case TabEnum.ACTIVITY.name => TabEnum.ACTIVITY.name
-      case TabEnum.TAX.name      => TabEnum.TAX.name
-      case TabEnum.NEWS.name     => TabEnum.NEWS.name
-      case TabEnum.SUPPORT.name  => TabEnum.SUPPORT.name
-      case _                     => TabEnum.TASK.name
-    }
+    withValidTab(tab) { currentTab =>
+      val nino: Nino = request.helpeeNinoOrElse
 
-    val nino: Nino = request.helpeeNinoOrElse
+      val utr: Option[String] = request.saUserType match {
+        case saUser: SelfAssessmentUser => Some(saUser.saUtr.utr)
+        case _                          => None
+      }
 
-    val utr: Option[String] = request.saUserType match {
-      case saUser: SelfAssessmentUser => Some(saUser.saUtr.utr)
-      case _                          => None
-    }
+      enforceInterrupts {
+        val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
+        val fListOfTasks             = tasksService.getListOfTasks
+        val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
 
-    enforceInterrupts {
-      val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
-      val fListOfTasks             = tasksService.getListOfTasks
-      val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
+        for {
+          breathingSpaceIndicator <- fBreathingSpaceIndicator
+          listOfTasks             <- fListOfTasks
+          eitherPersonDetails     <- fEitherPersonDetails
+          alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten)
+        } yield {
+          val personDetailsOpt = eitherPersonDetails.toOption.flatten
+          val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
 
-      for {
-        breathingSpaceIndicator <- fBreathingSpaceIndicator
-        listOfTasks             <- fListOfTasks
-        eitherPersonDetails     <- fEitherPersonDetails
-        alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten)
-      } yield {
-        val personDetailsOpt = eitherPersonDetails.toOption.flatten
-        val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
-
-        Ok(
-          pTapHomeView(
-            PtapHomeViewModel(
-              listOfTasks,
-              homeOptionsGenerator.getLatestNewsAndUpdatesCard().map(PtapNewsAndUpdates.apply),
-              showUserResearchBanner = false,
-              utr,
-              breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
-              alertBannerContent = alertBannerContent.map(PtapAlertBanner.apply),
-              name = nameToDisplay,
-              currentTab = currentTab
+          Ok(
+            pTapHomeView(
+              PtapHomeViewModel(
+                listOfTasks,
+                homeOptionsGenerator.getLatestNewsAndUpdatesCard().map(PtapNewsAndUpdates.apply),
+                showUserResearchBanner = false,
+                utr,
+                breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
+                alertBannerContent = alertBannerContent.map(PtapAlertBanner.apply),
+                name = nameToDisplay,
+                currentTab = currentTab
+              )
             )
           )
-        )
+        }
       }
     }
-  }
-  private def personalisationHomePage: Future[Result] =
-    Future.successful(Redirect(routes.HomeController.homePageTab(TabEnum.TASK.name)))
 
   private def newHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
 
@@ -166,12 +160,28 @@ class HomeController @Inject() (
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
       if (toggle.isEnabled) {
-        personalisationHomePage
+        personalisationHomePageTab(Task.name)
       } else {
         newHomePage
       }
     }
   }
+
+  private def withValidTab(tab: String)(block: TabEnum => Future[Result])(implicit
+    request: UserRequest[AnyContent]
+  ): Future[Result] =
+    val currentTab: Option[TabEnum] = tab match {
+      case Task.name     => Some(Task)
+      case Activity.name => Some(Activity)
+      case Tax.name      => Some(Tax)
+      case News.name     => Some(News)
+      case Support.name  => Some(Support)
+      case _             => None
+    }
+    currentTab match {
+      case Some(value) => block(value)
+      case None        => errorRenderer.futureError(NOT_FOUND)
+    }
 
   private def enforceInterrupts(block: => Future[Result])(implicit request: UserRequest[AnyContent]): Future[Result] =
     rlsInterruptHelper.enforceByRlsStatus(

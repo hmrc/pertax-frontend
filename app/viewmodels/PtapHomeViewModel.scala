@@ -18,12 +18,17 @@ package viewmodels
 
 import play.twirl.api.Html
 
-enum TabEnum(val href: String, val name: String):
-  case TASK extends TabEnum("/personal-account/your-tasks", "your-tasks")
-  case ACTIVITY extends TabEnum("/personal-account/recent-activity", "recent-activity")
-  case TAX extends TabEnum("/personal-account/tax-and-benefits", "tax-and-benefits")
-  case NEWS extends TabEnum("/personal-account/hmrc-news", "hmrc-news")
-  case SUPPORT extends TabEnum("/personal-account/support", "support")
+enum TabEnum(val name: String):
+  case Task extends TabEnum("your-tasks")
+  case Activity extends TabEnum("recent-activity")
+  case Tax extends TabEnum("taxes-and-benefits")
+  case News extends TabEnum("hmrc-news")
+  case Support extends TabEnum("support")
+
+  def href(): String = this match {
+    case Task => "/personal-account"
+    case tab  => s"/personal-account/${tab.name}"
+  }
 
 final case class PtapNewsAndUpdates(content: Html) extends AnyVal
 final case class PtapAlertBanner(content: Html) extends AnyVal
@@ -36,5 +41,5 @@ final case class PtapHomeViewModel(
   breathingSpaceIndicator: Boolean,
   alertBannerContent: Option[PtapAlertBanner],
   name: Option[String],
-  currentTab: String
+  currentTab: TabEnum
 )
