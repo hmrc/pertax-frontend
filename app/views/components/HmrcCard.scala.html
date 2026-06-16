@@ -21,8 +21,6 @@
 @import play.twirl.api.HtmlFormat
 @import play.api.i18n.Messages
 
-@this()
-
 @(hmrcCard: HmrcCardModel)(implicit messages: Messages)
 @headerWithLink(url: String)={
     @if(hmrcCard.heading.opensNewTab){

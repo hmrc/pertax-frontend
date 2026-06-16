@@ -23,8 +23,6 @@ import viewmodels.{SecondaryNavModel, TabModel}
 
 class SecondaryNavSpec extends ViewSpec with Matchers {
 
-  lazy val secondaryNav = inject[views.html.components.SecondaryNav]
-
   "SecondaryNav component" must {
 
     "render the correct HTML structure" in {
@@ -36,7 +34,7 @@ class SecondaryNavSpec extends ViewSpec with Matchers {
         )
       )
 
-      val doc = asDocument(secondaryNav(model).toString)
+      val doc = asDocument(views.html.components.SecondaryNav(model).toString)
 
       doc.select("nav.x-govuk-secondary-navigation").size() mustBe 1
       doc.select("ul.x-govuk-secondary-navigation__list").size() mustBe 1
@@ -52,7 +50,7 @@ class SecondaryNavSpec extends ViewSpec with Matchers {
         )
       )
 
-      val doc = asDocument(secondaryNav(model).toString)
+      val doc = asDocument(views.html.components.SecondaryNav(model).toString)
 
       doc.text() must include("Overview")
       doc.text() must include("Staff list")
@@ -68,7 +66,7 @@ class SecondaryNavSpec extends ViewSpec with Matchers {
         )
       )
 
-      val doc = asDocument(secondaryNav(model).toString)
+      val doc = asDocument(views.html.components.SecondaryNav(model).toString)
 
       doc.select("a[href='/overview']").size() mustBe 1
       doc.select("a[href='/staff']").size() mustBe 1
@@ -84,7 +82,7 @@ class SecondaryNavSpec extends ViewSpec with Matchers {
         )
       )
 
-      val doc = asDocument(secondaryNav(model).toString)
+      val doc = asDocument(views.html.components.SecondaryNav(model).toString)
 
       doc.select("li.x-govuk-secondary-navigation__list-item--current").size() mustBe 1
       doc.select("li.x-govuk-secondary-navigation__list-item--current").text() must include("Overview")
@@ -99,7 +97,7 @@ class SecondaryNavSpec extends ViewSpec with Matchers {
         )
       )
 
-      val doc = asDocument(secondaryNav(model).toString)
+      val doc = asDocument(views.html.components.SecondaryNav(model).toString)
 
       val currentLink = doc.select("li.x-govuk-secondary-navigation__list-item--current a").first()
       currentLink.attr("aria-current") mustBe "page"
@@ -114,7 +112,7 @@ class SecondaryNavSpec extends ViewSpec with Matchers {
         )
       )
 
-      val doc = asDocument(secondaryNav(model).toString)
+      val doc = asDocument(views.html.components.SecondaryNav(model).toString)
 
       val nonCurrentLinks = doc.select("li:not(.x-govuk-secondary-navigation__list-item--current) a")
       nonCurrentLinks.forEach { link =>
@@ -131,7 +129,7 @@ class SecondaryNavSpec extends ViewSpec with Matchers {
         )
       )
 
-      val doc = asDocument(secondaryNav(model).toString)
+      val doc = asDocument(views.html.components.SecondaryNav(model).toString)
 
       doc.select(".x-govuk-secondary-navigation__badge").size() mustBe 1
       doc.select(".x-govuk-secondary-navigation__badge").text() mustBe "1"
@@ -146,7 +144,7 @@ class SecondaryNavSpec extends ViewSpec with Matchers {
         )
       )
 
-      val doc = asDocument(secondaryNav(model).toString)
+      val doc = asDocument(views.html.components.SecondaryNav(model).toString)
 
       doc.select(".x-govuk-secondary-navigation__badge").size() mustBe 0
     }
@@ -158,7 +156,7 @@ class SecondaryNavSpec extends ViewSpec with Matchers {
         )
       )
 
-      val doc = asDocument(secondaryNav(model).toString)
+      val doc = asDocument(views.html.components.SecondaryNav(model).toString)
 
       val notificationCount = doc.select(".x-govuk-secondary-navigation__badge").first()
       notificationCount.hasClass("x-govuk-secondary-navigation__badge") mustBe true
@@ -171,7 +169,7 @@ class SecondaryNavSpec extends ViewSpec with Matchers {
         )
       )
 
-      val doc = asDocument(secondaryNav(model).toString)
+      val doc = asDocument(views.html.components.SecondaryNav(model).toString)
 
       val notificationCount = doc.select(".x-govuk-secondary-navigation__badge").first()
       notificationCount.text() mustBe "5"
@@ -185,7 +183,7 @@ class SecondaryNavSpec extends ViewSpec with Matchers {
         visuallyHiddenTitle = "Secondary menu"
       )
 
-      val doc = asDocument(secondaryNav(model).toString)
+      val doc = asDocument(views.html.components.SecondaryNav(model).toString)
 
       doc.select("nav").first().attr("aria-label") mustBe "Secondary menu"
       doc.select("nav").first().hasAttr("aria-labelledby") mustBe false
@@ -199,7 +197,7 @@ class SecondaryNavSpec extends ViewSpec with Matchers {
         labelledBy = Some("section-heading")
       )
 
-      val doc = asDocument(secondaryNav(model).toString)
+      val doc = asDocument(views.html.components.SecondaryNav(model).toString)
 
       doc.select("nav").first().attr("aria-labelledby") mustBe "section-heading"
       doc.select("nav").first().hasAttr("aria-label") mustBe false
@@ -213,7 +211,7 @@ class SecondaryNavSpec extends ViewSpec with Matchers {
         classes = Some("custom-class another-class")
       )
 
-      val doc = asDocument(secondaryNav(model).toString)
+      val doc = asDocument(views.html.components.SecondaryNav(model).toString)
 
       val nav = doc.select("nav").first()
       nav.attr("class") must include("custom-class")
@@ -228,7 +226,7 @@ class SecondaryNavSpec extends ViewSpec with Matchers {
         attributes = Map("data-test" -> "value", "data-id" -> "123")
       )
 
-      val doc = asDocument(secondaryNav(model).toString)
+      val doc = asDocument(views.html.components.SecondaryNav(model).toString)
 
       val nav = doc.select("nav").first()
       nav.attr("data-test") mustBe "value"
@@ -243,7 +241,7 @@ class SecondaryNavSpec extends ViewSpec with Matchers {
         attributes = Map("data-test" -> "value\" onclick=\"alert(1)")
       )
 
-      val doc  = asDocument(secondaryNav(model).toString)
+      val doc  = asDocument(views.html.components.SecondaryNav(model).toString)
       val html = doc.select("nav").first().outerHtml()
 
       // Verify the quotes are escaped as HTML entities in the HTML source
@@ -264,7 +262,7 @@ class SecondaryNavSpec extends ViewSpec with Matchers {
         )
       )
 
-      val doc = asDocument(secondaryNav(model).toString)
+      val doc = asDocument(views.html.components.SecondaryNav(model).toString)
 
       val listItem = doc.select("li.x-govuk-secondary-navigation__list-item").first()
       listItem.attr("class") must include("custom-item-class")
@@ -279,7 +277,7 @@ class SecondaryNavSpec extends ViewSpec with Matchers {
         )
       )
 
-      val doc = asDocument(secondaryNav(model).toString)
+      val doc = asDocument(views.html.components.SecondaryNav(model).toString)
 
       doc.select(".x-govuk-secondary-navigation__badge").size() mustBe 2
     }

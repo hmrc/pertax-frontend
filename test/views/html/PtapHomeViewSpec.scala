@@ -74,20 +74,26 @@ class PtapHomeViewSpec extends ViewSpec {
     )
   )
 
-  private def taskTabContent(cards: Seq[models.HmrcCardModel] = Seq.empty): CardContainerModel =
+  private def taskTabContent(
+    cards: Seq[models.HmrcCardModel] = Seq.empty,
+    headerId: String = "tab-content-header"
+  ): CardContainerModel =
     CardContainerModel(
       emptyView = Html(""),
       header = Some("Your tasks"),
       cards = cards,
-      headerId = Some("tab-content-header")
+      headerId = Some(headerId)
     )
 
-  private def activityTabContent(cards: Seq[models.HmrcCardModel]): CardContainerModel =
+  private def activityTabContent(
+    cards: Seq[models.HmrcCardModel],
+    headerId: String = "tab-content-header"
+  ): CardContainerModel =
     CardContainerModel(
       emptyView = Html(""),
       header = Some("Recent activity"),
       cards = cards,
-      headerId = Some("tab-content-header")
+      headerId = Some(headerId)
     )
 
   val homeViewModel: PtapHomeViewModel =
@@ -100,7 +106,7 @@ class PtapHomeViewSpec extends ViewSpec {
       alertBannerContent = None,
       name = None,
       secondaryNav = defaultSecondaryNav,
-      tabContent = taskTabContent()
+      tabContent = List(taskTabContent())
     )
 
   "Rendering PtapHomeView.scala.html" must {
@@ -209,7 +215,7 @@ class PtapHomeViewSpec extends ViewSpec {
 
     "render task cards from fixtures when provided" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val viewModel                                                 = homeViewModel.copy(tabContent = taskTabContent(HmrcCardModelFixtures.taskCards))
+      val viewModel                                                 = homeViewModel.copy(tabContent = List(taskTabContent(HmrcCardModelFixtures.taskCards)))
       val doc                                                       = asDocument(home(viewModel).toString)
       doc.select(".hmrc-card").size() mustBe 2
       doc.select(".hmrc-card__heading").text() must include("You owe tax for 2023-24")
@@ -237,7 +243,7 @@ class PtapHomeViewSpec extends ViewSpec {
         home(
           homeViewModel.copy(
             secondaryNav = activityNav,
-            tabContent = activityTabContent(HmrcCardModelFixtures.activityCards)
+            tabContent = List(activityTabContent(HmrcCardModelFixtures.activityCards))
           )
         ).toString
       )
@@ -248,12 +254,23 @@ class PtapHomeViewSpec extends ViewSpec {
       doc.select(".hmrc-card__heading").text() must include("Tax code change")
     }
 
-    "render a list of card containers: Tasks tab container and cards" in {
+    "render a list of card containers with corresponding headings and cards" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val viewModel                                                 = homeViewModel.copy(tabContent = taskTabContent(HmrcCardModelFixtures.taskCards))
+      val viewModel                                                 = homeViewModel.copy(
+        tabContent = List(
+          taskTabContent(HmrcCardModelFixtures.taskCards, headerId = "tasks-content-header"),
+          activityTabContent(HmrcCardModelFixtures.activityCards, headerId = "activity-content-header")
+        )
+      )
       val doc                                                       = asDocument(home(viewModel).toString)
-      doc.select("ul.hmrc-card__container").size() mustBe 1
-      doc.select(".hmrc-card").size() mustBe HmrcCardModelFixtures.taskCards.size
+      doc.select("ul.hmrc-card__container").size() mustBe 2
+      doc
+        .select(".hmrc-card")
+        .size() mustBe HmrcCardModelFixtures.taskCards.size + HmrcCardModelFixtures.activityCards.size
+      doc.getElementById("tasks-content-header").text() mustBe "Your tasks"
+      doc.getElementById("activity-content-header").text() mustBe "Recent activity"
+      doc.select(".hmrc-card__heading").text() must include("You owe tax for 2023-24")
+      doc.select(".hmrc-card__heading").text() must include("Tax code change")
     }
 
     "render breathing space indicator when enabled" in {

@@ -20,6 +20,8 @@ import com.google.inject.Inject
 import controllers.auth.requests.UserRequest
 import models.{CardHeading, CardType, HmrcCardModel}
 import play.api.i18n.Messages
+import viewmodels.TabEnum.{Activity, Task as TaskTab}
+import viewmodels.{TabEnum, Task, TaskStatus}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -27,13 +29,24 @@ class TabContentService @Inject() (
   tasksService: TasksService
 )(implicit ec: ExecutionContext) {
 
-  def getTaskCards(implicit request: UserRequest[?], messages: Messages): Future[Seq[HmrcCardModel]] =
-    tasksService.getListOfTasks.map(toCards)
+  def getTaskAndTabCards(
+    currentTab: TabEnum
+  )(implicit request: UserRequest[?], messages: Messages): Future[TabContentCards] =
+    tasksService.getListOfTasks.map { tasks =>
+      val taskCards = toCards(tasks.filterNot(_.status == TaskStatus.Completed))
+      val tabCards  = currentTab match {
+        case TaskTab  => taskCards
+        case Activity => toCards(tasks.filter(_.status == TaskStatus.Completed))
+        case _        => Seq.empty
+      }
 
-  def getActivityCards(implicit request: UserRequest[?], messages: Messages): Future[Seq[HmrcCardModel]] =
-    tasksService.getListOfTasks.map(toCards)
+      TabContentCards(
+        taskCards = taskCards,
+        tabCards = tabCards
+      )
+    }
 
-  private def toCards(tasks: Seq[viewmodels.Task]): Seq[HmrcCardModel] =
+  private def toCards(tasks: Seq[Task]): Seq[HmrcCardModel] =
     tasks.map { task =>
       HmrcCardModel(
         cardType = CardType.BasicCard,
@@ -46,4 +59,11 @@ class TabContentService @Inject() (
         hint = None
       )
     }
+}
+
+final case class TabContentCards(
+  taskCards: Seq[HmrcCardModel],
+  tabCards: Seq[HmrcCardModel]
+) {
+  val taskCount: Int = taskCards.size
 }

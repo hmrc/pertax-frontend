@@ -87,31 +87,27 @@ class HomeController @Inject() (
       enforceInterrupts {
         val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
         val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
-        val fTaskCards               = tabContentService.getTaskCards
-        val fTabCards                = currentTab match {
-          case Task     => fTaskCards
-          case Activity => tabContentService.getActivityCards
-          case _        => Future.successful(Seq.empty)
-        }
+        val fTabContentCards         = tabContentService.getTaskAndTabCards(currentTab)
 
         for {
           breathingSpaceIndicator <- fBreathingSpaceIndicator
           eitherPersonDetails     <- fEitherPersonDetails
           alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten)
-          taskCards               <- fTaskCards
-          tabCards                <- fTabCards
+          tabContentCards         <- fTabContentCards
         } yield {
           val personDetailsOpt = eitherPersonDetails.toOption.flatten
           val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
 
-          val taskCount               = taskCards.size
+          val taskCount               = tabContentCards.taskCount
           implicit val msgs: Messages = messagesApi.preferred(request)
           val secondaryNav            = buildSecondaryNav(currentTab, taskCount)
-          val tabContent              = CardContainerModel(
-            emptyView = Html(""),
-            header = Some(msgs(currentTab.headingKey)),
-            cards = tabCards,
-            headerId = Some("tab-content-header")
+          val tabContent              = List(
+            CardContainerModel(
+              emptyView = Html(""),
+              header = Some(msgs(currentTab.headingKey)),
+              cards = tabContentCards.tabCards,
+              headerId = Some("tab-content-header")
+            )
           )
 
           Ok(

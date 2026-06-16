@@ -14,19 +14,19 @@
  * limitations under the License.
  *@
 
-@import components.{H2, H3, SecondaryNav}
+@import components.{H2, H3}
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import tags.CardContainer
 @import uk.gov.hmrc.play.language.LanguageUtils
-@import viewmodels.{CardContainerModel, PtapHomeViewModel}
+@import viewmodels.PtapHomeViewModel
 @import views.MainView
 @import views.html.components.alertBanner.AlertBanner
+@import views.html.components.SecondaryNav
 
 @this(
         main: MainView,
         alertBanner: AlertBanner,
-        secondaryNav: SecondaryNav,
         cardContainer: CardContainer,
         configDecorator: ConfigDecorator
 )
@@ -66,7 +66,9 @@
     <p class="govuk-body" id="ninoLink"><a class="govuk-link govuk-link--no-visited-state" href="@configDecorator.ptaNinoSaveUrl">
         @messages("label.view_and_save_your_national_insurance_number")</a></p>
 
-    @secondaryNav(viewModel.secondaryNav)
+    @{SecondaryNav(viewModel.secondaryNav)}
 
-    @cardContainer(viewModel.tabContent)
+    @for(container <- viewModel.tabContent) {
+        @cardContainer(container)
+    }
 }

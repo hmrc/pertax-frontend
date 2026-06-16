@@ -42,5 +42,5 @@ final case class PtapHomeViewModel(
   alertBannerContent: Option[PtapAlertBanner],
   name: Option[String],
   secondaryNav: SecondaryNavModel,
-  tabContent: CardContainerModel
+  tabContent: List[CardContainerModel]
 )

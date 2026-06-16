@@ -19,12 +19,13 @@ package services
 import controllers.auth.requests.UserRequest
 import models.CardType
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{reset, verify, when}
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.api.test.FakeRequest
 import testUtils.{BaseSpec, UserRequestFixture}
 import uk.gov.hmrc.domain.Generator
+import viewmodels.TabEnum.{Activity, Task as TaskTab, Tax}
 import viewmodels.{Task, TaskStatus}
 
 import scala.concurrent.Future
@@ -37,6 +38,11 @@ class TabContentServiceSpec extends BaseSpec {
 
   private val generatedNino = new Generator().nextNino
 
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockTasksService)
+  }
+
   private implicit val userRequest: UserRequest[AnyContent] = UserRequestFixture.buildUserRequest(
     request = FakeRequest(),
     authNino = generatedNino
@@ -44,8 +50,8 @@ class TabContentServiceSpec extends BaseSpec {
 
   private implicit val messages: Messages = messagesApi.preferred(FakeRequest())
 
-  "getTaskCards" must {
-    "convert tasks to HmrcCardModels" in {
+  "getTaskAndTabCards" must {
+    "fetch tasks once and return task cards as the selected tab cards for the Tasks tab" in {
       val tasks = Seq(
         Task("Tax task", TaskStatus.Incomplete, "/tax", Some("You owe £100")),
         Task("Refund task", TaskStatus.Completed, "/refund", None)
@@ -54,47 +60,60 @@ class TabContentServiceSpec extends BaseSpec {
       when(mockTasksService.getListOfTasks(any(), any()))
         .thenReturn(Future.successful(tasks))
 
-      val result = tabContentService.getTaskCards.futureValue
+      val result = tabContentService.getTaskAndTabCards(TaskTab).futureValue
 
-      result must have size 2
-      result.head.cardType mustBe CardType.BasicCard
-      result.head.heading.text mustBe "Tax task"
-      result.head.heading.url mustBe Some("/tax")
+      result.taskCards must have size 1
+      result.tabCards  must have size 1
+      result.taskCount mustBe 1
+      result.taskCards.head.cardType mustBe CardType.BasicCard
+      result.taskCards.head.heading.text mustBe "Tax task"
+      result.taskCards.head.heading.url mustBe Some("/tax")
+      result.tabCards.head.heading.text mustBe "Tax task"
+      verify(mockTasksService).getListOfTasks(any(), any())
     }
 
-    "return empty sequence when there are no tasks" in {
-      when(mockTasksService.getListOfTasks(any(), any()))
-        .thenReturn(Future.successful(Seq.empty))
-
-      val result = tabContentService.getTaskCards.futureValue
-      result mustBe empty
-    }
-  }
-
-  "getActivityCards" must {
-    "convert tasks to HmrcCardModels for the Activity tab" in {
+    "return completed tasks as the selected tab cards for the Activity tab" in {
       val tasks = Seq(
-        Task("Tax code change", TaskStatus.Incomplete, "/check-income-tax"),
-        Task("Payment received", TaskStatus.Completed, "/check-income-tax")
+        Task("Tax task", TaskStatus.Incomplete, "/tax", Some("You owe £100")),
+        Task("Refund task", TaskStatus.Completed, "/refund", None)
       )
 
       when(mockTasksService.getListOfTasks(any(), any()))
         .thenReturn(Future.successful(tasks))
 
-      val result = tabContentService.getActivityCards.futureValue
+      val result = tabContentService.getTaskAndTabCards(Activity).futureValue
 
-      result must have size 2
-      result.head.cardType mustBe CardType.BasicCard
-      result.head.heading.text mustBe "Tax code change"
-      result.head.heading.url mustBe Some("/check-income-tax")
+      result.taskCards must have size 1
+      result.tabCards  must have size 1
+      result.taskCount mustBe 1
+      result.tabCards.head.cardType mustBe CardType.BasicCard
+      result.tabCards.head.heading.text mustBe "Refund task"
+      result.tabCards.head.heading.url mustBe Some("/refund")
     }
 
-    "return empty sequence when there are no activities" in {
+    "return no selected tab cards for tabs without card content" in {
+      val tasks = Seq(
+        Task("Tax task", TaskStatus.Incomplete, "/tax")
+      )
+
+      when(mockTasksService.getListOfTasks(any(), any()))
+        .thenReturn(Future.successful(tasks))
+
+      val result = tabContentService.getTaskAndTabCards(Tax).futureValue
+
+      result.taskCards must have size 1
+      result.tabCards mustBe empty
+      result.taskCount mustBe 1
+    }
+
+    "return empty card lists when there are no tasks or activities" in {
       when(mockTasksService.getListOfTasks(any(), any()))
         .thenReturn(Future.successful(Seq.empty))
 
-      val result = tabContentService.getActivityCards.futureValue
-      result mustBe empty
+      val result = tabContentService.getTaskAndTabCards(TaskTab).futureValue
+      result.taskCards mustBe empty
+      result.tabCards mustBe empty
+      result.taskCount mustBe 0
     }
   }
 }

@@ -26,7 +26,7 @@ import models.admin.{GetPersonFromCitizenDetailsToggle, HomePagePersonalisationT
 import models.{BreathingSpaceIndicatorResponse, HomePageServices}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{never, reset, verify, when}
+import org.mockito.Mockito.{reset, verify, when}
 import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesImpl}
 import play.api.inject.bind
@@ -46,6 +46,7 @@ import uk.gov.hmrc.http.{HeaderNames, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import util.AlertBannerHelper
+import viewmodels.TabEnum
 
 import scala.concurrent.Future
 
@@ -113,11 +114,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     when(mockTasksService.getListOfTasks(any(), any()))
       .thenReturn(Future.successful(Seq.empty))
 
-    when(mockTabContentService.getTaskCards(any(), any()))
-      .thenReturn(Future.successful(Seq.empty))
-
-    when(mockTabContentService.getActivityCards(any(), any()))
-      .thenReturn(Future.successful(Seq.empty))
+    when(mockTabContentService.getTaskAndTabCards(any[TabEnum]())(any(), any()))
+      .thenReturn(Future.successful(TabContentCards(Seq.empty, Seq.empty)))
 
     when(mockTaiService.getTaxComponentsList(any(), any())(any(), any()))
       .thenReturn(Future.successful(taxComponents))
@@ -224,7 +222,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
     }
 
-    "call getTaskCards for the Task tab and derive badge count from card count" in {
+    "fetch tab content once for the Task tab and derive badge count from task cards" in {
       val request = FakeRequest("GET", "/personal-account/your-tasks")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
@@ -232,20 +230,27 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
 
-      when(mockTabContentService.getTaskCards(any(), any()))
-        .thenReturn(Future.successful(HmrcCardModelFixtures.taskCards))
+      when(mockTabContentService.getTaskAndTabCards(any[TabEnum]())(any(), any()))
+        .thenReturn(
+          Future.successful(
+            TabContentCards(HmrcCardModelFixtures.taskCards, HmrcCardModelFixtures.taskCards)
+          )
+        )
 
       val appLocal   = appBuilder.build()
       val controller = appLocal.injector.instanceOf[HomeController]
       val result     = controller.homePageTab("your-tasks")(request)
 
       status(result) mustBe OK
-      verify(mockTabContentService).getTaskCards(any(), any())
-      verify(mockTabContentService, never()).getActivityCards(any(), any())
-      contentAsString(result) must include("2")
+      verify(mockTabContentService).getTaskAndTabCards(any[TabEnum]())(any(), any())
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.select(".x-govuk-secondary-navigation__badge").text() mustBe "2"
+      content.text() must include("You owe tax for 2023-24")
+      content.text() must not include "Tax code change"
     }
 
-    "call getActivityCards for the Activity tab and not getTaskCards for tab cards" in {
+    "fetch tab content once for the Activity tab and render only activity cards" in {
       val request = FakeRequest("GET", "/personal-account/recent-activity")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
@@ -253,13 +258,54 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
 
+      when(mockTabContentService.getTaskAndTabCards(any[TabEnum]())(any(), any()))
+        .thenReturn(
+          Future.successful(
+            TabContentCards(HmrcCardModelFixtures.taskCards, HmrcCardModelFixtures.activityCards)
+          )
+        )
+
       val appLocal   = appBuilder.build()
       val controller = appLocal.injector.instanceOf[HomeController]
       val result     = controller.homePageTab("recent-activity")(request)
 
       status(result) mustBe OK
-      verify(mockTabContentService).getTaskCards(any(), any())
-      verify(mockTabContentService).getActivityCards(any(), any())
+      verify(mockTabContentService).getTaskAndTabCards(any[TabEnum]())(any(), any())
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.select(".x-govuk-secondary-navigation__badge").text() mustBe "2"
+      content.text() must include("Tax code change")
+      content.text() must not include "You owe tax for 2023-24"
+    }
+
+    "fetch tab content once for a non-card tab without rendering task or activity cards" in {
+      val request = FakeRequest("GET", "/personal-account/taxes-and-benefits")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      when(mockTabContentService.getTaskAndTabCards(any[TabEnum]())(any(), any()))
+        .thenReturn(
+          Future.successful(
+            TabContentCards(HmrcCardModelFixtures.taskCards, Seq.empty)
+          )
+        )
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.homePageTab("taxes-and-benefits")(request)
+
+      status(result) mustBe OK
+      verify(mockTabContentService).getTaskAndTabCards(any[TabEnum]())(any(), any())
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.select(".x-govuk-secondary-navigation__badge").text() mustBe "2"
+      content.getElementById("tab-content-header").text() mustBe "Taxes and benefits"
+      content.select(".hmrc-card").size() mustBe 0
+      content.text() must not include "You owe tax for 2023-24"
+      content.text() must not include "Tax code change"
     }
 
     "not render the tasks tab when HomePagePersonalisationToggle is false" in {
