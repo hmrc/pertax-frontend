@@ -75,8 +75,10 @@ class HomeController @Inject() (
       }
     }
 
-  private def personalisationHomePageTab(tab: String)(implicit request: UserRequest[AnyContent]): Future[Result] =
-    withValidTab(tab) { currentTab =>
+  private def personalisationHomePageTab(tab: String, allowTaskTab: Boolean = false)(implicit
+    request: UserRequest[AnyContent]
+  ): Future[Result] =
+    withValidTab(tab, allowTaskTab) { currentTab =>
       val nino: Nino = request.helpeeNinoOrElse
 
       val utr: Option[String] = request.saUserType match {
@@ -208,23 +210,23 @@ class HomeController @Inject() (
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
       if (toggle.isEnabled) {
-        personalisationHomePageTab(Task.name)
+        personalisationHomePageTab(Task.name, allowTaskTab = true)
       } else {
         newHomePage
       }
     }
   }
 
-  private def withValidTab(tab: String)(block: TabEnum => Future[Result])(implicit
+  private def withValidTab(tab: String, allowTaskTab: Boolean)(block: TabEnum => Future[Result])(implicit
     request: UserRequest[AnyContent]
   ): Future[Result] =
     val currentTab: Option[TabEnum] = tab match {
-      case Task.name     => Some(Task)
-      case Activity.name => Some(Activity)
-      case Tax.name      => Some(Tax)
-      case News.name     => Some(News)
-      case Support.name  => Some(Support)
-      case _             => None
+      case Task.name if allowTaskTab => Some(Task)
+      case Activity.name             => Some(Activity)
+      case Tax.name                  => Some(Tax)
+      case News.name                 => Some(News)
+      case Support.name              => Some(Support)
+      case _                         => None
     }
     currentTab match {
       case Some(value) => block(value)

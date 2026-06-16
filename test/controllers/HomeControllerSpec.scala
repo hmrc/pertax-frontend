@@ -222,8 +222,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
     }
 
-    "fetch tab content once for the Task tab and derive badge count from task cards" in {
-      val request = FakeRequest("GET", "/personal-account/your-tasks")
+    "fetch tab content once for the default Task tab and derive badge count from task cards" in {
+      val request = FakeRequest("GET", "/personal-account")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
@@ -239,7 +239,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       val appLocal   = appBuilder.build()
       val controller = appLocal.injector.instanceOf[HomeController]
-      val result     = controller.homePageTab("your-tasks")(request)
+      val result     = controller.index()(request)
 
       status(result) mustBe OK
       verify(mockTabContentService).getTaskAndTabCards(any[TabEnum]())(any(), any())
@@ -249,6 +249,21 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       content.getElementById("tab-content-header").text() mustBe "Tasks"
       content.text() must include("You owe tax for 2023-24")
       content.text() must not include "Tax code change"
+    }
+
+    "return not found for the duplicate your-tasks URL" in {
+      val request = FakeRequest("GET", "/personal-account/your-tasks")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.homePageTab("your-tasks")(request)
+
+      status(result) mustBe NOT_FOUND
     }
 
     "fetch tab content once for the Activity tab and render only activity cards" in {
