@@ -101,14 +101,14 @@ class HomeController @Inject() (
           val taskCount               = tabContentCards.taskCount
           implicit val msgs: Messages = messagesApi.preferred(request)
           val secondaryNav            = buildSecondaryNav(currentTab, taskCount)
-          val tabContent              = List(
+          val tabContent              = currentTab.cardContainerHeading.map { heading =>
             CardContainerModel(
               emptyView = Html(""),
-              header = Some(msgs(currentTab.headingKey)),
+              header = Some(heading),
               cards = tabContentCards.tabCards,
               headerId = Some("tab-content-header")
             )
-          )
+          }.toList
 
           Ok(
             pTapHomeView(

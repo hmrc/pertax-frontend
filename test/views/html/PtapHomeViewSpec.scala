@@ -80,7 +80,7 @@ class PtapHomeViewSpec extends ViewSpec {
   ): CardContainerModel =
     CardContainerModel(
       emptyView = Html(""),
-      header = Some("Your tasks"),
+      header = Some("Tasks"),
       cards = cards,
       headerId = Some(headerId)
     )
@@ -91,7 +91,7 @@ class PtapHomeViewSpec extends ViewSpec {
   ): CardContainerModel =
     CardContainerModel(
       emptyView = Html(""),
-      header = Some("Recent activity"),
+      header = Some("Activities"),
       cards = cards,
       headerId = Some(headerId)
     )
@@ -210,7 +210,7 @@ class PtapHomeViewSpec extends ViewSpec {
       val doc                                                       = asDocument(home(homeViewModel).toString)
       val header                                                    = doc.getElementById("tab-content-header")
       header must not be null
-      header.text() mustBe messages("ptap.support.uya.p2.sub")
+      header.text() mustBe "Tasks"
     }
 
     "render task cards from fixtures when provided" in {
@@ -249,7 +249,7 @@ class PtapHomeViewSpec extends ViewSpec {
       )
       val header                                                    = doc.getElementById("tab-content-header")
       header                                   must not be null
-      header.text() mustBe "Recent activity"
+      header.text() mustBe "Activities"
       doc.select(".hmrc-card").size() mustBe 2
       doc.select(".hmrc-card__heading").text() must include("Tax code change")
     }
@@ -267,8 +267,8 @@ class PtapHomeViewSpec extends ViewSpec {
       doc
         .select(".hmrc-card")
         .size() mustBe HmrcCardModelFixtures.taskCards.size + HmrcCardModelFixtures.activityCards.size
-      doc.getElementById("tasks-content-header").text() mustBe "Your tasks"
-      doc.getElementById("activity-content-header").text() mustBe "Recent activity"
+      doc.getElementById("tasks-content-header").text() mustBe "Tasks"
+      doc.getElementById("activity-content-header").text() mustBe "Activities"
       doc.select(".hmrc-card__heading").text() must include("You owe tax for 2023-24")
       doc.select(".hmrc-card__heading").text() must include("Tax code change")
     }
