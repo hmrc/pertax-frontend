@@ -895,3 +895,12 @@ ptap.support.uya.list.uos=you use other HMRC services
 ptap.support.uya.list.circumstances.link=your circumstances change (opens in new tab)
 ptap.support.uya.list.bta=you have a Business Tax Account
 
+ptap.support.tab.card.hmrc.online.heading=HMRC Online
+ptap.support.tab.card.paye.heading=Paye As You Earn (PAYE)
+ptap.support.tab.card.self.assessment.heading=Self Assessment
+ptap.support.tab.card.child.benefit.heading=Child Benefit
+ptap.support.tab.card.mariage.allowance.heading=Mariage Allowance
+ptap.support.tab.card.annual.tax.summary.heading=Annual Tax Summary
+ptap.support.tab.card.insurance.state.pension.heading=National Insurance and State Pension
+ptap.support.tab.cards.header=Support
+

@@ -1,0 +1,128 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import models.{CardType, CardHeading, HmrcCardModel}
+@import viewmodels.CardContainerModel
+@import tags.CardContainer
+
+@this(cardContainer: CardContainer)
+
+@()(implicit messages: play.api.i18n.Messages)
+
+@cardContainer(CardContainerModel(
+    header = Some(messages("ptap.support.tab.cards.header")),
+    emptyView = play.twirl.api.HtmlFormat.empty,
+    cards = Seq(
+        HmrcCardModel(
+            cardType = CardType.NoLinkCard,
+            heading = CardHeading(
+                text = messages("ptap.support.tab.card.hmrc.online.heading"),
+                url = None
+            ),
+            body = Some(CardBody(play.twirl.api.Html("""
+                        <ul class="govuk-list govuk-list--spaced">
+                            <li><a class="govuk-link" href="#">Check your tax code</a></li>
+                            <li><a class="govuk-link" href="#">View your income</a></li>
+                        </ul>
+                    """))),
+            hint = None
+        ),
+        HmrcCardModel(
+            cardType = CardType.NoLinkCard,
+            heading = CardHeading(
+                text = messages("ptap.support.tab.card.paye.heading"),
+                url = None
+            ),
+            body = Some(CardBody(play.twirl.api.Html("""
+                        <ul class="govuk-list govuk-list--spaced">
+                            <li><a class="govuk-link" href="#">Check your tax code</a></li>
+                            <li><a class="govuk-link" href="#">View your income</a></li>
+                        </ul>
+                    """))),
+            hint = None
+        ),
+        HmrcCardModel(
+            cardType = CardType.NoLinkCard,
+            heading = CardHeading(
+                text = messages("ptap.support.tab.card.self.assessment.heading"),
+                url = None
+            ),
+            body = Some(CardBody(play.twirl.api.Html("""
+                        <ul class="govuk-list govuk-list--spaced">
+                            <li><a class="govuk-link" href="#">Check your tax code</a></li>
+                            <li><a class="govuk-link" href="#">View your income</a></li>
+                        </ul>
+                    """))),
+            hint = None
+        ),
+        HmrcCardModel(
+            cardType = CardType.NoLinkCard,
+            heading = CardHeading(
+                text = messages("ptap.support.tab.card.child.benefit.heading"),
+                url = None
+            ),
+            body = Some(CardBody(play.twirl.api.Html("""
+                        <ul class="govuk-list govuk-list--spaced">
+                            <li><a class="govuk-link" href="#">Check your tax code</a></li>
+                            <li><a class="govuk-link" href="#">View your income</a></li>
+                        </ul>
+                    """))),
+            hint = None
+        ),
+        HmrcCardModel(
+            cardType = CardType.NoLinkCard,
+            heading = CardHeading(
+                text = messages("ptap.support.tab.card.mariage.allowance.heading"),
+                url = None
+            ),
+            body = Some(CardBody(play.twirl.api.Html("""
+                        <ul class="govuk-list govuk-list--spaced">
+                            <li><a class="govuk-link" href="#">Check your tax code</a></li>
+                            <li><a class="govuk-link" href="#">View your income</a></li>
+                        </ul>
+                    """))),
+            hint = None
+        ),
+        HmrcCardModel(
+            cardType = CardType.NoLinkCard,
+            heading = CardHeading(
+                text = messages("ptap.support.tab.card.annual.tax.summary.heading"),
+                url = None
+            ),
+            body = Some(CardBody(play.twirl.api.Html("""
+                        <ul class="govuk-list govuk-list--spaced">
+                            <li><a class="govuk-link" href="#">Check your tax code</a></li>
+                            <li><a class="govuk-link" href="#">View your income</a></li>
+                        </ul>
+                    """))),
+            hint = None
+        ),
+        HmrcCardModel(
+            cardType = CardType.NoLinkCard,
+            heading = CardHeading(
+                text = messages("ptap.support.tab.card.insurance.state.pension.heading"),
+                url = None
+            ),
+            body = Some(CardBody(play.twirl.api.Html("""
+                        <ul class="govuk-list govuk-list--spaced">
+                            <li><a class="govuk-link" href="#">Check your tax code</a></li>
+                            <li><a class="govuk-link" href="#">View your income</a></li>
+                        </ul>
+                    """))),
+            hint = None
+        )
+    )
+))

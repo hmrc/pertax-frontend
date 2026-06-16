@@ -22,12 +22,13 @@
 @import views.MainView
 @import views.html.components.alertBanner.AlertBanner
 @import views.html.components.{SecondaryNav}
-@import views.html.home.options.TaskListView
+@import views.html.home.options.{SupportView, TaskListView}
 
 @this(
         main: MainView,
         alertBanner: AlertBanner,
-        configDecorator: ConfigDecorator
+        configDecorator: ConfigDecorator,
+        supportView: SupportView
 )
 
 @(viewModel: PtapHomeViewModel)(implicit request: UserRequest[_], messages: Messages)
@@ -72,4 +73,8 @@
           TabModel(text = messages("ptap.support.uya.p6.sub"), href =TabEnum.SUPPORT.href, current = TabEnum.SUPPORT.name == viewModel.currentTab),
         )
       ))}
+
+    @if(viewModel.currentTab == TabEnum.SUPPORT.name) {
+        @supportView()(messages)
+    }
 }

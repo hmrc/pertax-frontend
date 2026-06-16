@@ -906,3 +906,12 @@ ptap.support.uya.list.ma=TBC
 ptap.support.uya.list.uos=TBC
 ptap.support.uya.list.circumstances.link=TBC
 ptap.support.uya.list.bta=TBC
+
+ptap.support.tab.card.hmrc.online.heading=TBC
+ptap.support.tab.card.paye.heading=TBC
+ptap.support.tab.card.self.assessment.heading=TBC
+ptap.support.tab.card.child.benefit.heading=TBC
+ptap.support.tab.card.mariage.allowance.heading=TBC
+ptap.support.tab.card.annual.tax.summary.heading=TBC
+ptap.support.tab.card.insurance.state.pension.heading=TBC
+ptap.support.tab.cards.header=TBC
