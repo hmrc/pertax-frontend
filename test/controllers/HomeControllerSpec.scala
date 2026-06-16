@@ -192,7 +192,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       content.getElementById("taxes-and-benefits-heading") must not be null
     }
 
-    "Return the personalisation home page design when HomePagePersonalisationToggle is true" in {
+    "Render to the tasks tab without redirecting when HomePagePersonalisationToggle is true" in {
       val request = FakeRequest("GET", "/personal-account")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
@@ -205,9 +205,32 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       val result     = controller.index()(request)
 
       status(result) mustBe OK
+      redirectLocation(result) mustBe None
 
       val content = Jsoup.parse(contentAsString(result))
+      content.select("nav.x-govuk-secondary-navigation").size mustBe 1
       content.getElementById("taxes-and-benefits-heading") mustBe null
+
+    }
+
+    "not render the tasks tab when HomePagePersonalisationToggle is false" in {
+      val request = FakeRequest("GET", "/personal-account")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = false)))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(request)
+
+      status(result) mustBe OK
+      redirectLocation(result) mustBe None
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.getElementById("taxes-and-benefits-heading") must not be null
+      content.select("nav.x-govuk-secondary-navigation").size mustBe 0
     }
 
     "Return a Breathing space if that is returned within period" in {
