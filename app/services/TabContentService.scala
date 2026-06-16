@@ -20,7 +20,6 @@ import com.google.inject.Inject
 import controllers.auth.requests.UserRequest
 import models.{CardHeading, CardType, HmrcCardModel}
 import play.api.i18n.Messages
-import viewmodels.Task
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -30,9 +29,6 @@ class TabContentService @Inject() (
 
   def getTaskCount(implicit request: UserRequest[?], messages: Messages): Future[Int] =
     tasksService.getListOfTasks.map(_.size)
-
-  def getTasks(implicit request: UserRequest[?], messages: Messages): Future[Seq[Task]] =
-    tasksService.getListOfTasks
 
   def getTaskCards(implicit request: UserRequest[?], messages: Messages): Future[Seq[HmrcCardModel]] =
     tasksService.getListOfTasks.map { tasks =>

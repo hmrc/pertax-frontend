@@ -19,12 +19,12 @@ package viewmodels
 import models.HmrcCardModel
 import play.twirl.api.Html
 
-enum TabEnum(val name: String):
-  case Task extends TabEnum("your-tasks")
-  case Activity extends TabEnum("recent-activity")
-  case Tax extends TabEnum("taxes-and-benefits")
-  case News extends TabEnum("hmrc-news")
-  case Support extends TabEnum("support")
+enum TabEnum(val name: String, val headingKey: String):
+  case Task extends TabEnum("your-tasks", "ptap.support.uya.p2.sub")
+  case Activity extends TabEnum("recent-activity", "ptap.support.uya.p3.sub")
+  case Tax extends TabEnum("taxes-and-benefits", "ptap.support.uya.p4.sub")
+  case News extends TabEnum("hmrc-news", "ptap.support.uya.p5.sub")
+  case Support extends TabEnum("support", "ptap.support.uya.p6.sub")
 
   def href(): String = this match {
     case Task => "/personal-account"

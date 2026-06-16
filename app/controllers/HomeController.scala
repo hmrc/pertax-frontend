@@ -85,18 +85,19 @@ class HomeController @Inject() (
 
       enforceInterrupts {
         val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
-        val fListOfTasks             = tasksService.getListOfTasks
         val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
         val fTaskCount               = tabContentService.getTaskCount
-        val fTaskCards               = tabContentService.getTaskCards
+        val fTabCards                = currentTab match {
+          case Task => tabContentService.getTaskCards
+          case _    => Future.successful(Seq.empty)
+        }
 
         for {
           breathingSpaceIndicator <- fBreathingSpaceIndicator
-          listOfTasks             <- fListOfTasks
           eitherPersonDetails     <- fEitherPersonDetails
           alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten)
           taskCount               <- fTaskCount
-          taskCards               <- fTaskCards
+          tabCards                <- fTabCards
         } yield {
           val personDetailsOpt = eitherPersonDetails.toOption.flatten
           val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
@@ -106,7 +107,7 @@ class HomeController @Inject() (
           Ok(
             pTapHomeView(
               PtapHomeViewModel(
-                listOfTasks,
+                Seq.empty,
                 homeOptionsGenerator.getLatestNewsAndUpdatesCard().map(PtapNewsAndUpdates.apply),
                 showUserResearchBanner = false,
                 utr,
@@ -115,7 +116,7 @@ class HomeController @Inject() (
                 name = nameToDisplay,
                 secondaryNav = secondaryNav,
                 currentTab = currentTab,
-                tabCards = taskCards
+                tabCards = tabCards
               )
             )
           )

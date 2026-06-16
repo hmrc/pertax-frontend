@@ -71,7 +71,7 @@
 
     @cardContainer(CardContainerModel(
         emptyView = Html(""),
-        header = Some(messages(viewModel.currentTab.name)),
+        header = Some(messages(viewModel.currentTab.headingKey)),
         cards = viewModel.tabCards,
         headerId = Some("tab-content-header")
     ))

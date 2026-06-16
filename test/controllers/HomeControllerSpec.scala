@@ -26,7 +26,7 @@ import models.admin.{GetPersonFromCitizenDetailsToggle, HomePagePersonalisationT
 import models.{BreathingSpaceIndicatorResponse, HomePageServices}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.{never, reset, verify, when}
 import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesImpl}
 import play.api.inject.bind
@@ -221,6 +221,38 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       content.select("nav.x-govuk-secondary-navigation").size mustBe 1
       content.getElementById("taxes-and-benefits-heading") mustBe null
 
+    }
+
+    "call getTaskCards when on the Task tab" in {
+      val request = FakeRequest("GET", "/personal-account/your-tasks")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.homePageTab("your-tasks")(request)
+
+      status(result) mustBe OK
+      verify(mockTabContentService).getTaskCards(any(), any())
+    }
+
+    "not call getTaskCards when on a non-Task tab" in {
+      val request = FakeRequest("GET", "/personal-account/recent-activity")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.homePageTab("recent-activity")(request)
+
+      status(result) mustBe OK
+      verify(mockTabContentService, never()).getTaskCards(any(), any())
     }
 
     "not render the tasks tab when HomePagePersonalisationToggle is false" in {

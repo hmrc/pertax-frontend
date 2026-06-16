@@ -95,7 +95,7 @@ class TabContentServiceSpec extends BaseSpec {
   }
 
   "getActivitiesCards" must {
-    "return empty sequence (placeholder for future implementation)" in {
+    "return an empty sequence until activity data is wired" in {
       val result = tabContentService.getActivitiesCards.futureValue
       result mustBe empty
     }

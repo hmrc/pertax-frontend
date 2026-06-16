@@ -31,7 +31,7 @@ import play.api.test.FakeRequest
 import play.twirl.api.Html
 import repositories.JourneyCacheRepository
 import testUtils.UserRequestFixture.buildUserRequest
-import uk.gov.hmrc.domain.{SaUtrGenerator}
+import uk.gov.hmrc.domain.SaUtrGenerator
 import viewmodels.{PtapAlertBanner, PtapHomeViewModel, SecondaryNavModel, TabEnum, TabModel}
 import viewmodels.TabEnum.*
 
@@ -184,10 +184,12 @@ class PtapHomeViewSpec extends ViewSpec {
       doc.select("a[href=/personal-account/support].x-govuk-secondary-navigation__link")            must not be null
     }
 
-    "render tab content header" in {
+    "render tab content header with correct heading text" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val doc                                                       = asDocument(home(homeViewModel).toString)
-      doc.getElementById("tab-content-header") must not be null
+      val header                                                    = doc.getElementById("tab-content-header")
+      header must not be null
+      header.text() mustBe messages("ptap.support.uya.p2.sub")
     }
 
     "render task cards when provided" in {
@@ -198,10 +200,35 @@ class PtapHomeViewSpec extends ViewSpec {
         None,
         None
       )
-      val viewModel = homeViewModel.copy(tabCards = Seq(card))
-      val doc       = asDocument(home(viewModel).toString)
+      val viewModel                                                 = homeViewModel.copy(tabCards = Seq(card))
+      val doc                                                       = asDocument(home(viewModel).toString)
       doc.select(".hmrc-card").size() mustBe 1
       doc.select(".hmrc-card__heading").text() must include("Tax Task")
+    }
+
+    "render an empty card container when no tab cards are provided" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val doc                                                       = asDocument(home(homeViewModel.copy(tabCards = Seq.empty)).toString)
+      doc.select(".hmrc-card").size() mustBe 0
+    }
+
+    "render the task count badge on the tasks tab nav item" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val doc                                                       = asDocument(home(homeViewModel).toString)
+      doc.select(".x-govuk-secondary-navigation__badge").text() mustBe "2"
+    }
+
+    "render the correct heading for the Activity tab" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val activityNav                                               = defaultSecondaryNav.copy(
+        items = defaultSecondaryNav.items.map(i => i.copy(current = i.href == Activity.href()))
+      )
+      val doc                                                       = asDocument(
+        home(homeViewModel.copy(currentTab = Activity, secondaryNav = activityNav, tabCards = Seq.empty)).toString
+      )
+      val header                                                    = doc.getElementById("tab-content-header")
+      header must not be null
+      header.text() mustBe messages("ptap.support.uya.p3.sub")
     }
 
     "render multiple task cards" in {
@@ -212,14 +239,14 @@ class PtapHomeViewSpec extends ViewSpec {
         None,
         None
       )
-      val card2     = HmrcCardModel(
+      val card2                                                     = HmrcCardModel(
         CardType.BasicCard,
         CardHeading("Task 2", Some("/task2"), false),
         None,
         None
       )
-      val viewModel = homeViewModel.copy(tabCards = Seq(card1, card2))
-      val doc       = asDocument(home(viewModel).toString)
+      val viewModel                                                 = homeViewModel.copy(tabCards = Seq(card1, card2))
+      val doc                                                       = asDocument(home(viewModel).toString)
       doc.select(".hmrc-card").size() mustBe 2
       doc.select("ul.hmrc-card__container").size() mustBe 1
     }
