@@ -167,14 +167,14 @@ class PtapHomeViewSpec extends ViewSpec {
 
       doc.select("a.x-govuk-secondary-navigation__link").size mustBe 5
 
-      doc.select("a[href=/personal-account/your-tasks].x-govuk-secondary-navigation__link")         must not be null
+      doc.select("a[href=/personal-account].x-govuk-secondary-navigation__link")                    must not be null
       doc.select("a[href=/personal-account/recent-activity].x-govuk-secondary-navigation__link")    must not be null
       doc.select("a[href=/personal-account/taxes-and-benefits].x-govuk-secondary-navigation__link") must not be null
       doc.select("a[href=/personal-account/hmrc-news].x-govuk-secondary-navigation__link")          must not be null
       doc.select("a[href=/personal-account/support].x-govuk-secondary-navigation__link")            must not be null
 
       doc
-        .select("a[href=/personal-account/your-tasks].x-govuk-secondary-navigation__link")
+        .select("a[href=/personal-account].x-govuk-secondary-navigation__link")
         .attr("href") mustBe Task.href()
       doc
         .select("a[href=/personal-account/recent-activity].x-govuk-secondary-navigation__link")
@@ -189,7 +189,7 @@ class PtapHomeViewSpec extends ViewSpec {
         .select("a[href=/personal-account/support].x-govuk-secondary-navigation__link")
         .attr("href") mustBe Support.href()
 
-      doc.select("a[href=/personal-account/your-tasks].x-govuk-secondary-navigation__link").text mustBe messages(
+      doc.select("a[href=/personal-account].x-govuk-secondary-navigation__link").text mustBe messages(
         "ptap.support.uya.p2.sub"
       )
       doc.select("a[href=/personal-account/recent-activity].x-govuk-secondary-navigation__link").text mustBe messages(

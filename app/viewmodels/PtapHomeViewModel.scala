@@ -25,7 +25,10 @@ enum TabEnum(val name: String):
   case News extends TabEnum("hmrc-news")
   case Support extends TabEnum("support")
 
-  def href(): String = "/personal-account/" + this.name
+  def href(): String = this match {
+    case Task => "/personal-account"
+    case tab  => s"/personal-account/${tab.name}"
+  }
 
 final case class PtapNewsAndUpdates(content: Html) extends AnyVal
 final case class PtapAlertBanner(content: Html) extends AnyVal
