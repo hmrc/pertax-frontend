@@ -205,20 +205,6 @@ class SupportViewSpec extends ViewSpec {
       )
     }
 
-    /*    "render link text from messages in Welsh" in {
-      val welshDoc = asDocument(page()(welshMessages).toString)
-      assertContainsLink(
-        welshDoc,
-        welshMessages("ptap.support.tab.card.hmrc.online.link.understanding.account"),
-        "/support/understanding-your-account"
-      )
-      assertContainsLink(
-        welshDoc,
-        welshMessages("ptap.support.tab.card.paye.link.guidance"),
-        "https://www.gov.uk/browse/tax/income-tax"
-      )
-    }*/
-
     "not hardcode English link text when rendering in Welsh" in {
       val welshDoc = asDocument(page()(welshMessages).toString)
       assertNotContainText(welshDoc, "Understanding your HMRC Online account")
