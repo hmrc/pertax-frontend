@@ -904,3 +904,27 @@ ptap.support.tab.card.annual.tax.summary.heading=Annual Tax Summary
 ptap.support.tab.card.insurance.state.pension.heading=National Insurance and State Pension
 ptap.support.tab.cards.header=Support
 
+ptap.support.tab.card.hmrc.online.link.understanding.account=Understanding your HMRC Online account
+ptap.support.tab.card.hmrc.online.link.extra.support=Get help from HMRC if you need extra support
+ptap.support.tab.card.hmrc.online.link.technical.support=Technical support with HMRC online services
+ptap.support.tab.card.hmrc.online.link.help.friends=Help friends or family with their tax
+ptap.support.tab.card.hmrc.online.link.chat=Ask HMRC online, digital assistant chat
+ptap.support.tab.card.hmrc.online.link.change.details=Tell HMRC about a change to your personal details
+
+ptap.support.tab.card.paye.link.guidance=Income Tax guidance
+ptap.support.tab.card.paye.link.enquiries=Income Tax general enquiries, including contact details
+
+ptap.support.tab.card.self.assessment.link.guidance=Self Assessment guidance
+ptap.support.tab.card.self.assessment.link.enquiries=Self Assessment general enquiries, including contact details
+
+ptap.support.tab.card.child.benefit.link.guidance=Child Benefit guidance
+ptap.support.tab.card.child.benefit.link.enquiries=Child Benefit general enquiries, including contact details
+
+ptap.support.tab.card.mariage.allowance.link.guidance=Marriage Allowance guidance
+ptap.support.tab.card.mariage.allowance.link.enquiries=Income Tax general enquiries, including contact details for Marriage Allowance
+
+ptap.support.tab.card.annual.tax.summary.link.guidance=Annual Tax Summary guidance
+
+ptap.support.tab.card.insurance.state.pension.link.ni=Find out more about National Insurance (opens in a new tab)
+ptap.support.tab.card.insurance.state.pension.link.enquiries=Income Tax general enquiries, including contact details for National Insurance and State Pension
+

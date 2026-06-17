@@ -32,10 +32,7 @@ import repositories.JourneyCacheRepository
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.domain.SaUtrGenerator
 import viewmodels.{PtapAlertBanner, PtapHomeViewModel, TabEnum}
-<<<<<<< HEAD
-=======
 import viewmodels.TabEnum.*
->>>>>>> ptap-feature
 
 import scala.jdk.CollectionConverters.*
 
@@ -77,11 +74,7 @@ class PtapHomeViewSpec extends ViewSpec {
       breathingSpaceIndicator = true,
       alertBannerContent = None,
       name = None,
-<<<<<<< HEAD
-      currentTab = "your-task"
-=======
       currentTab = Task
->>>>>>> ptap-feature
     )
 
   "Rendering PtapHomeView.scala.html" must {
@@ -174,31 +167,6 @@ class PtapHomeViewSpec extends ViewSpec {
 
       doc.select("a.x-govuk-secondary-navigation__link").size mustBe 5
 
-<<<<<<< HEAD
-      doc.select("a[href=/personal-account/your-tasks].x-govuk-secondary-navigation__link")       must not be null
-      doc.select("a[href=/personal-account/recent-activity].x-govuk-secondary-navigation__link")  must not be null
-      doc.select("a[href=/personal-account/tax-and-benefits].x-govuk-secondary-navigation__link") must not be null
-      doc.select("a[href=/personal-account/hmrc-news].x-govuk-secondary-navigation__link")        must not be null
-      doc.select("a[href=/personal-account/support].x-govuk-secondary-navigation__link")          must not be null
-
-      doc
-        .select("a[href=/personal-account/your-tasks].x-govuk-secondary-navigation__link")
-        .attr("href") mustBe TabEnum.TASK.href
-      doc
-        .select("a[href=/personal-account/recent-activity].x-govuk-secondary-navigation__link")
-        .attr("href") mustBe TabEnum.ACTIVITY.href
-      doc
-        .select("a[href=/personal-account/tax-and-benefits].x-govuk-secondary-navigation__link")
-        .attr("href") mustBe TabEnum.TAX.href
-      doc
-        .select("a[href=/personal-account/hmrc-news].x-govuk-secondary-navigation__link")
-        .attr("href") mustBe TabEnum.NEWS.href
-      doc
-        .select("a[href=/personal-account/support].x-govuk-secondary-navigation__link")
-        .attr("href") mustBe TabEnum.SUPPORT.href
-
-      doc.select("a[href=/personal-account/your-tasks].x-govuk-secondary-navigation__link").text mustBe messages(
-=======
       doc.select("a[href=/personal-account].x-govuk-secondary-navigation__link")                    must not be null
       doc.select("a[href=/personal-account/recent-activity].x-govuk-secondary-navigation__link")    must not be null
       doc.select("a[href=/personal-account/taxes-and-benefits].x-govuk-secondary-navigation__link") must not be null
@@ -222,19 +190,14 @@ class PtapHomeViewSpec extends ViewSpec {
         .attr("href") mustBe Support.href()
 
       doc.select("a[href=/personal-account].x-govuk-secondary-navigation__link").text mustBe messages(
->>>>>>> ptap-feature
         "ptap.support.uya.p2.sub"
       )
       doc.select("a[href=/personal-account/recent-activity].x-govuk-secondary-navigation__link").text mustBe messages(
         "ptap.support.uya.p3.sub"
       )
-<<<<<<< HEAD
-      doc.select("a[href=/personal-account/tax-and-benefits].x-govuk-secondary-navigation__link").text mustBe messages(
-=======
       doc
         .select("a[href=/personal-account/taxes-and-benefits].x-govuk-secondary-navigation__link")
         .text mustBe messages(
->>>>>>> ptap-feature
         "ptap.support.uya.p4.sub"
       )
       doc.select("a[href=/personal-account/hmrc-news].x-govuk-secondary-navigation__link").text mustBe messages(
