@@ -86,50 +86,44 @@ class SupportViewSpec extends ViewSpec {
       headings must contain(welshMessages("ptap.support.tab.card.insurance.state.pension.heading"))
     }
 
-    "render 17 links in total (1 internal + 16 external)" in {
+    "render 17 links in total" in {
       document.select("a.govuk-link").size mustBe 17
     }
 
-    "render the internal 'understanding account' link without target=_blank" in {
-      val link = document.select("a[href='/support/understanding-your-account']")
-      link.size mustBe 1
-      link.hasAttr("target") mustBe false
-    }
-
-    "render all external links with target=_blank" in {
-      document.select("a.govuk-link[target=_blank]").size mustBe 16
+    "render no links with target=_blank" in {
+      document.select("a.govuk-link[target]").size mustBe 0
     }
 
     "render HMRC Online card link text and hrefs" in {
       assertContainsLink(
         document,
         messages("ptap.support.tab.card.hmrc.online.link.understanding.account"),
-        "/support/understanding-your-account"
+        messages("ptap.support.tab.card.hmrc.online.link.understanding.account.url")
       )
       assertContainsLink(
         document,
         messages("ptap.support.tab.card.hmrc.online.link.extra.support"),
-        "https://www.gov.uk/get-help-hmrc-extra-support"
+        messages("ptap.support.tab.card.hmrc.online.link.extra.support.url")
       )
       assertContainsLink(
         document,
         messages("ptap.support.tab.card.hmrc.online.link.technical.support"),
-        "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/online-services-helpdesk"
+        messages("ptap.support.tab.card.hmrc.online.link.technical.support.url")
       )
       assertContainsLink(
         document,
         messages("ptap.support.tab.card.hmrc.online.link.help.friends"),
-        "https://www.gov.uk/help-friends-family-tax"
+        messages("ptap.support.tab.card.hmrc.online.link.help.friends.url")
       )
       assertContainsLink(
         document,
         messages("ptap.support.tab.card.hmrc.online.link.chat"),
-        "https://www.tax.service.gov.uk/ask-hmrc/chat/online-services-helpdesk"
+        messages("ptap.support.tab.card.hmrc.online.link.chat.url")
       )
       assertContainsLink(
         document,
         messages("ptap.support.tab.card.hmrc.online.link.change.details"),
-        "https://www.gov.uk/tell-hmrc-change-of-details"
+        messages("ptap.support.tab.card.hmrc.online.link.change.details.url")
       )
     }
 
@@ -137,12 +131,12 @@ class SupportViewSpec extends ViewSpec {
       assertContainsLink(
         document,
         messages("ptap.support.tab.card.paye.link.guidance"),
-        "https://www.gov.uk/browse/tax/income-tax"
+        messages("ptap.support.tab.card.paye.link.guidance.url")
       )
       assertContainsLink(
         document,
         messages("ptap.support.tab.card.paye.link.enquiries"),
-        "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/income-tax-enquiries-for-individuals-pensioners-and-employees"
+        messages("ptap.support.tab.card.paye.link.enquiries.url")
       )
     }
 
@@ -150,12 +144,12 @@ class SupportViewSpec extends ViewSpec {
       assertContainsLink(
         document,
         messages("ptap.support.tab.card.self.assessment.link.guidance"),
-        "https://www.gov.uk/browse/tax/self-assessment"
+        messages("ptap.support.tab.card.self.assessment.link.guidance.url")
       )
       assertContainsLink(
         document,
         messages("ptap.support.tab.card.self.assessment.link.enquiries"),
-        "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
+        messages("ptap.support.tab.card.self.assessment.link.enquiries.url")
       )
     }
 
@@ -163,12 +157,12 @@ class SupportViewSpec extends ViewSpec {
       assertContainsLink(
         document,
         messages("ptap.support.tab.card.child.benefit.link.guidance"),
-        "https://www.gov.uk/child-benefit"
+        messages("ptap.support.tab.card.child.benefit.link.guidance.url")
       )
       assertContainsLink(
         document,
         messages("ptap.support.tab.card.child.benefit.link.enquiries"),
-        "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/child-benefit"
+        messages("ptap.support.tab.card.child.benefit.link.enquiries.url")
       )
     }
 
@@ -176,12 +170,12 @@ class SupportViewSpec extends ViewSpec {
       assertContainsLink(
         document,
         messages("ptap.support.tab.card.mariage.allowance.link.guidance"),
-        "https://www.gov.uk/marriage-allowance"
+        messages("ptap.support.tab.card.mariage.allowance.link.guidance.url")
       )
       assertContainsLink(
         document,
         messages("ptap.support.tab.card.mariage.allowance.link.enquiries"),
-        "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/income-tax-enquiries-for-individuals-pensioners-and-employees"
+        messages("ptap.support.tab.card.mariage.allowance.link.enquiries.url")
       )
     }
 
@@ -189,19 +183,37 @@ class SupportViewSpec extends ViewSpec {
       assertContainsLink(
         document,
         messages("ptap.support.tab.card.annual.tax.summary.link.guidance"),
-        "https://www.gov.uk/guidance/annual-tax-summary"
+        messages("ptap.support.tab.card.annual.tax.summary.link.guidance.url")
       )
 
     "render National Insurance and State Pension card link text and hrefs" in {
       assertContainsLink(
         document,
         messages("ptap.support.tab.card.insurance.state.pension.link.ni"),
-        "https://www.gov.uk/national-insurance"
+        messages("ptap.support.tab.card.insurance.state.pension.link.ni.url")
       )
       assertContainsLink(
         document,
         messages("ptap.support.tab.card.insurance.state.pension.link.enquiries"),
-        "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/income-tax-enquiries-for-individuals-pensioners-and-employees"
+        messages("ptap.support.tab.card.insurance.state.pension.link.enquiries.url")
+      )
+    }
+
+    "use Welsh URL for Child Benefit guidance when rendered in Welsh" in {
+      val welshDoc = asDocument(page()(welshMessages).toString)
+      assertContainsLink(
+        welshDoc,
+        welshMessages("ptap.support.tab.card.child.benefit.link.guidance"),
+        welshMessages("ptap.support.tab.card.child.benefit.link.guidance.url")
+      )
+    }
+
+    "use Welsh URL for National Insurance when rendered in Welsh" in {
+      val welshDoc = asDocument(page()(welshMessages).toString)
+      assertContainsLink(
+        welshDoc,
+        welshMessages("ptap.support.tab.card.insurance.state.pension.link.ni"),
+        welshMessages("ptap.support.tab.card.insurance.state.pension.link.ni.url")
       )
     }
 

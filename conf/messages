@@ -905,26 +905,43 @@ ptap.support.tab.card.insurance.state.pension.heading=National Insurance and Sta
 ptap.support.tab.cards.header=Support
 
 ptap.support.tab.card.hmrc.online.link.understanding.account=Understanding your HMRC Online account
+ptap.support.tab.card.hmrc.online.link.understanding.account.url=/support/understanding-your-account
 ptap.support.tab.card.hmrc.online.link.extra.support=Get help from HMRC if you need extra support
+ptap.support.tab.card.hmrc.online.link.extra.support.url=https://www.gov.uk/get-help-hmrc-extra-support
 ptap.support.tab.card.hmrc.online.link.technical.support=Technical support with HMRC online services
+ptap.support.tab.card.hmrc.online.link.technical.support.url=https://www.gov.uk/find-hmrc-contacts/technical-support-with-hmrc-online-services
 ptap.support.tab.card.hmrc.online.link.help.friends=Help friends or family with their tax
+ptap.support.tab.card.hmrc.online.link.help.friends.url=https://www.gov.uk/help-friends-family-tax
 ptap.support.tab.card.hmrc.online.link.chat=Ask HMRC online, digital assistant chat
+ptap.support.tab.card.hmrc.online.link.chat.url=https://www.gov.uk/contact-hmrc
 ptap.support.tab.card.hmrc.online.link.change.details=Tell HMRC about a change to your personal details
+ptap.support.tab.card.hmrc.online.link.change.details.url=https://www.gov.uk/tell-hmrc-change-of-details
 
 ptap.support.tab.card.paye.link.guidance=Income Tax guidance
+ptap.support.tab.card.paye.link.guidance.url=https://www.gov.uk/income-tax
 ptap.support.tab.card.paye.link.enquiries=Income Tax general enquiries, including contact details
+ptap.support.tab.card.paye.link.enquiries.url=https://www.gov.uk/find-hmrc-contacts/income-tax-enquiries
 
 ptap.support.tab.card.self.assessment.link.guidance=Self Assessment guidance
+ptap.support.tab.card.self.assessment.link.guidance.url=https://www.gov.uk/self-assessment-tax-returns
 ptap.support.tab.card.self.assessment.link.enquiries=Self Assessment general enquiries, including contact details
+ptap.support.tab.card.self.assessment.link.enquiries.url=https://www.gov.uk/find-hmrc-contacts/self-assessment-general-enquiries
 
 ptap.support.tab.card.child.benefit.link.guidance=Child Benefit guidance
+ptap.support.tab.card.child.benefit.link.guidance.url=https://www.gov.uk/child-benefit
 ptap.support.tab.card.child.benefit.link.enquiries=Child Benefit general enquiries, including contact details
+ptap.support.tab.card.child.benefit.link.enquiries.url=https://www.gov.uk/find-hmrc-contacts/child-benefit-general-enquiries
 
 ptap.support.tab.card.mariage.allowance.link.guidance=Marriage Allowance guidance
+ptap.support.tab.card.mariage.allowance.link.guidance.url=https://www.gov.uk/marriage-allowance
 ptap.support.tab.card.mariage.allowance.link.enquiries=Income Tax general enquiries, including contact details for Marriage Allowance
+ptap.support.tab.card.mariage.allowance.link.enquiries.url=https://www.gov.uk/find-hmrc-contacts/income-tax-enquiries
 
 ptap.support.tab.card.annual.tax.summary.link.guidance=Annual Tax Summary guidance
+ptap.support.tab.card.annual.tax.summary.link.guidance.url=https://www.gov.uk/guidance/annual-tax-summary
 
 ptap.support.tab.card.insurance.state.pension.link.ni=Find out more about National Insurance
+ptap.support.tab.card.insurance.state.pension.link.ni.url=https://www.gov.uk/national-insurance
 ptap.support.tab.card.insurance.state.pension.link.enquiries=Income Tax general enquiries, including contact details for National Insurance and State Pension
+ptap.support.tab.card.insurance.state.pension.link.enquiries.url=https://www.gov.uk/find-hmrc-contacts/income-tax-enquiries
 

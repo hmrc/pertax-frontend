@@ -916,26 +916,43 @@ ptap.support.tab.card.annual.tax.summary.heading=TBC
 ptap.support.tab.card.insurance.state.pension.heading=TBC
 ptap.support.tab.cards.header=TBC
 
-ptap.support.tab.card.hmrc.online.link.understanding.account=TBC
-ptap.support.tab.card.hmrc.online.link.extra.support=TBC
-ptap.support.tab.card.hmrc.online.link.technical.support=TBC
-ptap.support.tab.card.hmrc.online.link.help.friends=TBC
-ptap.support.tab.card.hmrc.online.link.chat=TBC
-ptap.support.tab.card.hmrc.online.link.change.details=TBC
+ptap.support.tab.card.hmrc.online.link.understanding.account=Deall eich cyfrif ar-lein CThEF
+ptap.support.tab.card.hmrc.online.link.understanding.account.url=https://www.gov.uk/mewngofnodi-cofrestru-gwasanaethau-ar-lein-cthef
+ptap.support.tab.card.hmrc.online.link.extra.support=Cael help gan CThEF os oes angen cymorth ychwanegol arnoch
+ptap.support.tab.card.hmrc.online.link.extra.support.url=https://www.gov.uk/cael-help-cthem-cymorth-ychwanegol
+ptap.support.tab.card.hmrc.online.link.technical.support=Cymorth technegol â gwasanaethau ar-lein CThEF
+ptap.support.tab.card.hmrc.online.link.technical.support.url=https://www.gov.uk/find-hmrc-contacts/technical-support-with-hmrc-online-services
+ptap.support.tab.card.hmrc.online.link.help.friends=Helpu ffrindiau neu aelodau o’r teulu gyda’u treth
+ptap.support.tab.card.hmrc.online.link.help.friends.url=https://www.gov.uk/helpwch-ffrindiau-teulu-treth
+ptap.support.tab.card.hmrc.online.link.chat=Gofynnwch i CThEF ar-lein, sgwrs â’r cynorthwyydd digidol
+ptap.support.tab.card.hmrc.online.link.chat.url=https://www.gov.uk/contact-hmrc
+ptap.support.tab.card.hmrc.online.link.change.details=Rhoi gwybod i CThEF am newid i’ch manylion personol
+ptap.support.tab.card.hmrc.online.link.change.details.url=https://www.gov.uk/rhoi-gwybod-i-cthem-newid-manylion
 
-ptap.support.tab.card.paye.link.guidance=TBC
-ptap.support.tab.card.paye.link.enquiries=TBC
+ptap.support.tab.card.paye.link.guidance=Arweiniad Treth Incwm
+ptap.support.tab.card.paye.link.guidance.url=https://www.gov.uk/treth-incwm
+ptap.support.tab.card.paye.link.enquiries=Ymholiadau cyffredinol am Dreth Incwm, gan gynnwys manylion cyswllt
+ptap.support.tab.card.paye.link.enquiries.url=https://www.gov.uk/find-hmrc-contacts/treth-incwm-hunanasesiad-a-mwy
 
-ptap.support.tab.card.self.assessment.link.guidance=TBC
-ptap.support.tab.card.self.assessment.link.enquiries=TBC
+ptap.support.tab.card.self.assessment.link.guidance=Arweiniad Hunanasesiad
+ptap.support.tab.card.self.assessment.link.guidance.url=https://www.gov.uk/ffurflenni-treth-hunanasesiad
+ptap.support.tab.card.self.assessment.link.enquiries=Ymholiadau cyffredinol am Hunanasesiad, gan gynnwys manylion cyswllt
+ptap.support.tab.card.self.assessment.link.enquiries.url=https://www.gov.uk/find-hmrc-contacts/treth-incwm-hunanasesiad-a-mwy
 
-ptap.support.tab.card.child.benefit.link.guidance=TBC
-ptap.support.tab.card.child.benefit.link.enquiries=TBC
+ptap.support.tab.card.child.benefit.link.guidance=Arweiniad Budd-dal Plant
+ptap.support.tab.card.child.benefit.link.guidance.url=https://www.gov.uk/budd-dal-plant
+ptap.support.tab.card.child.benefit.link.enquiries=Ymholiadau cyffredinol am Fudd-dal Plant, gan gynnwys manylion cyswllt
+ptap.support.tab.card.child.benefit.link.enquiries.url=https://www.gov.uk/find-hmrc-contacts/budd-dal-plant-ymholiadau-cyffredinol
 
-ptap.support.tab.card.mariage.allowance.link.guidance=TBC
-ptap.support.tab.card.mariage.allowance.link.enquiries=TBC
+ptap.support.tab.card.mariage.allowance.link.guidance=Arweiniad Lwfans Priodasol
+ptap.support.tab.card.mariage.allowance.link.guidance.url=https://www.gov.uk/lwfans-priodas
+ptap.support.tab.card.mariage.allowance.link.enquiries=Ymholiadau cyffredinol am Dreth Incwm, gan gynnwys manylion cyswllt ar gyfer Lwfans Priodasol
+ptap.support.tab.card.mariage.allowance.link.enquiries.url=https://www.gov.uk/find-hmrc-contacts/treth-incwm-hunanasesiad-a-mwy
 
-ptap.support.tab.card.annual.tax.summary.link.guidance=TBC
+ptap.support.tab.card.annual.tax.summary.link.guidance=Arweiniad Crynodeb Treth Blynyddol
+ptap.support.tab.card.annual.tax.summary.link.guidance.url=https://www.gov.uk/guidance/annual-tax-summary.cy
 
-ptap.support.tab.card.insurance.state.pension.link.ni=TBC
-ptap.support.tab.card.insurance.state.pension.link.enquiries=TBC
+ptap.support.tab.card.insurance.state.pension.link.ni=Dysgwch ragor am Yswiriant Gwladol
+ptap.support.tab.card.insurance.state.pension.link.ni.url=https://www.gov.uk/yswiriant-gwladol
+ptap.support.tab.card.insurance.state.pension.link.enquiries=Ymholiadau cyffredinol am Dreth Incwm, gan gynnwys manylion cyswllt ar gyfer Yswiriant Gwladol a Phensiwn y Wladwriaeth
+ptap.support.tab.card.insurance.state.pension.link.enquiries.url=https://www.gov.uk/find-hmrc-contacts/treth-incwm-hunanasesiad-a-mwy
