@@ -75,10 +75,10 @@ class HomeController @Inject() (
       }
     }
 
-  private def personalisationHomePageTab(tab: String, allowTaskTab: Boolean = false)(implicit
+  private def personalisationHomePageTab(tab: String)(implicit
     request: UserRequest[AnyContent]
   ): Future[Result] =
-    withValidTab(tab, allowTaskTab) { currentTab =>
+    withValidTab(tab) { currentTab =>
       val nino: Nino = request.helpeeNinoOrElse
 
       val utr: Option[String] = request.saUserType match {
@@ -100,10 +100,9 @@ class HomeController @Inject() (
           val personDetailsOpt = eitherPersonDetails.toOption.flatten
           val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
 
-          val taskCount               = tabContentCards.taskCount
-          implicit val msgs: Messages = messagesApi.preferred(request)
-          val secondaryNav            = buildSecondaryNav(currentTab, taskCount)
-          val tabContent              = currentTab.cardContainerHeading.map { heading =>
+          val taskCount    = tabContentCards.taskCount
+          val secondaryNav = buildSecondaryNav(currentTab, taskCount)
+          val tabContent   = currentTab.cardContainerHeading.map { heading =>
             CardContainerModel(
               emptyView = Html(""),
               header = Some(heading),
@@ -115,7 +114,6 @@ class HomeController @Inject() (
           Ok(
             pTapHomeView(
               PtapHomeViewModel(
-                Seq.empty,
                 homeOptionsGenerator.getLatestNewsAndUpdatesCard().map(PtapNewsAndUpdates.apply),
                 showUserResearchBanner = false,
                 utr,
@@ -133,6 +131,7 @@ class HomeController @Inject() (
 
   private def buildSecondaryNav(currentTab: TabEnum, taskCount: Int)(implicit messages: Messages): SecondaryNavModel =
     SecondaryNavModel(
+      classes = Some("govuk-!-margin-bottom-6"),
       items = Seq(
         TabModel(
           text = messages("ptap.support.uya.p2.sub"),
@@ -210,23 +209,23 @@ class HomeController @Inject() (
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
       if (toggle.isEnabled) {
-        personalisationHomePageTab(Task.name, allowTaskTab = true)
+        personalisationHomePageTab(Task.name)
       } else {
         newHomePage
       }
     }
   }
 
-  private def withValidTab(tab: String, allowTaskTab: Boolean)(block: TabEnum => Future[Result])(implicit
+  private def withValidTab(tab: String)(block: TabEnum => Future[Result])(implicit
     request: UserRequest[AnyContent]
   ): Future[Result] =
     val currentTab: Option[TabEnum] = tab match {
-      case Task.name if allowTaskTab => Some(Task)
-      case Activity.name             => Some(Activity)
-      case Tax.name                  => Some(Tax)
-      case News.name                 => Some(News)
-      case Support.name              => Some(Support)
-      case _                         => None
+      case Task.name     => Some(Task)
+      case Activity.name => Some(Activity)
+      case Tax.name      => Some(Tax)
+      case News.name     => Some(News)
+      case Support.name  => Some(Support)
+      case _             => None
     }
     currentTab match {
       case Some(value) => block(value)

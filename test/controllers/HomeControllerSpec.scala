@@ -251,21 +251,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       content.text() must not include "Tax code change"
     }
 
-    "return not found for the duplicate your-tasks URL" in {
-      val request = FakeRequest("GET", "/personal-account/your-tasks")
-        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
-        .asInstanceOf[Request[AnyContent]]
-
-      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
-
-      val appLocal   = appBuilder.build()
-      val controller = appLocal.injector.instanceOf[HomeController]
-      val result     = controller.homePageTab("your-tasks")(request)
-
-      status(result) mustBe NOT_FOUND
-    }
-
     "fetch tab content once for the Activity tab and render only activity cards" in {
       val request = FakeRequest("GET", "/personal-account/recent-activity")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")

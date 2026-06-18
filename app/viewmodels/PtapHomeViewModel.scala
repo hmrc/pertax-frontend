@@ -34,7 +34,6 @@ final case class PtapNewsAndUpdates(content: Html) extends AnyVal
 final case class PtapAlertBanner(content: Html) extends AnyVal
 
 final case class PtapHomeViewModel(
-  tasks: Seq[Task],
   newsAndUpdates: Option[PtapNewsAndUpdates],
   showUserResearchBanner: Boolean,
   saUtr: Option[String],

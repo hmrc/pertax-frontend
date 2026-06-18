@@ -65,6 +65,7 @@ class PtapHomeViewSpec extends ViewSpec {
   }
 
   private val defaultSecondaryNav = SecondaryNavModel(
+    classes = Some("govuk-!-margin-bottom-6"),
     items = Seq(
       TabModel(text = "Your tasks", href = Task.href(), current = true, notificationCount = Some(2)),
       TabModel(text = "Recent activity", href = Activity.href(), current = false),
@@ -98,7 +99,6 @@ class PtapHomeViewSpec extends ViewSpec {
 
   val homeViewModel: PtapHomeViewModel =
     PtapHomeViewModel(
-      tasks = Seq.empty,
       newsAndUpdates = None,
       showUserResearchBanner = true,
       saUtr = None,
