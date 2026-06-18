@@ -16,6 +16,7 @@
 
 package viewmodels
 
+import models.{MyService, OtherService}
 import play.twirl.api.Html
 
 enum TabEnum(val name: String):
@@ -41,5 +42,7 @@ final case class PtapHomeViewModel(
   breathingSpaceIndicator: Boolean,
   alertBannerContent: Option[PtapAlertBanner],
   name: Option[String],
-  currentTab: TabEnum
+  currentTab: TabEnum,
+  myServices: Seq[MyService] = Seq.empty,
+  otherServices: Seq[OtherService] = Seq.empty
 )

@@ -23,12 +23,13 @@
 @import views.MainView
 @import views.html.components.alertBanner.AlertBanner
 @import views.html.components.{SecondaryNav}
-@import views.html.home.options.TaskListView
+@import views.html.home.options.{TaskListView, TaxesAndBenefitsView}
 
 @this(
         main: MainView,
         alertBanner: AlertBanner,
-        configDecorator: ConfigDecorator
+        configDecorator: ConfigDecorator,
+        taxesAndBenefitsView: TaxesAndBenefitsView
 )
 
 @(viewModel: PtapHomeViewModel)(implicit request: UserRequest[_], messages: Messages)
@@ -73,4 +74,8 @@
           TabModel(text = messages("ptap.support.uya.p6.sub"), href = Support.href(), current = Support == viewModel.currentTab),
         )
       ))}
+
+    @if(viewModel.currentTab == Tax) {
+        @taxesAndBenefitsView(viewModel.myServices, viewModel.otherServices)
+    }
 }
