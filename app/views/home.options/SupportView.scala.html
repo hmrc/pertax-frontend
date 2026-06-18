@@ -25,10 +25,11 @@
 
 @linkList(links: Seq[(String, String, Boolean)]) = {
     <ul class="govuk-list govuk-list--spaced">
-    @for((text, href, external) <- links) {
+    @for((text: String, href: String, external: Boolean) <- links) {
         <li>
         @if(external) {
-            <a class="govuk-link" href="@href" target="_blank">@text</a>
+            <a class="govuk-link" href="@href" target="_blank" rel="noopener noreferrer">@text</a>
+            <span class="govuk-!-font-weight-regular">@messages("label.opens_in_a_new_window")</span>
         } else {
             <a class="govuk-link" href="@href">@text</a>
         }
@@ -46,98 +47,68 @@
     )
 }
 
+@hmrcOnlineCard() = @{
+    noLinkCard("ptap.support.tab.card.hmrc.online.heading", Seq(
+        (messages("ptap.support.tab.card.hmrc.online.link.understanding.account"), "/support/understanding-your-account", false),
+        (messages("ptap.support.tab.card.hmrc.online.link.extra.support"), "https://www.gov.uk/get-help-hmrc-extra-support", true),
+        (messages("ptap.support.tab.card.hmrc.online.link.technical.support"), "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/online-services-helpdesk", true),
+        (messages("ptap.support.tab.card.hmrc.online.link.help.friends"), "https://www.gov.uk/help-friends-family-tax", true),
+        (messages("ptap.support.tab.card.hmrc.online.link.chat"), "https://www.tax.service.gov.uk/ask-hmrc/chat/online-services-helpdesk", true),
+        (messages("ptap.support.tab.card.hmrc.online.link.change.details"), "https://www.gov.uk/tell-hmrc-change-of-details", true)
+    ))
+}
+
+@payeCard() = @{
+    noLinkCard("ptap.support.tab.card.paye.heading", Seq(
+        (messages("ptap.support.tab.card.paye.link.guidance"), "https://www.gov.uk/browse/tax/income-tax", true),
+        (messages("ptap.support.tab.card.paye.link.enquiries"), "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/income-tax-enquiries-for-individuals-pensioners-and-employees", true)
+    ))
+}
+
+@selfAssessmentCard() = @{
+    noLinkCard("ptap.support.tab.card.self.assessment.heading", Seq(
+        (messages("ptap.support.tab.card.self.assessment.link.guidance"), "https://www.gov.uk/browse/tax/self-assessment", true),
+        (messages("ptap.support.tab.card.self.assessment.link.enquiries"), "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment", true)
+    ))
+}
+
+@childBenefitCard() = @{
+    noLinkCard("ptap.support.tab.card.child.benefit.heading", Seq(
+        (messages("ptap.support.tab.card.child.benefit.link.guidance"), "https://www.gov.uk/child-benefit", true),
+        (messages("ptap.support.tab.card.child.benefit.link.enquiries"), "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/child-benefit", true)
+    ))
+}
+
+@marriageAllowanceCard() = @{
+    noLinkCard("ptap.support.tab.card.mariage.allowance.heading", Seq(
+        (messages("ptap.support.tab.card.mariage.allowance.link.guidance"), "https://www.gov.uk/marriage-allowance", true),
+        (messages("ptap.support.tab.card.mariage.allowance.link.enquiries"), "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/income-tax-enquiries-for-individuals-pensioners-and-employees", true)
+    ))
+}
+
+@annualTaxSummaryCard() = @{
+    noLinkCard("ptap.support.tab.card.annual.tax.summary.heading", Seq(
+        (messages("ptap.support.tab.card.annual.tax.summary.link.guidance"), "https://www.gov.uk/guidance/annual-tax-summary", true)
+    ))
+}
+
+@nationalInsuranceStatePensionCard() = @{
+    noLinkCard("ptap.support.tab.card.insurance.state.pension.heading", Seq(
+        (messages("ptap.support.tab.card.insurance.state.pension.link.ni"), "https://www.gov.uk/national-insurance", true),
+        (messages("ptap.support.tab.card.insurance.state.pension.link.enquiries"), "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/income-tax-enquiries-for-individuals-pensioners-and-employees", true)
+    ))
+}
+
 @cardContainer(CardContainerModel(
     header = Some(messages("ptap.support.tab.cards.header")),
     emptyView = HtmlFormat.empty,
     cards = Seq(
-        noLinkCard("ptap.support.tab.card.hmrc.online.heading",
-            Seq(
-                (messages("ptap.support.tab.card.hmrc.online.link.understanding.account"),
-                        "/support/understanding-your-account",
-                        false
-                ),
-                (messages("ptap.support.tab.card.hmrc.online.link.extra.support"),
-                        "https://www.gov.uk/get-help-hmrc-extra-support",
-                        true
-                ),
-                (messages("ptap.support.tab.card.hmrc.online.link.technical.support"),
-                        "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/online-services-helpdesk",
-                        true
-                ),
-                (messages("ptap.support.tab.card.hmrc.online.link.help.friends"),
-                        "https://www.gov.uk/help-friends-family-tax",
-                        true
-                ),
-                (messages("ptap.support.tab.card.hmrc.online.link.chat"),
-                        "https://www.tax.service.gov.uk/ask-hmrc/chat/online-services-helpdesk",
-                        true
-                ),
-                (messages("ptap.support.tab.card.hmrc.online.link.change.details"),
-                        "https://www.gov.uk/tell-hmrc-change-of-details",
-                        true
-                )
-            )),
-        noLinkCard("ptap.support.tab.card.paye.heading",
-            Seq(
-                (messages("ptap.support.tab.card.paye.link.guidance"),
-                        "https://www.gov.uk/browse/tax/income-tax",
-                        true
-                ),
-                (messages("ptap.support.tab.card.paye.link.enquiries"),
-                        "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/income-tax-enquiries-for-individuals-pensioners-and-employees",
-                        true
-                )
-            )),
-        noLinkCard("ptap.support.tab.card.self.assessment.heading",
-            Seq(
-                (messages("ptap.support.tab.card.self.assessment.link.guidance"),
-                        "https://www.gov.uk/browse/tax/self-assessment",
-                        true
-                ),
-                (messages("ptap.support.tab.card.self.assessment.link.enquiries"),
-                        "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment",
-                        true
-                )
-            )),
-        noLinkCard("ptap.support.tab.card.child.benefit.heading",
-            Seq(
-                (messages("ptap.support.tab.card.child.benefit.link.guidance"),
-                        "https://www.gov.uk/child-benefit",
-                        true
-                ),
-                (messages("ptap.support.tab.card.child.benefit.link.enquiries"),
-                        "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/child-benefit",
-                        true
-                )
-            )),
-        noLinkCard("ptap.support.tab.card.mariage.allowance.heading",
-            Seq(
-                (messages("ptap.support.tab.card.mariage.allowance.link.guidance"),
-                        "https://www.gov.uk/marriage-allowance",
-                        true
-                ),
-                (messages("ptap.support.tab.card.mariage.allowance.link.enquiries"),
-                        "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/income-tax-enquiries-for-individuals-pensioners-and-employees",
-                        true
-                )
-            )),
-        noLinkCard("ptap.support.tab.card.annual.tax.summary.heading",
-            Seq(
-                (messages("ptap.support.tab.card.annual.tax.summary.link.guidance"),
-                        "https://www.gov.uk/guidance/annual-tax-summary",
-                        true
-                )
-            )),
-        noLinkCard("ptap.support.tab.card.insurance.state.pension.heading",
-            Seq(
-                (messages("ptap.support.tab.card.insurance.state.pension.link.ni"),
-                        "https://www.gov.uk/national-insurance",
-                        true
-                ),
-                (messages("ptap.support.tab.card.insurance.state.pension.link.enquiries"),
-                        "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/income-tax-enquiries-for-individuals-pensioners-and-employees",
-                        true
-                )
-            ))
+        hmrcOnlineCard(),
+        payeCard(),
+        selfAssessmentCard(),
+        childBenefitCard(),
+        marriageAllowanceCard(),
+        annualTaxSummaryCard(),
+        nationalInsuranceStatePensionCard()
     )
 ))
