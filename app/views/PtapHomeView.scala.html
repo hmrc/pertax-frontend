@@ -68,7 +68,11 @@
 
     @{SecondaryNav(viewModel.secondaryNav)}
 
-    @for(container <- viewModel.tabContent) {
-        @cardContainer(container)
-    }
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            @for(container <- viewModel.tabContent) {
+                @cardContainer(container)
+            }
+        </div>
+    </div>
 }
