@@ -23,7 +23,8 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.{GetPersonFromCitizenDetailsToggle, HomePagePersonalisationToggle, ShowPlannedOutageBannerToggle}
-import models.{BreathingSpaceIndicatorResponse, HomePageServices}
+import models.{BreathingSpaceIndicatorResponse, HomePageServices, MyService, OtherService}
+import viewmodels.{Task, TaskStatus}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
@@ -294,6 +295,71 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       status(result) mustBe OK
       contentAsString(result) must not include "alertBannerContent"
+    }
+
+    "Render the Tax tab with personalised services when accessing /personal-account/taxes-and-benefits" in {
+      val request = FakeRequest("GET", "/personal-account/taxes-and-benefits")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      val payeService = MyService(
+        "Pay As You Earn (PAYE)",
+        Some("/paye"),
+        None,
+        id = Some("paye")
+      )
+
+      val childBenefitService = OtherService(
+        "Child Benefit",
+        "/child-benefit",
+        id = Some("child-benefit")
+      )
+
+      when(mockHomePageServicesProvider.getHomePageServices(any(), any(), any()))
+        .thenReturn(Future.successful(HomePageServices(Seq(payeService, childBenefitService))))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.homePageTab("taxes-and-benefits")(request)
+
+      status(result) mustBe OK
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.select("nav.x-govuk-secondary-navigation").size mustBe 1
+      content.getElementById("my-services-heading") must not be null
+      content.select("div.hmrc-card").size mustBe 2
+      content.getElementsContainingText("Pay As You Earn (PAYE)").attr("href") mustBe "/paye"
+      content.getElementsContainingText("Child Benefit").attr("href") mustBe "/child-benefit"
+    }
+
+    "Display task count badge on the Tasks tab when tasks are present" in {
+      val request = FakeRequest("GET", "/personal-account")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      val tasks = Seq(
+        Task("Task 1", TaskStatus.Incomplete, "/task1"),
+        Task("Task 2", TaskStatus.Incomplete, "/task2")
+      )
+
+      when(mockTasksService.getListOfTasks(any(), any()))
+        .thenReturn(Future.successful(tasks))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(request)
+
+      status(result) mustBe OK
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.select("nav.x-govuk-secondary-navigation").size mustBe 1
+      content.select(".x-govuk-secondary-navigation__badge").text() mustBe "2"
     }
   }
 }

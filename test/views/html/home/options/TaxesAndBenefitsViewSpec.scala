@@ -94,7 +94,7 @@ class TaxesAndBenefitsViewSpec extends ViewSpec {
 
     "render myService cards with correct links" in {
       val document: Document = asDocument(page(Seq(payeService, nationalInsuranceService), Seq.empty).toString)
-      val cards = document.select("div.hmrc-card")
+      val cards              = document.select("div.hmrc-card")
       cards.size mustBe 2
       assertContainsLink(document, "Pay As You Earn (PAYE)", "/paye")
       assertContainsLink(document, "National Insurance and State Pension", "/nisp")
@@ -102,7 +102,7 @@ class TaxesAndBenefitsViewSpec extends ViewSpec {
 
     "render otherService cards with correct links" in {
       val document: Document = asDocument(page(Seq.empty, Seq(childBenefitService, marriageAllowanceService)).toString)
-      val cards = document.select("div.hmrc-card")
+      val cards              = document.select("div.hmrc-card")
       cards.size mustBe 2
       assertContainsLink(document, "Child Benefit", "/child-benefit")
       assertContainsLink(document, "Marriage Allowance", "/marriage-allowance")
@@ -125,9 +125,9 @@ class TaxesAndBenefitsViewSpec extends ViewSpec {
     }
 
     "skip myService entries that have no link" in {
-      val noLinkService = MyService("No Link Service", None, None)
+      val noLinkService      = MyService("No Link Service", None, None)
       val document: Document = asDocument(page(Seq(noLinkService, payeService), Seq.empty).toString)
-      val cards = document.select("div.hmrc-card")
+      val cards              = document.select("div.hmrc-card")
       cards.size mustBe 1
       assertContainsLink(document, "Pay As You Earn (PAYE)", "/paye")
     }
@@ -142,7 +142,7 @@ class TaxesAndBenefitsViewSpec extends ViewSpec {
       val document: Document = asDocument(
         page(Seq(payeService, nationalInsuranceService), Seq(childBenefitService, marriageAllowanceService)).toString
       )
-      val containers = document.select("ul.hmrc-card__container")
+      val containers         = document.select("ul.hmrc-card__container")
       containers.get(0).attr("aria-labelledby") mustBe "my-services-heading"
       containers.get(1).attr("aria-labelledby") mustBe "other-services-heading"
     }

@@ -67,7 +67,7 @@
     <p class="govuk-body" id="ninoLink"><a class="govuk-link govuk-link--no-visited-state" href="@configDecorator.ptaNinoSaveUrl">
         @messages("label.view_and_save_your_national_insurance_number")</a></p>
     @{SecondaryNav( SecondaryNavModel(items = Seq(
-          TabModel(text = messages("ptap.support.uya.p2.sub"), href = Task.href(), current = Task == viewModel.currentTab),
+          TabModel(text = messages("ptap.support.uya.p2.sub"), href = Task.href(), current = Task == viewModel.currentTab, notificationCount = if (viewModel.tasks.nonEmpty) Some(viewModel.tasks.size) else None),
           TabModel(text = messages("ptap.support.uya.p3.sub"), href = Activity.href(), current = Activity == viewModel.currentTab),
           TabModel(text = messages("ptap.support.uya.p4.sub"), href = Tax.href(), current = Tax == viewModel.currentTab),
           TabModel(text = messages("ptap.support.uya.p5.sub"), href = News.href(), current = News == viewModel.currentTab),
