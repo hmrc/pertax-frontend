@@ -22,7 +22,7 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import error.ErrorRenderer
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
-import models.SelfAssessmentUser
+import models.{HomePageServices, SelfAssessmentUser}
 import models.admin.HomePagePersonalisationToggle
 import play.api.i18n.Messages
 import play.api.mvc.*
@@ -90,12 +90,16 @@ class HomeController @Inject() (
         val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
         val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
         val fTabContentCards         = tabContentService.getTaskAndTabCards(currentTab)
+        val fHomePageServices        =
+          if (currentTab == Tax) homePageServicesProvider.getHomePageServices
+          else Future.successful(HomePageServices(Seq.empty))
 
         for {
           breathingSpaceIndicator <- fBreathingSpaceIndicator
           eitherPersonDetails     <- fEitherPersonDetails
           alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten)
           tabContentCards         <- fTabContentCards
+          homePageServices        <- fHomePageServices
         } yield {
           val personDetailsOpt = eitherPersonDetails.toOption.flatten
           val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
@@ -122,7 +126,10 @@ class HomeController @Inject() (
                 name = nameToDisplay,
                 secondaryNav = secondaryNav,
                 tabContent = tabContent,
-                showSupportView = currentTab == Support
+                showSupportView = currentTab == Support,
+                showTaxesAndBenefitsView = currentTab == Tax,
+                myServices = homePageServices.myServices,
+                otherServices = homePageServices.otherServices
               )
             )
           )

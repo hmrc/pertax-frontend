@@ -887,7 +887,7 @@ ptap.support.uya.p2.tasks.list.other=TBC
 ptap.support.uya.p3.sub=TBC
 ptap.support.uya.p3.recent=TBC
 
-ptap.support.uya.p4.sub=TBC
+ptap.support.uya.p4.sub=Trethi a budd-daliadau
 ptap.support.uya.p4.tab=TBC
 
 ptap.support.uya.p5.sub=TBC

@@ -842,7 +842,7 @@ label.trusted_helpers_heading=Trusted helpers
 label.trusted_helpers_content=Get help with your tax online from someone you trust, or help someone you know.
 
 label.taxes_and_benefits_heading=Taxes and benefits
-label.taxes_and_benefits_subheading=Your current HMRC online taxes and benefits
+label.taxes_and_benefits_subheading=Your current HMRC Online taxes and benefits
 label.other_taxes_and_benefits_heading=Other taxes and benefits that may be relevant to you
 label.tax_calc_option=Your tax calculation — PAYE {0} to {1}
 
