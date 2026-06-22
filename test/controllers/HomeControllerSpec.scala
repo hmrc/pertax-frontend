@@ -26,7 +26,7 @@ import models.admin.{GetPersonFromCitizenDetailsToggle, HomePagePersonalisationT
 import models.{BreathingSpaceIndicatorResponse, HomePageServices}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.{reset, verify, when}
 import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesImpl}
 import play.api.inject.bind
@@ -37,6 +37,7 @@ import play.api.test.Helpers.*
 import play.twirl.api.Html
 import repositories.JourneyCacheRepository
 import services.*
+import testUtils.HmrcCardModelFixtures
 import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.fakes.{FakeAuthJourney, FakePaperlessInterruptHelper, FakeRlsInterruptHelper}
 import testUtils.{BaseSpec, CitizenDetailsFixtures, WireMockHelper}
@@ -45,6 +46,7 @@ import uk.gov.hmrc.http.{HeaderNames, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import util.AlertBannerHelper
+import viewmodels.TabEnum
 
 import scala.concurrent.Future
 
@@ -60,6 +62,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
   val mockTaiService: TaiService                             = mock[TaiService]
   val mockHomePageServicesProvider: HomePageServicesProvider = mock[HomePageServicesProvider]
   val mockTasksService: TasksService                         = mock[TasksService]
+  val mockTabContentService: TabContentService               = mock[TabContentService]
   val mockConfigDecorator: ConfigDecorator                   = mock[ConfigDecorator]
   val mockCitizenDetailsService: CitizenDetailsService       = mock[CitizenDetailsService]
 
@@ -75,6 +78,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
         bind[TaiService].toInstance(mockTaiService),
         bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
         bind[TasksService].toInstance(mockTasksService),
+        bind[TabContentService].toInstance(mockTabContentService),
         bind[ConfigDecorator].toInstance(mockConfigDecorator),
         bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
         bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
@@ -94,6 +98,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     reset(mockFeatureFlagService)
     reset(mockHomePageServicesProvider)
     reset(mockTasksService)
+    reset(mockTabContentService)
     reset(mockConfigDecorator)
     reset(mockCitizenDetailsService)
 
@@ -108,6 +113,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
     when(mockTasksService.getListOfTasks(any(), any()))
       .thenReturn(Future.successful(Seq.empty))
+
+    when(mockTabContentService.getTaskAndTabCards(any[TabEnum]())(any(), any()))
+      .thenReturn(Future.successful(TabContentCards(Seq.empty, Seq.empty)))
 
     when(mockTaiService.getTaxComponentsList(any(), any())(any(), any()))
       .thenReturn(Future.successful(taxComponents))
@@ -148,6 +156,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
         bind[TaiService].toInstance(mockTaiService),
         bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
         bind[TasksService].toInstance(mockTasksService),
+        bind[TabContentService].toInstance(mockTabContentService),
         bind[ConfigDecorator].toInstance(mockConfigDecorator),
         bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
         bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
@@ -211,6 +220,94 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       content.select("nav.x-govuk-secondary-navigation").size mustBe 1
       content.getElementById("taxes-and-benefits-heading") mustBe null
 
+    }
+
+    "fetch tab content once for the default Task tab and derive badge count from task cards" in {
+      val request = FakeRequest("GET", "/personal-account")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      when(mockTabContentService.getTaskAndTabCards(any[TabEnum]())(any(), any()))
+        .thenReturn(
+          Future.successful(
+            TabContentCards(HmrcCardModelFixtures.taskCards, HmrcCardModelFixtures.taskCards)
+          )
+        )
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(request)
+
+      status(result) mustBe OK
+      verify(mockTabContentService).getTaskAndTabCards(any[TabEnum]())(any(), any())
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.select(".x-govuk-secondary-navigation__badge").text() mustBe "2"
+      content.getElementById("tab-content-header").text() mustBe "Your tasks"
+      content.text() must include("You owe tax for 2023-24")
+      content.text() must not include "Tax code change"
+    }
+
+    "fetch tab content once for the Activity tab and render only activity cards" in {
+      val request = FakeRequest("GET", "/personal-account/recent-activity")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      when(mockTabContentService.getTaskAndTabCards(any[TabEnum]())(any(), any()))
+        .thenReturn(
+          Future.successful(
+            TabContentCards(HmrcCardModelFixtures.taskCards, HmrcCardModelFixtures.activityCards)
+          )
+        )
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.homePageTab("recent-activity")(request)
+
+      status(result) mustBe OK
+      verify(mockTabContentService).getTaskAndTabCards(any[TabEnum]())(any(), any())
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.select(".x-govuk-secondary-navigation__badge").text() mustBe "2"
+      content.getElementById("tab-content-header").text() mustBe "Recent activity"
+      content.text() must include("Tax code change")
+      content.text() must not include "You owe tax for 2023-24"
+    }
+
+    "fetch tab content once for a non-card tab without rendering task or activity cards" in {
+      val request = FakeRequest("GET", "/personal-account/taxes-and-benefits")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      when(mockTabContentService.getTaskAndTabCards(any[TabEnum]())(any(), any()))
+        .thenReturn(
+          Future.successful(
+            TabContentCards(HmrcCardModelFixtures.taskCards, Seq.empty)
+          )
+        )
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.homePageTab("taxes-and-benefits")(request)
+
+      status(result) mustBe OK
+      verify(mockTabContentService).getTaskAndTabCards(any[TabEnum]())(any(), any())
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.select(".x-govuk-secondary-navigation__badge").text() mustBe "2"
+      content.getElementById("tab-content-header") mustBe null
+      content.select(".hmrc-card").size() mustBe 0
+      content.text() must not include "You owe tax for 2023-24"
+      content.text() must not include "Tax code change"
     }
 
     "not render the tasks tab when HomePagePersonalisationToggle is false" in {
