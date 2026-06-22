@@ -17,17 +17,17 @@
 @import components.{H2, H3}
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import tags.CardContainer
 @import uk.gov.hmrc.play.language.LanguageUtils
-@import viewmodels.{PtapHomeViewModel, SecondaryNavModel,TabModel,TabEnum}
-@import viewmodels.TabEnum.*
+@import viewmodels.PtapHomeViewModel
 @import views.MainView
 @import views.html.components.alertBanner.AlertBanner
-@import views.html.components.{SecondaryNav}
-@import views.html.home.options.TaskListView
+@import views.html.components.SecondaryNav
 
 @this(
         main: MainView,
         alertBanner: AlertBanner,
+        cardContainer: CardContainer,
         configDecorator: ConfigDecorator
 )
 
@@ -65,12 +65,14 @@
     }
     <p class="govuk-body" id="ninoLink"><a class="govuk-link govuk-link--no-visited-state" href="@configDecorator.ptaNinoSaveUrl">
         @messages("label.view_and_save_your_national_insurance_number")</a></p>
-    @{SecondaryNav( SecondaryNavModel(items = Seq(
-          TabModel(text = messages("ptap.support.uya.p2.sub"), href = Task.href(), current = Task == viewModel.currentTab),
-          TabModel(text = messages("ptap.support.uya.p3.sub"), href = Activity.href(), current = Activity == viewModel.currentTab),
-          TabModel(text = messages("ptap.support.uya.p4.sub"), href = Tax.href(), current = Tax == viewModel.currentTab),
-          TabModel(text = messages("ptap.support.uya.p5.sub"), href = News.href(), current = News == viewModel.currentTab),
-          TabModel(text = messages("ptap.support.uya.p6.sub"), href = Support.href(), current = Support == viewModel.currentTab),
-        )
-      ))}
+
+    @{SecondaryNav(viewModel.secondaryNav)}
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            @for(container <- viewModel.tabContent) {
+                @cardContainer(container)
+            }
+        </div>
+    </div>
 }
