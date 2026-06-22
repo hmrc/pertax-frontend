@@ -23,12 +23,14 @@
 @import views.MainView
 @import views.html.components.alertBanner.AlertBanner
 @import views.html.components.SecondaryNav
+@import views.html.home.options.SupportView
 
 @this(
         main: MainView,
         alertBanner: AlertBanner,
         cardContainer: CardContainer,
-        configDecorator: ConfigDecorator
+        configDecorator: ConfigDecorator,
+        supportView: SupportView
 )
 
 @(viewModel: PtapHomeViewModel)(implicit request: UserRequest[_], messages: Messages)
@@ -72,6 +74,9 @@
         <div class="govuk-grid-column-two-thirds">
             @for(container <- viewModel.tabContent) {
                 @cardContainer(container)
+            }
+            @if(viewModel.showSupportView) {
+                @supportView()
             }
         </div>
     </div>

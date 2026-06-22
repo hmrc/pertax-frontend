@@ -121,7 +121,8 @@ class HomeController @Inject() (
                 alertBannerContent = alertBannerContent.map(PtapAlertBanner.apply),
                 name = nameToDisplay,
                 secondaryNav = secondaryNav,
-                tabContent = tabContent
+                tabContent = tabContent,
+                showSupportView = currentTab == Support
               )
             )
           )

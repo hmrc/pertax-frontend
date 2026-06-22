@@ -1,0 +1,109 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import models.{CardType, CardHeading, HmrcCardModel, CardBody}
+@import viewmodels.CardContainerModel
+@import tags.CardContainer
+@import play.twirl.api.{HtmlFormat, Html}
+
+@this(cardContainer: CardContainer)
+
+@()(implicit messages: play.api.i18n.Messages)
+
+@linkList(links: Seq[(String, String)]) = {
+    <ul class="govuk-list govuk-list--spaced">
+    @for((text: String, href: String) <- links) {
+        <li>
+            <a class="govuk-link" href="@href">@text</a>
+        </li>
+    }
+    </ul>
+}
+
+@noLinkCard(headingKey: String, links: Seq[(String, String)]) = @{
+    HmrcCardModel(
+        cardType = CardType.NoLinkCard,
+        heading = CardHeading(text = messages(headingKey), url = None),
+        body = Some(CardBody(linkList(links))),
+        hint = None
+    )
+}
+
+@hmrcOnlineCard() = @{
+    noLinkCard("ptap.support.tab.card.hmrc.online.heading", Seq(
+        (messages("ptap.support.tab.card.hmrc.online.link.understanding.account"), messages("ptap.support.tab.card.hmrc.online.link.understanding.account.url")),
+        (messages("ptap.support.tab.card.hmrc.online.link.extra.support"), messages("ptap.support.tab.card.hmrc.online.link.extra.support.url")),
+        (messages("ptap.support.tab.card.hmrc.online.link.technical.support"), messages("ptap.support.tab.card.hmrc.online.link.technical.support.url")),
+        (messages("ptap.support.tab.card.hmrc.online.link.help.friends"), messages("ptap.support.tab.card.hmrc.online.link.help.friends.url")),
+        (messages("ptap.support.tab.card.hmrc.online.link.chat"), messages("ptap.support.tab.card.hmrc.online.link.chat.url")),
+        (messages("ptap.support.tab.card.hmrc.online.link.change.details"), messages("ptap.support.tab.card.hmrc.online.link.change.details.url"))
+    ))
+}
+
+@payeCard() = @{
+    noLinkCard("ptap.support.tab.card.paye.heading", Seq(
+        (messages("ptap.support.tab.card.paye.link.guidance"), messages("ptap.support.tab.card.paye.link.guidance.url")),
+        (messages("ptap.support.tab.card.paye.link.enquiries"), messages("ptap.support.tab.card.paye.link.enquiries.url"))
+    ))
+}
+
+@selfAssessmentCard() = @{
+    noLinkCard("ptap.support.tab.card.self.assessment.heading", Seq(
+        (messages("ptap.support.tab.card.self.assessment.link.guidance"), messages("ptap.support.tab.card.self.assessment.link.guidance.url")),
+        (messages("ptap.support.tab.card.self.assessment.link.enquiries"), messages("ptap.support.tab.card.self.assessment.link.enquiries.url"))
+    ))
+}
+
+@childBenefitCard() = @{
+    noLinkCard("ptap.support.tab.card.child.benefit.heading", Seq(
+        (messages("ptap.support.tab.card.child.benefit.link.guidance"), messages("ptap.support.tab.card.child.benefit.link.guidance.url")),
+        (messages("ptap.support.tab.card.child.benefit.link.enquiries"), messages("ptap.support.tab.card.child.benefit.link.enquiries.url"))
+    ))
+}
+
+@marriageAllowanceCard() = @{
+    noLinkCard("ptap.support.tab.card.mariage.allowance.heading", Seq(
+        (messages("ptap.support.tab.card.mariage.allowance.link.guidance"), messages("ptap.support.tab.card.mariage.allowance.link.guidance.url")),
+        (messages("ptap.support.tab.card.mariage.allowance.link.enquiries"), messages("ptap.support.tab.card.mariage.allowance.link.enquiries.url"))
+    ))
+}
+
+@annualTaxSummaryCard() = @{
+    noLinkCard("ptap.support.tab.card.annual.tax.summary.heading", Seq(
+        (messages("ptap.support.tab.card.annual.tax.summary.link.guidance"), messages("ptap.support.tab.card.annual.tax.summary.link.guidance.url"))
+    ))
+}
+
+@nationalInsuranceStatePensionCard() = @{
+    noLinkCard("ptap.support.tab.card.insurance.state.pension.heading", Seq(
+        (messages("ptap.support.tab.card.insurance.state.pension.link.ni"), messages("ptap.support.tab.card.insurance.state.pension.link.ni.url")),
+        (messages("ptap.support.tab.card.insurance.state.pension.link.enquiries"), messages("ptap.support.tab.card.insurance.state.pension.link.enquiries.url"))
+    ))
+}
+
+@cardContainer(CardContainerModel(
+    header = Some(messages("ptap.support.tab.cards.header")),
+    emptyView = HtmlFormat.empty,
+    cards = Seq(
+        hmrcOnlineCard(),
+        payeCard(),
+        selfAssessmentCard(),
+        childBenefitCard(),
+        marriageAllowanceCard(),
+        annualTaxSummaryCard(),
+        nationalInsuranceStatePensionCard()
+    )
+))
