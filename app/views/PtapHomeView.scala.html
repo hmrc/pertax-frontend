@@ -23,7 +23,7 @@
 @import views.MainView
 @import views.html.components.alertBanner.AlertBanner
 @import views.html.components.SecondaryNav
-@import views.html.home.options.{SupportView, TaskListView}
+@import views.html.home.options.SupportView
 
 @this(
         main: MainView,
@@ -75,10 +75,9 @@
             @for(container <- viewModel.tabContent) {
                 @cardContainer(container)
             }
+            @if(viewModel.showSupportView) {
+                @supportView()
+            }
         </div>
     </div>
-
-    @if(viewModel.currentTab == Support) {
-        @supportView()
-    }
 }
