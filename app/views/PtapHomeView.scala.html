@@ -23,14 +23,15 @@
 @import views.MainView
 @import views.html.components.alertBanner.AlertBanner
 @import views.html.components.SecondaryNav
-@import views.html.home.options.SupportView
+@import views.html.home.options.{SupportView, TaxesAndBenefitsView}
 
 @this(
         main: MainView,
         alertBanner: AlertBanner,
         cardContainer: CardContainer,
         configDecorator: ConfigDecorator,
-        supportView: SupportView
+        supportView: SupportView,
+        taxesAndBenefitsView: TaxesAndBenefitsView
 )
 
 @(viewModel: PtapHomeViewModel)(implicit request: UserRequest[_], messages: Messages)
@@ -74,6 +75,9 @@
         <div class="govuk-grid-column-two-thirds">
             @for(container <- viewModel.tabContent) {
                 @cardContainer(container)
+            }
+            @if(viewModel.showTaxesAndBenefitsView) {
+                @taxesAndBenefitsView(viewModel.myServices, viewModel.otherServices)
             }
             @if(viewModel.showSupportView) {
                 @supportView()

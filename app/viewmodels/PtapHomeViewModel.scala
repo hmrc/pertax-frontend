@@ -16,6 +16,7 @@
 
 package viewmodels
 
+import models.{MyService, OtherService}
 import play.twirl.api.Html
 
 enum TabEnum(val name: String, val cardContainerHeading: Option[String] = None):
@@ -42,5 +43,8 @@ final case class PtapHomeViewModel(
   name: Option[String],
   secondaryNav: SecondaryNavModel,
   tabContent: List[CardContainerModel],
-  showSupportView: Boolean = false
+  showSupportView: Boolean = false,
+  showTaxesAndBenefitsView: Boolean = false,
+  myServices: Seq[MyService] = Seq.empty,
+  otherServices: Seq[OtherService] = Seq.empty
 )
