@@ -16,6 +16,10 @@ $govuk-include-default-font-face: false;
   }
 }
 
+.secondary-text {
+  color: $secondary-text-colour
+}
+
 address {
   font-style: normal;
 }
