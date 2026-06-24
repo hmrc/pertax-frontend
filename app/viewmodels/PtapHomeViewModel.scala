@@ -43,6 +43,7 @@ final case class PtapHomeViewModel(
   name: Option[String],
   secondaryNav: SecondaryNavModel,
   tabContent: List[CardContainerModel],
+  showNewsAndUpdatesView: Boolean = false,
   showSupportView: Boolean = false,
   showTaxesAndBenefitsView: Boolean = false,
   myServices: Seq[MyService] = Seq.empty,

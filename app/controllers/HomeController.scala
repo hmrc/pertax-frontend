@@ -126,6 +126,7 @@ class HomeController @Inject() (
                 name = nameToDisplay,
                 secondaryNav = secondaryNav,
                 tabContent = tabContent,
+                showNewsAndUpdatesView = currentTab == News,
                 showSupportView = currentTab == Support,
                 showTaxesAndBenefitsView = currentTab == Tax,
                 myServices = homePageServices.myServices,
