@@ -34,8 +34,8 @@ import java.time.LocalDate
 
 class PtapLatestNewsAndUpdatesViewSpec extends ViewSpec {
 
-  implicit val mockConfigDecorator: ConfigDecorator    = mock[ConfigDecorator]
-  val mockNewsAndTilesConfig: NewsAndTilesConfig        = mock[NewsAndTilesConfig]
+  implicit val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
+  val mockNewsAndTilesConfig: NewsAndTilesConfig    = mock[NewsAndTilesConfig]
 
   implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
 
@@ -58,21 +58,21 @@ class PtapLatestNewsAndUpdatesViewSpec extends ViewSpec {
   }
 
   private val newsItem1 = NewsAndContentModel(
-    newsSectionName  = "checkYourPersonalDetails",
+    newsSectionName = "checkYourPersonalDetails",
     shortDescription = "Check your personal details are up to date",
-    content          = "",
-    isDynamic        = false,
-    startDate        = LocalDate.now(),
-    toBeDisplayed    = true
+    content = "",
+    isDynamic = false,
+    startDate = LocalDate.now(),
+    toBeDisplayed = true
   )
 
   private val newsItem2 = NewsAndContentModel(
-    newsSectionName  = "homepageUpdate",
+    newsSectionName = "homepageUpdate",
     shortDescription = "Changes to the personal tax account homepage",
-    content          = "",
-    isDynamic        = false,
-    startDate        = LocalDate.now().minusDays(5),
-    toBeDisplayed    = true
+    content = "",
+    isDynamic = false,
+    startDate = LocalDate.now().minusDays(5),
+    toBeDisplayed = true
   )
 
   "PtapLatestNewsAndUpdatesView" must {
@@ -116,7 +116,8 @@ class PtapLatestNewsAndUpdatesViewSpec extends ViewSpec {
     "render each news item as a card with the correct link" in {
       when(mockConfigDecorator.isNewsAndUpdatesTileEnabled).thenReturn(true)
       when(mockNewsAndTilesConfig.getNewsAndContentModelList()(any(), any())).thenReturn(List(newsItem1, newsItem2))
-      when(mockConfigDecorator.displayNewsAndUpdatesUrl("checkYourPersonalDetails")).thenReturn("/news/checkYourPersonalDetails")
+      when(mockConfigDecorator.displayNewsAndUpdatesUrl("checkYourPersonalDetails"))
+        .thenReturn("/news/checkYourPersonalDetails")
       when(mockConfigDecorator.displayNewsAndUpdatesUrl("homepageUpdate")).thenReturn("/news/homepageUpdate")
 
       val document = asDocument(page().toString)
