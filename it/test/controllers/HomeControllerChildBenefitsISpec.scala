@@ -37,7 +37,7 @@ class HomeControllerChildBenefitsISpec extends IntegrationSpec {
     )
     .build()
 
-  val url: String  = s"/personal-account"
+  val url: String  = s"/personal-account/taxes-and-benefits"
   val uuid: String = UUID.randomUUID().toString
 
   def request: FakeRequest[AnyContentAsEmpty.type] =
@@ -48,7 +48,7 @@ class HomeControllerChildBenefitsISpec extends IntegrationSpec {
     beforeEachHomeController()
   }
 
-  "personal-account" must {
+  "personal-account/taxes-and-benefits" must {
     val urlSingleChildBenefit =
       controllers.interstitials.routes.InterstitialController.displayChildBenefitsSingleAccountView.url
     "show the the child benefit tile with the correct single account link" in {

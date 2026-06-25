@@ -144,6 +144,12 @@ class TimeoutsISpec extends IntegrationSpec {
       .withSession(SessionKeys.sessionId -> UUID.randomUUID().toString, SessionKeys.authToken -> "1")
   ).get
 
+  private def taxesAndBenefitsGET: Future[Result] = route(
+    app,
+    FakeRequest(GET, "/personal-account/taxes-and-benefits")
+      .withSession(SessionKeys.sessionId -> UUID.randomUUID().toString, SessionKeys.authToken -> "1")
+  ).get
+
   private val taxCalcPartialContent = "paid-too-much"
   private val taxCalcValidResponse  =
     s"""[{"partialName":"card1","partialContent":"$taxCalcPartialContent"}]
@@ -157,6 +163,16 @@ class TimeoutsISpec extends IntegrationSpec {
     )
     server.stubFor(get(urlEqualTo(citizenDetailsUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
     homePageGET
+  }
+
+  private def getTaxesAndBenefitsWithAllTimeouts: Future[Result] = {
+    server.stubFor(get(urlPathEqualTo(breathingSpaceUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
+    server.stubFor(get(urlEqualTo(taxComponentsUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
+    server.stubFor(
+      get(urlPathEqualTo(taxCalcUrl)).willReturn(ok(taxCalcValidResponse).withFixedDelay(delayInMilliseconds))
+    )
+    server.stubFor(get(urlEqualTo(citizenDetailsUrl)).willReturn(aResponse.withFixedDelay(delayInMilliseconds)))
+    taxesAndBenefitsGET
   }
 
   override def beforeEach(): Unit = {
@@ -202,7 +218,7 @@ class TimeoutsISpec extends IntegrationSpec {
       note(
         "(child benefits & tax credits tiles are always displayed whereas marriage allowance tile differs when times out)"
       )
-      val result            = getHomePageWithAllTimeouts
+      val result            = getTaxesAndBenefitsWithAllTimeouts
       val content: Document = Jsoup.parse(contentAsString(result))
       content.getElementsByClass("hmrc-caption govuk-caption-xl").get(0).text() mustBe
         Messages("label.this.section.is") + " " + Messages("label.account_home")

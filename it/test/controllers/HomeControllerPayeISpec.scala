@@ -37,7 +37,7 @@ class HomeControllerPayeISpec extends IntegrationSpec {
     )
     .build()
 
-  val url = s"/personal-account"
+  val url = s"/personal-account/taxes-and-benefits"
 
   def request: FakeRequest[AnyContentAsEmpty.type] = {
     val uuid = UUID.randomUUID().toString
@@ -49,7 +49,7 @@ class HomeControllerPayeISpec extends IntegrationSpec {
     beforeEachHomeController()
   }
 
-  "personal-account" must {
+  "personal-account/taxes-and-benefits" must {
     "show PAYE tile" in {
       val result: Future[Result] = route(app, request).get
 

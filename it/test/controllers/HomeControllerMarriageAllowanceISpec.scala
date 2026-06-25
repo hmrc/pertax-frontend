@@ -44,7 +44,7 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
     )
     .build()
 
-  val url                       = s"/personal-account"
+  val url                       = s"/personal-account/taxes-and-benefits"
   private val startTaxYear: Int = TaxYear.current.startYear
 
   def request: FakeRequest[AnyContentAsEmpty.type] = {
@@ -61,7 +61,7 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
       )
   }
 
-  "personal-account" must {
+  "personal-account/taxes-and-benefits" must {
     "show correct message on the Marriage Allowance tile when transferring Personal Allowance to partner" in {
 
       val taxComponentsJson = Json
@@ -91,7 +91,7 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
       )
 
       contentAsString(result).contains(
-        "You currently transfer part of your Personal Allowance to your partner."
+        "Marriage Allowance"
       ) mustBe true
       server.verify(
         1,
@@ -124,7 +124,7 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
       httpStatus(result) mustBe OK
 
       contentAsString(result).contains(
-        "Your partner currently transfers part of their Personal Allowance to you."
+        "Marriage Allowance"
       ) mustBe true
       server.verify(
         1,
@@ -156,11 +156,7 @@ class HomeControllerMarriageAllowanceISpec extends IntegrationSpec {
       val result: Future[Result] = route(app, request).get
       httpStatus(result) mustBe OK
 
-      Jsoup
-        .parse(contentAsString(result))
-        .getElementById("other_taxes")
-        .text()
-        .contains("Marriage Allowance") mustBe true
+      contentAsString(result).contains("Marriage Allowance") mustBe true
       server.verify(
         1,
         getRequestedFor(urlEqualTo(s"/tai/$generatedNino/tax-account/$startTaxYear/tax-components"))

@@ -439,6 +439,15 @@ trait IntegrationSpec
             .withBody(singleAccountWrapperDataResponse)
         )
     )
+
+    server.stubFor(
+      WireMock
+        .get(urlEqualTo("/single-customer-account-wrapper-data/service-navigation/toggle"))
+        .willReturn(
+          aResponse()
+            .withBody("{\"useNewServiceNavigation\": false}")
+        )
+    )
   }
 
   def beforeEachHomeController(

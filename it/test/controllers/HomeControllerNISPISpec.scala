@@ -39,7 +39,7 @@ class HomeControllerNISPISpec extends IntegrationSpec {
     .configure("microservice.services.dfs-digital-forms-frontend.port" -> server.port())
     .build()
 
-  private val ptaUrl            = "/personal-account"
+  private val ptaUrl            = "/personal-account/taxes-and-benefits"
   private val dfsPartialNinoUrl = "/digital-forms/forms/personal-tax/national-insurance/catalogue"
   val uuid: String              = UUID.randomUUID().toString
   private val dummyContent      = "National Insurance forms"
@@ -52,7 +52,7 @@ class HomeControllerNISPISpec extends IntegrationSpec {
     beforeEachHomeController()
   }
 
-  "personal-account" must {
+  "personal-account/taxes-and-benefits" must {
     "show NISP tile and take the user to NISP Bucket page" when {
       "dfs-digital-forms-frontend-available-toggle is enabled so that user can view and save National Insurance number" in {
 
