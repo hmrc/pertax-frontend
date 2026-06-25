@@ -23,18 +23,16 @@ import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptH
 import error.ErrorRenderer
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.{HomePageServices, SelfAssessmentUser}
-import models.admin.HomePagePersonalisationToggle
 import play.api.i18n.Messages
 import play.api.mvc.*
 import play.twirl.api.Html
 import services.*
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
-import viewmodels.{AlertBanner, CardContainerModel, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeViewModel, PtapNewsAndUpdates, SecondaryNavModel, TabEnum, TabModel}
+import viewmodels.{CardContainerModel, PtapAlertBanner, PtapHomeViewModel, PtapNewsAndUpdates, SecondaryNavModel, TabEnum, TabModel}
 import viewmodels.TabEnum.*
-import views.html.{HomeView, PtapHomeView}
+import views.html.PtapHomeView
 
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
@@ -42,15 +40,12 @@ import scala.concurrent.{ExecutionContext, Future}
 class HomeController @Inject() (
   paperlessInterruptHelper: PaperlessInterruptHelper,
   breathingSpaceService: BreathingSpaceService,
-  featureFlagService: FeatureFlagService,
   citizenDetailsService: CitizenDetailsService,
   homePageServicesProvider: HomePageServicesProvider,
-  tasksService: TasksService,
   tabContentService: TabContentService,
   homeOptionsGenerator: HomeOptionsGenerator,
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
-  homeView: HomeView,
   pTapHomeView: PtapHomeView,
   rlsInterruptHelper: RlsInterruptHelper,
   alertBannerHelper: AlertBannerHelper,
@@ -66,13 +61,7 @@ class HomeController @Inject() (
 
   def homePageTab(tab: String) =
     authenticate.async { implicit request =>
-      featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
-        if (toggle.isEnabled) {
-          personalisationHomePageTab(tab)
-        } else {
-          newHomePage
-        }
-      }
+      personalisationHomePageTab(tab)
     }
 
   private def personalisationHomePageTab(tab: String)(implicit
@@ -170,58 +159,8 @@ class HomeController @Inject() (
       )
     )
 
-  private def newHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
-
-    val nino: Nino = request.helpeeNinoOrElse
-
-    val utr: Option[String] = request.saUserType match {
-      case saUser: SelfAssessmentUser => Some(saUser.saUtr.utr)
-      case _                          => None
-    }
-
-    enforceInterrupts {
-      val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
-      val fListOfTasks             = tasksService.getListOfTasks
-      val fHomePageServices        = homePageServicesProvider.getHomePageServices
-      val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
-
-      for {
-        breathingSpaceIndicator <- fBreathingSpaceIndicator
-        listOfTasks             <- fListOfTasks
-        homePageServices        <- fHomePageServices
-        eitherPersonDetails     <- fEitherPersonDetails
-        alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten)
-      } yield {
-        val personDetailsOpt = eitherPersonDetails.toOption.flatten
-        val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
-
-        Ok(
-          homeView(
-            HomeViewModel(
-              listOfTasks,
-              homeOptionsGenerator.getLatestNewsAndUpdatesCard().map(NewsAndUpdates.apply),
-              showUserResearchBanner = false,
-              utr,
-              breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
-              alertBannerContent = alertBannerContent.map(AlertBanner.apply),
-              name = nameToDisplay,
-              myServices = homePageServices.myServices,
-              otherServices = homePageServices.otherServices
-            )
-          )
-        )
-      }
-    }
-  }
-
   def index: Action[AnyContent] = authenticate.async { implicit request =>
-    featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
-      if (toggle.isEnabled) {
-        personalisationHomePageTab(Task.name)
-      } else {
-        newHomePage
-      }
-    }
+    personalisationHomePageTab(Task.name)
   }
 
   private def withValidTab(tab: String)(block: TabEnum => Future[Result])(implicit

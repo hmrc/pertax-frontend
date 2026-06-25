@@ -22,7 +22,7 @@ import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
-import models.admin.{GetPersonFromCitizenDetailsToggle, HomePagePersonalisationToggle, ShowPlannedOutageBannerToggle}
+import models.admin.{GetPersonFromCitizenDetailsToggle, ShowPlannedOutageBannerToggle}
 import models.{BreathingSpaceIndicatorResponse, HomePageServices, MyService, OtherService}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
@@ -126,9 +126,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     when(mockFeatureFlagService.get(GetPersonFromCitizenDetailsToggle))
       .thenReturn(Future.successful(FeatureFlag(GetPersonFromCitizenDetailsToggle, isEnabled = true)))
 
-    when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
-      .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = false)))
-
     when(mockConfigDecorator.getFeedbackSurveyUrl(any()))
       .thenReturn("/personal-account/signed-out")
 
@@ -198,37 +195,13 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       status(result) mustBe OK
 
       val content = Jsoup.parse(contentAsString(result))
-      content.getElementById("taxes-and-benefits-heading") must not be null
-    }
-
-    "Render to the tasks tab without redirecting when HomePagePersonalisationToggle is true" in {
-      val request = FakeRequest("GET", "/personal-account")
-        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
-        .asInstanceOf[Request[AnyContent]]
-
-      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
-
-      val appLocal   = appBuilder.build()
-      val controller = appLocal.injector.instanceOf[HomeController]
-      val result     = controller.index()(request)
-
-      status(result) mustBe OK
-      redirectLocation(result) mustBe None
-
-      val content = Jsoup.parse(contentAsString(result))
       content.select("nav.x-govuk-secondary-navigation").size mustBe 1
-      content.getElementById("taxes-and-benefits-heading") mustBe null
-
     }
 
     "fetch tab content once for the default Task tab and derive badge count from task cards" in {
       val request = FakeRequest("GET", "/personal-account")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
-
-      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
 
       when(mockTabContentService.getTaskAndTabCards(any[TabEnum]())(any(), any()))
         .thenReturn(
@@ -256,9 +229,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
-      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
-
       when(mockTabContentService.getTaskAndTabCards(any[TabEnum]())(any(), any()))
         .thenReturn(
           Future.successful(
@@ -285,9 +255,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
-      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
-
       when(mockTabContentService.getTaskAndTabCards(any[TabEnum]())(any(), any()))
         .thenReturn(
           Future.successful(
@@ -308,26 +275,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       content.select(".hmrc-card").size() mustBe 0
       content.text() must not include "You owe tax for 2023-24"
       content.text() must not include "Tax code change"
-    }
-
-    "not render the tasks tab when HomePagePersonalisationToggle is false" in {
-      val request = FakeRequest("GET", "/personal-account")
-        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
-        .asInstanceOf[Request[AnyContent]]
-
-      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = false)))
-
-      val appLocal   = appBuilder.build()
-      val controller = appLocal.injector.instanceOf[HomeController]
-      val result     = controller.index()(request)
-
-      status(result) mustBe OK
-      redirectLocation(result) mustBe None
-
-      val content = Jsoup.parse(contentAsString(result))
-      content.getElementById("taxes-and-benefits-heading") must not be null
-      content.select("nav.x-govuk-secondary-navigation").size mustBe 0
     }
 
     "Return a Breathing space if that is returned within period" in {
@@ -397,9 +344,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       val request = FakeRequest("GET", "/personal-account/taxes-and-benefits")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
-
-      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
 
       val payeService = MyService(
         "Pay As You Earn (PAYE)",

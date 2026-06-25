@@ -40,8 +40,7 @@ object AllFeatureFlags {
     MTDUserStatusToggle,
     GetMatchingFromCitizenDetailsToggle,
     ClaimMtdFromPtaToggle,
-    HomePageChangesBannerToggle,
-    HomePagePersonalisationToggle
+    HomePageChangesBannerToggle
   )
 }
 
@@ -212,13 +211,4 @@ case object HomePageChangesBannerToggle extends FeatureFlagName {
   override val description: Option[String] = Some(
     "Enable/disable the banner on PTA home page informing users about changes made to the home page design"
   )
-}
-
-case object HomePagePersonalisationToggle extends FeatureFlagName {
-  override val name: String                         = "home-page-personalisation-toggle"
-  override val description: Option[String]          = Some(
-    "Enable/disable the new PTA home page personalisation layout"
-  )
-  override val lockedEnvironments: Seq[Environment] =
-    Seq(Environment.Local, Environment.Staging, Environment.Qa, Environment.Production)
 }
