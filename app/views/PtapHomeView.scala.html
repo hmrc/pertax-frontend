@@ -24,14 +24,14 @@
 @import views.MainView
 @import views.html.components.alertBanner.AlertBanner
 @import views.html.components.SecondaryNav
-@import views.html.home.options.{LatestNewsAndUpdatesView, SupportView, TaxesAndBenefitsView}
+@import views.html.home.options.{PtapLatestNewsAndUpdatesView, SupportView, TaxesAndBenefitsView}
 
 @this(
         main: MainView,
         alertBanner: AlertBanner,
         cardContainer: CardContainer,
         configDecorator: ConfigDecorator,
-        latestNewsAndUpdatesView: LatestNewsAndUpdatesView,
+        ptapLatestNewsAndUpdatesView: PtapLatestNewsAndUpdatesView,
         supportView: SupportView,
         taxesAndBenefitsView: TaxesAndBenefitsView
 )
@@ -79,7 +79,7 @@
                 @cardContainer(container)
             }
             @if(viewModel.showNewsAndUpdatesView) {
-                @latestNewsAndUpdatesView()(messages, configDecorator, request)
+                @ptapLatestNewsAndUpdatesView()
             }
             @if(viewModel.showTaxesAndBenefitsView) {
                 @taxesAndBenefitsView(viewModel.myServices, viewModel.otherServices)

@@ -1,0 +1,51 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import config.{ConfigDecorator, NewsAndTilesConfig}
+@import controllers.auth.requests.UserRequest
+@import models.{CardHeading, CardType, HmrcCardModel}
+@import play.api.mvc.AnyContent
+@import play.twirl.api.HtmlFormat
+@import tags.CardContainer
+@import viewmodels.CardContainerModel
+
+@this(newsAndTilesConfig: NewsAndTilesConfig, cardContainer: CardContainer, configDecorator: ConfigDecorator)
+
+@()(implicit messages: play.api.i18n.Messages, request: UserRequest[AnyContent])
+
+@newsCards = @{
+    if (configDecorator.isNewsAndUpdatesTileEnabled && newsAndTilesConfig.getNewsAndContentModelList().nonEmpty) {
+        newsAndTilesConfig.getNewsAndContentModelList().map { item =>
+            HmrcCardModel(
+                cardType = CardType.BasicCard,
+                heading = CardHeading(text = item.shortDescription, url = Some(configDecorator.displayNewsAndUpdatesUrl(item.newsSectionName))),
+                body = None,
+                hint = None
+            )
+        }
+    } else {
+        Seq.empty[HmrcCardModel]
+    }
+}
+
+@if(newsCards.nonEmpty) {
+    @cardContainer(CardContainerModel(
+        header = Some(messages("label.hmrc_news")),
+        headerId = Some("hmrc-news-heading"),
+        emptyView = HtmlFormat.empty,
+        cards = newsCards
+    ))
+}
