@@ -31,7 +31,7 @@ import services.*
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
-import util.AlertBannerHelper
+import util.{AlertBannerHelper, NinoUtil}
 import viewmodels.{AlertBanner, CardContainerModel, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeViewModel, PtapNewsAndUpdates, SecondaryNavModel, TabEnum, TabModel}
 import viewmodels.TabEnum.*
 import views.html.{HomeView, PtapHomeView}
@@ -48,6 +48,7 @@ class HomeController @Inject() (
   tasksService: TasksService,
   tabContentService: TabContentService,
   homeOptionsGenerator: HomeOptionsGenerator,
+  ninoUtil: NinoUtil,
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   homeView: HomeView,
@@ -64,14 +65,18 @@ class HomeController @Inject() (
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
 
+  private def isPersonalisationEnabledAndNinoEligible(implicit
+    request: UserRequest[AnyContent]
+  ): Future[Boolean] =
+    featureFlagService.get(HomePagePersonalisationToggle).map { toggle =>
+      toggle.isEnabled && ninoUtil.isNinoEligibleForPtapHomepage(request.helpeeNinoOrElse)
+    }
+
   def homePageTab(tab: String) =
     authenticate.async { implicit request =>
-      featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
-        if (toggle.isEnabled) {
-          personalisationHomePageTab(tab)
-        } else {
-          newHomePage
-        }
+      isPersonalisationEnabledAndNinoEligible.flatMap {
+        case true  => personalisationHomePageTab(tab)
+        case false => newHomePage
       }
     }
 
@@ -215,12 +220,9 @@ class HomeController @Inject() (
   }
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
-    featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
-      if (toggle.isEnabled) {
-        personalisationHomePageTab(Task.name)
-      } else {
-        newHomePage
-      }
+    isPersonalisationEnabledAndNinoEligible.flatMap {
+      case true  => personalisationHomePageTab(Task.name)
+      case false => newHomePage
     }
   }
 

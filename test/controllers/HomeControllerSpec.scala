@@ -45,7 +45,7 @@ import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.{HeaderNames, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import util.AlertBannerHelper
+import util.{AlertBannerHelper, NinoUtil}
 import viewmodels.TabEnum
 
 import scala.concurrent.Future
@@ -65,6 +65,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
   val mockTabContentService: TabContentService               = mock[TabContentService]
   val mockConfigDecorator: ConfigDecorator                   = mock[ConfigDecorator]
   val mockCitizenDetailsService: CitizenDetailsService       = mock[CitizenDetailsService]
+  val mockNinoUtil: NinoUtil                                 = mock[NinoUtil]
 
   lazy val appBuilder: GuiceApplicationBuilder =
     localGuiceApplicationBuilder()
@@ -81,7 +82,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
         bind[TabContentService].toInstance(mockTabContentService),
         bind[ConfigDecorator].toInstance(mockConfigDecorator),
         bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
-        bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
+        bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository]),
+        bind[NinoUtil].toInstance(mockNinoUtil)
       )
 
   private val taxComponents = List("EmployerProvidedServices", "PersonalPensionPayments")
@@ -101,6 +103,10 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     reset(mockTabContentService)
     reset(mockConfigDecorator)
     reset(mockCitizenDetailsService)
+    reset(mockNinoUtil)
+
+    when(mockNinoUtil.isNinoEligibleForPtapHomepage(any()))
+      .thenReturn(true)
 
     when(mockBreathingSpaceService.getBreathingSpaceIndicator(any())(any(), any()))
       .thenReturn(Future.successful(WithinPeriod))
@@ -159,7 +165,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
         bind[TabContentService].toInstance(mockTabContentService),
         bind[ConfigDecorator].toInstance(mockConfigDecorator),
         bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
-        bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
+        bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository]),
+        bind[NinoUtil].toInstance(mockNinoUtil)
       )
       .build()
 
@@ -324,6 +331,72 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       status(result) mustBe OK
       redirectLocation(result) mustBe None
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.getElementById("taxes-and-benefits-heading") must not be null
+      content.select("nav.x-govuk-secondary-navigation").size mustBe 0
+    }
+
+    "render the new design when HomePagePersonalisationToggle is true and the NINO is eligible" in {
+      val request = FakeRequest("GET", "/personal-account")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      when(mockNinoUtil.isNinoEligibleForPtapHomepage(any()))
+        .thenReturn(true)
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(request)
+
+      status(result) mustBe OK
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.select("nav.x-govuk-secondary-navigation").size mustBe 1
+      content.getElementById("taxes-and-benefits-heading") mustBe null
+    }
+
+    "render the old design when HomePagePersonalisationToggle is true but the NINO is not eligible" in {
+      val request = FakeRequest("GET", "/personal-account")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      when(mockNinoUtil.isNinoEligibleForPtapHomepage(any()))
+        .thenReturn(false)
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(request)
+
+      status(result) mustBe OK
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.getElementById("taxes-and-benefits-heading") must not be null
+      content.select("nav.x-govuk-secondary-navigation").size mustBe 0
+    }
+
+    "render the old design when HomePagePersonalisationToggle is false even if the NINO is eligible" in {
+      val request = FakeRequest("GET", "/personal-account")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = false)))
+
+      when(mockNinoUtil.isNinoEligibleForPtapHomepage(any()))
+        .thenReturn(true)
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(request)
+
+      status(result) mustBe OK
 
       val content = Jsoup.parse(contentAsString(result))
       content.getElementById("taxes-and-benefits-heading") must not be null
