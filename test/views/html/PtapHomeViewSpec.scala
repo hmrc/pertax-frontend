@@ -122,8 +122,8 @@ class PtapHomeViewSpec extends ViewSpec {
           ).toString
         )
 
-      document.select("h1").asScala.exists(_.text == "Firstname Lastname") mustBe true
-      document.select("h1").asScala.exists(_.text == "Your account") mustBe false
+      document.select("header.hmrc-page-heading h1").text mustBe "Personal tax account - Your tasks"
+      document.select("header.hmrc-page-heading .govuk-caption-xl").text mustBe "Firstname Lastname"
     }
 
     "show the users name and not 'Your account' when the user has no details but is a GG user" in {
@@ -137,8 +137,8 @@ class PtapHomeViewSpec extends ViewSpec {
           ).toString
         )
 
-      document.select("h1").asScala.exists(_.text == "Firstname Lastname") mustBe true
-      document.select("h1").asScala.exists(_.text == "Your account") mustBe false
+      document.select("header.hmrc-page-heading h1").text mustBe "Personal tax account - Your tasks"
+      document.select("header.hmrc-page-heading .govuk-caption-xl").text mustBe "Firstname Lastname"
     }
 
     "show 'Your account' and not the users name when the user has no details and is not a GG user" in {
@@ -148,7 +148,9 @@ class PtapHomeViewSpec extends ViewSpec {
       lazy val document: Document =
         asDocument(home(homeViewModel).toString)
 
-      document.select("h1").asScala.exists(_.text == "Your account") mustBe true
+      document.select("header.hmrc-page-heading h1").text mustBe "Personal tax account - Your tasks"
+      document.select("header.hmrc-page-heading .govuk-caption-xl").text mustBe "Your account"
+      document.select("header.hmrc-page-heading h1 .govuk-visually-hidden").text mustBe "- Your tasks"
     }
 
     "must not show the UTR if the user is not a self assessment user" in {

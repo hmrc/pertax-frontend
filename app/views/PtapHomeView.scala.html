@@ -48,7 +48,8 @@
    
     <header class="hmrc-page-heading">
         <span class="govuk-caption-xl">@viewModel.name.fold(messages("label.your_account"))(upperCaseToTitleCase)</span>
-        <h1 class="govuk-heading-xl govuk-!-margin-bottom-0">@messages("label.your_personal_tax_account")<span class="govuk-visually-hidden">- Your tasks</span></h1>
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-0">@messages("label.your_personal_tax_account")
+            <span class="govuk-visually-hidden">- Your tasks</span></h1>
     </header>
 
     @if(viewModel.breathingSpaceIndicator) {
