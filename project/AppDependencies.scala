@@ -5,7 +5,7 @@ object AppDependencies {
 
   private val playVersion               = "play-30"
   private val cryptoVersion             = "8.4.0"
-  private val scaWrapperVersion         = "5.1.0"
+  private val scaWrapperVersion         = "5.3.0"
   private val mongoFeatureClientVersion = "2.5.0"
 
   val compile: Seq[ModuleID] = Seq(
