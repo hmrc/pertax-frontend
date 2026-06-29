@@ -17,6 +17,7 @@
 package controllers
 
 import com.google.inject.Inject
+import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
@@ -31,7 +32,7 @@ import services.*
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
-import util.{AlertBannerHelper, NinoUtil}
+import util.AlertBannerHelper
 import viewmodels.{AlertBanner, CardContainerModel, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeViewModel, PtapNewsAndUpdates, SecondaryNavModel, TabEnum, TabModel}
 import viewmodels.TabEnum.*
 import views.html.{HomeView, PtapHomeView}
@@ -48,7 +49,7 @@ class HomeController @Inject() (
   tasksService: TasksService,
   tabContentService: TabContentService,
   homeOptionsGenerator: HomeOptionsGenerator,
-  ninoUtil: NinoUtil,
+  configDecorator: ConfigDecorator,
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   homeView: HomeView,
@@ -69,7 +70,8 @@ class HomeController @Inject() (
     request: UserRequest[AnyContent]
   ): Future[Boolean] =
     featureFlagService.get(HomePagePersonalisationToggle).map { toggle =>
-      toggle.isEnabled && ninoUtil.isNinoEligibleForPtapHomepage(request.helpeeNinoOrElse)
+      val lastNumericDigit = request.helpeeNinoOrElse.nino.filter(_.isDigit).last.asDigit
+      toggle.isEnabled && configDecorator.ptapHomepageNinoRolloutLastNumericDigits.contains(lastNumericDigit)
     }
 
   def homePageTab(tab: String) =
