@@ -42,6 +42,7 @@ import testUtils.UserRequestFixture.buildUserRequest
 import testUtils.fakes.{FakeAuthJourney, FakePaperlessInterruptHelper, FakeRlsInterruptHelper}
 import testUtils.{BaseSpec, CitizenDetailsFixtures, WireMockHelper}
 import uk.gov.hmrc.domain.{Generator, Nino}
+import uk.gov.hmrc.sca.models.TrustedHelper
 import uk.gov.hmrc.http.{HeaderNames, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -436,6 +437,91 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       val content = Jsoup.parse(contentAsString(result))
       content.getElementById("taxes-and-benefits-heading") must not be null
       content.select("nav.x-govuk-secondary-navigation").size mustBe 0
+    }
+
+    "render the new design using the trusted-helper principal NINO when it is eligible" in {
+      // Auth NINO AA000008A (last digit 8, ineligible) but principal NINO AA000009A (last digit 9, eligible)
+      // helpeeNinoOrElse resolves to the principal NINO — new design must be shown
+      val authNino      = Nino("AA000008A")
+      val principalNino = Nino("AA000009A")
+      val request       = FakeRequest("GET", "/personal-account")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      when(mockConfigDecorator.ptapHomepageNinoRolloutLastNumericDigits)
+        .thenReturn(Seq(9))
+
+      val appLocal   = appWithAuthJourney(
+        new AuthJourney {
+          override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
+            new testUtils.ActionBuilderFixture {
+              override def invokeBlock[A](
+                request: Request[A],
+                block: UserRequest[A] => Future[Result]
+              ): Future[Result] =
+                block(
+                  buildUserRequest(
+                    request = request,
+                    authNino = authNino,
+                    trustedHelper = Some(TrustedHelper("principal", "attorney", "/return", Some(principalNino.nino)))
+                  )
+                )
+            }
+        }
+      )
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(request)
+
+      status(result) mustBe OK
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.select("nav.x-govuk-secondary-navigation").size mustBe 1
+      content.getElementById("taxes-and-benefits-heading") mustBe null
+    }
+
+    "render the new design falling back to auth NINO when trusted-helper has no principal NINO" in {
+      // Trusted helper present but principalNino is None — helpeeNinoOrElse falls back to authNino
+      // authNino AA000009A (last digit 9) is eligible — new design must be shown
+      val authNino = Nino("AA000009A")
+      val request  = FakeRequest("GET", "/personal-account")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      when(mockConfigDecorator.ptapHomepageNinoRolloutLastNumericDigits)
+        .thenReturn(Seq(9))
+
+      val appLocal   = appWithAuthJourney(
+        new AuthJourney {
+          override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
+            new testUtils.ActionBuilderFixture {
+              override def invokeBlock[A](
+                request: Request[A],
+                block: UserRequest[A] => Future[Result]
+              ): Future[Result] =
+                block(
+                  buildUserRequest(
+                    request = request,
+                    authNino = authNino,
+                    trustedHelper = Some(TrustedHelper("principal", "attorney", "/return", None))
+                  )
+                )
+            }
+        }
+      )
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(request)
+
+      status(result) mustBe OK
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.select("nav.x-govuk-secondary-navigation").size mustBe 1
+      content.getElementById("taxes-and-benefits-heading") mustBe null
     }
 
     "Return a Breathing space if that is returned within period" in {
