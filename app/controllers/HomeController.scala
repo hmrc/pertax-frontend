@@ -215,11 +215,15 @@ class HomeController @Inject() (
   }
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
+    val isPtap: Boolean = request.queryString
+      .get("ptap")
+      .flatMap(_.headOption)
+      .contains("true")
+
     featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
-      if (toggle.isEnabled) {
-        personalisationHomePageTab(Task.name)
-      } else {
-        newHomePage
+      (toggle.isEnabled, isPtap) match {
+        case (true, true) => personalisationHomePageTab(Task.name)
+        case _            => newHomePage
       }
     }
   }
