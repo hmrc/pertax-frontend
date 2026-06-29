@@ -205,7 +205,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     }
 
     "Render to the tasks tab without redirecting when HomePagePersonalisationToggle is true" in {
-      val request = FakeRequest("GET", "/personal-account")
+      val request = FakeRequest("GET", "/personal-account?ptap=true")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
@@ -226,7 +226,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     }
 
     "fetch tab content once for the default Task tab and derive badge count from task cards" in {
-      val request = FakeRequest("GET", "/personal-account")
+      val request = FakeRequest("GET", "/personal-account?ptap=true")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
@@ -255,7 +255,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     }
 
     "fetch tab content once for the Activity tab and render only activity cards" in {
-      val request = FakeRequest("GET", "/personal-account/recent-activity")
+      val request = FakeRequest("GET", "/personal-account/recent-activity?ptap=true")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
@@ -284,7 +284,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     }
 
     "fetch tab content once for a non-card tab without rendering task or activity cards" in {
-      val request = FakeRequest("GET", "/personal-account/hmrc-news")
+      val request = FakeRequest("GET", "/personal-account/hmrc-news?ptap=true")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
@@ -336,7 +336,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     "render the new design when HomePagePersonalisationToggle is true and the NINO is eligible" in {
       // NINO AA000009A: last numeric digit is 9; configure rollout list to include 9
       val eligibleNino = Nino("AA000009A")
-      val request      = FakeRequest("GET", "/personal-account")
+      val request      = FakeRequest("GET", "/personal-account?ptap=true")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
@@ -406,12 +406,47 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     "render the old design when HomePagePersonalisationToggle is false even if the NINO is eligible" in {
       // NINO AA000009A: last numeric digit is 9; rollout list includes 9 — but toggle is OFF
       val eligibleNino = Nino("AA000009A")
-      val request      = FakeRequest("GET", "/personal-account")
+      val request      = FakeRequest("GET", "/personal-account?ptap=true")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
       when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = false)))
+
+      when(mockConfigDecorator.ptapHomepageNinoRolloutLastNumericDigits)
+        .thenReturn(Seq(9))
+
+      val appLocal   = appWithAuthJourney(
+        new AuthJourney {
+          override def authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
+            new testUtils.ActionBuilderFixture {
+              override def invokeBlock[A](
+                request: Request[A],
+                block: UserRequest[A] => Future[Result]
+              ): Future[Result] =
+                block(buildUserRequest(request = request, authNino = eligibleNino, trustedHelper = None))
+            }
+        }
+      )
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(request)
+
+      status(result) mustBe OK
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.getElementById("taxes-and-benefits-heading") must not be null
+      content.select("nav.x-govuk-secondary-navigation").size mustBe 0
+    }
+
+    "render the old design when toggle is ON and NINO is eligible but ptap query parameter is absent" in {
+      // NINO AA000009A: last numeric digit is 9; rollout list includes 9; toggle ON — but no ?ptap=true
+      val eligibleNino = Nino("AA000009A")
+      val request      = FakeRequest("GET", "/personal-account")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
 
       when(mockConfigDecorator.ptapHomepageNinoRolloutLastNumericDigits)
         .thenReturn(Seq(9))
@@ -502,7 +537,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     }
 
     "Render the Tax tab with personalised services when accessing /personal-account/taxes-and-benefits" in {
-      val request = FakeRequest("GET", "/personal-account/taxes-and-benefits")
+      val request = FakeRequest("GET", "/personal-account/taxes-and-benefits?ptap=true")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
