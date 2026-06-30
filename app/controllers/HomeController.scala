@@ -17,6 +17,7 @@
 package controllers
 
 import com.google.inject.Inject
+import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
@@ -48,6 +49,7 @@ class HomeController @Inject() (
   tasksService: TasksService,
   tabContentService: TabContentService,
   homeOptionsGenerator: HomeOptionsGenerator,
+  configDecorator: ConfigDecorator,
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   homeView: HomeView,
@@ -64,14 +66,20 @@ class HomeController @Inject() (
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
 
+  private def isPersonalisationEnabledAndNinoEligible(implicit
+    request: UserRequest[AnyContent]
+  ): Future[Boolean] =
+    val isPtap: Boolean = request.queryString.get("ptap").flatMap(_.headOption).contains("true")
+    featureFlagService.get(HomePagePersonalisationToggle).map { toggle =>
+      val lastNumericDigit = request.helpeeNinoOrElse.nino.filter(_.isDigit).last.asDigit
+      toggle.isEnabled && isPtap && configDecorator.ptapHomepageNinoRolloutLastNumericDigits.contains(lastNumericDigit)
+    }
+
   def homePageTab(tab: String) =
     authenticate.async { implicit request =>
-      featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
-        if (toggle.isEnabled) {
-          personalisationHomePageTab(tab)
-        } else {
-          newHomePage
-        }
+      isPersonalisationEnabledAndNinoEligible.flatMap {
+        case true  => personalisationHomePageTab(tab)
+        case false => newHomePage
       }
     }
 
@@ -215,16 +223,9 @@ class HomeController @Inject() (
   }
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
-    val isPtap: Boolean = request.queryString
-      .get("ptap")
-      .flatMap(_.headOption)
-      .contains("true")
-
-    featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
-      (toggle.isEnabled, isPtap) match {
-        case (true, true) => personalisationHomePageTab(Task.name)
-        case _            => newHomePage
-      }
+    isPersonalisationEnabledAndNinoEligible.flatMap {
+      case true  => personalisationHomePageTab(Task.name)
+      case false => newHomePage
     }
   }
 

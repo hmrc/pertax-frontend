@@ -87,4 +87,24 @@ class ConfigDecoratorSpec extends BaseSpec {
     }
 
   }
+
+  "ptapHomepageNinoRolloutLastNumericDigits" must {
+
+    "return the configured list of digits" in {
+      val appLocal = localGuiceApplicationBuilder(
+        extraConfigValues = Map(
+          "feature.ptap-homepage.nino-rollout.last-numeric-digits" -> Seq(5, 6, 7, 8, 9)
+        )
+      ).build()
+
+      val configDecorator = appLocal.injector.instanceOf[ConfigDecorator]
+
+      configDecorator.ptapHomepageNinoRolloutLastNumericDigits mustBe Seq(5, 6, 7, 8, 9)
+    }
+
+    "return an empty sequence when the key is not configured" in {
+      config.ptapHomepageNinoRolloutLastNumericDigits mustBe Seq.empty
+    }
+
+  }
 }
