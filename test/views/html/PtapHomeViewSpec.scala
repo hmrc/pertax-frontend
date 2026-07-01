@@ -122,7 +122,7 @@ class PtapHomeViewSpec extends ViewSpec {
           ).toString
         )
 
-      document.select("header.hmrc-page-heading h1").text mustBe "Personal tax account - Your tasks"
+      document.select("header.hmrc-page-heading h1").text mustBe "Personal tax account"
       document.select("header.hmrc-page-heading .govuk-caption-xl").text mustBe "Firstname Lastname"
     }
 
@@ -137,7 +137,7 @@ class PtapHomeViewSpec extends ViewSpec {
           ).toString
         )
 
-      document.select("header.hmrc-page-heading h1").text mustBe "Personal tax account - Your tasks"
+      document.select("header.hmrc-page-heading h1").text mustBe "Personal tax account"
       document.select("header.hmrc-page-heading .govuk-caption-xl").text mustBe "Firstname Lastname"
     }
 
@@ -148,9 +148,8 @@ class PtapHomeViewSpec extends ViewSpec {
       lazy val document: Document =
         asDocument(home(homeViewModel).toString)
 
-      document.select("header.hmrc-page-heading h1").text mustBe "Personal tax account - Your tasks"
+      document.select("header.hmrc-page-heading h1").text mustBe "Personal tax account"
       document.select("header.hmrc-page-heading .govuk-caption-xl").text mustBe "Your account"
-      document.select("header.hmrc-page-heading h1 .govuk-visually-hidden").text mustBe "- Your tasks"
     }
 
     "must not show the UTR if the user is not a self assessment user" in {
