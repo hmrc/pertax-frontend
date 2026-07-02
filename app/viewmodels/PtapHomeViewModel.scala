@@ -31,11 +31,9 @@ enum TabEnum(val name: String, val cardContainerHeading: Option[String] = None):
     case tab  => s"/personal-account/${tab.name}"
   }
 
-final case class PtapNewsAndUpdates(content: Html) extends AnyVal
 final case class PtapAlertBanner(content: Html) extends AnyVal
 
 final case class PtapHomeViewModel(
-  newsAndUpdates: Option[PtapNewsAndUpdates],
   showUserResearchBanner: Boolean,
   saUtr: Option[String],
   breathingSpaceIndicator: Boolean,
@@ -43,6 +41,7 @@ final case class PtapHomeViewModel(
   name: Option[String],
   secondaryNav: SecondaryNavModel,
   tabContent: List[CardContainerModel],
+  showNewsAndUpdatesView: Boolean = false,
   showSupportView: Boolean = false,
   showTaxesAndBenefitsView: Boolean = false,
   myServices: Seq[MyService] = Seq.empty,
