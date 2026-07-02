@@ -291,6 +291,11 @@ class ConfigDecorator @Inject() (
 
   lazy val taxCalcYearsToShow: Int = runModeConfiguration.get[Int]("feature.taxCalcYearsToShow")
 
+  lazy val ptapHomepageNinoRolloutLastNumericDigits: Seq[Int] =
+    runModeConfiguration
+      .getOptional[Seq[Int]]("feature.ptap-homepage.nino-rollout.last-numeric-digits")
+      .getOrElse(Seq.empty)
+
   lazy val mtdClaimFromPtaHandoffUrl: String =
     runModeConfiguration.get[String]("external-url.mtd-claim-from-pta.url")
 
