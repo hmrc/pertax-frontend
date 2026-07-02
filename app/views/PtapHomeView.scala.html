@@ -45,10 +45,10 @@
 
     @alertBanner(viewModel.alertBannerContent.map(_.content))
 
+   
     <header class="hmrc-page-heading">
-
-        <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">@viewModel.name.fold(messages("label.your_account"))(upperCaseToTitleCase)</h1>
-        <p class="hmrc-caption govuk-caption-xl"><span class="govuk-visually-hidden">@messages("label.this.section.is") </span>@messages("label.account_home")</p>
+        <span class="govuk-caption-xl">@viewModel.name.fold(messages("label.your_account"))(upperCaseToTitleCase)</span>
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-0">@messages("label.your_personal_tax_account")
     </header>
 
     @if(viewModel.breathingSpaceIndicator) {
@@ -63,11 +63,13 @@
             </p>
         </div>
     }
-    @viewModel.saUtr.map { utr =>
-        <p class="govuk-body govuk-!-margin-bottom-2" id="utrNo">@messages("label.home_page.utr") <strong>@utr</strong></p>
-    }
-    <p class="govuk-body" id="ninoLink"><a class="govuk-link govuk-link--no-visited-state" href="@configDecorator.ptaNinoSaveUrl">
-        @messages("label.view_and_save_your_national_insurance_number")</a></p>
+    <div class="govuk-inset-text govuk-!-margin-top-2 govuk-!-margin-bottom-6">
+        @viewModel.saUtr.map { utr =>
+            <p class="govuk-body-s govuk-!-margin-bottom-1" id="utrNo">@messages("label.home_page.utr") <strong>@utr</strong></p>
+        }
+        <p class="govuk-body" id="ninoLink"><a class="govuk-link govuk-link--no-visited-state govuk-body-s" href="@configDecorator.ptaNinoSaveUrl">
+            @messages("label.view_and_save_your_national_insurance_number")</a></p>
+    </div>
 
     @{SecondaryNav(viewModel.secondaryNav)}
 
