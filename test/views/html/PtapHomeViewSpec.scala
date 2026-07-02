@@ -80,7 +80,7 @@ class PtapHomeViewSpec extends ViewSpec {
     headerId: String = "tab-content-header"
   ): CardContainerModel =
     CardContainerModel(
-      emptyView = Html(""),
+      emptyView = Task.empty(),
       header = Some("Your tasks"),
       cards = cards,
       headerId = Some(headerId)
@@ -284,6 +284,26 @@ class PtapHomeViewSpec extends ViewSpec {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val doc                                                       = asDocument(home(homeViewModel.copy(breathingSpaceIndicator = false)).toString)
       doc.text() must not include "BREATHING SPACE"
+    }
+    "show the default placeholder content when the Your Tasks tab is selected and there are no cards to load." in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val viewModel                                                 = homeViewModel.copy(tabContent = List(taskTabContent()))
+      val doc                                                       = asDocument(home(viewModel).toString)
+
+      val placeholder_text = doc
+        .select("div.govuk-grid-column-two-thirds")
+        .select("div.govuk-inset-text")
+      placeholder_text.size mustBe 1
+      placeholder_text.select("p.govuk-body").size mustBe 2
+
+      val first_line  = placeholder_text.select("p.govuk-body").asList().get(0)
+      val second_line = placeholder_text.select("p.govuk-body").asList().get(1)
+      first_line.text()                          must include(messages("ptap.tasks.uya.default.l1"))
+      second_line
+        .text() mustBe s"${messages("ptap.tasks.uya.default.l2.1")} ${messages("ptap.tasks.uya.default.l2.2")} ${messages("ptap.tasks.uya.default.l2.3")}"
+      second_line.select(s"a.govuk-link").text() must include(
+        messages("ptap.tasks.uya.default.l2.2")
+      )
     }
   }
 }
