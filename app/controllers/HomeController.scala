@@ -76,7 +76,8 @@ class HomeController @Inject() (
     }
 
   private def personalisationHomePageTab(tab: String)(implicit
-    request: UserRequest[AnyContent]
+    request: UserRequest[AnyContent],
+    messages: Messages
   ): Future[Result] =
     withValidTab(tab) { currentTab =>
       val nino: Nino = request.helpeeNinoOrElse
@@ -108,7 +109,7 @@ class HomeController @Inject() (
           val secondaryNav = buildSecondaryNav(currentTab, taskCount)
           val tabContent   = currentTab.cardContainerHeading.map { heading =>
             CardContainerModel(
-              emptyView = Html(""),
+              emptyView = currentTab.empty(),
               header = Some(heading),
               cards = tabContentCards.tabCards,
               headerId = Some("tab-content-header")

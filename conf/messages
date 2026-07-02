@@ -859,6 +859,14 @@ label.mtdit.claim.question=Do you want to add Making Tax Digital for Income Tax 
 label.mtdit.claim.error=Select yes to add Making Tax Digital for Income Tax to your personal tax account
 head.label.mtdit.claim.error=Select yes to add Making Tax Digital for Income Tax to your personal tax account
 
+#************************************************************
+# Default case (no tasks)
+#************************************************************
+ptap.tasks.uya.default.l1=This page shows your PAYE tasks.
+ptap.tasks.uya.default.l2.1=Check
+ptap.tasks.uya.default.l2.2= Taxes and benefits
+ptap.tasks.uya.default.l2.3= for anything else you need to do.
+
 ptap.support.uya.title=Understanding your HMRC Online account
 ptap.support.uya.p1=Your HMRC Online account lets you manage your taxes and benefits in one place.
 ptap.support.uya.p1.list=You can use it to access:

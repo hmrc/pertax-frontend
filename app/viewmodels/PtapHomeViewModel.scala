@@ -17,6 +17,7 @@
 package viewmodels
 
 import models.{MyService, OtherService}
+import play.api.i18n.Messages
 import play.twirl.api.Html
 
 enum TabEnum(val name: String, val cardContainerHeading: Option[String] = None):
@@ -26,9 +27,22 @@ enum TabEnum(val name: String, val cardContainerHeading: Option[String] = None):
   case News extends TabEnum("hmrc-news")
   case Support extends TabEnum("support")
 
-  def href(): String = this match {
+  def href(): String                             = this match {
     case Task => "/personal-account"
     case tab  => s"/personal-account/${tab.name}"
+  }
+  def empty()(implicit messages: Messages): Html = this match {
+    case Task =>
+      Html(s"""
+                <div class="govuk-inset-text">
+                  <p class="govuk-body">${messages("ptap.tasks.uya.default.l1")}</p>
+                  <p class="govuk-body">${messages("ptap.tasks.uya.default.l2.1")} <a href="${Tax
+          .href()}" class="govuk-link">${messages("ptap.tasks.uya.default.l2.2")}</a> ${messages(
+          "ptap.tasks.uya.default.l2.3"
+        )}</p>
+                </div>
+              """)
+    case _    => Html("")
   }
 
 final case class PtapNewsAndUpdates(content: Html) extends AnyVal
