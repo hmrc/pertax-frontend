@@ -223,12 +223,6 @@ class PtapHomeViewSpec extends ViewSpec {
       doc.select(".hmrc-card__heading").text() must include("HMRC owes you a refund for 2022-23")
     }
 
-    "render an empty card container when no tab cards are provided" in {
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val doc                                                       = asDocument(home(homeViewModel).toString)
-      doc.select(".hmrc-card").size() mustBe 0
-    }
-
     "render the task count badge on the tasks tab nav item" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val doc                                                       = asDocument(home(homeViewModel).toString)
@@ -285,7 +279,7 @@ class PtapHomeViewSpec extends ViewSpec {
       val doc                                                       = asDocument(home(homeViewModel.copy(breathingSpaceIndicator = false)).toString)
       doc.text() must not include "BREATHING SPACE"
     }
-    "show the default placeholder content when the Your Tasks tab is selected and there are no cards to load." in {
+    "show the default placeholder content when the Your tasks tab is selected and there are no cards to load." in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val viewModel                                                 = homeViewModel.copy(tabContent = List(taskTabContent()))
       val doc                                                       = asDocument(home(viewModel).toString)

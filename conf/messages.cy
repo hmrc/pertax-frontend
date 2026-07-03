@@ -874,10 +874,16 @@ head.label.mtdit.claim.error=Dewiswch ‘Iawn’ i ychwanegu’r cynllun Troi Tr
 #************************************************************
 # Default case (no tasks)
 #************************************************************
-ptap.tasks.uya.default.l1= TBD
-ptap.tasks.uya.default.l2.1=TBD
-ptap.tasks.uya.default.l2.2= TBD
-ptap.tasks.uya.default.l2.3= TBD
+ptap.tasks.uya.default.l1=TBC
+ptap.tasks.uya.default.l2.1=TBC
+ptap.tasks.uya.default.l2.2=TBC
+ptap.tasks.uya.default.l2.3=TBC
+
+#************************************************************
+# Default case (no tasks)
+#************************************************************
+ptap.activity.uya.default.l1=TBC
+ptap.activity.uya.default.l2.2=TBC
 
 ptap.support.uya.title=TBC
 ptap.support.uya.p1=TBC

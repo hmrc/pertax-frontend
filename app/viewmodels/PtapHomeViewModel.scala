@@ -32,7 +32,7 @@ enum TabEnum(val name: String, val cardContainerHeading: Option[String] = None):
     case tab  => s"/personal-account/${tab.name}"
   }
   def empty()(implicit messages: Messages): Html = this match {
-    case Task =>
+    case Task     =>
       Html(s"""
                 <div class="govuk-inset-text">
                   <p class="govuk-body">${messages("ptap.tasks.uya.default.l1")}</p>
@@ -42,7 +42,17 @@ enum TabEnum(val name: String, val cardContainerHeading: Option[String] = None):
         )}</p>
                 </div>
               """)
-    case _    => Html("")
+    case Activity =>
+      Html(s"""
+          <div class="govuk-inset-text">
+                  <p class="govuk-body">${messages("ptap.activity.uya.default.l1")}</p>
+                  <p class="govuk-body">${messages("ptap.tasks.uya.default.l2.1")} <a href="${Activity
+          .href()}" class="govuk-link">${messages("ptap.tasks.uya.default.l2.2")}</a> ${messages(
+          "ptap.tasks.uya.default.l2.3"
+        )}</p>
+                </div>
+    """)
+    case _        => Html("")
   }
 
 final case class PtapNewsAndUpdates(content: Html) extends AnyVal
