@@ -36,7 +36,9 @@ enum TabEnum(val name: String, val cardContainerHeading: Option[String] = None):
       Html(s"""
                 <div class="govuk-inset-text">
                   <p class="govuk-body">${messages("ptap.tasks.uya.default.l1")}</p>
-                  <p class="govuk-body">${messages("ptap.tasks.uya.default.l2.1")} <a href="${Tax
+                  <p class="govuk-body govuk-!-margin-bottom-0">${messages(
+          "ptap.tasks.uya.default.l2.1"
+        )} <a href="${Tax
           .href()}" class="govuk-link">${messages("ptap.tasks.uya.default.l2.2")}</a> ${messages(
           "ptap.tasks.uya.default.l2.3"
         )}</p>
@@ -46,8 +48,10 @@ enum TabEnum(val name: String, val cardContainerHeading: Option[String] = None):
       Html(s"""
           <div class="govuk-inset-text">
                   <p class="govuk-body">${messages("ptap.activity.uya.default.l1")}</p>
-                  <p class="govuk-body">${messages("ptap.tasks.uya.default.l2.1")} <a href="${Activity
-          .href()}" class="govuk-link">${messages("ptap.tasks.uya.default.l2.2")}</a> ${messages(
+                  <p class="govuk-body govuk-!-margin-bottom-0">${messages(
+          "ptap.tasks.uya.default.l2.1"
+        )} <a href="${Task
+          .href()}" class="govuk-link">${messages("ptap.activity.uya.default.l2.2")}</a> ${messages(
           "ptap.tasks.uya.default.l2.3"
         )}</p>
                 </div>
