@@ -91,7 +91,7 @@ class PtapHomeViewSpec extends ViewSpec {
     headerId: String = "tab-content-header"
   ): CardContainerModel =
     CardContainerModel(
-      emptyView = Html(""),
+      emptyView = Activity.empty(),
       header = Some("Recent activity"),
       cards = cards,
       headerId = Some(headerId)
@@ -311,7 +311,6 @@ class PtapHomeViewSpec extends ViewSpec {
         .select("div.govuk-inset-text")
       placeholder_text.size mustBe 1
       placeholder_text.select("p.govuk-body").size mustBe 2
-      println(placeholder_text)
       val first_line                                                = placeholder_text.select("p.govuk-body").asList().get(0)
       val second_line                                               = placeholder_text.select("p.govuk-body").asList().get(1)
       first_line.text()                          must include(messages("ptap.activity.uya.default.l1"))
