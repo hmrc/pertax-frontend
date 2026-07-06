@@ -880,7 +880,7 @@ ptap.tasks.uya.default.l2.2=TBC
 ptap.tasks.uya.default.l2.3=TBC
 
 #************************************************************
-# Default case (no tasks)
+# Default case (no activity)
 #************************************************************
 ptap.activity.uya.default.l1=TBC
 ptap.activity.uya.default.l2.2=TBC
