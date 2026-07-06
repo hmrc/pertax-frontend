@@ -87,7 +87,7 @@ class PtapHomeViewSpec extends ViewSpec {
     )
 
   private def activityTabContent(
-    cards: Seq[models.HmrcCardModel],
+    cards: Seq[models.HmrcCardModel] = Seq.empty,
     headerId: String = "tab-content-header"
   ): CardContainerModel =
     CardContainerModel(
@@ -297,6 +297,28 @@ class PtapHomeViewSpec extends ViewSpec {
         .text() mustBe s"${messages("ptap.tasks.uya.default.l2.1")} ${messages("ptap.tasks.uya.default.l2.2")} ${messages("ptap.tasks.uya.default.l2.3")}"
       second_line.select(s"a.govuk-link").text() must include(
         messages("ptap.tasks.uya.default.l2.2")
+      )
+    }
+    "show the default placeholder content when the Recent activity tab is selected and there are no cards to load." in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val activityNav                                               = defaultSecondaryNav.copy(
+        items = defaultSecondaryNav.items.map(i => i.copy(current = i.href == Activity.href()))
+      )
+      val viewModel                                                 = homeViewModel.copy(secondaryNav = activityNav, tabContent = List(activityTabContent()))
+      val doc                                                       = asDocument(home(viewModel).toString)
+      val placeholder_text                                          = doc
+        .select("div.govuk-grid-column-two-thirds")
+        .select("div.govuk-inset-text")
+      placeholder_text.size mustBe 1
+      placeholder_text.select("p.govuk-body").size mustBe 2
+      println(placeholder_text)
+      val first_line                                                = placeholder_text.select("p.govuk-body").asList().get(0)
+      val second_line                                               = placeholder_text.select("p.govuk-body").asList().get(1)
+      first_line.text()                          must include(messages("ptap.activity.uya.default.l1"))
+      second_line
+        .text() mustBe s"${messages("ptap.tasks.uya.default.l2.1")} ${messages("ptap.activity.uya.default.l2.2")} ${messages("ptap.tasks.uya.default.l2.3")}"
+      second_line.select(s"a.govuk-link").text() must include(
+        messages("ptap.activity.uya.default.l2.2")
       )
     }
   }
