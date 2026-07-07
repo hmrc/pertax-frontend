@@ -99,7 +99,6 @@ class PtapHomeViewSpec extends ViewSpec {
 
   val homeViewModel: PtapHomeViewModel =
     PtapHomeViewModel(
-      newsAndUpdates = None,
       showUserResearchBanner = true,
       saUtr = None,
       breathingSpaceIndicator = true,

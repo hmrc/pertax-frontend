@@ -17,24 +17,26 @@
 @import components.{H2, H3}
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import play.api.mvc.AnyContent
 @import tags.CardContainer
 @import uk.gov.hmrc.play.language.LanguageUtils
 @import viewmodels.PtapHomeViewModel
 @import views.MainView
 @import views.html.components.alertBanner.AlertBanner
 @import views.html.components.SecondaryNav
-@import views.html.home.options.{SupportView, TaxesAndBenefitsView}
+@import views.html.home.options.{PtapLatestNewsAndUpdatesView, SupportView, TaxesAndBenefitsView}
 
 @this(
         main: MainView,
         alertBanner: AlertBanner,
         cardContainer: CardContainer,
         configDecorator: ConfigDecorator,
+        ptapLatestNewsAndUpdatesView: PtapLatestNewsAndUpdatesView,
         supportView: SupportView,
         taxesAndBenefitsView: TaxesAndBenefitsView
 )
 
-@(viewModel: PtapHomeViewModel)(implicit request: UserRequest[_], messages: Messages)
+@(viewModel: PtapHomeViewModel)(implicit request: UserRequest[AnyContent], messages: Messages)
 
 @main(
     pageTitle = messages("label.account_home"),
@@ -77,6 +79,9 @@
         <div class="govuk-grid-column-two-thirds">
             @for(container <- viewModel.tabContent) {
                 @cardContainer(container)
+            }
+            @if(viewModel.showNewsAndUpdatesView) {
+                @ptapLatestNewsAndUpdatesView()
             }
             @if(viewModel.showTaxesAndBenefitsView) {
                 @taxesAndBenefitsView(viewModel.myServices, viewModel.otherServices)
