@@ -292,12 +292,10 @@ class PtapHomeViewSpec extends ViewSpec {
 
       val first_line  = placeholder_text.select("p.govuk-body").asList().get(0)
       val second_line = placeholder_text.select("p.govuk-body").asList().get(1)
-      first_line.text()                          must include(messages("ptap.tasks.uya.default.l1"))
+      first_line.text() mustBe "This page shows refunds and tax you owe."
       second_line
-        .text() mustBe s"${messages("ptap.tasks.uya.default.l2.1")} ${messages("ptap.tasks.uya.default.l2.2")} ${messages("ptap.tasks.uya.default.l2.3")}"
-      second_line.select(s"a.govuk-link").text() must include(
-        messages("ptap.tasks.uya.default.l2.2")
-      )
+        .text() mustBe "Check Taxes and benefits for anything else you need to do."
+      second_line.select(s"a.govuk-link").text() mustBe "Taxes and benefits"
     }
     "show the default placeholder content when the Recent activity tab is selected and there are no cards to load." in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
@@ -313,12 +311,10 @@ class PtapHomeViewSpec extends ViewSpec {
       placeholder_text.select("p.govuk-body").size mustBe 2
       val first_line                                                = placeholder_text.select("p.govuk-body").asList().get(0)
       val second_line                                               = placeholder_text.select("p.govuk-body").asList().get(1)
-      first_line.text()                          must include(messages("ptap.activity.uya.default.l1"))
+      first_line.text() mustBe "This page shows your recent activity."
       second_line
-        .text() mustBe s"${messages("ptap.tasks.uya.default.l2.1")} ${messages("ptap.activity.uya.default.l2.2")} ${messages("ptap.tasks.uya.default.l2.3")}"
-      second_line.select(s"a.govuk-link").text() must include(
-        messages("ptap.activity.uya.default.l2.2")
-      )
+        .text() mustBe "Check Your tasks for anything you need to do."
+      second_line.select(s"a.govuk-link").text() mustBe "Your tasks"
     }
   }
 }

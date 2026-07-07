@@ -35,24 +35,24 @@ enum TabEnum(val name: String, val cardContainerHeading: Option[String] = None):
     case Task     =>
       Html(s"""
                 <div class="govuk-inset-text">
-                  <p class="govuk-body">${messages("ptap.tasks.uya.default.l1")}</p>
+                  <p class="govuk-body">${messages("ptap.tasks.container.default_text.p.line1")}</p>
                   <p class="govuk-body govuk-!-margin-bottom-0">${messages(
-          "ptap.tasks.uya.default.l2.1"
+          "ptap.tasks.container.default_text.p.line2.1"
         )} <a href="${Tax
-          .href()}" class="govuk-link">${messages("ptap.tasks.uya.default.l2.2")}</a> ${messages(
-          "ptap.tasks.uya.default.l2.3"
+          .href()}" class="govuk-link">${messages("ptap.tasks.container.default_text.p.line2.2")}</a> ${messages(
+          "ptap.tasks.container.default_text.p.line2.3"
         )}</p>
                 </div>
               """)
     case Activity =>
       Html(s"""
           <div class="govuk-inset-text">
-                  <p class="govuk-body">${messages("ptap.activity.uya.default.l1")}</p>
+                  <p class="govuk-body">${messages("ptap.activity.container.default_text.p.line1")}</p>
                   <p class="govuk-body govuk-!-margin-bottom-0">${messages(
-          "ptap.tasks.uya.default.l2.1"
+          "ptap.tasks.container.default_text.p.line2.1"
         )} <a href="${Task
-          .href()}" class="govuk-link">${messages("ptap.activity.uya.default.l2.2")}</a> ${messages(
-          "ptap.tasks.uya.default.l2.3"
+          .href()}" class="govuk-link">${messages("ptap.activity.container.default_text.p.line2.2")}</a> ${messages(
+          "ptap.activity.container.default_text.p.line2.3"
         )}</p>
                 </div>
     """)
