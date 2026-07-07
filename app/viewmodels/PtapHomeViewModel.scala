@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package viewmodels
 
 import models.{MyService, OtherService}
+import views.html.components.TabDefaultInsetText
 import play.api.i18n.Messages
 import play.twirl.api.Html
 
@@ -31,33 +32,8 @@ enum TabEnum(val name: String, val cardContainerHeading: Option[String] = None):
     case Task => "/personal-account"
     case tab  => s"/personal-account/${tab.name}"
   }
-  def empty()(implicit messages: Messages): Html = this match {
-    case Task     =>
-      Html(s"""
-                <div class="govuk-inset-text">
-                  <p class="govuk-body">${messages("ptap.tasks.container.default_text.p.line1")}</p>
-                  <p class="govuk-body govuk-!-margin-bottom-0">${messages(
-          "ptap.tasks.container.default_text.p.line2.1"
-        )} <a href="${Tax
-          .href()}" class="govuk-link">${messages("ptap.tasks.container.default_text.p.line2.2")}</a> ${messages(
-          "ptap.tasks.container.default_text.p.line2.3"
-        )}</p>
-                </div>
-              """)
-    case Activity =>
-      Html(s"""
-          <div class="govuk-inset-text">
-                  <p class="govuk-body">${messages("ptap.activity.container.default_text.p.line1")}</p>
-                  <p class="govuk-body govuk-!-margin-bottom-0">${messages(
-          "ptap.tasks.container.default_text.p.line2.1"
-        )} <a href="${Task
-          .href()}" class="govuk-link">${messages("ptap.activity.container.default_text.p.line2.2")}</a> ${messages(
-          "ptap.activity.container.default_text.p.line2.3"
-        )}</p>
-                </div>
-    """)
-    case _        => Html("")
-  }
+  def empty()(implicit messages: Messages): Html =
+    TabDefaultInsetText(this)
 
 final case class PtapNewsAndUpdates(content: Html) extends AnyVal
 final case class PtapAlertBanner(content: Html) extends AnyVal

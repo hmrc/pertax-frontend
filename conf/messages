@@ -862,17 +862,17 @@ head.label.mtdit.claim.error=Select yes to add Making Tax Digital for Income Tax
 #************************************************************
 # Default case (no tasks)
 #************************************************************
-ptap.tasks.container.default_text.p.line1=This page shows refunds and tax you owe.
-ptap.tasks.container.default_text.p.line2.1=Check
-ptap.tasks.container.default_text.p.line2.2=Taxes and benefits
-ptap.tasks.container.default_text.p.line2.3=for anything else you need to do.
+ptap.your-tasks.container.default_text.p.line1=This page shows refunds and tax you owe.
+ptap.your-tasks.container.default_text.p.line2.1=Check
+ptap.your-tasks.container.default_text.p.line2.2=Taxes and benefits
+ptap.your-tasks.container.default_text.p.line2.3=for anything else you need to do.
 
 #************************************************************
 # Default case (no activity)
 #************************************************************
-ptap.activity.container.default_text.p.line1=This page shows your recent activity.
-ptap.activity.container.default_text.p.line2.2=Your tasks
-ptap.activity.container.default_text.p.line2.3=for anything you need to do.
+ptap.recent-activity.container.default_text.p.line1=This page shows your recent activity.
+ptap.recent-activity.container.default_text.p.line2.2=Your tasks
+ptap.recent-activity.container.default_text.p.line2.3=for anything you need to do.
 
 ptap.support.uya.title=Understanding your HMRC Online account
 ptap.support.uya.p1=Your HMRC Online account lets you manage your taxes and benefits in one place.
