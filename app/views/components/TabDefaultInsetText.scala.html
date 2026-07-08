@@ -37,6 +37,6 @@
     @if(tab == Task|| tab == Activity){
         <div class="govuk-inset-text">
             <p class="govuk-body">@messages(s"ptap.${tab.name}.container.default_text.p.line1")</p>
-            <p class="govuk-body govuk-!-margin-bottom-0">@messages("ptap.your-tasks.container.default_text.p.line2.1") <a href="@Tax.href()" class="govuk-link">@messages(s"ptap.${tab.name}.container.default_text.p.line2.2")</a> @messages(s"ptap.${tab.name}.container.default_text.p.line2.3")</p>
+            <p class="govuk-body govuk-!-margin-bottom-0">@messages("ptap.your-tasks.container.default_text.p.line2.1") <a href="@if(tab == Task){@Tax.href()}else{@Task.href()}" class="govuk-link">@messages(s"ptap.${tab.name}.container.default_text.p.line2.2")</a> @messages(s"ptap.${tab.name}.container.default_text.p.line2.3")</p>
         </div>
     }
