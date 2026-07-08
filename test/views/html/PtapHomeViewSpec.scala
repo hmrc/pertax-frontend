@@ -80,18 +80,18 @@ class PtapHomeViewSpec extends ViewSpec {
     headerId: String = "tab-content-header"
   ): CardContainerModel =
     CardContainerModel(
-      emptyView = Html(""),
+      emptyView = Task.empty(),
       header = Some("Your tasks"),
       cards = cards,
       headerId = Some(headerId)
     )
 
   private def activityTabContent(
-    cards: Seq[models.HmrcCardModel],
+    cards: Seq[models.HmrcCardModel] = Seq.empty,
     headerId: String = "tab-content-header"
   ): CardContainerModel =
     CardContainerModel(
-      emptyView = Html(""),
+      emptyView = Activity.empty(),
       header = Some("Recent activity"),
       cards = cards,
       headerId = Some(headerId)
@@ -222,12 +222,6 @@ class PtapHomeViewSpec extends ViewSpec {
       doc.select(".hmrc-card__heading").text() must include("HMRC owes you a refund for 2022-23")
     }
 
-    "render an empty card container when no tab cards are provided" in {
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val doc                                                       = asDocument(home(homeViewModel).toString)
-      doc.select(".hmrc-card").size() mustBe 0
-    }
-
     "render the task count badge on the tasks tab nav item" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val doc                                                       = asDocument(home(homeViewModel).toString)
@@ -283,6 +277,43 @@ class PtapHomeViewSpec extends ViewSpec {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val doc                                                       = asDocument(home(homeViewModel.copy(breathingSpaceIndicator = false)).toString)
       doc.text() must not include "BREATHING SPACE"
+    }
+    "show the default placeholder content when the Your tasks tab is selected and there are no cards to load." in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val viewModel                                                 = homeViewModel.copy(tabContent = List(taskTabContent()))
+      val doc                                                       = asDocument(home(viewModel).toString)
+
+      val placeholder_text = doc
+        .select("div.govuk-grid-column-two-thirds")
+        .select("div.govuk-inset-text")
+      placeholder_text.size mustBe 1
+      placeholder_text.select("p.govuk-body").size mustBe 2
+
+      val first_line  = placeholder_text.select("p.govuk-body").asList().get(0)
+      val second_line = placeholder_text.select("p.govuk-body").asList().get(1)
+      first_line.text() mustBe "This page shows refunds and tax you owe."
+      second_line
+        .text() mustBe "Check Taxes and benefits for anything else you need to do."
+      second_line.select(s"a.govuk-link").text() mustBe "Taxes and benefits"
+    }
+    "show the default placeholder content when the Recent activity tab is selected and there are no cards to load." in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val activityNav                                               = defaultSecondaryNav.copy(
+        items = defaultSecondaryNav.items.map(i => i.copy(current = i.href == Activity.href()))
+      )
+      val viewModel                                                 = homeViewModel.copy(secondaryNav = activityNav, tabContent = List(activityTabContent()))
+      val doc                                                       = asDocument(home(viewModel).toString)
+      val placeholder_text                                          = doc
+        .select("div.govuk-grid-column-two-thirds")
+        .select("div.govuk-inset-text")
+      placeholder_text.size mustBe 1
+      placeholder_text.select("p.govuk-body").size mustBe 2
+      val first_line                                                = placeholder_text.select("p.govuk-body").asList().get(0)
+      val second_line                                               = placeholder_text.select("p.govuk-body").asList().get(1)
+      first_line.text() mustBe "This page shows your recent activity."
+      second_line
+        .text() mustBe "Check Your tasks for anything you need to do."
+      second_line.select(s"a.govuk-link").text() mustBe "Your tasks"
     }
   }
 }

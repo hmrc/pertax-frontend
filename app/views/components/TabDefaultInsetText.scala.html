@@ -1,0 +1,42 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ **@    
+
+@import viewmodels.TabEnum
+@import viewmodels.TabEnum.*
+
+@(tab: TabEnum)(implicit messages: Messages)
+    @if(tab == Task|| tab == Activity){
+        <div class="govuk-inset-text">
+            <p class="govuk-body">@messages(s"ptap.${tab.name}.container.default_text.p.line1")</p>
+            <p class="govuk-body govuk-!-margin-bottom-0">@messages("ptap.your-tasks.container.default_text.p.line2.1") <a href="@if(tab == Task){@Tax.href()}else{@Task.href()}" class="govuk-link">@messages(s"ptap.${tab.name}.container.default_text.p.line2.2")</a> @messages(s"ptap.${tab.name}.container.default_text.p.line2.3")</p>
+        </div>
+    }

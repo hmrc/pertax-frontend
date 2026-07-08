@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package viewmodels
 
 import models.{MyService, OtherService}
+import views.html.components.TabDefaultInsetText
+import play.api.i18n.Messages
 import play.twirl.api.Html
 
 enum TabEnum(val name: String, val cardContainerHeading: Option[String] = None):
@@ -26,10 +28,12 @@ enum TabEnum(val name: String, val cardContainerHeading: Option[String] = None):
   case News extends TabEnum("hmrc-news")
   case Support extends TabEnum("support")
 
-  def href(): String = this match {
+  def href(): String                             = this match {
     case Task => "/personal-account"
     case tab  => s"/personal-account/${tab.name}"
   }
+  def empty()(implicit messages: Messages): Html =
+    TabDefaultInsetText(this)
 
 final case class PtapAlertBanner(content: Html) extends AnyVal
 
