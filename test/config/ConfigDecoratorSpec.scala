@@ -87,4 +87,37 @@ class ConfigDecoratorSpec extends BaseSpec {
     }
 
   }
+
+  "ptapHomepageNinoRolloutLastNumericDigits" must {
+
+    "return the configured list of digits" in {
+      val appLocal = localGuiceApplicationBuilder(
+        extraConfigValues = Map(
+          "feature.ptap-homepage.nino-rollout.last-numeric-digits" -> Seq(5, 6, 7, 8, 9)
+        )
+      ).build()
+
+      val configDecorator = appLocal.injector.instanceOf[ConfigDecorator]
+
+      configDecorator.ptapHomepageNinoRolloutLastNumericDigits mustBe Seq(5, 6, 7, 8, 9)
+    }
+
+    "return all digits from the default application config" in {
+      config.ptapHomepageNinoRolloutLastNumericDigits mustBe Seq(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+    }
+
+    "return an empty sequence when the key is not configured" in {
+      val configDecorator = new ConfigDecorator(
+        Configuration(
+          "mongodb.encryption.enabled" -> false,
+          "paye.to.pega.redirect.list" -> Seq.empty[Int],
+          "paye.to.pega.redirect.url"  -> ""
+        ),
+        mock[ServicesConfig]
+      )
+
+      configDecorator.ptapHomepageNinoRolloutLastNumericDigits mustBe Seq.empty
+    }
+
+  }
 }
