@@ -315,5 +315,34 @@ class PtapHomeViewSpec extends ViewSpec {
         .text() mustBe "Check Your tasks for anything you need to do."
       second_line.select(s"a.govuk-link").text() mustBe "Your tasks"
     }
+
+    "render task completed message when enabled" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest())
+
+      val viewModel = homeViewModel.copy(
+        showTaskCompletedMessage = true,
+        tabContent = List(taskTabContent(HmrcCardModelFixtures.taskCards))
+      )
+
+      val doc = asDocument(home(viewModel).toString)
+
+      // Clean: Uses the key from your messages.en file
+      doc.text() must include(messages("label.task_paragraph"))
+    }
+
+    "not render task completed message when disabled" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest())
+
+      val viewModel = homeViewModel.copy(
+        showTaskCompletedMessage = false,
+        tabContent = List(taskTabContent(HmrcCardModelFixtures.taskCards))
+      )
+
+      val doc = asDocument(home(viewModel).toString)
+
+      doc.text() must not include messages("label.task_paragraph")
+    }
   }
 }

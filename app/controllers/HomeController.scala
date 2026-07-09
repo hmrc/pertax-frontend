@@ -119,7 +119,6 @@ class HomeController @Inject() (
               emptyView = currentTab.empty(),
               header = Some(heading),
               cards = tabContentCards.tabCards,
-              showTaskCompletedMessage = currentTab == Task && tabContentCards.tabCards.nonEmpty,
               headerId = Some("tab-content-header")
             )
           }.toList
@@ -137,6 +136,7 @@ class HomeController @Inject() (
                 showNewsAndUpdatesView = currentTab == News,
                 showSupportView = currentTab == Support,
                 showTaxesAndBenefitsView = currentTab == Tax,
+                showTaskCompletedMessage = currentTab == Task && tabContentCards.tabCards.nonEmpty,
                 myServices = homePageServices.myServices,
                 otherServices = homePageServices.otherServices
               )

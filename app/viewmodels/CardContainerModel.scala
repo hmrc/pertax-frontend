@@ -23,7 +23,6 @@ final case class CardContainerModel(
   emptyView: Html,
   header: Option[CardContainerModel.Header] = None,
   cards: Seq[HmrcCardModel] = Seq.empty,
-  showTaskCompletedMessage: Boolean = false,
   headingLevel: String = "h2",
   listAriaLabel: Option[String] = None,
   headerId: Option[String] = None

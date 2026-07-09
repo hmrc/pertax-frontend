@@ -48,6 +48,7 @@ final case class PtapHomeViewModel(
   showNewsAndUpdatesView: Boolean = false,
   showSupportView: Boolean = false,
   showTaxesAndBenefitsView: Boolean = false,
+  showTaskCompletedMessage: Boolean = false,
   myServices: Seq[MyService] = Seq.empty,
   otherServices: Seq[OtherService] = Seq.empty
 )

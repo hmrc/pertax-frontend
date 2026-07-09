@@ -79,10 +79,9 @@
         <div class="govuk-grid-column-two-thirds">
             @for(container <- viewModel.tabContent) {
                 @cardContainer(container)
-
-            @if(container.showTaskCompletedMessage) {
-            <p class="govuk-body">@messages("label.task_paragraph")</p>
             }
+            @if(viewModel.showTaskCompletedMessage) {
+            <p class="govuk-body">@messages("label.task_paragraph")</p>
             }
             @if(viewModel.showNewsAndUpdatesView) {
                 @ptapLatestNewsAndUpdatesView()
