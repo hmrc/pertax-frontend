@@ -50,7 +50,7 @@
    
     <header class="hmrc-page-heading">
         <span class="govuk-caption-xl">@viewModel.name.fold(messages("label.your_account"))(upperCaseToTitleCase)</span>
-        <h1 class="govuk-heading-xl govuk-!-margin-bottom-0">@messages("label.your_personal_tax_account")
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-0">@messages("label.your_personal_tax_account")</h1>
     </header>
 
     @if(viewModel.breathingSpaceIndicator) {
@@ -79,6 +79,10 @@
         <div class="govuk-grid-column-two-thirds">
             @for(container <- viewModel.tabContent) {
                 @cardContainer(container)
+
+            @if(container.showTaskCompletedMessage) {
+            <p class="govuk-body">@messages("label.task_paragraph")</p>
+            }
             }
             @if(viewModel.showNewsAndUpdatesView) {
                 @ptapLatestNewsAndUpdatesView()

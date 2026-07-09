@@ -119,6 +119,7 @@ class HomeController @Inject() (
               emptyView = currentTab.empty(),
               header = Some(heading),
               cards = tabContentCards.tabCards,
+              showTaskCompletedMessage = currentTab == Task && tabContentCards.tabCards.nonEmpty,
               headerId = Some("tab-content-header")
             )
           }.toList
