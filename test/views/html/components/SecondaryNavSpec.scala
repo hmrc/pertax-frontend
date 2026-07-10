@@ -16,10 +16,16 @@
 
 package views.html.components
 
+import models.admin.PtapActivityTabToggle
 import org.jsoup.nodes.Document
+import org.mockito.Mockito.when
 import org.scalatest.matchers.must.Matchers
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import views.html.ViewSpec
 import viewmodels.{SecondaryNavModel, TabModel}
+import viewmodels.TabEnum.*
+
+import scala.concurrent.Future
 
 class SecondaryNavSpec extends ViewSpec with Matchers {
 
@@ -280,6 +286,47 @@ class SecondaryNavSpec extends ViewSpec with Matchers {
       val doc = asDocument(views.html.components.SecondaryNav(model).toString)
 
       doc.select(".x-govuk-secondary-navigation__badge").size() mustBe 2
+    }
+
+    "render the Activity tab link when PtapActivityTabToggle is enabled" in {
+      when(mockFeatureFlagService.get(PtapActivityTabToggle))
+        .thenReturn(Future.successful(FeatureFlag(PtapActivityTabToggle, isEnabled = true)))
+
+      val model = SecondaryNavModel(
+        classes = Some("govuk-!-margin-bottom-6"),
+        items = Seq(
+          TabModel(text = "Your tasks", href = Task.href(), current = true),
+          TabModel(text = "Recent activity", href = Activity.href()),
+          TabModel(text = "Taxes and benefits", href = Tax.href()),
+          TabModel(text = "HMRC news", href = News.href()),
+          TabModel(text = "Support", href = Support.href())
+        )
+      )
+
+      val doc = asDocument(views.html.components.SecondaryNav(model).toString)
+
+      doc.select("li.x-govuk-secondary-navigation__list-item").size() mustBe 5
+      doc.select(s"a[href='${Activity.href()}']").size() mustBe 1
+    }
+
+    "not render the Activity tab link when PtapActivityTabToggle is disabled" in {
+      when(mockFeatureFlagService.get(PtapActivityTabToggle))
+        .thenReturn(Future.successful(FeatureFlag(PtapActivityTabToggle, isEnabled = false)))
+
+      val model = SecondaryNavModel(
+        classes = Some("govuk-!-margin-bottom-6"),
+        items = Seq(
+          TabModel(text = "Your tasks", href = Task.href(), current = true),
+          TabModel(text = "Taxes and benefits", href = Tax.href()),
+          TabModel(text = "HMRC news", href = News.href()),
+          TabModel(text = "Support", href = Support.href())
+        )
+      )
+
+      val doc = asDocument(views.html.components.SecondaryNav(model).toString)
+
+      doc.select("li.x-govuk-secondary-navigation__list-item").size() mustBe 4
+      doc.select(s"a[href='${Activity.href()}']").size() mustBe 0
     }
   }
 }

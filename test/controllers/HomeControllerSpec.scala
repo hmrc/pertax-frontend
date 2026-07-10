@@ -22,7 +22,7 @@ import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
-import models.admin.{GetPersonFromCitizenDetailsToggle, HomePagePersonalisationToggle, ShowPlannedOutageBannerToggle}
+import models.admin.{GetPersonFromCitizenDetailsToggle, HomePagePersonalisationToggle, PtapActivityTabToggle, ShowPlannedOutageBannerToggle}
 import models.{BreathingSpaceIndicatorResponse, HomePageServices, MyService, OtherService}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
@@ -132,6 +132,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
     when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
       .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = false)))
+
+    when(mockFeatureFlagService.get(PtapActivityTabToggle))
+      .thenReturn(Future.successful(FeatureFlag(PtapActivityTabToggle, isEnabled = false)))
 
     when(mockConfigDecorator.getFeedbackSurveyUrl(any()))
       .thenReturn("/personal-account/signed-out")

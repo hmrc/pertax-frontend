@@ -24,7 +24,7 @@ import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptH
 import error.ErrorRenderer
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.{HomePageServices, SelfAssessmentUser}
-import models.admin.HomePagePersonalisationToggle
+import models.admin.{HomePagePersonalisationToggle, PtapActivityTabToggle}
 import play.api.i18n.Messages
 import play.api.mvc.*
 import play.twirl.api.Html
@@ -101,6 +101,7 @@ class HomeController @Inject() (
         val fHomePageServices        =
           if (currentTab == Tax) homePageServicesProvider.getHomePageServices
           else Future.successful(HomePageServices(Seq.empty))
+        val fActivityTabEnabled      = featureFlagService.get(PtapActivityTabToggle).map(_.isEnabled)
 
         for {
           breathingSpaceIndicator <- fBreathingSpaceIndicator
@@ -108,12 +109,13 @@ class HomeController @Inject() (
           alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten)
           tabContentCards         <- fTabContentCards
           homePageServices        <- fHomePageServices
+          activityTabEnabled      <- fActivityTabEnabled
         } yield {
           val personDetailsOpt = eitherPersonDetails.toOption.flatten
           val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
 
           val taskCount    = tabContentCards.taskCount
-          val secondaryNav = buildSecondaryNav(currentTab, taskCount)
+          val secondaryNav = buildSecondaryNav(currentTab, taskCount, activityTabEnabled)
           val tabContent   = currentTab.cardContainerHeading.map { heading =>
             CardContainerModel(
               emptyView = currentTab.empty(),
@@ -145,37 +147,50 @@ class HomeController @Inject() (
       }
     }
 
-  private def buildSecondaryNav(currentTab: TabEnum, taskCount: Int)(implicit messages: Messages): SecondaryNavModel =
+  private def buildSecondaryNav(currentTab: TabEnum, taskCount: Int, showActivityTab: Boolean)(implicit
+    messages: Messages
+  ): SecondaryNavModel =
+    val activityTabItem = Option.when(showActivityTab)(
+      TabModel(
+        text = messages("ptap.support.uya.p3.sub"),
+        href = Activity.href(),
+        current = currentTab == Activity
+      )
+    )
     SecondaryNavModel(
       classes = Some("govuk-!-margin-bottom-6"),
       items = Seq(
-        TabModel(
-          text = messages("ptap.support.uya.p2.sub"),
-          href = Task.href(),
-          current = currentTab == Task,
-          notificationCount = if (taskCount > 0) Some(taskCount) else None
+        Some(
+          TabModel(
+            text = messages("ptap.support.uya.p4.sub"),
+            href = Tax.href(),
+            current = currentTab == Tax
+          )
         ),
-        TabModel(
-          text = messages("ptap.support.uya.p3.sub"),
-          href = Activity.href(),
-          current = currentTab == Activity
+        Some(
+          TabModel(
+            text = messages("ptap.support.uya.p2.sub"),
+            href = Task.href(),
+            current = currentTab == Task,
+            notificationCount = if (taskCount > 0) Some(taskCount) else None
+          )
         ),
-        TabModel(
-          text = messages("ptap.support.uya.p4.sub"),
-          href = Tax.href(),
-          current = currentTab == Tax
+        activityTabItem,
+        Some(
+          TabModel(
+            text = messages("ptap.support.uya.p5.sub"),
+            href = News.href(),
+            current = currentTab == News
+          )
         ),
-        TabModel(
-          text = messages("ptap.support.uya.p5.sub"),
-          href = News.href(),
-          current = currentTab == News
-        ),
-        TabModel(
-          text = messages("ptap.support.uya.p6.sub"),
-          href = Support.href(),
-          current = currentTab == Support
+        Some(
+          TabModel(
+            text = messages("ptap.support.uya.p6.sub"),
+            href = Support.href(),
+            current = currentTab == Support
+          )
         )
-      )
+      ).flatten
     )
 
   private def newHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {

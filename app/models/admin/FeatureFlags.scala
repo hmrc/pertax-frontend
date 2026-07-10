@@ -41,7 +41,8 @@ object AllFeatureFlags {
     GetMatchingFromCitizenDetailsToggle,
     ClaimMtdFromPtaToggle,
     HomePageChangesBannerToggle,
-    HomePagePersonalisationToggle
+    HomePagePersonalisationToggle,
+    PtapActivityTabToggle
   )
 }
 
@@ -218,6 +219,15 @@ case object HomePagePersonalisationToggle extends FeatureFlagName {
   override val name: String                         = "home-page-personalisation-toggle"
   override val description: Option[String]          = Some(
     "Enable/disable the new PTA home page personalisation layout"
+  )
+  override val lockedEnvironments: Seq[Environment] =
+    Seq(Environment.Local, Environment.Staging, Environment.Qa, Environment.Production)
+}
+
+case object PtapActivityTabToggle extends FeatureFlagName {
+  override val name: String                         = "ptap-activity-tab-toggle"
+  override val description: Option[String]          = Some(
+    "Enable/disable the display of Activity tab in secondary navigation of personalisation layout"
   )
   override val lockedEnvironments: Seq[Environment] =
     Seq(Environment.Local, Environment.Staging, Environment.Qa, Environment.Production)
