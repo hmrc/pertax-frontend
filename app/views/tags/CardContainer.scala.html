@@ -30,10 +30,9 @@
     @model.normalizedHeader.get
   </@headingTag>
 }
+@model.defaultInset
 
-@if(model.cards.isEmpty) {
-  @model.emptyView
-} else if(model.cards.length == 1) {
+@if(model.cards.length == 1) {
   @HmrcCard(model.cards.head)
 } else {
   <ul class="hmrc-card__container"

@@ -51,7 +51,7 @@
     @cardContainer(CardContainerModel(
         header = Some(messages("label.taxes_and_benefits_subheading")),
         headerId = Some("my-services-heading"),
-        emptyView = HtmlFormat.empty,
+        defaultInset = HtmlFormat.empty,
         cards = myServiceCards
     ))
 }
@@ -60,7 +60,7 @@
     @cardContainer(CardContainerModel(
         header = Some(messages("label.other_taxes_and_benefits_heading")),
         headerId = Some("other-services-heading"),
-        emptyView = HtmlFormat.empty,
+        defaultInset = HtmlFormat.empty,
         cards = otherServiceCards
     ))
 }
