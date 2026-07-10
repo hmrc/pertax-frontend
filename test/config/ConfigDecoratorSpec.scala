@@ -102,8 +102,21 @@ class ConfigDecoratorSpec extends BaseSpec {
       configDecorator.ptapHomepageNinoRolloutLastNumericDigits mustBe Seq(5, 6, 7, 8, 9)
     }
 
+    "return all digits from the default application config" in {
+      config.ptapHomepageNinoRolloutLastNumericDigits mustBe Seq(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+    }
+
     "return an empty sequence when the key is not configured" in {
-      config.ptapHomepageNinoRolloutLastNumericDigits mustBe Seq.empty
+      val configDecorator = new ConfigDecorator(
+        Configuration(
+          "mongodb.encryption.enabled" -> false,
+          "paye.to.pega.redirect.list" -> Seq.empty[Int],
+          "paye.to.pega.redirect.url"  -> ""
+        ),
+        mock[ServicesConfig]
+      )
+
+      configDecorator.ptapHomepageNinoRolloutLastNumericDigits mustBe Seq.empty
     }
 
   }

@@ -33,7 +33,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
-import viewmodels.{AlertBanner, CardContainerModel, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeViewModel, PtapNewsAndUpdates, SecondaryNavModel, TabEnum, TabModel}
+import viewmodels.{AlertBanner, CardContainerModel, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeViewModel, SecondaryNavModel, TabEnum, TabModel}
 import viewmodels.TabEnum.*
 import views.html.{HomeView, PtapHomeView}
 
@@ -88,7 +88,8 @@ class HomeController @Inject() (
     }
 
   private def personalisationHomePageTab(tab: String)(implicit
-    request: UserRequest[AnyContent]
+    request: UserRequest[AnyContent],
+    messages: Messages
   ): Future[Result] =
     withValidTab(tab) { currentTab =>
       val nino: Nino = request.helpeeNinoOrElse
@@ -120,7 +121,7 @@ class HomeController @Inject() (
           val secondaryNav = buildSecondaryNav(currentTab, taskCount)
           val tabContent   = currentTab.cardContainerHeading.map { heading =>
             CardContainerModel(
-              emptyView = Html(""),
+              emptyView = currentTab.empty(),
               header = Some(heading),
               cards = tabContentCards.tabCards,
               headerId = Some("tab-content-header")
@@ -130,7 +131,6 @@ class HomeController @Inject() (
           Ok(
             pTapHomeView(
               PtapHomeViewModel(
-                homeOptionsGenerator.getLatestNewsAndUpdatesCard().map(PtapNewsAndUpdates.apply),
                 showUserResearchBanner = false,
                 utr,
                 breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
@@ -138,6 +138,7 @@ class HomeController @Inject() (
                 name = nameToDisplay,
                 secondaryNav = secondaryNav,
                 tabContent = tabContent,
+                showNewsAndUpdatesView = currentTab == News,
                 showSupportView = currentTab == Support,
                 showTaxesAndBenefitsView = currentTab == Tax,
                 myServices = homePageServices.myServices,

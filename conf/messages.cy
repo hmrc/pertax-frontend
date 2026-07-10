@@ -871,6 +871,21 @@ label.mtdit.claim.question=A ydych am ychwanegu’r cynllun Troi Treth yn Ddigid
 label.mtdit.claim.error=Dewiswch ‘Iawn’ i ychwanegu’r cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm i’ch cyfrif treth personol
 head.label.mtdit.claim.error=Dewiswch ‘Iawn’ i ychwanegu’r cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm i’ch cyfrif treth personol
 
+#************************************************************
+# Default case (no tasks)
+#************************************************************
+ptap.your-tasks.container.default_text.p.line1=TBC
+ptap.your-tasks.container.default_text.p.line2.1=TBC
+ptap.your-tasks.container.default_text.p.line2.2=Trethi a budd-daliadau
+ptap.your-tasks.container.default_text.p.line2.3=TBC
+
+#************************************************************
+# Default case (no activity)
+#************************************************************
+ptap.recent-activity.container.default_text.p.line1=TBC
+ptap.recent-activity.container.default_text.p.line2.2=TBC
+ptap.recent-activity.container.default_text.p.line2.3= TBC
+
 ptap.support.uya.title=TBC
 ptap.support.uya.p1=TBC
 ptap.support.uya.p1.list=TBC
