@@ -665,5 +665,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       content.getElementsContainingText("Pay As You Earn (PAYE)").attr("href") mustBe "/paye"
       content.getElementsContainingText("Child Benefit").attr("href") mustBe "/child-benefit"
     }
+
   }
 }
