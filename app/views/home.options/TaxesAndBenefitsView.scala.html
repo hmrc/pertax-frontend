@@ -14,12 +14,13 @@
  * limitations under the License.
  *@
 
+@import components.H2
 @import models.{CardType, CardHeading, HmrcCardModel, MyService, OtherService}
 @import viewmodels.CardContainerModel
 @import tags.CardContainer
 @import play.twirl.api.HtmlFormat
 
-@this(cardContainer: CardContainer)
+@this(cardContainer: CardContainer, h2: H2)
 
 @(myServices: Seq[MyService], otherServices: Seq[OtherService])(implicit messages: play.api.i18n.Messages)
 
@@ -47,10 +48,14 @@
     }
 }
 
+@h2("label.taxes_and_benefits_heading", elmId = Some("taxes-and-benefits-tab-heading"))
+
 @if(myServiceCards.nonEmpty) {
     @cardContainer(CardContainerModel(
         header = Some(messages("label.taxes_and_benefits_subheading")),
         headerId = Some("my-services-heading"),
+        headingLevel = "h3",
+        headerClasses = Some("govuk-heading-s"),
         emptyView = HtmlFormat.empty,
         cards = myServiceCards
     ))
@@ -60,6 +65,8 @@
     @cardContainer(CardContainerModel(
         header = Some(messages("label.other_taxes_and_benefits_heading")),
         headerId = Some("other-services-heading"),
+        headingLevel = "h3",
+        headerClasses = Some("govuk-heading-s govuk-!-margin-top-5"),
         emptyView = HtmlFormat.empty,
         cards = otherServiceCards
     ))

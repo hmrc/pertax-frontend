@@ -25,12 +25,15 @@ final case class CardContainerModel(
   cards: Seq[HmrcCardModel] = Seq.empty,
   headingLevel: String = "h2",
   listAriaLabel: Option[String] = None,
-  headerId: Option[String] = None
+  headerId: Option[String] = None,
+  headerClasses: Option[String] = None
 ) {
   val normalizedHeadingLevel: String          = headingLevel.trim.toLowerCase
   val normalizedHeader: Option[Html]          = header.flatMap(CardContainerModel.normalizeHeader)
   val normalizedListAriaLabel: Option[String] = listAriaLabel.map(_.trim).filter(_.nonEmpty)
   val normalizedHeaderId: Option[String]      = headerId.map(_.trim).filter(_.nonEmpty)
+  val normalizedHeaderClasses: String         =
+    headerClasses.map(_.trim).filter(_.nonEmpty).getOrElse("govuk-heading-m")
 
   require(
     CardContainerModel.ValidHeadingLevels.contains(normalizedHeadingLevel),

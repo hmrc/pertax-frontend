@@ -619,6 +619,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       val content = Jsoup.parse(contentAsString(result))
       content.select("nav.x-govuk-secondary-navigation").size mustBe 1
+      content.select("h2#taxes-and-benefits-tab-heading").text mustBe "Taxes and benefits"
       content.getElementById("my-services-heading") must not be null
       content.select("div.hmrc-card").size mustBe 2
       content.getElementsContainingText("Pay As You Earn (PAYE)").attr("href") mustBe "/paye"

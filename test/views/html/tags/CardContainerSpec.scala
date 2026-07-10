@@ -185,6 +185,32 @@ class CardContainerSpec extends ViewSpec {
       doc.select("h3.govuk-heading-m").text() mustBe "Test Header"
     }
 
+    "render configured header classes in place of the default" in {
+      val model   = CardContainerModel(
+        emptyView = Html(""),
+        header = Some("Test Header"),
+        headingLevel = "h3",
+        headerClasses = Some("govuk-heading-s govuk-!-margin-top-5"),
+        cards = Seq(cardOne)
+      )
+      val doc     = asDocument(cardContainer(model).toString)
+      val heading = doc.select("h3.govuk-heading-s")
+      heading.text() mustBe "Test Header"
+      heading.hasClass("govuk-!-margin-top-5") mustBe true
+      heading.hasClass("govuk-heading-m") mustBe false
+    }
+
+    "ignore blank header classes and use the default" in {
+      val model = CardContainerModel(
+        emptyView = Html(""),
+        header = Some("Test Header"),
+        headerClasses = Some("   "),
+        cards = Seq(cardOne)
+      )
+      val doc   = asDocument(cardContainer(model).toString)
+      doc.select("h2.govuk-heading-m").text() mustBe "Test Header"
+    }
+
     "render an HTML header when provided" in {
       val model = CardContainerModel(
         emptyView = Html(""),
