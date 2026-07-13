@@ -104,6 +104,21 @@ class HmrcCardSpec extends ViewSpec with Matchers {
       doc.select("span.govuk-\\!-font-weight-regular").size mustBe 1
       doc.select("span.govuk-\\!-font-weight-regular").text mustBe "(opens in new tab)"
     }
+    "render with configured heading level" in {
+      val model = HmrcCardModel(CardType.BasicCard, CardHeading("Test Heading", Some("/test"), false), None, None)
+
+      val doc = asDocument(views.html.components.HmrcCard(model, "h4")(messages).toString)
+
+      doc.select("h4.hmrc-card__heading").size mustBe 1
+      doc.select("h4.hmrc-card__heading").text mustBe "Test Heading"
+      doc.select("h3.hmrc-card__heading").size mustBe 0
+    }
+    "throw error for invalid heading level" in {
+      val model = HmrcCardModel(CardType.BasicCard, CardHeading("Test Heading", Some("/test"), false), None, None)
+
+      an[IllegalArgumentException] must be thrownBy
+        views.html.components.HmrcCard(model, "h7")(messages).toString
+    }
     "render arbitrary html in BasicCardWithDueDate correctly, without characters escaping" in {
       val model = HmrcCardModel(
         CardType.BasicCardWithDueDate,

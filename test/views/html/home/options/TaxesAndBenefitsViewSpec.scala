@@ -102,6 +102,14 @@ class TaxesAndBenefitsViewSpec extends ViewSpec {
       document.select("h3#other-services-heading").text() mustBe messages("label.other_taxes_and_benefits_heading")
     }
 
+    "render service card headings as h4 under the h3 section headings" in {
+      val document: Document = asDocument(page(Seq(payeService), Seq(childBenefitService)).toString)
+      document.select("h4.hmrc-card__heading").size() mustBe 2
+      document.select("h4.hmrc-card__heading").get(0).text() mustBe "Pay As You Earn (PAYE)"
+      document.select("h4.hmrc-card__heading").get(1).text() mustBe "Child Benefit"
+      document.select("div.hmrc-card h3.hmrc-card__heading").size() mustBe 0
+    }
+
     "add top margin spacing to the 'Other taxes and benefits' heading" in {
       val document: Document = asDocument(page(Seq(payeService), Seq(childBenefitService)).toString)
       document.select("h3#other-services-heading").hasClass("govuk-!-margin-top-5") mustBe true

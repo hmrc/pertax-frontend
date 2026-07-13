@@ -24,11 +24,13 @@ final case class CardContainerModel(
   header: Option[CardContainerModel.Header] = None,
   cards: Seq[HmrcCardModel] = Seq.empty,
   headingLevel: String = "h2",
+  cardHeadingLevel: String = "h3",
   listAriaLabel: Option[String] = None,
   headerId: Option[String] = None,
   headerClasses: Option[String] = None
 ) {
   val normalizedHeadingLevel: String          = headingLevel.trim.toLowerCase
+  val normalizedCardHeadingLevel: String      = cardHeadingLevel.trim.toLowerCase
   val normalizedHeader: Option[Html]          = header.flatMap(CardContainerModel.normalizeHeader)
   val normalizedListAriaLabel: Option[String] = listAriaLabel.map(_.trim).filter(_.nonEmpty)
   val normalizedHeaderId: Option[String]      = headerId.map(_.trim).filter(_.nonEmpty)
@@ -38,6 +40,11 @@ final case class CardContainerModel(
   require(
     CardContainerModel.ValidHeadingLevels.contains(normalizedHeadingLevel),
     s"Invalid heading level: $headingLevel. Must be h1-h6."
+  )
+
+  require(
+    CardContainerModel.ValidHeadingLevels.contains(normalizedCardHeadingLevel),
+    s"Invalid card heading level: $cardHeadingLevel. Must be h1-h6."
   )
 
   require(

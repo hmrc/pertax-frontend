@@ -200,6 +200,18 @@ class CardContainerSpec extends ViewSpec {
       heading.hasClass("govuk-heading-m") mustBe false
     }
 
+    "render cards with configured heading level" in {
+      val model = CardContainerModel(
+        emptyView = Html(""),
+        header = Some("Test Header"),
+        cardHeadingLevel = "h4",
+        cards = Seq(cardOne)
+      )
+      val doc   = asDocument(cardContainer(model).toString)
+      doc.select("h4.hmrc-card__heading").text() mustBe "Card 1"
+      doc.select("h3.hmrc-card__heading").size() mustBe 0
+    }
+
     "ignore blank header classes and use the default" in {
       val model = CardContainerModel(
         emptyView = Html(""),
@@ -253,6 +265,15 @@ class CardContainerSpec extends ViewSpec {
         CardContainerModel(
           emptyView = Html(""),
           headingLevel = "h7",
+          cards = Seq(cardOne)
+        )
+    }
+
+    "throw error for invalid card heading level" in {
+      an[IllegalArgumentException] must be thrownBy
+        CardContainerModel(
+          emptyView = Html(""),
+          cardHeadingLevel = "h7",
           cards = Seq(cardOne)
         )
     }
