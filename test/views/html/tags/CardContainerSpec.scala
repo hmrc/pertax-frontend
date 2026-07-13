@@ -20,6 +20,7 @@ import play.twirl.api.Html
 import views.html.ViewSpec
 import viewmodels.CardContainerModel
 import models.{CardHeading, CardType, HmrcCardModel}
+import viewmodels.TabEnum.*
 
 class CardContainerSpec extends ViewSpec {
 
@@ -235,6 +236,17 @@ class CardContainerSpec extends ViewSpec {
           defaultInset = Html(""),
           cards = Seq(cardOne, cardTwo)
         )
+    }
+    "render only the inset if cards list is empty" in {
+      val model = CardContainerModel(
+        defaultInset = Task.defaultInset(),
+        header = Some("Test Header"),
+        cards = Seq.empty
+      )
+      val doc   = asDocument(cardContainer(model).toString)
+      val inset = doc.select("div.govuk-inset-text")
+      inset.size mustBe 1
+      doc.select("ul.hmrc-card__container").size mustBe 0
     }
   }
 }
