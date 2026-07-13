@@ -68,7 +68,7 @@ class PtapLatestNewsAndUpdatesViewSpec extends ViewSpec {
 
   private val newsItem2 = NewsAndContentModel(
     newsSectionName = "homepageUpdate",
-    shortDescription = "Changes to the personal tax account homepage",
+    shortDescription = "Changes to the Personal tax account homepage",
     content = "",
     isDynamic = false,
     startDate = LocalDate.now().minusDays(5),

@@ -18,12 +18,11 @@ package views.html.interstitial
 
 import controllers.auth.requests.UserRequest
 import models.{ClaimMtdFromPtaChoiceFormProvider, ClaimMtdFromPtaChoiceModel}
+import play.api.data.Form
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import testUtils.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
-import models.ClaimMtdFromPtaChoiceFormProvider
-import play.api.data.Form
-import play.api.mvc.AnyContentAsEmpty
 
 class MTDITClaimChoiceViewSpec extends ViewSpec {
 
@@ -46,7 +45,7 @@ class MTDITClaimChoiceViewSpec extends ViewSpec {
       document.body().toString must include("You are signed up for")
       document.body().toString must include("Making Tax Digital for Income Tax")
       document.body().toString must include(
-        "You need to add the service to your personal tax account before you can access it."
+        "You need to add the service to your Personal tax account before you can access it."
       )
 
       val linkElement = document.select("a.govuk-link.govuk-link--no-visited-state")
@@ -61,7 +60,7 @@ class MTDITClaimChoiceViewSpec extends ViewSpec {
     "display the expected question" in {
       val document = asDocument(view(controllers.routes.ClaimMtdFromPtaController.submit, form).toString)
       document.body().toString must include(
-        "Do you want to add Making Tax Digital for Income Tax to your personal tax account now?"
+        "Do you want to add Making Tax Digital for Income Tax to your Personal tax account now?"
       )
     }
 
