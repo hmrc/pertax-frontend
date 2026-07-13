@@ -127,6 +127,15 @@ class SupportViewSpec extends ViewSpec {
       )
     }
 
+    "use the local Understanding your HMRC Online account URL when rendered in Welsh" in {
+      val welshDoc = asDocument(page()(welshMessages).toString)
+      assertContainsLink(
+        welshDoc,
+        welshMessages("ptap.support.tab.card.hmrc.online.link.understanding.account"),
+        welshMessages("ptap.support.tab.card.hmrc.online.link.understanding.account.url")
+      )
+    }
+
     "render PAYE card link text and hrefs" in {
       assertContainsLink(
         document,
