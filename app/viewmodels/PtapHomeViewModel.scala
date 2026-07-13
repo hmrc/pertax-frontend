@@ -28,7 +28,7 @@ enum TabEnum(val name: String, val cardContainerHeading: Option[String] = None):
   case News extends TabEnum("hmrc-news")
   case Support extends TabEnum("support")
 
-  def href(ptap: Option[String] = None): String  = {
+  def href(ptap: Option[String] = None): String         = {
     val queryString = ptap.fold("")(v => s"?ptap=$v")
     this match {
       case Task => s"/personal-account$queryString"
