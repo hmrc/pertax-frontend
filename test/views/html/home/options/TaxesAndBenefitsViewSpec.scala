@@ -146,5 +146,22 @@ class TaxesAndBenefitsViewSpec extends ViewSpec {
       containers.get(0).attr("aria-labelledby") mustBe "my-services-heading"
       containers.get(1).attr("aria-labelledby") mustBe "other-services-heading"
     }
+
+    "render myService hints when present" in {
+      val payeWithHint = payeService.copy(hintText = Some("PAYE hint text"))
+      val document     = asDocument(page(Seq(payeWithHint), Seq.empty).toString)
+      document.select("div.hmrc-card p.govuk-hint").text() mustBe "PAYE hint text"
+    }
+
+    "render otherService hints when present" in {
+      val childBenefitWithHint = childBenefitService.copy(hintText = Some("Child Benefit hint text"))
+      val document             = asDocument(page(Seq.empty, Seq(childBenefitWithHint)).toString)
+      document.select("div.hmrc-card p.govuk-hint").text() mustBe "Child Benefit hint text"
+    }
+
+    "not render hints when not present" in {
+      val document = asDocument(page(Seq(payeService), Seq(childBenefitService)).toString)
+      document.select("div.hmrc-card p.govuk-hint").size() mustBe 0
+    }
   }
 }

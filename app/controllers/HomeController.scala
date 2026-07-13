@@ -27,6 +27,7 @@ import models.admin.HomePagePersonalisationToggle
 import play.api.i18n.Messages
 import play.api.mvc.*
 import play.twirl.api.Html
+import config.ConfigDecorator
 import services.*
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -43,6 +44,7 @@ class HomeController @Inject() (
   paperlessInterruptHelper: PaperlessInterruptHelper,
   breathingSpaceService: BreathingSpaceService,
   featureFlagService: FeatureFlagService,
+  configDecorator: ConfigDecorator,
   citizenDetailsService: CitizenDetailsService,
   homePageServicesProvider: HomePageServicesProvider,
   tasksService: TasksService,
@@ -66,13 +68,23 @@ class HomeController @Inject() (
 
   def homePageTab(tab: String) =
     authenticate.async { implicit request =>
-      featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
-        if (toggle.isEnabled) {
-          personalisationHomePageTab(tab)
-        } else {
-          newHomePage
-        }
+      isPersonalisationEnabledAndNinoEligible.flatMap {
+        case true  => personalisationHomePageTab(tab)
+        case false => newHomePage
       }
+    }
+
+  private def ptapParam(implicit request: UserRequest[AnyContent]): Option[String] =
+    request.queryString.get("ptap").flatMap(_.headOption).filter(_ == "true")
+
+  private def isPersonalisationEnabledAndNinoEligible(implicit
+    request: UserRequest[AnyContent]
+  ): Future[Boolean] =
+    featureFlagService.get(HomePagePersonalisationToggle).map { toggle =>
+      val lastNumericDigit = request.helpeeNinoOrElse.nino.filter(_.isDigit).last.asDigit
+      toggle.isEnabled && ptapParam.isDefined && configDecorator.ptapHomepageNinoRolloutLastNumericDigits.contains(
+        lastNumericDigit
+      )
     }
 
   private def personalisationHomePageTab(tab: String)(implicit
@@ -91,7 +103,7 @@ class HomeController @Inject() (
         val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
         val fTabContentCards         = tabContentService.getTaskAndTabCards(currentTab)
         val fHomePageServices        =
-          if (currentTab == Tax) homePageServicesProvider.getHomePageServices
+          if (currentTab == Tax) homePageServicesProvider.getHomePageServices(isRedesign = true)
           else Future.successful(HomePageServices(Seq.empty))
 
         for {
@@ -137,34 +149,37 @@ class HomeController @Inject() (
       }
     }
 
-  private def buildSecondaryNav(currentTab: TabEnum, taskCount: Int)(implicit messages: Messages): SecondaryNavModel =
+  private def buildSecondaryNav(currentTab: TabEnum, taskCount: Int)(implicit
+    messages: Messages,
+    request: UserRequest[AnyContent]
+  ): SecondaryNavModel =
     SecondaryNavModel(
       classes = Some("govuk-!-margin-bottom-6"),
       items = Seq(
         TabModel(
           text = messages("ptap.support.uya.p2.sub"),
-          href = Task.href(),
+          href = Task.href(ptapParam),
           current = currentTab == Task,
           notificationCount = if (taskCount > 0) Some(taskCount) else None
         ),
         TabModel(
           text = messages("ptap.support.uya.p3.sub"),
-          href = Activity.href(),
+          href = Activity.href(ptapParam),
           current = currentTab == Activity
         ),
         TabModel(
           text = messages("ptap.support.uya.p4.sub"),
-          href = Tax.href(),
+          href = Tax.href(ptapParam),
           current = currentTab == Tax
         ),
         TabModel(
           text = messages("ptap.support.uya.p5.sub"),
-          href = News.href(),
+          href = News.href(ptapParam),
           current = currentTab == News
         ),
         TabModel(
           text = messages("ptap.support.uya.p6.sub"),
-          href = Support.href(),
+          href = Support.href(ptapParam),
           current = currentTab == Support
         )
       )
@@ -182,7 +197,7 @@ class HomeController @Inject() (
     enforceInterrupts {
       val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
       val fListOfTasks             = tasksService.getListOfTasks
-      val fHomePageServices        = homePageServicesProvider.getHomePageServices
+      val fHomePageServices        = homePageServicesProvider.getHomePageServices(isRedesign = false)
       val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
 
       for {
@@ -215,12 +230,9 @@ class HomeController @Inject() (
   }
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
-    featureFlagService.get(HomePagePersonalisationToggle).flatMap { toggle =>
-      if (toggle.isEnabled) {
-        personalisationHomePageTab(Task.name)
-      } else {
-        newHomePage
-      }
+    isPersonalisationEnabledAndNinoEligible.flatMap {
+      case true  => personalisationHomePageTab(Task.name)
+      case false => newHomePage
     }
   }
 

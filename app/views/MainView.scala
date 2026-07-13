@@ -28,6 +28,7 @@ import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.sca.models.{BannerConfig, TrustedHelper}
 import uk.gov.hmrc.sca.services.WrapperService
+import uk.gov.hmrc.sca.utils.Keys
 import views.html.components.{AdditionalJavascript, HeadBlock}
 
 import javax.inject.Inject
@@ -91,6 +92,9 @@ class MainViewImpl @Inject() (
       case Failure(_)           => None
     }
 
+    val ptapOpt: Option[String] =
+      request.queryString.get("ptap").flatMap(_.headOption).filter(_ == "true")
+
     val fullPageTitle = s"$pageTitle - ${messages("label.your_personal_tax_account_gov_uk")}"
 
     logger.debug(s"SCA Wrapper layout used for request `${request.uri}``")
@@ -99,7 +103,7 @@ class MainViewImpl @Inject() (
       pageTitle = Some(fullPageTitle),
       serviceNameKey = Some(messages(serviceName)),
       serviceURLs = ServiceURLs(
-        serviceUrl = Some(appConfig.personalAccount),
+        serviceUrl = Some(appConfig.personalAccount + ptapOpt.fold("")(value => s"?ptap=$value")),
         signOutUrl = Some(
           controllers.routes.ApplicationController
             .signout(Some(RedirectUrl(appConfig.getFeedbackSurveyUrl(appConfig.defaultOrigin))), None)
@@ -123,6 +127,18 @@ class MainViewImpl @Inject() (
       fullWidth = fullWidth,
       hideMenuBar = hideAccountMenu,
       disableSessionExpired = disableSessionExpired
-    )(messages, request)
+    )(messages, withPtapInHomeLink(request, ptapOpt))
+  }
+
+  private def withPtapInHomeLink(request: Request[_], ptapOpt: Option[String]): Request[_] = {
+    val updated = for {
+      ptapValue   <- ptapOpt
+      wrapperData <- request.attrs.get(Keys.wrapperDataKey)
+      updatedMenu  = wrapperData.menuItemConfig.map {
+                       case item if item.id == "home" => item.copy(href = s"${item.href}?ptap=$ptapValue")
+                       case item                      => item
+                     }
+    } yield request.addAttr(Keys.wrapperDataKey, wrapperData.copy(menuItemConfig = updatedMenu))
+    updated.getOrElse(request)
   }
 }

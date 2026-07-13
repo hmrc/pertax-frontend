@@ -844,6 +844,17 @@ label.trusted_helpers_content=Get help with your tax online from someone you tru
 label.taxes_and_benefits_heading=Taxes and benefits
 label.taxes_and_benefits_subheading=Your current HMRC Online taxes and benefits
 label.other_taxes_and_benefits_heading=Other taxes and benefits that may be relevant to you
+
+ptap.taxes-and-benefits.paye.hint=Check or update your PAYE Income Tax, tax codes, claims and tax calculations.
+ptap.taxes-and-benefits.tax-calculation.hint=Check if you have paid too much or too little tax.
+ptap.taxes-and-benefits.national-insurance.hint=View your State Pension summary, and pay for gaps in your National Insurance record. View your National Insurance record, and view and save your National Insurance number.
+ptap.taxes-and-benefits.self-assessment.hint=View and manage your Self Assessment tax return.
+ptap.taxes-and-benefits.mtd.hint=Use Making Tax Digital for Income Tax to keep your records and submit updates to HMRC.
+ptap.taxes-and-benefits.child-benefit.hint=A payment to help with the cost of bringing up children.
+ptap.taxes-and-benefits.annual-tax-summary.hint=View your tax and National Insurance contributions and find out how the government spends your taxes. This is for your information only.
+ptap.taxes-and-benefits.trusted-helpers.hint=Get help with your tax online from someone you trust, or help someone you know.
+ptap.taxes-and-benefits.marriage-allowance.other.hint=Transfer part of your Personal Allowance to your partner so they pay less tax.
+
 label.tax_calc_option=Your tax calculation — PAYE {0} to {1}
 
 label.task_heading=Refunds and tax you owe — Pay As You Earn (PAYE)
