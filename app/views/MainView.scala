@@ -32,7 +32,7 @@ import uk.gov.hmrc.sca.utils.Keys
 import views.html.components.{AdditionalJavascript, HeadBlock}
 
 import javax.inject.Inject
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 @ImplementedBy(classOf[MainViewImpl])
 trait MainView {
@@ -87,10 +87,8 @@ class MainViewImpl @Inject() (
     showUserResearchBanner: Boolean = false
   )(contentBlock: Html)(implicit request: Request[_], messages: Messages): HtmlFormat.Appendable = {
 
-    val trustedHelper: Option[TrustedHelper] = Try(request.asInstanceOf[UserRequest[_]]) match {
-      case Success(userRequest) => userRequest.trustedHelper
-      case Failure(_)           => None
-    }
+    val trustedHelper: Option[TrustedHelper] =
+      Try(request.asInstanceOf[UserRequest[_]]).toOption.flatMap(_.trustedHelper)
 
     val ptapOpt: Option[String] =
       request.queryString.get("ptap").flatMap(_.headOption).filter(_ == "true")
@@ -103,7 +101,7 @@ class MainViewImpl @Inject() (
       pageTitle = Some(fullPageTitle),
       serviceNameKey = Some(messages(serviceName)),
       serviceURLs = ServiceURLs(
-        serviceUrl = Some(appConfig.personalAccount + ptapOpt.fold("")(value => s"?ptap=$value")),
+        serviceUrl = Some(appConfig.personalAccount + ptapOpt.fold("")(v => s"?ptap=$v")),
         signOutUrl = Some(
           controllers.routes.ApplicationController
             .signout(Some(RedirectUrl(appConfig.getFeedbackSurveyUrl(appConfig.defaultOrigin))), None)

@@ -23,8 +23,8 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import error.ErrorRenderer
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
-import models.{HomePageServices, SelfAssessmentUser}
 import models.admin.HomePagePersonalisationToggle
+import models.{HomePageServices, SelfAssessmentUser}
 import play.api.i18n.Messages
 import play.api.mvc.*
 import play.twirl.api.Html
