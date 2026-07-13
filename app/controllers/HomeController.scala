@@ -17,6 +17,7 @@
 package controllers
 
 import com.google.inject.Inject
+import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
@@ -33,7 +34,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
-import viewmodels.{AlertBanner, CardContainerModel, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeViewModel, PtapNewsAndUpdates, SecondaryNavModel, TabEnum, TabModel}
+import viewmodels.{AlertBanner, CardContainerModel, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeViewModel, SecondaryNavModel, TabEnum, TabModel}
 import viewmodels.TabEnum.*
 import views.html.{HomeView, PtapHomeView}
 
@@ -50,6 +51,7 @@ class HomeController @Inject() (
   tasksService: TasksService,
   tabContentService: TabContentService,
   homeOptionsGenerator: HomeOptionsGenerator,
+  configDecorator: ConfigDecorator,
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   homeView: HomeView,
@@ -65,6 +67,14 @@ class HomeController @Inject() (
 
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
+
+  private def isPersonalisationEnabledAndNinoEligible(implicit
+    request: UserRequest[AnyContent]
+  ): Future[Boolean] =
+    featureFlagService.get(HomePagePersonalisationToggle).map { toggle =>
+      val lastNumericDigit = request.helpeeNinoOrElse.nino.filter(_.isDigit).last.asDigit
+      toggle.isEnabled && configDecorator.ptapHomepageNinoRolloutLastNumericDigits.contains(lastNumericDigit)
+    }
 
   def homePageTab(tab: String) =
     authenticate.async { implicit request =>
@@ -88,7 +98,8 @@ class HomeController @Inject() (
     }
 
   private def personalisationHomePageTab(tab: String)(implicit
-    request: UserRequest[AnyContent]
+    request: UserRequest[AnyContent],
+    messages: Messages
   ): Future[Result] =
     withValidTab(tab) { currentTab =>
       val nino: Nino = request.helpeeNinoOrElse
@@ -120,7 +131,7 @@ class HomeController @Inject() (
           val secondaryNav = buildSecondaryNav(currentTab, taskCount)
           val tabContent   = currentTab.cardContainerHeading.map { heading =>
             CardContainerModel(
-              emptyView = Html(""),
+              emptyView = currentTab.empty(),
               header = Some(heading),
               cards = tabContentCards.tabCards,
               headerId = Some("tab-content-header")
@@ -130,7 +141,6 @@ class HomeController @Inject() (
           Ok(
             pTapHomeView(
               PtapHomeViewModel(
-                homeOptionsGenerator.getLatestNewsAndUpdatesCard().map(PtapNewsAndUpdates.apply),
                 showUserResearchBanner = false,
                 utr,
                 breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
@@ -138,6 +148,7 @@ class HomeController @Inject() (
                 name = nameToDisplay,
                 secondaryNav = secondaryNav,
                 tabContent = tabContent,
+                showNewsAndUpdatesView = currentTab == News,
                 showSupportView = currentTab == Support,
                 showTaxesAndBenefitsView = currentTab == Tax,
                 myServices = homePageServices.myServices,

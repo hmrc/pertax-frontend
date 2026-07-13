@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package viewmodels
 
 import models.{MyService, OtherService}
+import views.html.components.TabDefaultInsetText
+import play.api.i18n.Messages
 import play.twirl.api.Html
 
 enum TabEnum(val name: String, val cardContainerHeading: Option[String] = None):
@@ -33,12 +35,12 @@ enum TabEnum(val name: String, val cardContainerHeading: Option[String] = None):
       case tab  => s"/personal-account/${tab.name}$queryString"
     }
   }
+  def empty()(implicit messages: Messages): Html =
+    TabDefaultInsetText(this)
 
-final case class PtapNewsAndUpdates(content: Html) extends AnyVal
 final case class PtapAlertBanner(content: Html) extends AnyVal
 
 final case class PtapHomeViewModel(
-  newsAndUpdates: Option[PtapNewsAndUpdates],
   showUserResearchBanner: Boolean,
   saUtr: Option[String],
   breathingSpaceIndicator: Boolean,
@@ -46,6 +48,7 @@ final case class PtapHomeViewModel(
   name: Option[String],
   secondaryNav: SecondaryNavModel,
   tabContent: List[CardContainerModel],
+  showNewsAndUpdatesView: Boolean = false,
   showSupportView: Boolean = false,
   showTaxesAndBenefitsView: Boolean = false,
   myServices: Seq[MyService] = Seq.empty,

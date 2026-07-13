@@ -17,24 +17,26 @@
 @import components.{H2, H3}
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import play.api.mvc.AnyContent
 @import tags.CardContainer
 @import uk.gov.hmrc.play.language.LanguageUtils
 @import viewmodels.PtapHomeViewModel
 @import views.MainView
 @import views.html.components.alertBanner.AlertBanner
 @import views.html.components.SecondaryNav
-@import views.html.home.options.{SupportView, TaxesAndBenefitsView}
+@import views.html.home.options.{PtapLatestNewsAndUpdatesView, SupportView, TaxesAndBenefitsView}
 
 @this(
         main: MainView,
         alertBanner: AlertBanner,
         cardContainer: CardContainer,
         configDecorator: ConfigDecorator,
+        ptapLatestNewsAndUpdatesView: PtapLatestNewsAndUpdatesView,
         supportView: SupportView,
         taxesAndBenefitsView: TaxesAndBenefitsView
 )
 
-@(viewModel: PtapHomeViewModel)(implicit request: UserRequest[_], messages: Messages)
+@(viewModel: PtapHomeViewModel)(implicit request: UserRequest[AnyContent], messages: Messages)
 
 @main(
     pageTitle = messages("label.account_home"),
@@ -45,10 +47,10 @@
 
     @alertBanner(viewModel.alertBannerContent.map(_.content))
 
-    <header class="hmrc-page-heading">
 
-        <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">@viewModel.name.fold(messages("label.your_account"))(upperCaseToTitleCase)</h1>
-        <p class="hmrc-caption govuk-caption-xl"><span class="govuk-visually-hidden">@messages("label.this.section.is") </span>@messages("label.account_home")</p>
+    <header class="hmrc-page-heading">
+        <span class="govuk-caption-xl">@viewModel.name.fold(messages("label.your_account"))(upperCaseToTitleCase)</span>
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-0">@messages("label.your_personal_tax_account")
     </header>
 
     @if(viewModel.breathingSpaceIndicator) {
@@ -63,11 +65,13 @@
             </p>
         </div>
     }
-    @viewModel.saUtr.map { utr =>
-        <p class="govuk-body govuk-!-margin-bottom-2" id="utrNo">@messages("label.home_page.utr") <strong>@utr</strong></p>
-    }
-    <p class="govuk-body" id="ninoLink"><a class="govuk-link govuk-link--no-visited-state" href="@configDecorator.ptaNinoSaveUrl">
-        @messages("label.view_and_save_your_national_insurance_number")</a></p>
+    <div class="govuk-inset-text govuk-!-margin-top-2 govuk-!-margin-bottom-6">
+        @viewModel.saUtr.map { utr =>
+            <p class="govuk-body-s govuk-!-margin-bottom-1" id="utrNo">@messages("label.home_page.utr") <strong>@utr</strong></p>
+        }
+        <p class="govuk-body" id="ninoLink"><a class="govuk-link govuk-link--no-visited-state govuk-body-s" href="@configDecorator.ptaNinoSaveUrl">
+            @messages("label.view_and_save_your_national_insurance_number")</a></p>
+    </div>
 
     @{SecondaryNav(viewModel.secondaryNav)}
 
@@ -75,6 +79,9 @@
         <div class="govuk-grid-column-two-thirds">
             @for(container <- viewModel.tabContent) {
                 @cardContainer(container)
+            }
+            @if(viewModel.showNewsAndUpdatesView) {
+                @ptapLatestNewsAndUpdatesView()
             }
             @if(viewModel.showTaxesAndBenefitsView) {
                 @taxesAndBenefitsView(viewModel.myServices, viewModel.otherServices)
