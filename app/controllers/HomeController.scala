@@ -28,7 +28,6 @@ import models.admin.HomePagePersonalisationToggle
 import play.api.i18n.Messages
 import play.api.mvc.*
 import play.twirl.api.Html
-import config.ConfigDecorator
 import services.*
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -45,7 +44,6 @@ class HomeController @Inject() (
   paperlessInterruptHelper: PaperlessInterruptHelper,
   breathingSpaceService: BreathingSpaceService,
   featureFlagService: FeatureFlagService,
-  configDecorator: ConfigDecorator,
   citizenDetailsService: CitizenDetailsService,
   homePageServicesProvider: HomePageServicesProvider,
   tasksService: TasksService,
@@ -67,14 +65,6 @@ class HomeController @Inject() (
 
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
-
-  private def isPersonalisationEnabledAndNinoEligible(implicit
-    request: UserRequest[AnyContent]
-  ): Future[Boolean] =
-    featureFlagService.get(HomePagePersonalisationToggle).map { toggle =>
-      val lastNumericDigit = request.helpeeNinoOrElse.nino.filter(_.isDigit).last.asDigit
-      toggle.isEnabled && configDecorator.ptapHomepageNinoRolloutLastNumericDigits.contains(lastNumericDigit)
-    }
 
   def homePageTab(tab: String) =
     authenticate.async { implicit request =>

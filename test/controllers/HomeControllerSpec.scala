@@ -340,7 +340,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     "render the new design when HomePagePersonalisationToggle is true and the NINO is eligible" in {
       // NINO AA000009A: last numeric digit is 9; configure rollout list to include 9
       val eligibleNino = Nino("AA000009A")
-      val request      = FakeRequest("GET", "/personal-account")
+      val request      = FakeRequest("GET", "/personal-account?ptap=true")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
@@ -447,7 +447,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       // helpeeNinoOrElse resolves to the principal NINO — new design must be shown
       val authNino      = Nino("AA000008A")
       val principalNino = Nino("AA000009A")
-      val request       = FakeRequest("GET", "/personal-account")
+      val request       = FakeRequest("GET", "/personal-account?ptap=true")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
@@ -489,7 +489,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       // Trusted helper present but principalNino is None — helpeeNinoOrElse falls back to authNino
       // authNino AA000009A (last digit 9) is eligible — new design must be shown
       val authNino = Nino("AA000009A")
-      val request  = FakeRequest("GET", "/personal-account")
+      val request  = FakeRequest("GET", "/personal-account?ptap=true")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
