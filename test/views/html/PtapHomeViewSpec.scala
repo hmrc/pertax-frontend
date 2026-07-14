@@ -42,6 +42,10 @@ class PtapHomeViewSpec extends ViewSpec {
   lazy val home: PtapHomeView                       = inject[PtapHomeView]
   implicit val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
 
+  val taskCompletedMessage      = "It can take up to 10 days for completed tasks to be removed from the list."
+  val welshTaskCompletedMessage =
+    "Gall gymryd hyd at 10 diwrnod i’r tasgau sydd wedi’u cwblhau gael eu tynnu o’r rhestr."
+
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
       api.inject.bind[ConfigDecorator].toInstance(mockConfigDecorator),
@@ -278,6 +282,7 @@ class PtapHomeViewSpec extends ViewSpec {
       val doc                                                       = asDocument(home(homeViewModel.copy(breathingSpaceIndicator = false)).toString)
       doc.text() must not include "BREATHING SPACE"
     }
+
     "show the default placeholder content when the Your tasks tab is selected and there are no cards to load." in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val viewModel                                                 = homeViewModel.copy(tabContent = List(taskTabContent()))
@@ -296,6 +301,7 @@ class PtapHomeViewSpec extends ViewSpec {
         .text() mustBe "Check Taxes and benefits for anything else you need to do."
       second_line.select(s"a.govuk-link").text() mustBe "Taxes and benefits"
     }
+
     "show the default placeholder content when the Recent activity tab is selected and there are no cards to load." in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val activityNav                                               = defaultSecondaryNav.copy(
@@ -324,11 +330,8 @@ class PtapHomeViewSpec extends ViewSpec {
         showTaskCompletedMessage = true,
         tabContent = List(taskTabContent(HmrcCardModelFixtures.taskCards))
       )
-
-      val doc = asDocument(home(viewModel).toString)
-
-      // Clean: Uses the key from your messages.en file
-      doc.text() must include(messages("label.task_paragraph"))
+      val doc       = asDocument(home(viewModel).toString)
+      doc.text() must include(taskCompletedMessage)
     }
 
     "not render task completed message when disabled" in {
@@ -339,10 +342,20 @@ class PtapHomeViewSpec extends ViewSpec {
         showTaskCompletedMessage = false,
         tabContent = List(taskTabContent(HmrcCardModelFixtures.taskCards))
       )
+      val doc       = asDocument(home(viewModel).toString)
+      doc.text() must not include taskCompletedMessage
+    }
 
-      val doc = asDocument(home(viewModel).toString)
+    "render task completed message in Welsh" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest())
 
-      doc.text() must not include messages("label.task_paragraph")
+      val viewModel = homeViewModel.copy(
+        showTaskCompletedMessage = true,
+        tabContent = List(taskTabContent(HmrcCardModelFixtures.taskCards))
+      )
+      val doc       = asDocument(home(viewModel)(userRequest, welshMessages).toString)
+      doc.text() must include(welshTaskCompletedMessage)
     }
   }
 }
