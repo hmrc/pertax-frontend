@@ -47,15 +47,14 @@
 
     <ul class="govuk-list govuk-list--bullet" id="accessList">
         <li>@messages("ptap.support.uya.list.paye")</li>
-        <li>@messages("ptap.support.uya.list.sa")</li>
-        <li>@messages("ptap.support.uya.list.cb")</li>
-        <li>@messages("ptap.support.uya.list.ma")</li>
-        <li>@messages("ptap.support.uya.list.ni")</li>
-        <li>@messages("ptap.support.uya.list.ats")</li>
     </ul>
 
     @h2("ptap.support.uya.p2.header")
     @p(Text(messages("ptap.support.uya.p2")))
+
+    @h3("ptap.support.uya.p4.sub")
+
+    @p(Text(messages("ptap.support.uya.p4.tab")))
 
     @h3("ptap.support.uya.p2.sub")
 
@@ -65,9 +64,6 @@
 
     <ul class="govuk-list govuk-list--bullet" id="taskList">
         <li>@messages("ptap.support.uya.list.paye")</li>
-        <li>@messages("ptap.support.uya.list.sa")</li>
-        <li>@messages("ptap.support.uya.list.cb")</li>
-        <li>@messages("ptap.support.uya.list.ni")</li>
     </ul>
 
     @p(Text(messages("ptap.support.uya.p2.tasks.list.other")))
@@ -77,14 +73,6 @@
         <li>@link(configDecorator.notifyChangeOfDetails, messageKey = "ptap.support.uya.list.circumstances.link", id = Some("notifyChangeOfDetailsLink"), inParagraph = true)</li>
         <li>@messages("ptap.support.uya.list.bta")</li>
     </ul>
-
-    @h3("ptap.support.uya.p3.sub")
-
-    @p(Text(messages("ptap.support.uya.p3.recent")))
-
-    @h3("ptap.support.uya.p4.sub")
-
-    @p(Text(messages("ptap.support.uya.p4.tab")))
 
     @h3("ptap.support.uya.p5.sub")
 

@@ -72,9 +72,8 @@ class UnderstandingYourAccountViewSpec extends ViewSpec {
       document.select("h2").asScala.exists(e => e.text == "How to use your HMRC online account") mustBe true
 
       document.select("h3").asScala.map(_.text).toSeq mustBe Seq(
-        "Your tasks",
-        "Recent activity",
         "Taxes and benefits",
+        "Your tasks",
         "HMRC news",
         "HMRC support"
       )
@@ -95,7 +94,6 @@ class UnderstandingYourAccountViewSpec extends ViewSpec {
         "Your HMRC Online account only displays your tasks for the following services:"
       )
       assertContainsText(document, "You may have other tasks:")
-      assertContainsText(document, "View recent updates such as payments from your job or tax code changes.")
       assertContainsText(
         document,
         "Check the taxes and benefits you currently have and find out about others that may be relevant to you."
@@ -106,21 +104,13 @@ class UnderstandingYourAccountViewSpec extends ViewSpec {
 
     "show the expected English content and order for the access list" in {
       document.select("#accessList li").eachText().asScala.toSeq mustBe Seq(
-        "Pay As You Earn (PAYE)",
-        "Self Assessment",
-        "Child Benefit",
-        "Marriage Allowance",
-        "National Insurance and State Pension",
-        "Annual Tax Summary"
+        "Pay As You Earn (PAYE)"
       )
     }
 
     "show the expected English content and order for the task list" in {
       document.select("#taskList li").eachText().asScala.toSeq mustBe Seq(
-        "Pay As You Earn (PAYE)",
-        "Self Assessment",
-        "Child Benefit",
-        "National Insurance and State Pension"
+        "Pay As You Earn (PAYE)"
       )
     }
 
@@ -148,9 +138,8 @@ class UnderstandingYourAccountViewSpec extends ViewSpec {
       welshDocument.select("h1").text mustBe "Deall eich cyfrif ar-lein CThEF"
       welshDocument.select("h2").first().text mustBe "Sut i ddefnyddio’ch cyfrif ar-lein CThEF"
       welshDocument.select("h3").asScala.map(_.text).toSeq mustBe Seq(
-        "Eich tasgau",
-        "Gweithgarwch diweddar",
         "Trethi a budd-daliadau",
+        "Eich tasgau",
         "Newyddion CThEF",
         "Cymorth CThEF"
       )
@@ -174,10 +163,6 @@ class UnderstandingYourAccountViewSpec extends ViewSpec {
       assertContainsText(welshDocument, "Efallai fod gennych dasgau eraill:")
       assertContainsText(
         welshDocument,
-        "Gweld y diweddaraf, megis taliadau o’ch swydd neu newidiadau i’ch cod treth."
-      )
-      assertContainsText(
-        welshDocument,
         "Gwirio’r trethi a’r budd-daliadau sydd gennych ar hyn o bryd a dysgwch am eraill a allai fod yn berthnasol i chi."
       )
       assertContainsText(welshDocument, "Cael y diweddaraf gan CThEF.")
@@ -186,18 +171,10 @@ class UnderstandingYourAccountViewSpec extends ViewSpec {
 
     "show the expected Welsh list content and order" in {
       welshDocument.select("#accessList li").eachText().asScala.toSeq mustBe Seq(
-        "Talu Wrth Ennill (TWE)",
-        "Hunanasesiad",
-        "Budd-dal Plant",
-        "Lwfans Priodasol",
-        "Yswiriant Gwladol a Phensiwn y Wladwriaeth",
-        "Crynodeb Treth Blynyddol"
+        "Talu Wrth Ennill (TWE)"
       )
       welshDocument.select("#taskList li").eachText().asScala.toSeq mustBe Seq(
-        "Talu Wrth Ennill (TWE)",
-        "Hunanasesiad",
-        "Budd-dal Plant",
-        "Yswiriant Gwladol a Phensiwn y Wladwriaeth"
+        "Talu Wrth Ennill (TWE)"
       )
       welshDocument.select("#otherList li").eachText().asScala.toSeq mustBe Seq(
         "os ydych yn defnyddio gwasanaethau eraill gan CThEF (efallai y byddwch yn defnyddio gwahanol gyfrifon Porth y Llywodraeth ar eu cyfer)",
@@ -216,6 +193,26 @@ class UnderstandingYourAccountViewSpec extends ViewSpec {
     "not render placeholder content" in {
       assertNotContainText(document, "TBC")
       assertNotContainText(welshDocument, "TBC")
+    }
+
+    "not render unavailable private beta content" in {
+      assertNotContainText(document, "Recent activity")
+      assertNotContainText(document, "View recent updates such as payments from your job or tax code changes.")
+      assertNotContainText(document, "Self Assessment")
+      assertNotContainText(document, "Child Benefit")
+      assertNotContainText(document, "Marriage Allowance")
+      assertNotContainText(document, "National Insurance and State Pension")
+      assertNotContainText(document, "Annual Tax Summary")
+      assertNotContainText(welshDocument, "Gweithgarwch diweddar")
+      assertNotContainText(
+        welshDocument,
+        "Gweld y diweddaraf, megis taliadau o’ch swydd neu newidiadau i’ch cod treth."
+      )
+      assertNotContainText(welshDocument, "Hunanasesiad")
+      assertNotContainText(welshDocument, "Budd-dal Plant")
+      assertNotContainText(welshDocument, "Lwfans Priodasol")
+      assertNotContainText(welshDocument, "Yswiriant Gwladol a Phensiwn y Wladwriaeth")
+      assertNotContainText(welshDocument, "Crynodeb Treth Blynyddol")
     }
 
     "show the expected content for the back link" in {
