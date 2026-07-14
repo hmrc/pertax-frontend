@@ -208,8 +208,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       content.getElementById("taxes-and-benefits-heading") must not be null
     }
 
-    "Render to the tasks tab without redirecting when HomePagePersonalisationToggle is true" in {
-      val request = FakeRequest("GET", "/personal-account")
+    "Render to the tasks tab without redirecting when HomePagePersonalisationToggle is true and ptap param is true" in {
+      val path    = "/personal-account?ptap=true"
+      val request = FakeRequest("GET", path)
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
@@ -229,8 +230,48 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
     }
 
-    "fetch tab content once for the default Task tab and derive badge count from task cards" in {
+    "Render the non Personalised home page when ptap param is absent and HomePagePersonalisationToggle is true" in {
       val request = FakeRequest("GET", "/personal-account")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(request)
+
+      status(result) mustBe OK
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.select("nav.x-govuk-secondary-navigation").size mustBe 0
+      content.getElementById("taxes-and-benefits-heading") must not be null
+    }
+
+    "Render the non Personalised home page when ptap param is present but HomePagePersonalisationToggle is false" in {
+      val path    = "/personal-account?ptap=true"
+      val request = FakeRequest("GET", path)
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = false)))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(request)
+
+      status(result) mustBe OK
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.select("nav.x-govuk-secondary-navigation").size mustBe 0
+      content.getElementById("taxes-and-benefits-heading") must not be null
+    }
+
+    "fetch tab content once for the default Task tab and derive badge count from task cards" in {
+      val path    = "/personal-account?ptap=true"
+      val request = FakeRequest("GET", path)
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
@@ -259,7 +300,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     }
 
     "fetch tab content once for the Activity tab and render only activity cards" in {
-      val request = FakeRequest("GET", "/personal-account/recent-activity")
+      val request = FakeRequest("GET", "/personal-account/recent-activity?ptap=true")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
@@ -288,7 +329,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     }
 
     "fetch tab content once for a non-card tab without rendering task or activity cards" in {
-      val request = FakeRequest("GET", "/personal-account/hmrc-news")
+      val request = FakeRequest("GET", "/personal-account/hmrc-news?ptap=true")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
@@ -337,10 +378,10 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       content.select("nav.x-govuk-secondary-navigation").size mustBe 0
     }
 
-    "render the new design when HomePagePersonalisationToggle is true and the NINO is eligible" in {
+    "render the new design when HomePagePersonalisationToggle is true and ptap param is true and the NINO is eligible" in {
       // NINO AA000009A: last numeric digit is 9; configure rollout list to include 9
       val eligibleNino = Nino("AA000009A")
-      val request      = FakeRequest("GET", "/personal-account")
+      val request      = FakeRequest("GET", "/personal-account?ptap=true")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
@@ -447,7 +488,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       // helpeeNinoOrElse resolves to the principal NINO — new design must be shown
       val authNino      = Nino("AA000008A")
       val principalNino = Nino("AA000009A")
-      val request       = FakeRequest("GET", "/personal-account")
+      val request       = FakeRequest("GET", "/personal-account?ptap=true")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
@@ -489,7 +530,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       // Trusted helper present but principalNino is None — helpeeNinoOrElse falls back to authNino
       // authNino AA000009A (last digit 9) is eligible — new design must be shown
       val authNino = Nino("AA000009A")
-      val request  = FakeRequest("GET", "/personal-account")
+      val request  = FakeRequest("GET", "/personal-account?ptap=true")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
@@ -591,7 +632,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     }
 
     "Render the Tax tab with personalised services when accessing /personal-account/taxes-and-benefits" in {
-      val request = FakeRequest("GET", "/personal-account/taxes-and-benefits")
+      val request = FakeRequest("GET", "/personal-account/taxes-and-benefits?ptap=true")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
 
@@ -622,6 +663,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       val content = Jsoup.parse(contentAsString(result))
       content.select("nav.x-govuk-secondary-navigation").size mustBe 1
+      content.select("h2#taxes-and-benefits-tab-heading").text mustBe "Taxes and benefits"
       content.getElementById("my-services-heading") must not be null
       content.select("div.hmrc-card").size mustBe 2
       content.getElementsContainingText("Pay As You Earn (PAYE)").attr("href") mustBe "/paye"

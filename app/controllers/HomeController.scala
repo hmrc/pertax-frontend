@@ -66,12 +66,17 @@ class HomeController @Inject() (
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
 
+  private def ptapParam(implicit request: UserRequest[AnyContent]): Option[String] =
+    request.queryString.get("ptap").flatMap(_.headOption).filter(_ == "true")
+
   private def isPersonalisationEnabledAndNinoEligible(implicit
     request: UserRequest[AnyContent]
   ): Future[Boolean] =
     featureFlagService.get(HomePagePersonalisationToggle).map { toggle =>
       val lastNumericDigit = request.helpeeNinoOrElse.nino.filter(_.isDigit).last.asDigit
-      toggle.isEnabled && configDecorator.ptapHomepageNinoRolloutLastNumericDigits.contains(lastNumericDigit)
+      toggle.isEnabled && ptapParam.isDefined && configDecorator.ptapHomepageNinoRolloutLastNumericDigits.contains(
+        lastNumericDigit
+      )
     }
 
   def homePageTab(tab: String) =
