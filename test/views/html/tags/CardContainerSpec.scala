@@ -186,7 +186,7 @@ class CardContainerSpec extends ViewSpec {
 
     "render configured header classes in place of the default" in {
       val model   = CardContainerModel(
-        emptyView = Html(""),
+        defaultInset = Html(""),
         header = Some("Test Header"),
         headingLevel = "h3",
         headerClasses = Some("govuk-heading-s govuk-!-margin-top-5"),
@@ -201,7 +201,7 @@ class CardContainerSpec extends ViewSpec {
 
     "render cards with configured heading level" in {
       val model = CardContainerModel(
-        emptyView = Html(""),
+        defaultInset = Html(""),
         header = Some("Test Header"),
         cardHeadingLevel = "h4",
         cards = Seq(cardOne)
@@ -213,7 +213,7 @@ class CardContainerSpec extends ViewSpec {
 
     "ignore blank header classes and use the default" in {
       val model = CardContainerModel(
-        emptyView = Html(""),
+        defaultInset = Html(""),
         header = Some("Test Header"),
         headerClasses = Some("   "),
         cards = Seq(cardOne)
@@ -271,7 +271,7 @@ class CardContainerSpec extends ViewSpec {
     "throw error for invalid card heading level" in {
       an[IllegalArgumentException] must be thrownBy
         CardContainerModel(
-          emptyView = Html(""),
+          defaultInset = Html(""),
           cardHeadingLevel = "h7",
           cards = Seq(cardOne)
         )
