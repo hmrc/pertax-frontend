@@ -184,6 +184,44 @@ class CardContainerSpec extends ViewSpec {
       doc.select("h3.govuk-heading-m").text() mustBe "Test Header"
     }
 
+    "render configured header classes in place of the default" in {
+      val model   = CardContainerModel(
+        emptyView = Html(""),
+        header = Some("Test Header"),
+        headingLevel = "h3",
+        headerClasses = Some("govuk-heading-s govuk-!-margin-top-5"),
+        cards = Seq(cardOne)
+      )
+      val doc     = asDocument(cardContainer(model).toString)
+      val heading = doc.select("h3.govuk-heading-s")
+      heading.text() mustBe "Test Header"
+      heading.hasClass("govuk-!-margin-top-5") mustBe true
+      heading.hasClass("govuk-heading-m") mustBe false
+    }
+
+    "render cards with configured heading level" in {
+      val model = CardContainerModel(
+        emptyView = Html(""),
+        header = Some("Test Header"),
+        cardHeadingLevel = "h4",
+        cards = Seq(cardOne)
+      )
+      val doc   = asDocument(cardContainer(model).toString)
+      doc.select("h4.hmrc-card__heading").text() mustBe "Card 1"
+      doc.select("h3.hmrc-card__heading").size() mustBe 0
+    }
+
+    "ignore blank header classes and use the default" in {
+      val model = CardContainerModel(
+        emptyView = Html(""),
+        header = Some("Test Header"),
+        headerClasses = Some("   "),
+        cards = Seq(cardOne)
+      )
+      val doc   = asDocument(cardContainer(model).toString)
+      doc.select("h2.govuk-heading-m").text() mustBe "Test Header"
+    }
+
     "render an HTML header when provided" in {
       val model = CardContainerModel(
         defaultInset = Html(""),
@@ -226,6 +264,15 @@ class CardContainerSpec extends ViewSpec {
         CardContainerModel(
           defaultInset = Html(""),
           headingLevel = "h7",
+          cards = Seq(cardOne)
+        )
+    }
+
+    "throw error for invalid card heading level" in {
+      an[IllegalArgumentException] must be thrownBy
+        CardContainerModel(
+          emptyView = Html(""),
+          cardHeadingLevel = "h7",
           cards = Seq(cardOne)
         )
     }
