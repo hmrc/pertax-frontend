@@ -23,8 +23,8 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import error.ErrorRenderer
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
-import models.{HomePageServices, SelfAssessmentUser}
 import models.admin.HomePagePersonalisationToggle
+import models.{HomePageServices, SelfAssessmentUser}
 import play.api.i18n.Messages
 import play.api.mvc.*
 import play.twirl.api.Html
@@ -66,12 +66,17 @@ class HomeController @Inject() (
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
 
+  private def ptapParam(implicit request: UserRequest[AnyContent]): Option[String] =
+    request.queryString.get("ptap").flatMap(_.headOption).filter(_ == "true")
+
   private def isPersonalisationEnabledAndNinoEligible(implicit
     request: UserRequest[AnyContent]
   ): Future[Boolean] =
     featureFlagService.get(HomePagePersonalisationToggle).map { toggle =>
       val lastNumericDigit = request.helpeeNinoOrElse.nino.filter(_.isDigit).last.asDigit
-      toggle.isEnabled && configDecorator.ptapHomepageNinoRolloutLastNumericDigits.contains(lastNumericDigit)
+      toggle.isEnabled && ptapParam.isDefined && configDecorator.ptapHomepageNinoRolloutLastNumericDigits.contains(
+        lastNumericDigit
+      )
     }
 
   def homePageTab(tab: String) =
@@ -146,34 +151,37 @@ class HomeController @Inject() (
       }
     }
 
-  private def buildSecondaryNav(currentTab: TabEnum, taskCount: Int)(implicit messages: Messages): SecondaryNavModel =
+  private def buildSecondaryNav(currentTab: TabEnum, taskCount: Int)(implicit
+    messages: Messages,
+    request: UserRequest[AnyContent]
+  ): SecondaryNavModel =
     SecondaryNavModel(
       classes = Some("govuk-!-margin-bottom-6"),
       items = Seq(
         TabModel(
           text = messages("ptap.support.uya.p2.sub"),
-          href = Task.href(),
+          href = Task.href(ptapParam),
           current = currentTab == Task,
           notificationCount = if (taskCount > 0) Some(taskCount) else None
         ),
         TabModel(
           text = messages("ptap.support.uya.p3.sub"),
-          href = Activity.href(),
+          href = Activity.href(ptapParam),
           current = currentTab == Activity
         ),
         TabModel(
           text = messages("ptap.support.uya.p4.sub"),
-          href = Tax.href(),
+          href = Tax.href(ptapParam),
           current = currentTab == Tax
         ),
         TabModel(
           text = messages("ptap.support.uya.p5.sub"),
-          href = News.href(),
+          href = News.href(ptapParam),
           current = currentTab == News
         ),
         TabModel(
           text = messages("ptap.support.uya.p6.sub"),
-          href = Support.href(),
+          href = Support.href(ptapParam),
           current = currentTab == Support
         )
       )
