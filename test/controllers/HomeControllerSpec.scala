@@ -208,7 +208,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       content.getElementById("taxes-and-benefits-heading") must not be null
     }
 
-    "Render to the tasks tab without redirecting when HomePagePersonalisationToggle is true and ptap param is true" in {
+    "Render to the Taxes and benefits tab without redirecting when HomePagePersonalisationToggle is true and ptap param is true" in {
       val path    = "/personal-account?ptap=true"
       val request = FakeRequest("GET", path)
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
@@ -269,8 +269,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       content.getElementById("taxes-and-benefits-heading") must not be null
     }
 
-    "fetch tab content once for the default Task tab and derive badge count from task cards" in {
-      val path    = "/personal-account?ptap=true"
+    "fetch tab content once for Task tab and derive badge count from task cards" in {
+      val path    = "/personal-account/your-tasks?ptap=true"
       val request = FakeRequest("GET", path)
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
@@ -287,7 +287,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       val appLocal   = appBuilder.build()
       val controller = appLocal.injector.instanceOf[HomeController]
-      val result     = controller.index()(request)
+      val result     = controller.homePageTab("your-tasks")(request)
 
       status(result) mustBe OK
       verify(mockTabContentService).getTaskAndTabCards(any[TabEnum]())(any(), any())

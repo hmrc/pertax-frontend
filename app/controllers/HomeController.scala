@@ -153,12 +153,13 @@ class HomeController @Inject() (
     }
 
   private def buildSecondaryNav(currentTab: TabEnum, taskCount: Int, showActivityTab: Boolean)(implicit
-    messages: Messages
+    messages: Messages,
+    request: UserRequest[AnyContent]
   ): SecondaryNavModel =
     val activityTabItem = Option.when(showActivityTab)(
       TabModel(
         text = messages("ptap.support.uya.p3.sub"),
-        href = Activity.href(),
+        href = Activity.href(ptapParam),
         current = currentTab == Activity
       )
     )
@@ -168,14 +169,14 @@ class HomeController @Inject() (
         Some(
           TabModel(
             text = messages("ptap.support.uya.p4.sub"),
-            href = Tax.href(),
+            href = Tax.href(ptapParam),
             current = currentTab == Tax
           )
         ),
         Some(
           TabModel(
             text = messages("ptap.support.uya.p2.sub"),
-            href = Task.href(),
+            href = Task.href(ptapParam),
             current = currentTab == Task,
             notificationCount = if (taskCount > 0) Some(taskCount) else None
           )
@@ -184,14 +185,14 @@ class HomeController @Inject() (
         Some(
           TabModel(
             text = messages("ptap.support.uya.p5.sub"),
-            href = News.href(),
+            href = News.href(ptapParam),
             current = currentTab == News
           )
         ),
         Some(
           TabModel(
             text = messages("ptap.support.uya.p6.sub"),
-            href = Support.href(),
+            href = Support.href(ptapParam),
             current = currentTab == Support
           )
         )
@@ -244,7 +245,7 @@ class HomeController @Inject() (
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     isPersonalisationEnabledAndNinoEligible.flatMap {
-      case true  => personalisationHomePageTab(Task.name)
+      case true  => personalisationHomePageTab(Tax.name)
       case false => newHomePage
     }
   }
