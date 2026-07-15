@@ -20,6 +20,7 @@ import play.twirl.api.Html
 import views.html.ViewSpec
 import viewmodels.CardContainerModel
 import models.{CardHeading, CardType, HmrcCardModel}
+import viewmodels.TabEnum.*
 
 class CardContainerSpec extends ViewSpec {
 
@@ -33,22 +34,20 @@ class CardContainerSpec extends ViewSpec {
 
   "CardContainer" must {
 
-    "render emptyView when cards is empty" in {
+    "render defaultInset" in {
       val model = CardContainerModel(
-        emptyView = Html("<p>No cards</p>"),
+        defaultInset = Html("<p>Lorem Ipsum</p>"),
         header = Some("Test Header"),
-        cards = Seq.empty
+        cards = List(cardOne, cardTwo)
       )
       val doc   = asDocument(cardContainer(model).toString)
       doc.select("h2.govuk-heading-m").text() mustBe "Test Header"
-      doc.text() must include("No cards")
-      doc.select("ul").size() mustBe 0
-      doc.select(".hmrc-card").size() mustBe 0
+      doc.text() must include("Lorem Ipsum")
     }
 
     "render header when provided" in {
       val model = CardContainerModel(
-        emptyView = Html(""),
+        defaultInset = Html(""),
         header = Some("Test Header"),
         cards = Seq(cardOne)
       )
@@ -59,7 +58,7 @@ class CardContainerSpec extends ViewSpec {
 
     "render single card without ul wrapper" in {
       val model = CardContainerModel(
-        emptyView = Html(""),
+        defaultInset = Html(""),
         cards = Seq(cardOne)
       )
       val doc   = asDocument(cardContainer(model).toString)
@@ -70,7 +69,7 @@ class CardContainerSpec extends ViewSpec {
 
     "render multiple cards in ul with li wrappers" in {
       val model = CardContainerModel(
-        emptyView = Html(""),
+        defaultInset = Html(""),
         cards = Seq(cardOne, cardTwo),
         header = Some("Test Header"),
         headerId = Some("test-container")
@@ -83,7 +82,7 @@ class CardContainerSpec extends ViewSpec {
 
     "render a native list so screen readers can announce the item count" in {
       val model = CardContainerModel(
-        emptyView = Html(""),
+        defaultInset = Html(""),
         cards = Seq(cardOne, cardTwo),
         header = Some("Test Header")
       )
@@ -95,7 +94,7 @@ class CardContainerSpec extends ViewSpec {
 
     "use aria-label from listAriaLabel when provided (precedence over header)" in {
       val model = CardContainerModel(
-        emptyView = Html(""),
+        defaultInset = Html(""),
         header = Some("Test Header"),
         listAriaLabel = Some("Custom label"),
         cards = Seq(cardOne, cardTwo)
@@ -107,7 +106,7 @@ class CardContainerSpec extends ViewSpec {
 
     "use aria-label without rendering a heading when listAriaLabel is provided without header" in {
       val model = CardContainerModel(
-        emptyView = Html(""),
+        defaultInset = Html(""),
         listAriaLabel = Some("Custom label"),
         cards = Seq(cardOne, cardTwo)
       )
@@ -119,7 +118,7 @@ class CardContainerSpec extends ViewSpec {
 
     "use aria-labelledby from header when listAriaLabel not provided" in {
       val model = CardContainerModel(
-        emptyView = Html(""),
+        defaultInset = Html(""),
         header = Some("Test Header"),
         cards = Seq(cardOne, cardTwo)
       )
@@ -130,7 +129,7 @@ class CardContainerSpec extends ViewSpec {
 
     "use custom headerId for both heading id and aria-labelledby" in {
       val model = CardContainerModel(
-        emptyView = Html(""),
+        defaultInset = Html(""),
         header = Some("Test Header"),
         headerId = Some("custom-container-id"),
         cards = Seq(cardOne, cardTwo)
@@ -142,7 +141,7 @@ class CardContainerSpec extends ViewSpec {
 
     "ignore empty listAriaLabel and use aria-labelledby from header" in {
       val model = CardContainerModel(
-        emptyView = Html(""),
+        defaultInset = Html(""),
         header = Some("Test Header"),
         listAriaLabel = Some("   "), // Whitespace only
         cards = Seq(cardOne, cardTwo)
@@ -154,7 +153,7 @@ class CardContainerSpec extends ViewSpec {
 
     "ignore empty headerId and use default" in {
       val model = CardContainerModel(
-        emptyView = Html(""),
+        defaultInset = Html(""),
         header = Some("Test Header"),
         headerId = Some("   "), // Whitespace only
         cards = Seq(cardOne, cardTwo)
@@ -166,7 +165,7 @@ class CardContainerSpec extends ViewSpec {
 
     "ignore empty header and not render heading" in {
       val model = CardContainerModel(
-        emptyView = Html(""),
+        defaultInset = Html(""),
         header = Some("   "), // Whitespace only
         cards = Seq(cardOne)
       )
@@ -176,7 +175,7 @@ class CardContainerSpec extends ViewSpec {
 
     "render configured heading level" in {
       val model = CardContainerModel(
-        emptyView = Html(""),
+        defaultInset = Html(""),
         header = Some("Test Header"),
         headingLevel = " H3 ",
         cards = Seq(cardOne)
@@ -185,9 +184,47 @@ class CardContainerSpec extends ViewSpec {
       doc.select("h3.govuk-heading-m").text() mustBe "Test Header"
     }
 
+    "render configured header classes in place of the default" in {
+      val model   = CardContainerModel(
+        defaultInset = Html(""),
+        header = Some("Test Header"),
+        headingLevel = "h3",
+        headerClasses = Some("govuk-heading-s govuk-!-margin-top-5"),
+        cards = Seq(cardOne)
+      )
+      val doc     = asDocument(cardContainer(model).toString)
+      val heading = doc.select("h3.govuk-heading-s")
+      heading.text() mustBe "Test Header"
+      heading.hasClass("govuk-!-margin-top-5") mustBe true
+      heading.hasClass("govuk-heading-m") mustBe false
+    }
+
+    "render cards with configured heading level" in {
+      val model = CardContainerModel(
+        defaultInset = Html(""),
+        header = Some("Test Header"),
+        cardHeadingLevel = "h4",
+        cards = Seq(cardOne)
+      )
+      val doc   = asDocument(cardContainer(model).toString)
+      doc.select("h4.hmrc-card__heading").text() mustBe "Card 1"
+      doc.select("h3.hmrc-card__heading").size() mustBe 0
+    }
+
+    "ignore blank header classes and use the default" in {
+      val model = CardContainerModel(
+        defaultInset = Html(""),
+        header = Some("Test Header"),
+        headerClasses = Some("   "),
+        cards = Seq(cardOne)
+      )
+      val doc   = asDocument(cardContainer(model).toString)
+      doc.select("h2.govuk-heading-m").text() mustBe "Test Header"
+    }
+
     "render an HTML header when provided" in {
       val model = CardContainerModel(
-        emptyView = Html(""),
+        defaultInset = Html(""),
         header = Some(Html("""<span><span class="govuk-visually-hidden">Section: </span>HTML Header</span>""")),
         cards = Seq(cardOne)
       )
@@ -198,7 +235,7 @@ class CardContainerSpec extends ViewSpec {
 
     "escape a string header" in {
       val model = CardContainerModel(
-        emptyView = Html(""),
+        defaultInset = Html(""),
         header = Some("<script>alert('xss')</script>"),
         cards = Seq(cardOne)
       )
@@ -209,7 +246,7 @@ class CardContainerSpec extends ViewSpec {
 
     "render cards with focusable controls" in {
       val model = CardContainerModel(
-        emptyView = Html(""),
+        defaultInset = Html(""),
         header = Some("Test Header"),
         cards = Seq(cardOne, cardTwo)
       )
@@ -225,8 +262,17 @@ class CardContainerSpec extends ViewSpec {
     "throw error for invalid heading level" in {
       an[IllegalArgumentException] must be thrownBy
         CardContainerModel(
-          emptyView = Html(""),
+          defaultInset = Html(""),
           headingLevel = "h7",
+          cards = Seq(cardOne)
+        )
+    }
+
+    "throw error for invalid card heading level" in {
+      an[IllegalArgumentException] must be thrownBy
+        CardContainerModel(
+          defaultInset = Html(""),
+          cardHeadingLevel = "h7",
           cards = Seq(cardOne)
         )
     }
@@ -234,9 +280,20 @@ class CardContainerSpec extends ViewSpec {
     "throw error when cards >= 2 and no accessible name" in {
       an[IllegalArgumentException] must be thrownBy
         CardContainerModel(
-          emptyView = Html(""),
+          defaultInset = Html(""),
           cards = Seq(cardOne, cardTwo)
         )
+    }
+    "render only the inset if cards list is empty" in {
+      val model = CardContainerModel(
+        defaultInset = Task.defaultInset(Some("?ptap=true")),
+        header = Some("Test Header"),
+        cards = Seq.empty
+      )
+      val doc   = asDocument(cardContainer(model).toString)
+      val inset = doc.select("div.govuk-inset-text")
+      inset.size mustBe 1
+      doc.select("ul.hmrc-card__container").size mustBe 0
     }
   }
 }

@@ -21,7 +21,12 @@
 @import play.twirl.api.HtmlFormat
 @import play.api.i18n.Messages
 
-@(hmrcCard: HmrcCardModel)(implicit messages: Messages)
+@(hmrcCard: HmrcCardModel, headingLevel: String = "h3")(implicit messages: Messages)
+@headingTag = @{
+    val normalizedHeadingLevel = headingLevel.trim.toLowerCase
+    require(Set("h1", "h2", "h3", "h4", "h5", "h6").contains(normalizedHeadingLevel), s"Invalid heading level: $headingLevel. Must be h1-h6.")
+    normalizedHeadingLevel
+}
 @headerWithLink(url: String)={
     @if(hmrcCard.heading.opensNewTab){
         <a href="@url" target="_blank" rel="noopener noreferrer">
@@ -58,9 +63,9 @@
     </p>
 }
 <div class="hmrc-card">
-    <h3 class="hmrc-card__heading">
+    <@headingTag class="hmrc-card__heading">
         @{hmrcCard.heading.url.map{headerWithLink}.getOrElse{headerWithoutLink()}}
-    </h3>
+    </@headingTag>
     @hmrcCard.body.map{(b: CardBody) => @{cardBody(b)}}.getOrElse{@HtmlFormat.empty}
     @hmrcCard.hint.map{(h: CardHint) => @{cardHint(h)}}.getOrElse{@HtmlFormat.empty}
 </div>

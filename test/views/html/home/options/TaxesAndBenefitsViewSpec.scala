@@ -76,20 +76,43 @@ class TaxesAndBenefitsViewSpec extends ViewSpec {
 
   "TaxesAndBenefitsView" must {
 
-    "render the 'Your current HMRC Online taxes and benefits' heading when myServices are present" in {
-      val document: Document = asDocument(page(Seq(payeService), Seq.empty).toString)
-      document.select("h2#my-services-heading").text() mustBe messages("label.taxes_and_benefits_subheading")
+    "render the 'Taxes and benefits' tab heading as an h2" in {
+      val document: Document = asDocument(page(Seq(payeService), Seq(childBenefitService)).toString)
+      document.select("h2#taxes-and-benefits-tab-heading").text() mustBe messages("label.taxes_and_benefits_heading")
     }
 
-    "render the 'Other taxes and benefits' heading when otherServices are present" in {
+    "render the 'Taxes and benefits' tab heading even when both services are empty" in {
+      val document: Document = asDocument(page(Seq.empty, Seq.empty).toString)
+      document.select("h2#taxes-and-benefits-tab-heading").text() mustBe messages("label.taxes_and_benefits_heading")
+    }
+
+    "render the 'Your current HMRC Online taxes and benefits' heading as an h3 when myServices are present" in {
+      val document: Document = asDocument(page(Seq(payeService), Seq.empty).toString)
+      document.select("h3#my-services-heading").text() mustBe messages("label.taxes_and_benefits_subheading")
+    }
+
+    "render the 'Other taxes and benefits' heading as an h3 when otherServices are present" in {
       val document: Document = asDocument(page(Seq.empty, Seq(childBenefitService)).toString)
-      document.select("h2#other-services-heading").text() mustBe messages("label.other_taxes_and_benefits_heading")
+      document.select("h3#other-services-heading").text() mustBe messages("label.other_taxes_and_benefits_heading")
     }
 
     "render both section headings when both myServices and otherServices are present" in {
       val document: Document = asDocument(page(Seq(payeService), Seq(childBenefitService)).toString)
-      document.select("h2#my-services-heading").text() mustBe messages("label.taxes_and_benefits_subheading")
-      document.select("h2#other-services-heading").text() mustBe messages("label.other_taxes_and_benefits_heading")
+      document.select("h3#my-services-heading").text() mustBe messages("label.taxes_and_benefits_subheading")
+      document.select("h3#other-services-heading").text() mustBe messages("label.other_taxes_and_benefits_heading")
+    }
+
+    "render service card headings as h4 under the h3 section headings" in {
+      val document: Document = asDocument(page(Seq(payeService), Seq(childBenefitService)).toString)
+      document.select("h4.hmrc-card__heading").size() mustBe 2
+      document.select("h4.hmrc-card__heading").get(0).text() mustBe "Pay As You Earn (PAYE)"
+      document.select("h4.hmrc-card__heading").get(1).text() mustBe "Child Benefit"
+      document.select("div.hmrc-card h3.hmrc-card__heading").size() mustBe 0
+    }
+
+    "add top margin spacing to the 'Other taxes and benefits' heading" in {
+      val document: Document = asDocument(page(Seq(payeService), Seq(childBenefitService)).toString)
+      document.select("h3#other-services-heading").hasClass("govuk-!-margin-top-5") mustBe true
     }
 
     "render myService cards with correct links" in {
@@ -110,17 +133,17 @@ class TaxesAndBenefitsViewSpec extends ViewSpec {
 
     "not render 'my services' heading when myServices is empty" in {
       val document: Document = asDocument(page(Seq.empty, Seq(childBenefitService)).toString)
-      document.select("h2#my-services-heading").size() mustBe 0
+      document.select("h3#my-services-heading").size() mustBe 0
     }
 
     "not render 'other services' heading when otherServices is empty" in {
       val document: Document = asDocument(page(Seq(payeService), Seq.empty).toString)
-      document.select("h2#other-services-heading").size() mustBe 0
+      document.select("h3#other-services-heading").size() mustBe 0
     }
 
-    "render no cards and no headings when both services are empty" in {
+    "render no cards and no section headings when both services are empty" in {
       val document: Document = asDocument(page(Seq.empty, Seq.empty).toString)
-      document.select("h2").size() mustBe 0
+      document.select("h3").size() mustBe 0
       document.select("div.hmrc-card").size() mustBe 0
     }
 
@@ -134,8 +157,11 @@ class TaxesAndBenefitsViewSpec extends ViewSpec {
 
     "render Welsh section headings when viewed in Welsh" in {
       val welshDoc: Document = asDocument(page(Seq(payeService), Seq(childBenefitService))(welshMessages).toString)
-      welshDoc.select("h2#my-services-heading").text() mustBe welshMessages("label.taxes_and_benefits_subheading")
-      welshDoc.select("h2#other-services-heading").text() mustBe welshMessages("label.other_taxes_and_benefits_heading")
+      welshDoc.select("h2#taxes-and-benefits-tab-heading").text() mustBe welshMessages(
+        "label.taxes_and_benefits_heading"
+      )
+      welshDoc.select("h3#my-services-heading").text() mustBe welshMessages("label.taxes_and_benefits_subheading")
+      welshDoc.select("h3#other-services-heading").text() mustBe welshMessages("label.other_taxes_and_benefits_heading")
     }
 
     "use aria-labelledby on card containers referencing section headings" in {
