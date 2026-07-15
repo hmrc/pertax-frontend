@@ -67,11 +67,11 @@ class PtapHomeViewSpec extends ViewSpec {
   private val defaultSecondaryNav = SecondaryNavModel(
     classes = Some("govuk-!-margin-bottom-6"),
     items = Seq(
-      TabModel(text = "Your tasks", href = Task.href(), current = true, notificationCount = Some(2)),
-      TabModel(text = "Recent activity", href = Activity.href(), current = false),
-      TabModel(text = "Taxes and benefits", href = Tax.href(), current = false),
-      TabModel(text = "HMRC news", href = News.href(), current = false),
-      TabModel(text = "Support", href = Support.href(), current = false)
+      TabModel(text = "Your tasks", href = Task.href(Some("?ptap=true")), current = true, notificationCount = Some(2)),
+      TabModel(text = "Recent activity", href = Activity.href(Some("?ptap=true")), current = false),
+      TabModel(text = "Taxes and benefits", href = Tax.href(Some("?ptap=true")), current = false),
+      TabModel(text = "HMRC news", href = News.href(Some("?ptap=true")), current = false),
+      TabModel(text = "Support", href = Support.href(Some("?ptap=true")), current = false)
     )
   )
 
@@ -80,7 +80,7 @@ class PtapHomeViewSpec extends ViewSpec {
     headerId: String = "tab-content-header"
   ): CardContainerModel =
     CardContainerModel(
-      emptyView = Task.empty(),
+      defaultInset = Task.defaultInset(Some("?ptap=true")),
       header = Some("Your tasks"),
       cards = cards,
       headerId = Some(headerId)
@@ -91,7 +91,7 @@ class PtapHomeViewSpec extends ViewSpec {
     headerId: String = "tab-content-header"
   ): CardContainerModel =
     CardContainerModel(
-      emptyView = Activity.empty(),
+      defaultInset = Activity.defaultInset(Some("?ptap=true")),
       header = Some("Recent activity"),
       cards = cards,
       headerId = Some(headerId)
@@ -278,7 +278,46 @@ class PtapHomeViewSpec extends ViewSpec {
       val doc                                                       = asDocument(home(homeViewModel.copy(breathingSpaceIndicator = false)).toString)
       doc.text() must not include "BREATHING SPACE"
     }
-    "show the default placeholder content when the Your tasks tab is selected and there are no cards to load." in {
+    "show the default inset text when the Your tasks tab is selected." in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val doc                                                       = asDocument(home(homeViewModel).toString)
+
+      val placeholder_text = doc
+        .select("div.govuk-grid-column-two-thirds")
+        .select("div.govuk-inset-text")
+      placeholder_text.size mustBe 1
+      placeholder_text.select("p.govuk-body").size mustBe 2
+
+      val first_line  = placeholder_text.select("p.govuk-body").asList().get(0)
+      val second_line = placeholder_text.select("p.govuk-body").asList().get(1)
+      first_line.text() mustBe "This page shows refunds and tax you owe."
+      second_line
+        .text() mustBe "Check Taxes and benefits for anything else you need to do."
+      second_line.select(s"a.govuk-link").text() mustBe "Taxes and benefits"
+    }
+    "show the default inset text when the Recent activity tab is selected." in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val activityNav                                               = defaultSecondaryNav.copy(
+        items = defaultSecondaryNav.items.map(i => i.copy(current = i.href == Activity.href()))
+      )
+      val viewModel                                                 = homeViewModel.copy(
+        secondaryNav = activityNav,
+        tabContent = List(activityTabContent(HmrcCardModelFixtures.activityCards))
+      )
+      val doc                                                       = asDocument(home(viewModel).toString)
+      val placeholder_text                                          = doc
+        .select("div.govuk-grid-column-two-thirds")
+        .select("div.govuk-inset-text")
+      placeholder_text.size mustBe 1
+      placeholder_text.select("p.govuk-body").size mustBe 2
+      val first_line                                                = placeholder_text.select("p.govuk-body").asList().get(0)
+      val second_line                                               = placeholder_text.select("p.govuk-body").asList().get(1)
+      first_line.text() mustBe "This page shows your recent activity."
+      second_line
+        .text() mustBe "Check Your tasks for anything you need to do."
+      second_line.select(s"a.govuk-link").text() mustBe "Your tasks"
+    }
+    "show the default inset text when the Your tasks tab is selected and there are no cards to load." in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val viewModel                                                 = homeViewModel.copy(tabContent = List(taskTabContent()))
       val doc                                                       = asDocument(home(viewModel).toString)
@@ -296,7 +335,7 @@ class PtapHomeViewSpec extends ViewSpec {
         .text() mustBe "Check Taxes and benefits for anything else you need to do."
       second_line.select(s"a.govuk-link").text() mustBe "Taxes and benefits"
     }
-    "show the default placeholder content when the Recent activity tab is selected and there are no cards to load." in {
+    "show the default inset text when the Recent activity tab is selected and there are no cards to load." in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val activityNav                                               = defaultSecondaryNav.copy(
         items = defaultSecondaryNav.items.map(i => i.copy(current = i.href == Activity.href()))
