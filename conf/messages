@@ -846,7 +846,10 @@ label.taxes_and_benefits_subheading=Your current HMRC Online taxes and benefits
 label.other_taxes_and_benefits_heading=Other taxes and benefits that may be relevant to you
 
 ptap.taxes-and-benefits.tax-calculation.hint=Check if you have paid too much or too little tax.
+ptap.taxes-and-benefits.self-assessment.hint=View and manage your Self Assessment tax return.
+ptap.taxes-and-benefits.mtd.hint=Use Making Tax Digital for Income Tax to keep your records and submit updates to HMRC.
 ptap.taxes-and-benefits.child-benefit.hint=A payment to help with the cost of bringing up children.
+ptap.taxes-and-benefits.trusted-helpers.hint=Get help with your tax online from someone you trust, or help someone you know.
 
 label.tax_calc_option=Your tax calculation — PAYE {0} to {1}
 

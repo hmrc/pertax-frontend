@@ -95,7 +95,7 @@ class HomePageServicesProvider @Inject() (
     MyService(
       messages("label.mtd_for_itsa"),
       Some(href),
-      redesignHint(isRedesign, "label.mtdit.page.p1"),
+      redesignHint(isRedesign, "ptap.taxes-and-benefits.mtd.hint"),
       gaAction = Some("Income"),
       gaLabel = Some("MTD IT & SA"),
       id = Some("itsa")
@@ -107,7 +107,7 @@ class HomePageServicesProvider @Inject() (
       Some(href),
       Option(body)
         .filter(_.nonEmpty)
-        .orElse(redesignHint(isRedesign, "label.view_manage_sa_return")),
+        .orElse(redesignHint(isRedesign, "ptap.taxes-and-benefits.self-assessment.hint")),
       gaAction = Some("Income"),
       gaLabel = Some("Self Assessment"),
       id = Some("self-assessment")
@@ -122,7 +122,7 @@ class HomePageServicesProvider @Inject() (
       gaAction = Some("Income"),
       gaLabel = Some("Self Assessment"),
       id = Some("self-assessment"),
-      hintText = redesignHint(isRedesign, "label.view_manage_sa_return")
+      hintText = redesignHint(isRedesign, "ptap.taxes-and-benefits.self-assessment.hint")
     )
 
   private def mtdTile(linkUrl: String, isRedesign: Boolean)(implicit messages: Messages): OtherService =
@@ -132,7 +132,7 @@ class HomePageServicesProvider @Inject() (
       gaAction = Some("MTDIT"),
       gaLabel = Some("Making Tax Digital for Income Tax"),
       id = Some("mtdit"),
-      hintText = redesignHint(isRedesign, "label.mtdit.page.p1")
+      hintText = redesignHint(isRedesign, "ptap.taxes-and-benefits.mtd.hint")
     )
 
   private def getMySelfAssessment(
@@ -390,7 +390,7 @@ class HomePageServicesProvider @Inject() (
         MyService(
           messages("label.trusted_helpers_heading"),
           Some(configDecorator.manageTrustedHelpersUrl),
-          redesignHint(isRedesign, "label.trusted_helpers_content"),
+          redesignHint(isRedesign, "ptap.taxes-and-benefits.trusted-helpers.hint"),
           gaAction = Some("Account"),
           gaLabel = Some("Trusted helpers"),
           id = Some("trusted-helper")
@@ -404,7 +404,7 @@ class HomePageServicesProvider @Inject() (
           gaAction = Some("Account"),
           gaLabel = Some("Trusted helpers"),
           id = Some("trusted-helper"),
-          hintText = redesignHint(isRedesign, "label.trusted_helpers_content")
+          hintText = redesignHint(isRedesign, "ptap.taxes-and-benefits.trusted-helpers.hint")
         )
       )
     }
