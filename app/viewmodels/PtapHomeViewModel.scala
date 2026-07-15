@@ -37,6 +37,11 @@ enum TabEnum(val name: String, val cardContainerHeading: Option[String] = None):
   }
   def defaultInset(query: Option[String])(implicit messages: Messages): Html =
     TabDefaultInsetText(this, query)
+  def cardContainerHeading(implicit messages: Messages): Option[String]      =
+    this match
+      case Task     => Some(messages("ptap.support.uya.p2.sub"))
+      case Activity => Some(messages("ptap.support.uya.p3.sub"))
+      case _        => None
 
 final case class PtapAlertBanner(content: Html) extends AnyVal
 
