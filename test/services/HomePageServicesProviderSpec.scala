@@ -521,7 +521,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       result.otherServices.find(_.title == "Marriage Allowance").flatMap(_.hintText) mustBe
         Some(messages("label.transfer_part_of_your_personal_allowance_to_your_partner_"))
       result.otherServices.find(_.title == "Trusted helpers").flatMap(_.hintText) mustBe
-        Some(messages("ptap.taxes-and-benefits.trusted-helpers.hint"))
+        Some(messages("label.trusted_helpers_content"))
     }
 
     "use PTAD-specific Self Assessment and MTD message keys for redesign hints" in {

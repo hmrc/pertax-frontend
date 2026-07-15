@@ -390,7 +390,7 @@ class HomePageServicesProvider @Inject() (
         MyService(
           messages("label.trusted_helpers_heading"),
           Some(configDecorator.manageTrustedHelpersUrl),
-          redesignHint(isRedesign, "ptap.taxes-and-benefits.trusted-helpers.hint"),
+          redesignHint(isRedesign, "label.trusted_helpers_content"),
           gaAction = Some("Account"),
           gaLabel = Some("Trusted helpers"),
           id = Some("trusted-helper")
@@ -404,7 +404,7 @@ class HomePageServicesProvider @Inject() (
           gaAction = Some("Account"),
           gaLabel = Some("Trusted helpers"),
           id = Some("trusted-helper"),
-          hintText = redesignHint(isRedesign, "ptap.taxes-and-benefits.trusted-helpers.hint")
+          hintText = redesignHint(isRedesign, "label.trusted_helpers_content")
         )
       )
     }

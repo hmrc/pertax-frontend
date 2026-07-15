@@ -860,7 +860,6 @@ ptap.taxes-and-benefits.tax-calculation.hint=Gwirio a ydych wedi talu gormod neu
 ptap.taxes-and-benefits.self-assessment.hint=Bwrw golwg dros eich Ffurflen Dreth Hunanasesiad a’i rheoli.
 ptap.taxes-and-benefits.mtd.hint=Defnyddio Troi Treth yn Ddigidol ar gyfer Treth Incwm i gadw’ch cofnodion ac anfon diweddariadau i CThEF.
 ptap.taxes-and-benefits.child-benefit.hint=Taliad i helpu gyda’r gost o fagu plant.
-ptap.taxes-and-benefits.trusted-helpers.hint=Cael help gyda’ch treth ar-lein gan rywun dibynadwy, neu helpwch rywun rydych yn ei adnabod.
 
 label.tax_calc_option=Eich cyfrifiad treth – TWE {0} i {1}
 
