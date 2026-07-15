@@ -44,22 +44,17 @@
     @h1("ptap.support.uya.title")
 
     @p(Text(messages("ptap.support.uya.p1")))
-    @p(Text(messages("ptap.support.uya.p1.list")))
 
     <ul class="govuk-list govuk-list--bullet" id="accessList">
         <li>@messages("ptap.support.uya.list.paye")</li>
-        <li>@messages("ptap.support.uya.list.sa")</li>
-        <li>@messages("ptap.support.uya.list.ni")</li>
-        <li>@messages("ptap.support.uya.list.ats")</li>
-        <li>@messages("ptap.support.uya.list.cb")</li>
-        <li>@messages("ptap.support.uya.list.ma")</li>
     </ul>
 
     @h2("ptap.support.uya.p2.header")
-    <p class="govuk-body">
-        @messages("ptap.support.uya.p2")
-        @link(configDecorator.personalAccount, messageKey = "ptap.support.uya.p2.link", id = Some("personalAccountLink"), inParagraph = true)
-    </p>
+    @p(Text(messages("ptap.support.uya.p2")))
+
+    @h3("ptap.support.uya.p4.sub")
+
+    @p(Text(messages("ptap.support.uya.p4.tab")))
 
     @h3("ptap.support.uya.p2.sub")
 
@@ -69,9 +64,6 @@
 
     <ul class="govuk-list govuk-list--bullet" id="taskList">
         <li>@messages("ptap.support.uya.list.paye")</li>
-        <li>@messages("ptap.support.uya.list.sa")</li>
-        <li>@messages("ptap.support.uya.list.ni")</li>
-        <li>@messages("ptap.support.uya.list.cb")</li>
     </ul>
 
     @p(Text(messages("ptap.support.uya.p2.tasks.list.other")))
@@ -82,19 +74,11 @@
         <li>@messages("ptap.support.uya.list.bta")</li>
     </ul>
 
-    @h3("ptap.support.uya.p3.sub")
-
-    @p(Text(messages("ptap.support.uya.p3.recent")))
-
-    @h3("ptap.support.uya.p4.sub")
-
-    @p(Text(messages("ptap.support.uya.p4.tab")))
-
     @h3("ptap.support.uya.p5.sub")
 
     @p(Text(messages("ptap.support.uya.p5.hs")))
 
-    @h3("ptap.support.uya.p6.sub")
+    @h3("ptap.support.uya.p6.header")
 
     @p(Text(messages("ptap.support.uya.p6.hs")))
 }

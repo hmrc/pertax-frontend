@@ -886,53 +886,52 @@ ptap.recent-activity.container.default_text.p.line1=Mae’r dudalen hon yn dango
 ptap.recent-activity.container.default_text.p.line2.2=Eich tasgau
 ptap.recent-activity.container.default_text.p.line2.3=am unrhyw beth arall rydych am ei wybod.
 
-ptap.support.uya.title=TBC
-ptap.support.uya.p1=TBC
-ptap.support.uya.p1.list=TBC
+ptap.support.uya.title=Deall eich cyfrif ar-lein CThEF
+ptap.support.uya.p1=Mae eich cyfrif ar-lein CThEF yn rhoi mynediad at y gwasanaethau canlynol:
 
-ptap.support.uya.p2.header=TBC
-ptap.support.uya.p2=TBC
-ptap.support.uya.p2.link=TBC
+ptap.support.uya.p2.header=Sut i ddefnyddio’ch cyfrif ar-lein CThEF
+ptap.support.uya.p2=Gallwch ddefnyddio eich cyfrif drwy ddewis y gwahanol adrannau ar eich tudalen ‘Cyfrif Treth Personol’.
 
 ptap.support.uya.p2.sub=Eich tasgau
-ptap.support.uya.p2.tasks=TBC
-ptap.support.uya.p2.tasks.list=TBC
-ptap.support.uya.p2.tasks.list.other=TBC
+ptap.support.uya.p2.tasks=Cael mynediad at dasgau y mae’n rhaid eu cwblhau, fel hawlio ad-daliadau neu dalu biliau treth.
+ptap.support.uya.p2.tasks.list=Dim ond eich tasgau ar gyfer y gwasanaethau canlynol y mae’ch cyfrif ar-lein CThEF yn dangos:
+ptap.support.uya.p2.tasks.list.other=Efallai fod gennych dasgau eraill:
 
-ptap.support.uya.p3.sub=TBC
-ptap.support.uya.p3.recent=TBC
+ptap.support.uya.p3.sub=Gweithgarwch diweddar
+ptap.support.uya.p3.recent=Gweld y diweddaraf, megis taliadau o’ch swydd neu newidiadau i’ch cod treth.
 
 ptap.support.uya.p4.sub=Trethi a budd-daliadau
-ptap.support.uya.p4.tab=TBC
+ptap.support.uya.p4.tab=Gwirio’r trethi a’r budd-daliadau sydd gennych ar hyn o bryd a dysgwch am eraill a allai fod yn berthnasol i chi.
 
-ptap.support.uya.p5.sub=TBC
-ptap.support.uya.p5.hs=TBC
+ptap.support.uya.p5.sub=Newyddion CThEF
+ptap.support.uya.p5.hs=Cael y diweddaraf gan CThEF.
 
-ptap.support.uya.p6.sub=TBC
-ptap.support.uya.p6.hs=TBC
+ptap.support.uya.p6.sub=Cymorth
+ptap.support.uya.p6.header=Cymorth CThEF
+ptap.support.uya.p6.hs=Cael cymorth technegol a cymorth gyda threthi a budd-daliadau.
 
-ptap.support.uya.list.paye=TBC
-ptap.support.uya.list.sa=TBC
-ptap.support.uya.list.ni=TBC
-ptap.support.uya.list.ats=TBC
-ptap.support.uya.list.cb=TBC
-ptap.support.uya.list.ma=TBC
+ptap.support.uya.list.paye=Talu Wrth Ennill (TWE)
+ptap.support.uya.list.sa=Hunanasesiad
+ptap.support.uya.list.ni=Yswiriant Gwladol a Phensiwn y Wladwriaeth
+ptap.support.uya.list.ats=Crynodeb Treth Blynyddol
+ptap.support.uya.list.cb=Budd-dal Plant
+ptap.support.uya.list.ma=Lwfans Priodasol
 
-ptap.support.uya.list.uos=TBC
-ptap.support.uya.list.circumstances.link=TBC
-ptap.support.uya.list.bta=TBC
+ptap.support.uya.list.uos=os ydych yn defnyddio gwasanaethau eraill gan CThEF (efallai y byddwch yn defnyddio gwahanol gyfrifon Porth y Llywodraeth ar eu cyfer)
+ptap.support.uya.list.circumstances.link=os bydd eich amgylchiadau’n newid (yn agor tab newydd)
+ptap.support.uya.list.bta=os oes gennych gyfrif treth busnes
 
-ptap.support.tab.card.hmrc.online.heading=TBC
-ptap.support.tab.card.paye.heading=TBC
-ptap.support.tab.card.self.assessment.heading=TBC
-ptap.support.tab.card.child.benefit.heading=TBC
-ptap.support.tab.card.mariage.allowance.heading=TBC
-ptap.support.tab.card.annual.tax.summary.heading=TBC
-ptap.support.tab.card.insurance.state.pension.heading=TBC
-ptap.support.tab.cards.header=TBC
+ptap.support.tab.card.hmrc.online.heading=CThEF ar-lein
+ptap.support.tab.card.paye.heading=Talu Wrth Ennill (TWE)
+ptap.support.tab.card.self.assessment.heading=Hunanasesiad
+ptap.support.tab.card.child.benefit.heading=Budd-dal Plant
+ptap.support.tab.card.mariage.allowance.heading=Lwfans Priodasol
+ptap.support.tab.card.annual.tax.summary.heading=Crynodeb Treth Blynyddol
+ptap.support.tab.card.insurance.state.pension.heading=Yswiriant Gwladol a Phensiwn y Wladwriaeth
+ptap.support.tab.cards.header=Cymorth
 
 ptap.support.tab.card.hmrc.online.link.understanding.account=Deall eich cyfrif ar-lein CThEF
-ptap.support.tab.card.hmrc.online.link.understanding.account.url=https://www.gov.uk/mewngofnodi-cofrestru-gwasanaethau-ar-lein-cthef
+ptap.support.tab.card.hmrc.online.link.understanding.account.url=/support/understanding-your-account
 ptap.support.tab.card.hmrc.online.link.extra.support=Cael help gan CThEF os oes angen cymorth ychwanegol arnoch
 ptap.support.tab.card.hmrc.online.link.extra.support.url=https://www.gov.uk/cael-help-cthem-cymorth-ychwanegol
 ptap.support.tab.card.hmrc.online.link.technical.support=Cymorth technegol â gwasanaethau ar-lein CThEF

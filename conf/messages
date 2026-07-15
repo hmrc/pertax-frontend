@@ -875,28 +875,27 @@ ptap.recent-activity.container.default_text.p.line2.2=Your tasks
 ptap.recent-activity.container.default_text.p.line2.3=for anything you need to do.
 
 ptap.support.uya.title=Understanding your HMRC Online account
-ptap.support.uya.p1=Your HMRC Online account lets you manage your taxes and benefits in one place.
-ptap.support.uya.p1.list=You can use it to access:
+ptap.support.uya.p1=Your HMRC online account gives you access to the following services:
 
-ptap.support.uya.p2.header=How to use your HMRC Online account
-ptap.support.uya.p2=Use your HMRC Online account by selecting the following sections within your
-ptap.support.uya.p2.link=Personal tax account.
+ptap.support.uya.p2.header=How to use your HMRC online account
+ptap.support.uya.p2=You can use your account by selecting the different sections on your ''Personal tax account'' page.
 
 ptap.support.uya.p2.sub=Your tasks
-ptap.support.uya.p2.tasks=Complete tasks, such as claiming a refund or paying a tax bill.
-ptap.support.uya.p2.tasks.list=You’ll only see tasks for:
-ptap.support.uya.p2.tasks.list.other=You may have other tasks if:
+ptap.support.uya.p2.tasks=Access tasks that must be completed, such as claiming refunds or paying tax bills.
+ptap.support.uya.p2.tasks.list=Your HMRC Online account only displays your tasks for the following services:
+ptap.support.uya.p2.tasks.list.other=You may have other tasks:
 
 ptap.support.uya.p3.sub=Recent activity
-ptap.support.uya.p3.recent=View recent updates, such as payments from your employer or changes to your tax code.
+ptap.support.uya.p3.recent=View recent updates such as payments from your job or tax code changes.
 
 ptap.support.uya.p4.sub=Taxes and benefits
-ptap.support.uya.p4.tab=Check the taxes and benefits you currently have and find others that may be relevant to you.
+ptap.support.uya.p4.tab=Check the taxes and benefits you currently have and find out about others that may be relevant to you.
 
 ptap.support.uya.p5.sub=HMRC news
-ptap.support.uya.p5.hs=Read the latest updates and announcements from HMRC.
+ptap.support.uya.p5.hs=Get the latest updates from HMRC.
 
-ptap.support.uya.p6.sub= Support
+ptap.support.uya.p6.sub=Support
+ptap.support.uya.p6.header=HMRC support
 ptap.support.uya.p6.hs=Get technical support and help with taxes and benefits.
 
 ptap.support.uya.list.paye=Pay As You Earn (PAYE)
@@ -906,9 +905,9 @@ ptap.support.uya.list.ats=Annual Tax Summary
 ptap.support.uya.list.cb=Child Benefit
 ptap.support.uya.list.ma=Marriage Allowance
 
-ptap.support.uya.list.uos=you use other HMRC services
-ptap.support.uya.list.circumstances.link=your circumstances change (opens in new tab)
-ptap.support.uya.list.bta=you have a Business Tax Account
+ptap.support.uya.list.uos=if you use other HMRC services (you might use different Government Gateway accounts for these)
+ptap.support.uya.list.circumstances.link=if your circumstances change (opens in new tab)
+ptap.support.uya.list.bta=if you have a Business Tax Account
 
 ptap.support.tab.card.hmrc.online.heading=HMRC Online
 ptap.support.tab.card.paye.heading=Pay As You Earn (PAYE)
@@ -959,4 +958,3 @@ ptap.support.tab.card.insurance.state.pension.link.ni=Find out more about Nation
 ptap.support.tab.card.insurance.state.pension.link.ni.url=https://www.gov.uk/national-insurance
 ptap.support.tab.card.insurance.state.pension.link.enquiries=Income Tax general enquiries, including contact details for National Insurance and State Pension
 ptap.support.tab.card.insurance.state.pension.link.enquiries.url=https://www.gov.uk/find-hmrc-contacts/income-tax-enquiries
-
