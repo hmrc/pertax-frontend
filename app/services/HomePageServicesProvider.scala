@@ -89,7 +89,7 @@ class HomePageServicesProvider @Inject() (
     MyService(
       messages("label.mtd_for_itsa"),
       Some(href),
-      if (isRedesign) Some(messages("ptap.taxes-and-benefits.mtd.hint")) else None,
+      Option.when(isRedesign)(messages("ptap.taxes-and-benefits.mtd.hint")),
       gaAction = Some("Income"),
       gaLabel = Some("MTD IT & SA"),
       id = Some("itsa")
@@ -101,7 +101,7 @@ class HomePageServicesProvider @Inject() (
       Some(href),
       Option(body)
         .filter(_.nonEmpty)
-        .orElse(if (isRedesign) Some(messages("ptap.taxes-and-benefits.self-assessment.hint")) else None),
+        .orElse(Option.when(isRedesign)(messages("ptap.taxes-and-benefits.self-assessment.hint"))),
       gaAction = Some("Income"),
       gaLabel = Some("Self Assessment"),
       id = Some("self-assessment")
@@ -116,7 +116,7 @@ class HomePageServicesProvider @Inject() (
       gaAction = Some("Income"),
       gaLabel = Some("Self Assessment"),
       id = Some("self-assessment"),
-      hintText = if (isRedesign) Some(messages("ptap.taxes-and-benefits.self-assessment.hint")) else None
+      hintText = Option.when(isRedesign)(messages("ptap.taxes-and-benefits.self-assessment.hint"))
     )
 
   private def mtdTile(linkUrl: String, isRedesign: Boolean)(implicit messages: Messages): OtherService =
@@ -126,7 +126,7 @@ class HomePageServicesProvider @Inject() (
       gaAction = Some("MTDIT"),
       gaLabel = Some("Making Tax Digital for Income Tax"),
       id = Some("mtdit"),
-      hintText = if (isRedesign) Some(messages("ptap.taxes-and-benefits.mtd.hint")) else None
+      hintText = Option.when(isRedesign)(messages("ptap.taxes-and-benefits.mtd.hint"))
     )
 
   private def getMySelfAssessment(
@@ -245,7 +245,7 @@ class HomePageServicesProvider @Inject() (
         MyService(
           messages("label.pay_as_you_earn_paye"),
           Some(controllers.routes.RedirectToPayeController.redirectToPaye.url),
-          if (isRedesign) Some(messages("ptap.taxes-and-benefits.paye.hint")) else None,
+          Option.when(isRedesign)(messages("ptap.taxes-and-benefits.paye.hint")),
           gaAction = Some("Income"),
           gaLabel = Some("Pay As You Earn (PAYE)"),
           id = Some("paye")
@@ -269,7 +269,7 @@ class HomePageServicesProvider @Inject() (
                 s"${current.startYear}"
               ),
               Some(configDecorator.taxCalcHomePageUrl),
-              if (isRedesign) Some(messages("ptap.taxes-and-benefits.tax-calculation.hint")) else None,
+              Option.when(isRedesign)(messages("ptap.taxes-and-benefits.tax-calculation.hint")),
               gaAction = Some("Income"),
               gaLabel = Some("Tax Calculation"),
               id = Some("tax-calc")
@@ -287,7 +287,7 @@ class HomePageServicesProvider @Inject() (
         MyService(
           messages("label.new_national_insurance_and_state_pension"),
           Some(controllers.interstitials.routes.InterstitialController.displayNISP.url),
-          if (isRedesign) Some(messages("ptap.taxes-and-benefits.national-insurance.hint")) else None,
+          Option.when(isRedesign)(messages("ptap.taxes-and-benefits.national-insurance.hint")),
           gaAction = Some("Income"),
           gaLabel = Some("National Insurance and State Pension"),
           id = Some("state-pension")
@@ -309,7 +309,7 @@ class HomePageServicesProvider @Inject() (
             gaAction = Some("Benefits"),
             gaLabel = Some("Child Benefit"),
             id = Some("child-benefit"),
-            hintText = if (isRedesign) Some(messages("ptap.taxes-and-benefits.child-benefit.hint")) else None
+            hintText = Option.when(isRedesign)(messages("ptap.taxes-and-benefits.child-benefit.hint"))
           )
         )
       }
@@ -329,7 +329,7 @@ class HomePageServicesProvider @Inject() (
             gaAction = Some("Tax Summaries"),
             gaLabel = Some("Annual Tax Summary"),
             id = Some("tax-summary"),
-            hintText = if (isRedesign) Some(messages("ptap.taxes-and-benefits.annual-tax-summary.hint")) else None
+            hintText = Option.when(isRedesign)(messages("ptap.taxes-and-benefits.annual-tax-summary.hint"))
           )
         )
       }
@@ -371,7 +371,7 @@ class HomePageServicesProvider @Inject() (
             gaAction = Some("Benefits"),
             gaLabel = Some("Marriage Allowance"),
             id = Some("marriage-allowance"),
-            hintText = if (isRedesign) Some(messages("ptap.taxes-and-benefits.marriage-allowance.other.hint")) else None
+            hintText = Option.when(isRedesign)(messages("ptap.taxes-and-benefits.marriage-allowance.other.hint"))
           )
         )
     }
@@ -384,7 +384,7 @@ class HomePageServicesProvider @Inject() (
         MyService(
           messages("label.trusted_helpers_heading"),
           Some(configDecorator.manageTrustedHelpersUrl),
-          if (isRedesign) Some(messages("ptap.taxes-and-benefits.trusted-helpers.hint")) else None,
+          Option.when(isRedesign)(messages("ptap.taxes-and-benefits.trusted-helpers.hint")),
           gaAction = Some("Account"),
           gaLabel = Some("Trusted helpers"),
           id = Some("trusted-helper")
@@ -398,7 +398,7 @@ class HomePageServicesProvider @Inject() (
           gaAction = Some("Account"),
           gaLabel = Some("Trusted helpers"),
           id = Some("trusted-helper"),
-          hintText = if (isRedesign) Some(messages("ptap.taxes-and-benefits.trusted-helpers.hint")) else None
+          hintText = Option.when(isRedesign)(messages("ptap.taxes-and-benefits.trusted-helpers.hint"))
         )
       )
     }
