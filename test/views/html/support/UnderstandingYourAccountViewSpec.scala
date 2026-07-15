@@ -83,7 +83,7 @@ class UnderstandingYourAccountViewSpec extends ViewSpec {
       assertContainsText(document, "Your HMRC online account gives you access to the following services:")
       assertContainsText(
         document,
-        "You can use your account by selecting the different sections on your 'Account home' page."
+        "You can use your account by selecting the different sections on your 'Personal tax account' page."
       )
       assertContainsText(
         document,
@@ -150,7 +150,7 @@ class UnderstandingYourAccountViewSpec extends ViewSpec {
       )
       assertContainsText(
         welshDocument,
-        "Gallwch ddefnyddio eich cyfrif drwy ddewis y gwahanol adrannau ar eich tudalen ‘Hafan y Cyfrif’."
+        "Gallwch ddefnyddio eich cyfrif drwy ddewis y gwahanol adrannau ar eich tudalen ‘Cyfrif Treth Personol’."
       )
       assertContainsText(
         welshDocument,

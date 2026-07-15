@@ -890,7 +890,7 @@ ptap.support.uya.title=Deall eich cyfrif ar-lein CThEF
 ptap.support.uya.p1=Mae eich cyfrif ar-lein CThEF yn rhoi mynediad at y gwasanaethau canlynol:
 
 ptap.support.uya.p2.header=Sut i ddefnyddio’ch cyfrif ar-lein CThEF
-ptap.support.uya.p2=Gallwch ddefnyddio eich cyfrif drwy ddewis y gwahanol adrannau ar eich tudalen ‘Hafan y Cyfrif’.
+ptap.support.uya.p2=Gallwch ddefnyddio eich cyfrif drwy ddewis y gwahanol adrannau ar eich tudalen ‘Cyfrif Treth Personol’.
 
 ptap.support.uya.p2.sub=Eich tasgau
 ptap.support.uya.p2.tasks=Cael mynediad at dasgau y mae’n rhaid eu cwblhau, fel hawlio ad-daliadau neu dalu biliau treth.
