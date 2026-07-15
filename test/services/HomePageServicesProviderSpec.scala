@@ -508,11 +508,32 @@ class HomePageServicesProviderSpec extends BaseSpec {
 
       val result = service.getHomePageServices(isRedesign = true).futureValue
 
-      result.myServices.map(_.title) must contain("Pay As You Earn (PAYE)")
       result.myServices.find(_.title == "Pay As You Earn (PAYE)").flatMap(_.hintText) mustBe
-        Some(messages("ptap.taxes-and-benefits.paye.hint"))
+        Some(messages("label.your_income_from_employers_and_private_pensions_"))
+      result.myServices.find(_.gaLabel.contains("Tax Calculation")).flatMap(_.hintText) mustBe
+        Some(messages("ptap.taxes-and-benefits.tax-calculation.hint"))
+      result.myServices.find(_.title == "National Insurance and State Pension").flatMap(_.hintText) mustBe
+        Some(s"${messages("label.view_state_pension")} ${messages("label.view_national_insurance")}")
       result.otherServices.find(_.title == "Child Benefit").flatMap(_.hintText) mustBe
         Some(messages("ptap.taxes-and-benefits.child-benefit.hint"))
+      result.otherServices.find(_.title == "Annual Tax Summary").flatMap(_.hintText) mustBe
+        Some(messages("card.ats.text"))
+      result.otherServices.find(_.title == "Marriage Allowance").flatMap(_.hintText) mustBe
+        Some(messages("label.transfer_part_of_your_personal_allowance_to_your_partner_"))
+      result.otherServices.find(_.title == "Trusted helpers").flatMap(_.hintText) mustBe
+        Some(messages("label.trusted_helpers_content"))
+    }
+
+    "reuse existing Self Assessment and MTD message keys for redesign hints" in {
+      implicit val request: UserRequest[AnyContent] =
+        buildRequest(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")))
+
+      val result = service.getHomePageServices(isRedesign = true).futureValue
+
+      result.myServices.find(_.title == "Self Assessment").flatMap(_.hintText) mustBe
+        Some(messages("label.view_manage_sa_return"))
+      result.otherServices.find(_.title == messages("label.mtd_for_it")).flatMap(_.hintText) mustBe
+        Some(messages("label.mtdit.page.p1"))
     }
 
     "not set hintText on services when isRedesign is false" in {
