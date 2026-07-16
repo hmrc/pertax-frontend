@@ -71,11 +71,11 @@ class PtapHomeViewSpec extends ViewSpec {
   private val defaultSecondaryNav = SecondaryNavModel(
     classes = Some("govuk-!-margin-bottom-6"),
     items = Seq(
-      TabModel(text = "Your tasks", href = Task.href(), current = true, notificationCount = Some(2)),
-      TabModel(text = "Recent activity", href = Activity.href(), current = false),
-      TabModel(text = "Taxes and benefits", href = Tax.href(), current = false),
-      TabModel(text = "HMRC news", href = News.href(), current = false),
-      TabModel(text = "Support", href = Support.href(), current = false)
+      TabModel(text = "Your tasks", href = Task.href(Some("?ptap=true")), current = true, notificationCount = Some(2)),
+      TabModel(text = "Recent activity", href = Activity.href(Some("?ptap=true")), current = false),
+      TabModel(text = "Taxes and benefits", href = Tax.href(Some("?ptap=true")), current = false),
+      TabModel(text = "HMRC news", href = News.href(Some("?ptap=true")), current = false),
+      TabModel(text = "Support", href = Support.href(Some("?ptap=true")), current = false)
     )
   )
 
@@ -84,7 +84,7 @@ class PtapHomeViewSpec extends ViewSpec {
     headerId: String = "tab-content-header"
   ): CardContainerModel =
     CardContainerModel(
-      emptyView = Task.empty(),
+      defaultInset = Task.defaultInset(Some("?ptap=true")),
       header = Some("Your tasks"),
       cards = cards,
       headerId = Some(headerId)
@@ -95,7 +95,7 @@ class PtapHomeViewSpec extends ViewSpec {
     headerId: String = "tab-content-header"
   ): CardContainerModel =
     CardContainerModel(
-      emptyView = Activity.empty(),
+      defaultInset = Activity.defaultInset(Some("?ptap=true")),
       header = Some("Recent activity"),
       cards = cards,
       headerId = Some(headerId)
