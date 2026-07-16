@@ -29,8 +29,8 @@ class CardContainerA11ySpec extends A11ySpec {
   private implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
   private implicit lazy val messages: Messages       = MessagesImpl(Lang("en"), messagesApi)
 
-  private val emptyView: Html =
-    Html("""<p class="govuk-body">No cards available.</p>""")
+  private val defaultInset: Html =
+    Html("""<p class="govuk-body">Cards are displayed here.</p>""")
 
   private val payeCard: HmrcCardModel =
     HmrcCardModel(
@@ -68,7 +68,7 @@ class CardContainerA11ySpec extends A11ySpec {
       val html = fullPage(
         cardContainer(
           CardContainerModel(
-            emptyView = emptyView,
+            defaultInset = defaultInset,
             header = Some("Empty state"),
             headerId = Some("empty-card-container-heading")
           )
@@ -82,7 +82,7 @@ class CardContainerA11ySpec extends A11ySpec {
       val html = fullPage(
         cardContainer(
           CardContainerModel(
-            emptyView = emptyView,
+            defaultInset = defaultInset,
             header = Some("PAYE services"),
             headerId = Some("paye-services-heading"),
             cards = Seq(payeCard, selfAssessmentCard)
@@ -97,7 +97,7 @@ class CardContainerA11ySpec extends A11ySpec {
       val html = fullPage(
         cardContainer(
           CardContainerModel(
-            emptyView = emptyView,
+            defaultInset = defaultInset,
             header = Some("PAYE service"),
             headerId = Some("paye-service-heading"),
             cards = Seq(payeCard)
@@ -112,7 +112,7 @@ class CardContainerA11ySpec extends A11ySpec {
       val html = fullPage(
         cardContainer(
           CardContainerModel(
-            emptyView = emptyView,
+            defaultInset = defaultInset,
             listAriaLabel = Some("Tax service cards"),
             cards = Seq(payeCard, selfAssessmentCard)
           )
