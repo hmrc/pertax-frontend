@@ -500,7 +500,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       result.myServices.map(_.title) must not contain "Trusted helpers"
     }
 
-    "set hintText on services when isRedesign is true" in {
+    "set approved existing hintText on services when isRedesign is true" in {
       implicit val request: UserRequest[AnyContent] = buildRequest()
 
       when(mockFeatureFlagService.get(eqTo(ShowTaxCalcTileToggle)))
@@ -510,12 +510,10 @@ class HomePageServicesProviderSpec extends BaseSpec {
 
       result.myServices.find(_.title == "Pay As You Earn (PAYE)").flatMap(_.hintText) mustBe
         Some(messages("label.your_income_from_employers_and_private_pensions_"))
-      result.myServices.find(_.gaLabel.contains("Tax Calculation")).flatMap(_.hintText) mustBe
-        Some(messages("ptap.taxes-and-benefits.tax-calculation.hint"))
+      result.myServices.find(_.gaLabel.contains("Tax Calculation")).flatMap(_.hintText) mustBe None
       result.myServices.find(_.title == "National Insurance and State Pension").flatMap(_.hintText) mustBe
-        Some(s"${messages("label.view_state_pension")} ${messages("label.view_national_insurance")}")
-      result.otherServices.find(_.title == "Child Benefit").flatMap(_.hintText) mustBe
-        Some(messages("ptap.taxes-and-benefits.child-benefit.hint"))
+        Some(s"${messages("label.view_national_insurance")} ${messages("label.view_state_pension")}")
+      result.otherServices.find(_.title == "Child Benefit").flatMap(_.hintText) mustBe None
       result.otherServices.find(_.title == "Annual Tax Summary").flatMap(_.hintText) mustBe
         Some(messages("card.ats.text"))
       result.otherServices.find(_.title == "Marriage Allowance").flatMap(_.hintText) mustBe
@@ -524,16 +522,14 @@ class HomePageServicesProviderSpec extends BaseSpec {
         Some(messages("label.trusted_helpers_content"))
     }
 
-    "use PTAD-specific Self Assessment and MTD message keys for redesign hints" in {
+    "not set unapproved Self Assessment or MTD hints on the redesign" in {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")))
 
       val result = service.getHomePageServices(isRedesign = true).futureValue
 
-      result.myServices.find(_.title == "Self Assessment").flatMap(_.hintText) mustBe
-        Some(messages("ptap.taxes-and-benefits.self-assessment.hint"))
-      result.otherServices.find(_.title == messages("label.mtd_for_it")).flatMap(_.hintText) mustBe
-        Some(messages("ptap.taxes-and-benefits.mtd.hint"))
+      result.myServices.find(_.title == "Self Assessment").flatMap(_.hintText) mustBe None
+      result.otherServices.find(_.title == messages("label.mtd_for_it")).flatMap(_.hintText) mustBe None
     }
 
     "not set hintText on services when isRedesign is false" in {
