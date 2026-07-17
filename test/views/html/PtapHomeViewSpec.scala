@@ -69,10 +69,10 @@ class PtapHomeViewSpec extends ViewSpec {
   private val defaultSecondaryNav = SecondaryNavModel(
     classes = Some("govuk-!-margin-bottom-6"),
     items = Seq(
-      TabModel(text = "Your tasks", href = Task.href(Some("?ptap=true")), current = true, notificationCount = Some(2)),
-      TabModel(text = "Taxes and benefits", href = Tax.href(Some("?ptap=true")), current = false),
-      TabModel(text = "HMRC news", href = News.href(Some("?ptap=true")), current = false),
-      TabModel(text = "Support", href = Support.href(Some("?ptap=true")), current = false)
+      TabModel(text = "Your tasks", href = Task.href(Some("?ptap=true")), notificationCount = Some(2)),
+      TabModel(text = "Taxes and benefits", href = Tax.href(Some("?ptap=true")), current = true),
+      TabModel(text = "HMRC news", href = News.href(Some("?ptap=true"))),
+      TabModel(text = "Support", href = Support.href(Some("?ptap=true")))
     )
   )
 
@@ -81,7 +81,7 @@ class PtapHomeViewSpec extends ViewSpec {
     items = Seq(
       TabModel(text = "Your tasks", href = Task.href(Some("?ptap=true")), notificationCount = Some(2)),
       TabModel(text = "Recent activity", href = Activity.href(Some("?ptap=true")), current = true),
-      TabModel(text = "Taxes and benefits", href = Tax.href()),
+      TabModel(text = "Taxes and benefits", href = Tax.href(Some("?ptap=true"))),
       TabModel(text = "HMRC news", href = News.href(Some("?ptap=true"))),
       TabModel(text = "Support", href = Support.href(Some("?ptap=true")))
     )
