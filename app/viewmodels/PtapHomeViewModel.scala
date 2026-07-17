@@ -21,9 +21,9 @@ import views.html.components.TabDefaultInsetText
 import play.api.i18n.Messages
 import play.twirl.api.Html
 
-enum TabEnum(val name: String, val cardContainerHeading: Option[String] = None):
-  case Task extends TabEnum("your-tasks", Some("Your tasks"))
-  case Activity extends TabEnum("recent-activity", Some("Recent activity"))
+enum TabEnum(val name: String):
+  case Task extends TabEnum("your-tasks")
+  case Activity extends TabEnum("recent-activity")
   case Tax extends TabEnum("taxes-and-benefits")
   case News extends TabEnum("hmrc-news")
   case Support extends TabEnum("support")
