@@ -294,7 +294,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       val content = Jsoup.parse(contentAsString(result))
       content.select(".x-govuk-secondary-navigation__badge").text() mustBe "2"
-      content.getElementById("tab-content-header").text() mustBe "Your tasks"
+      content.getElementById("tab-content-header") mustBe null
+      content.select("ul.hmrc-card__container").attr("aria-label") mustBe "Your tasks"
+      content.select("h2.hmrc-card__heading").size() mustBe 2
       content.text() must include("You owe tax for 2023-24")
       content.text() must not include "Tax code change"
     }
@@ -323,7 +325,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       val content = Jsoup.parse(contentAsString(result))
       content.select(".x-govuk-secondary-navigation__badge").text() mustBe "2"
-      content.getElementById("tab-content-header").text() mustBe "Recent activity"
+      content.getElementById("tab-content-header") mustBe null
+      content.select("ul.hmrc-card__container").attr("aria-label") mustBe "Recent activity"
+      content.select("h2.hmrc-card__heading").size() mustBe 2
       content.text() must include("Tax code change")
       content.text() must not include "You owe tax for 2023-24"
     }

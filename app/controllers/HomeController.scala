@@ -119,14 +119,18 @@ class HomeController @Inject() (
 
           val taskCount    = tabContentCards.taskCount
           val secondaryNav = buildSecondaryNav(currentTab, taskCount)
-          val tabContent   = currentTab.cardContainerHeading.map { heading =>
-            CardContainerModel(
-              emptyView = currentTab.empty(),
-              header = Some(heading),
-              cards = tabContentCards.tabCards,
-              headerId = Some("tab-content-header")
-            )
-          }.toList
+          val tabContent   = currentTab match {
+            case Task | Activity =>
+              List(
+                CardContainerModel(
+                  emptyView = currentTab.empty(),
+                  cards = tabContentCards.tabCards,
+                  cardHeadingLevel = "h2",
+                  listAriaLabel = secondaryNav.items.find(_.current).map(_.text)
+                )
+              )
+            case _               => List.empty
+          }
 
           Ok(
             pTapHomeView(

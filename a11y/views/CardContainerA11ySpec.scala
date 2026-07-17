@@ -114,10 +114,10 @@ class CardContainerA11ySpec extends A11ySpec {
           CardContainerModel(
             emptyView = emptyView,
             listAriaLabel = Some("Tax service cards"),
-            cards = Seq(payeCard, selfAssessmentCard)
+            cards = Seq(payeCard, selfAssessmentCard),
+            cardHeadingLevel = "h2"
           )
-        ),
-        beforeComponent = Html("""<h2>Tax services</h2>""")
+        )
       )
 
       html must passAccessibilityChecks(OutputFormat.Verbose)
