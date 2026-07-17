@@ -123,7 +123,7 @@ class HomeController @Inject() (
           val secondaryNav = buildSecondaryNav(currentTab, taskCount, activityTabEnabled)
           val tabContent   = currentTab.cardContainerHeading.map { heading =>
             CardContainerModel(
-              emptyView = currentTab.empty(),
+              defaultInset = currentTab.defaultInset(ptapParam),
               header = Some(heading),
               cards = tabContentCards.tabCards,
               headerId = Some("tab-content-header")
