@@ -875,17 +875,17 @@ head.label.mtdit.claim.error=Dewiswch ‘Iawn’ i ychwanegu’r cynllun Troi Tr
 #************************************************************
 # Default case (no tasks)
 #************************************************************
-ptap.your-tasks.container.default_text.p.line1=TBC
-ptap.your-tasks.container.default_text.p.line2.1=TBC
+ptap.your-tasks.container.default_text.p.line1=Mae’r dudalen hon yn dangos ad-daliadau a threth sydd arnoch.
+ptap.your-tasks.container.default_text.p.line2.1=Gwiriwch
 ptap.your-tasks.container.default_text.p.line2.2=Trethi a budd-daliadau
-ptap.your-tasks.container.default_text.p.line2.3=TBC
+ptap.your-tasks.container.default_text.p.line2.3=am unrhyw beth arall rydych am ei wybod.
 
 #************************************************************
 # Default case (no activity)
 #************************************************************
-ptap.recent-activity.container.default_text.p.line1=TBC
-ptap.recent-activity.container.default_text.p.line2.2=TBC
-ptap.recent-activity.container.default_text.p.line2.3= TBC
+ptap.recent-activity.container.default_text.p.line1=Mae’r dudalen hon yn dangos eich gweithgarwch diweddar.
+ptap.recent-activity.container.default_text.p.line2.2=Eich tasgau
+ptap.recent-activity.container.default_text.p.line2.3=am unrhyw beth arall rydych am ei wybod.
 
 ptap.support.uya.title=TBC
 ptap.support.uya.p1=TBC
@@ -895,7 +895,7 @@ ptap.support.uya.p2.header=TBC
 ptap.support.uya.p2=TBC
 ptap.support.uya.p2.link=TBC
 
-ptap.support.uya.p2.sub=TBC
+ptap.support.uya.p2.sub=Eich tasgau
 ptap.support.uya.p2.tasks=TBC
 ptap.support.uya.p2.tasks.list=TBC
 ptap.support.uya.p2.tasks.list.other=TBC

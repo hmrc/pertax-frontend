@@ -123,7 +123,7 @@ class HomeController @Inject() (
             case Task | Activity =>
               List(
                 CardContainerModel(
-                  emptyView = currentTab.empty(),
+                  defaultInset = currentTab.defaultInset(ptapParam),
                   cards = tabContentCards.tabCards,
                   cardHeadingLevel = "h2",
                   listAriaLabel = secondaryNav.items.find(_.current).map(_.text)
