@@ -293,7 +293,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       verify(mockTabContentService).getTaskAndTabCards(any[TabEnum]())(any(), any())
 
       val content = Jsoup.parse(contentAsString(result))
-      content.select(".x-govuk-secondary-navigation__badge").text() mustBe "2"
+      content.select(".hmrc-notification-badge").text() mustBe "2"
       content.getElementById("tab-content-header").text() mustBe "Your tasks"
       content.text() must include("You owe tax for 2023-24")
       content.text() must not include "Tax code change"
@@ -322,7 +322,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       verify(mockTabContentService).getTaskAndTabCards(any[TabEnum]())(any(), any())
 
       val content = Jsoup.parse(contentAsString(result))
-      content.select(".x-govuk-secondary-navigation__badge").text() mustBe "2"
+      content.select(".hmrc-notification-badge").text() mustBe "2"
       content.getElementById("tab-content-header").text() mustBe "Recent activity"
       content.text() must include("Tax code change")
       content.text() must not include "You owe tax for 2023-24"
@@ -351,7 +351,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       verify(mockTabContentService).getTaskAndTabCards(any[TabEnum]())(any(), any())
 
       val content = Jsoup.parse(contentAsString(result))
-      content.select(".x-govuk-secondary-navigation__badge").text() mustBe "2"
+      content.select(".hmrc-notification-badge").text() mustBe "2"
       content.getElementById("tab-content-header") mustBe null
       content.select(".hmrc-card").size() mustBe 0
       content.text() must not include "You owe tax for 2023-24"

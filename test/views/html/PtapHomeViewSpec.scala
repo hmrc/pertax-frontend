@@ -236,7 +236,7 @@ class PtapHomeViewSpec extends ViewSpec {
     "render the task count badge on the tasks tab nav item" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val doc                                                       = asDocument(home(homeViewModel).toString)
-      doc.select(".x-govuk-secondary-navigation__badge").text() mustBe "2"
+      doc.select(".hmrc-notification-badge").text() mustBe "2"
     }
 
     "render the correct heading for the Activity tab with activity cards" in {
