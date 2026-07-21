@@ -42,6 +42,10 @@ class PtapHomeViewSpec extends ViewSpec {
   lazy val home: PtapHomeView                       = inject[PtapHomeView]
   implicit val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
 
+  val taskCompletedMessage      = "It can take up to 10 days for completed tasks to be removed from the list."
+  val welshTaskCompletedMessage =
+    "Gall gymryd hyd at 10 diwrnod i’r tasgau sydd wedi’u cwblhau gael eu tynnu o’r rhestr."
+
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
       api.inject.bind[ConfigDecorator].toInstance(mockConfigDecorator),
@@ -353,6 +357,42 @@ class PtapHomeViewSpec extends ViewSpec {
       second_line
         .text() mustBe "Check Your tasks for anything you need to do."
       second_line.select(s"a.govuk-link").text() mustBe "Your tasks"
+    }
+
+    "render task completed message when enabled" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest())
+
+      val viewModel = homeViewModel.copy(
+        showTaskCompletedMessage = true,
+        tabContent = List(taskTabContent(HmrcCardModelFixtures.taskCards))
+      )
+      val doc       = asDocument(home(viewModel).toString)
+      doc.text() must include(taskCompletedMessage)
+    }
+
+    "not render task completed message when disabled" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest())
+
+      val viewModel = homeViewModel.copy(
+        showTaskCompletedMessage = false,
+        tabContent = List(taskTabContent(HmrcCardModelFixtures.taskCards))
+      )
+      val doc       = asDocument(home(viewModel).toString)
+      doc.text() must not include taskCompletedMessage
+    }
+
+    "render task completed message in Welsh" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest())
+
+      val viewModel = homeViewModel.copy(
+        showTaskCompletedMessage = true,
+        tabContent = List(taskTabContent(HmrcCardModelFixtures.taskCards))
+      )
+      val doc       = asDocument(home(viewModel)(userRequest, welshMessages).toString)
+      doc.text() must include(welshTaskCompletedMessage)
     }
   }
 }

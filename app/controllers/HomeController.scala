@@ -141,6 +141,7 @@ class HomeController @Inject() (
                 showNewsAndUpdatesView = currentTab == News,
                 showSupportView = currentTab == Support,
                 showTaxesAndBenefitsView = currentTab == Tax,
+                showTaskCompletedMessage = currentTab == Task && tabContentCards.tabCards.nonEmpty,
                 myServices = homePageServices.myServices,
                 otherServices = homePageServices.otherServices
               )
