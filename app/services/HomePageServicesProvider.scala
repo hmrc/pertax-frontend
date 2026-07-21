@@ -64,13 +64,13 @@ class HomePageServicesProvider @Inject() (
       else fandFService.isAnyFandFRelationships(nino).map(buildTrustedHelperServices(_, isRedesign))
 
     for {
-      selfAssessmentMy    <- getMySelfAssessment(request.saUserType, request.enrolments, isTrustedHelperUser)
+      selfAssessmentMy    <- getMySelfAssessment(request.saUserType, request.enrolments, isTrustedHelperUser, isRedesign)
       payAsYouEarn        <- getPayAsYouEarn(isRedesign)
-      taxCalc             <- getTaxCalculation(isTrustedHelperUser)
+      taxCalc             <- getTaxCalculation(isTrustedHelperUser, isRedesign)
       nationalInsurance   <- getNationalInsurance(isRedesign)
       selfAssessmentOther <- getOtherSelfAssessment(request.saUserType, isTrustedHelperUser)
-      mtdOther            <- getMtdOtherService(isTrustedHelperUser)
-      childBenefit        <- getChildBenefit(isTrustedHelperUser)
+      mtdOther            <- getMtdOtherService(isTrustedHelperUser, isRedesign)
+      childBenefit        <- getChildBenefit(isTrustedHelperUser, isRedesign)
       annualTaxSummary    <- getAnnualTaxSummaries(isTrustedHelperUser, isRedesign)
       marriageAllowance   <- marriageAllowanceF
       trustedHelper       <- trustedHelperF
@@ -91,11 +91,11 @@ class HomePageServicesProvider @Inject() (
   private def userHasMtdItsaEnrolment(enrolments: Set[Enrolment]): Boolean =
     enrolments.exists(_.key == MtdItsaEnrolmentKey)
 
-  private def combinedMtdSaTile(href: String)(implicit messages: Messages): MyService =
+  private def combinedMtdSaTile(href: String, isRedesign: Boolean)(implicit messages: Messages): MyService =
     MyService(
       messages("label.mtd_for_itsa"),
       Some(href),
-      None,
+      redesignHint(isRedesign, "label.view_and_manage_your_income_tax_obligations_and_payments"),
       gaAction = Some("Income"),
       gaLabel = Some("MTD IT & SA"),
       id = Some("itsa")
@@ -120,19 +120,21 @@ class HomePageServicesProvider @Inject() (
       id = Some("self-assessment")
     )
 
-  private def mtdTile(linkUrl: String)(implicit messages: Messages): OtherService =
+  private def mtdTile(linkUrl: String, isRedesign: Boolean)(implicit messages: Messages): OtherService =
     OtherService(
       messages("label.mtd_for_it"),
       linkUrl,
       gaAction = Some("MTDIT"),
       gaLabel = Some("Making Tax Digital for Income Tax"),
-      id = Some("mtdit")
+      id = Some("mtdit"),
+      hintText = redesignHint(isRedesign, "label.mtdit.p1")
     )
 
   private def getMySelfAssessment(
     saUserType: SelfAssessmentUserType,
     enrolments: Set[Enrolment],
-    isTrustedHelperUser: Boolean
+    isTrustedHelperUser: Boolean,
+    isRedesign: Boolean
   )(implicit messages: Messages): Future[Option[MyService]] =
     Future.successful {
       if (isTrustedHelperUser) {
@@ -144,14 +146,16 @@ class HomePageServicesProvider @Inject() (
           case (_: ActivatedOnlineFilerSelfAssessmentUser, true) =>
             Some(
               combinedMtdSaTile(
-                href = controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url
+                href = controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url,
+                isRedesign = isRedesign
               )
             )
 
           case (WrongCredentialsSelfAssessmentUser(_), true) =>
             Some(
               combinedMtdSaTile(
-                href = controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url
+                href = controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url,
+                isRedesign = isRedesign
               )
             )
 
@@ -209,7 +213,8 @@ class HomePageServicesProvider @Inject() (
     }
 
   private def getMtdOtherService(
-    isTrustedHelperUser: Boolean
+    isTrustedHelperUser: Boolean,
+    isRedesign: Boolean
   )(implicit request: UserRequest[?], messages: Messages): Future[Option[OtherService]] =
     if (isTrustedHelperUser) {
       Future.successful(None)
@@ -221,7 +226,8 @@ class HomePageServicesProvider @Inject() (
           Future.successful(
             Some(
               mtdTile(
-                controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url
+                controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url,
+                isRedesign = isRedesign
               )
             )
           )
@@ -243,7 +249,7 @@ class HomePageServicesProvider @Inject() (
       )
     )
 
-  private def getTaxCalculation(isTrustedHelperUser: Boolean)(implicit
+  private def getTaxCalculation(isTrustedHelperUser: Boolean, isRedesign: Boolean)(implicit
     messages: Messages
   ): Future[Option[MyService]] =
     if (isTrustedHelperUser) {
@@ -259,7 +265,10 @@ class HomePageServicesProvider @Inject() (
                 s"${current.startYear}"
               ),
               Some(configDecorator.taxCalcHomePageUrl),
-              None,
+              redesignHint(
+                isRedesign,
+                "label.check_whether_you_paid_too_much_or_too_little_tax_in_a_previous_tax_year"
+              ),
               gaAction = Some("Income"),
               gaLabel = Some("Tax Calculation"),
               id = Some("tax-calc")
@@ -285,7 +294,7 @@ class HomePageServicesProvider @Inject() (
       )
     )
 
-  private def getChildBenefit(isTrustedHelperUser: Boolean)(implicit
+  private def getChildBenefit(isTrustedHelperUser: Boolean, isRedesign: Boolean)(implicit
     messages: Messages
   ): Future[Option[OtherService]] =
     Future.successful {
@@ -298,7 +307,8 @@ class HomePageServicesProvider @Inject() (
             controllers.interstitials.routes.InterstitialController.displayChildBenefitsSingleAccountView.url,
             gaAction = Some("Benefits"),
             gaLabel = Some("Child Benefit"),
-            id = Some("child-benefit")
+            id = Some("child-benefit"),
+            hintText = redesignHint(isRedesign, "label.get_help_with_the_cost_of_bringing_up_children")
           )
         )
       }

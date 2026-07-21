@@ -192,6 +192,7 @@ label.back_to_account_home=Yn ôl i hafan y cyfrif
 label.return_to_your_account_home=Yn ôl i hafan eich cyfrif
 label.national_insurance_summary=Crynodeb Yswiriant Gwladol
 label.child_benefit=Budd-dal Plant
+label.get_help_with_the_cost_of_bringing_up_children=Cael help gyda chostau magu plant.
 label.report_changes_that_affect_your_child_benefit=Rhoi gwybod am newidiadau sy’n effeithio ar eich Budd-dal Plant
 label.tell_us_your_child_is_staying_in_full_time_education=Rhowch wybod i ni fod eich plentyn yn parhau ag addysg amser llawn
 label.tell_us_if_you_need_to=Rhowch wybod i ni os oes angen i chi:
@@ -819,6 +820,7 @@ tax_credits.ended.information.how.continue.li2 = cysylltu â Gwasanaeth Cwsmeria
 
 label.mtd_for_it=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.mtd_for_itsa=Troi Treth yn Ddigidol ar gyfer Treth Incwm a Hunanasesiad
+label.view_and_manage_your_income_tax_obligations_and_payments=Bwrw golwg dros a rheoli’ch rhwymedigaethau a’ch taliadau Treth Incwm.
 label.mtd_for_it_sa=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.send_updates_sole_traders=Ar gyfer unig fasnachwyr a landlordiaid sy’n anfon diweddariadau chwarterol gan ddefnyddio meddalwedd.
 label.view_manage_your_mtd_for_it=Bwrw golwg dros y cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli
@@ -857,6 +859,7 @@ label.taxes_and_benefits_subheading=Eich trethi a budd-daliadau CThEF ar-lein pr
 label.other_taxes_and_benefits_heading=Trethi a budd-daliadau eraill a allai fod yn berthnasol i chi
 
 label.tax_calc_option=Eich cyfrifiad treth – TWE {0} i {1}
+label.check_whether_you_paid_too_much_or_too_little_tax_in_a_previous_tax_year=Gwiriwch a wnaethoch dalu gormod neu rhy ychydig o dreth mewn blwyddyn dreth flaenorol.
 
 label.task_heading=Ad-daliadau a’r dreth sydd arnoch – Talu Wrth Ennill (TWE)
 label.task_paragraph=Gall gymryd hyd at 10 diwrnod i’r tasgau sydd wedi’u cwblhau gael eu tynnu o’r rhestr.
