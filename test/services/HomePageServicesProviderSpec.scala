@@ -510,10 +510,12 @@ class HomePageServicesProviderSpec extends BaseSpec {
 
       result.myServices.find(_.title == "Pay As You Earn (PAYE)").flatMap(_.hintText) mustBe
         Some(messages("label.your_income_from_employers_and_private_pensions_"))
-      result.myServices.find(_.gaLabel.contains("Tax Calculation")).flatMap(_.hintText) mustBe None
+      result.myServices.find(_.gaLabel.contains("Tax Calculation")).flatMap(_.hintText) mustBe
+        Some(messages("label.check_whether_you_paid_too_much_or_too_little_tax_in_a_previous_tax_year"))
       result.myServices.find(_.title == "National Insurance and State Pension").flatMap(_.hintText) mustBe
         Some(s"${messages("label.view_national_insurance")} ${messages("label.view_state_pension")}")
-      result.otherServices.find(_.title == "Child Benefit").flatMap(_.hintText) mustBe None
+      result.otherServices.find(_.title == "Child Benefit").flatMap(_.hintText) mustBe
+        Some(messages("label.get_help_with_the_cost_of_bringing_up_children"))
       result.otherServices.find(_.title == "Annual Tax Summary").flatMap(_.hintText) mustBe
         Some(messages("card.ats.text"))
       result.otherServices.find(_.title == "Marriage Allowance").flatMap(_.hintText) mustBe
@@ -522,14 +524,16 @@ class HomePageServicesProviderSpec extends BaseSpec {
         Some(messages("label.trusted_helpers_content"))
     }
 
-    "not set unapproved Self Assessment or MTD hints on the redesign" in {
+    "set approved Self Assessment and MTD hints on the redesign" in {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")))
 
       val result = service.getHomePageServices(isRedesign = true).futureValue
 
-      result.myServices.find(_.title == "Self Assessment").flatMap(_.hintText) mustBe None
-      result.otherServices.find(_.title == messages("label.mtd_for_it")).flatMap(_.hintText) mustBe None
+      result.myServices.find(_.title == "Self Assessment").flatMap(_.hintText) mustBe
+        Some(messages("label.view_and_manage_your_income_tax_obligations_and_payments"))
+      result.otherServices.find(_.title == messages("label.mtd_for_it")).flatMap(_.hintText) mustBe
+        Some(messages("label.view_and_manage_your_income_tax_obligations_and_payments"))
     }
 
     "not set hintText on services when isRedesign is false" in {
