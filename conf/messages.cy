@@ -888,7 +888,6 @@ ptap.recent-activity.container.default_text.p.line2.3=am unrhyw beth arall rydyc
 
 ptap.support.uya.title=TBC
 ptap.support.uya.p1=TBC
-ptap.support.uya.p1.list=TBC
 
 ptap.support.uya.p2.header=TBC
 ptap.support.uya.p2=TBC
