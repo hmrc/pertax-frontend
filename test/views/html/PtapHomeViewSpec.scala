@@ -231,6 +231,8 @@ class PtapHomeViewSpec extends ViewSpec {
 
     "render Activity cards without a duplicate visible heading" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      when(mockFeatureFlagService.get(PtapActivityTabToggle))
+        .thenReturn(Future.successful(FeatureFlag(PtapActivityTabToggle, isEnabled = true)))
       val activityNav                                               = defaultSecondaryNav.copy(
         items = defaultSecondaryNav.items.map(i => i.copy(current = i.href == Activity.href()))
       )
@@ -343,7 +345,10 @@ class PtapHomeViewSpec extends ViewSpec {
       when(mockFeatureFlagService.get(PtapActivityTabToggle))
         .thenReturn(Future.successful(FeatureFlag(PtapActivityTabToggle, isEnabled = true)))
 
-      val viewModel        = homeViewModel.copy(secondaryNav = activitySecondaryNav, tabContent = List(activityTabContent()))
+      val activityNav      = defaultSecondaryNav.copy(
+        items = defaultSecondaryNav.items.map(i => i.copy(current = i.href == Activity.href()))
+      )
+      val viewModel        = homeViewModel.copy(secondaryNav = activityNav, tabContent = List(activityTabContent()))
       val doc              = asDocument(home(viewModel).toString)
       val placeholder_text = doc
         .select("div.govuk-grid-column-two-thirds")

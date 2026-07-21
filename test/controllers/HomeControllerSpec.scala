@@ -316,6 +316,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
 
+      when(mockFeatureFlagService.get(PtapActivityTabToggle))
+        .thenReturn(Future.successful(FeatureFlag(PtapActivityTabToggle, isEnabled = true)))
+
       when(mockTabContentService.getTaskAndTabCards(any[TabEnum]())(any(), any()))
         .thenReturn(
           Future.successful(
