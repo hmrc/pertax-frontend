@@ -15,7 +15,7 @@
  *@
 
 @import components.H2
-@import models.{CardType, CardHeading, HmrcCardModel, MyService, OtherService}
+@import models.{CardType, CardHeading, CardHint, HmrcCardModel, MyService, OtherService}
 @import viewmodels.CardContainerModel
 @import tags.CardContainer
 @import play.twirl.api.HtmlFormat
@@ -31,7 +31,7 @@
                 cardType = CardType.BasicCard,
                 heading = CardHeading(text = service.title, url = Some(href)),
                 body = None,
-                hint = None
+                hint = service.hintText.map(hint => CardHint(HtmlFormat.escape(hint), None))
             )
         }
     }
@@ -43,7 +43,7 @@
             cardType = CardType.BasicCard,
             heading = CardHeading(text = service.title, url = Some(service.link)),
             body = None,
-            hint = None
+            hint = service.hintText.map(hint => CardHint(HtmlFormat.escape(hint), None))
         )
     }
 }

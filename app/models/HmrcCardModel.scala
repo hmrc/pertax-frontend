@@ -44,7 +44,7 @@ class CardHint(val content: Html, val tag_colour: Option[TagColour])
 case class HmrcCardModel(cardType: CardType, heading: CardHeading, body: Option[CardBody], hint: Option[CardHint]) {
   cardType match
     case CardType.BasicCard            =>
-      if (!heading.url.isDefined || body.isDefined || hint.isDefined) {
+      if (!heading.url.isDefined || body.isDefined) {
         throw new Exception("Invalid Parameters: BasicCard requires CardType and Heading with a url only.")
       }
     case CardType.BasicCardWithDueDate =>

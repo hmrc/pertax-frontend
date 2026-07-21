@@ -286,7 +286,7 @@ class CardContainerSpec extends ViewSpec {
     }
     "render only the inset if cards list is empty" in {
       val model = CardContainerModel(
-        defaultInset = Task.defaultInset(Some("?ptap=true")),
+        defaultInset = Task.defaultInset(Some("true")),
         header = Some("Test Header"),
         cards = Seq.empty
       )

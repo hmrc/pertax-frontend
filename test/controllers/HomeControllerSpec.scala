@@ -25,7 +25,7 @@ import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.{GetPersonFromCitizenDetailsToggle, HomePagePersonalisationToggle, ShowPlannedOutageBannerToggle}
 import models.{BreathingSpaceIndicatorResponse, HomePageServices, MyService, OtherService}
 import org.jsoup.Jsoup
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, anyBoolean}
 import org.mockito.Mockito.{reset, verify, when}
 import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesImpl}
@@ -138,7 +138,10 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     when(mockConfigDecorator.getFeedbackSurveyUrl(any()))
       .thenReturn("/personal-account/signed-out")
 
-    when(mockHomePageServicesProvider.getHomePageServices(any(), any(), any()))
+    when(mockConfigDecorator.ptapHomepageNinoRolloutLastNumericDigits)
+      .thenReturn(Seq(0, 1, 2, 3, 4, 5, 6, 7, 8, 9))
+
+    when(mockHomePageServicesProvider.getHomePageServices(anyBoolean())(any(), any(), any()))
       .thenReturn(Future.successful(HomePageServices(Seq.empty)))
 
     when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
@@ -293,7 +296,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       val content = Jsoup.parse(contentAsString(result))
       content.select(".x-govuk-secondary-navigation__badge").text() mustBe "2"
-      content.getElementById("tab-content-header").text() mustBe "Your tasks"
+      content.getElementById("tab-content-header") mustBe null
+      content.select("ul.hmrc-card__container").attr("aria-label") mustBe "Your tasks"
+      content.select("h2.hmrc-card__heading").size() mustBe 2
       content.text() must include("You owe tax for 2023-24")
       content.text() must not include "Tax code change"
 
@@ -324,7 +329,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       val content = Jsoup.parse(contentAsString(result))
       content.select(".x-govuk-secondary-navigation__badge").text() mustBe "2"
-      content.getElementById("tab-content-header").text() mustBe "Recent activity"
+      content.getElementById("tab-content-header") mustBe null
+      content.select("ul.hmrc-card__container").attr("aria-label") mustBe "Recent activity"
+      content.select("h2.hmrc-card__heading").size() mustBe 2
       content.text() must include("Tax code change")
       content.text() must not include "You owe tax for 2023-24"
     }
@@ -643,17 +650,18 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       val payeService = MyService(
         "Pay As You Earn (PAYE)",
         Some("/paye"),
-        None,
+        Some("PAYE hint"),
         id = Some("paye")
       )
 
       val childBenefitService = OtherService(
         "Child Benefit",
         "/child-benefit",
-        id = Some("child-benefit")
+        id = Some("child-benefit"),
+        hintText = Some("Child Benefit hint")
       )
 
-      when(mockHomePageServicesProvider.getHomePageServices(any(), any(), any()))
+      when(mockHomePageServicesProvider.getHomePageServices(anyBoolean())(any(), any(), any()))
         .thenReturn(Future.successful(HomePageServices(Seq(payeService, childBenefitService))))
 
       val appLocal   = appBuilder.build()
@@ -669,6 +677,90 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       content.select("div.hmrc-card").size mustBe 2
       content.getElementsContainingText("Pay As You Earn (PAYE)").attr("href") mustBe "/paye"
       content.getElementsContainingText("Child Benefit").attr("href") mustBe "/child-benefit"
+      content.select("div.hmrc-card p.govuk-hint").size mustBe 2
+      content.text()                                must include("PAYE hint")
+      content.text()                                must include("Child Benefit hint")
+    }
+
+    "Render the current design when the ptap query parameter is missing" in {
+      val request = FakeRequest("GET", "/personal-account")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(request)
+
+      status(result) mustBe OK
+      redirectLocation(result) mustBe None
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.select("nav.x-govuk-secondary-navigation").size mustBe 0
+      content.getElementById("taxes-and-benefits-heading") must not be null
+    }
+
+    "Render the current design when the NINO is not eligible for the phased beta" in {
+      val request = FakeRequest("GET", "/personal-account?ptap=true")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      when(mockConfigDecorator.ptapHomepageNinoRolloutLastNumericDigits)
+        .thenReturn(Seq.empty)
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(request)
+
+      status(result) mustBe OK
+      redirectLocation(result) mustBe None
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.select("nav.x-govuk-secondary-navigation").size mustBe 0
+      content.getElementById("taxes-and-benefits-heading") must not be null
+    }
+
+    "Render the current design when the HomePagePersonalisationToggle is disabled" in {
+      val request = FakeRequest("GET", "/personal-account?ptap=true")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = false)))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(request)
+
+      status(result) mustBe OK
+      redirectLocation(result) mustBe None
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.select("nav.x-govuk-secondary-navigation").size mustBe 0
+      content.getElementById("taxes-and-benefits-heading") must not be null
+    }
+
+    "Preserve the ptap query parameter in the secondary navigation tab links" in {
+      val request = FakeRequest("GET", "/personal-account?ptap=true")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.index()(request)
+
+      status(result) mustBe OK
+
+      val content = Jsoup.parse(contentAsString(result))
+      content.select("a[href*=\"?ptap=true\"]").size() must be > 0
     }
 
   }

@@ -66,6 +66,14 @@ class HomeController @Inject() (
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
 
+  def homePageTab(tab: String) =
+    authenticate.async { implicit request =>
+      isPersonalisationEnabledAndNinoEligible.flatMap {
+        case true  => personalisationHomePageTab(tab)
+        case false => newHomePage
+      }
+    }
+
   private def ptapParam(implicit request: UserRequest[AnyContent]): Option[String] =
     request.queryString.get("ptap").flatMap(_.headOption).filter(_ == "true")
 
@@ -77,14 +85,6 @@ class HomeController @Inject() (
       toggle.isEnabled && ptapParam.isDefined && configDecorator.ptapHomepageNinoRolloutLastNumericDigits.contains(
         lastNumericDigit
       )
-    }
-
-  def homePageTab(tab: String) =
-    authenticate.async { implicit request =>
-      isPersonalisationEnabledAndNinoEligible.flatMap {
-        case true  => personalisationHomePageTab(tab)
-        case false => newHomePage
-      }
     }
 
   private def personalisationHomePageTab(tab: String)(implicit
@@ -104,7 +104,7 @@ class HomeController @Inject() (
         val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
         val fTabContentCards         = tabContentService.getTaskAndTabCards(currentTab)
         val fHomePageServices        =
-          if (currentTab == Tax) homePageServicesProvider.getHomePageServices
+          if (currentTab == Tax) homePageServicesProvider.getHomePageServices(isRedesign = true)
           else Future.successful(HomePageServices(Seq.empty))
 
         for {
@@ -119,14 +119,18 @@ class HomeController @Inject() (
 
           val taskCount    = tabContentCards.taskCount
           val secondaryNav = buildSecondaryNav(currentTab, taskCount)
-          val tabContent   = currentTab.cardContainerHeading.map { heading =>
-            CardContainerModel(
-              defaultInset = currentTab.defaultInset(ptapParam),
-              header = Some(heading),
-              cards = tabContentCards.tabCards,
-              headerId = Some("tab-content-header")
-            )
-          }.toList
+          val tabContent   = currentTab match {
+            case Task | Activity =>
+              List(
+                CardContainerModel(
+                  defaultInset = currentTab.defaultInset(ptapParam),
+                  cards = tabContentCards.tabCards,
+                  cardHeadingLevel = "h2",
+                  listAriaLabel = secondaryNav.items.find(_.current).map(_.text)
+                )
+              )
+            case _               => List.empty
+          }
 
           Ok(
             pTapHomeView(
@@ -199,7 +203,7 @@ class HomeController @Inject() (
     enforceInterrupts {
       val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
       val fListOfTasks             = tasksService.getListOfTasks
-      val fHomePageServices        = homePageServicesProvider.getHomePageServices
+      val fHomePageServices        = homePageServicesProvider.getHomePageServices(isRedesign = false)
       val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
 
       for {

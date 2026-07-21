@@ -102,7 +102,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       when(mockFeatureFlagService.get(eqTo(ShowTaxCalcTileToggle)))
         .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
 
-      val result = service.getHomePageServices.futureValue
+      val result = service.getHomePageServices().futureValue
 
       result.myServices mustBe Seq(
         MyService(
@@ -191,7 +191,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")))
 
-      val result = service.getHomePageServices.futureValue
+      val result = service.getHomePageServices().futureValue
 
       result.myServices.flatMap(_.link) must contain(
         controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url
@@ -204,7 +204,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(WrongCredentialsSelfAssessmentUser(SaUtr("11")))
 
-      val result = service.getHomePageServices.futureValue
+      val result = service.getHomePageServices().futureValue
 
       result.myServices    must contain(
         MyService(
@@ -232,7 +232,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")))
 
-      val result = service.getHomePageServices.futureValue
+      val result = service.getHomePageServices().futureValue
 
       result.otherServices must contain(
         OtherService(
@@ -261,7 +261,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(NotEnrolledSelfAssessmentUser(SaUtr("11")))
 
-      val result = service.getHomePageServices.futureValue
+      val result = service.getHomePageServices().futureValue
 
       result.otherServices           must contain(
         OtherService(
@@ -289,7 +289,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(NonFilerSelfAssessmentUser)
 
-      val result = service.getHomePageServices.futureValue
+      val result = service.getHomePageServices().futureValue
 
       result.myServices.map(_.title)   must not contain "Self Assessment"
       result.myServices.map(_.title)   must not contain "Making Tax Digital for Income Tax"
@@ -307,7 +307,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
             Some(TrustedHelper("principal", "attorney", "return-url", Some(generatedTrustedHelperNino.nino)))
         )
 
-      val result = service.getHomePageServices.futureValue
+      val result = service.getHomePageServices().futureValue
 
       result.myServices.map(_.gaLabel) must not contain Some("Tax Calculation")
       verify(mockFeatureFlagService, times(0)).get(eqTo(ShowTaxCalcTileToggle))
@@ -321,7 +321,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
             Some(TrustedHelper("principal", "attorney", "return-url", Some(generatedTrustedHelperNino.nino)))
         )
 
-      val result = service.getHomePageServices.futureValue
+      val result = service.getHomePageServices().futureValue
 
       result.myServices mustBe Seq(
         MyService(
@@ -357,7 +357,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       when(mockFeatureFlagService.get(eqTo(ShowTaxCalcTileToggle)))
         .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = false)))
 
-      val result = service.getHomePageServices.futureValue
+      val result = service.getHomePageServices().futureValue
 
       result.myServices.map(_.gaLabel) must not contain Some("Tax Calculation")
     }
@@ -369,7 +369,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       when(mockFeatureFlagService.get(eqTo(ShowTaxCalcTileToggle)))
         .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
 
-      val result = service.getHomePageServices.futureValue
+      val result = service.getHomePageServices().futureValue
 
       result.myServices must contain(
         MyService(
@@ -391,7 +391,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       when(mockTaiService.getTaxComponentsList(any(), any())(any(), any()))
         .thenReturn(Future.successful(List("MarriageAllowanceTransferred")))
 
-      val result = service.getHomePageServices.futureValue
+      val result = service.getHomePageServices().futureValue
 
       result.myServices must contain(
         MyService(
@@ -415,7 +415,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       when(mockTaiService.getTaxComponentsList(any(), any())(any(), any()))
         .thenReturn(Future.successful(List("MarriageAllowanceReceived")))
 
-      val result = service.getHomePageServices.futureValue
+      val result = service.getHomePageServices().futureValue
 
       result.myServices must contain(
         MyService(
@@ -439,7 +439,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       when(mockTaiService.getTaxComponentsList(any(), any())(any(), any()))
         .thenReturn(Future.successful(List.empty))
 
-      val result = service.getHomePageServices.futureValue
+      val result = service.getHomePageServices().futureValue
 
       result.otherServices must contain(
         OtherService(
@@ -460,7 +460,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       when(mockFandFService.isAnyFandFRelationships(any())(any()))
         .thenReturn(Future.successful(true))
 
-      val result = service.getHomePageServices.futureValue
+      val result = service.getHomePageServices().futureValue
 
       result.myServices must contain(
         MyService(
@@ -484,7 +484,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       when(mockFandFService.isAnyFandFRelationships(any())(any()))
         .thenReturn(Future.successful(false))
 
-      val result = service.getHomePageServices.futureValue
+      val result = service.getHomePageServices().futureValue
 
       result.otherServices must contain(
         OtherService(
@@ -498,6 +498,50 @@ class HomePageServicesProviderSpec extends BaseSpec {
       )
 
       result.myServices.map(_.title) must not contain "Trusted helpers"
+    }
+
+    "set approved existing hintText on services when isRedesign is true" in {
+      implicit val request: UserRequest[AnyContent] = buildRequest()
+
+      when(mockFeatureFlagService.get(eqTo(ShowTaxCalcTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
+
+      val result = service.getHomePageServices(isRedesign = true).futureValue
+
+      result.myServices.find(_.title == "Pay As You Earn (PAYE)").flatMap(_.hintText) mustBe
+        Some(messages("label.your_income_from_employers_and_private_pensions_"))
+      result.myServices.find(_.gaLabel.contains("Tax Calculation")).flatMap(_.hintText) mustBe None
+      result.myServices.find(_.title == "National Insurance and State Pension").flatMap(_.hintText) mustBe
+        Some(s"${messages("label.view_national_insurance")} ${messages("label.view_state_pension")}")
+      result.otherServices.find(_.title == "Child Benefit").flatMap(_.hintText) mustBe None
+      result.otherServices.find(_.title == "Annual Tax Summary").flatMap(_.hintText) mustBe
+        Some(messages("card.ats.text"))
+      result.otherServices.find(_.title == "Marriage Allowance").flatMap(_.hintText) mustBe
+        Some(messages("label.transfer_part_of_your_personal_allowance_to_your_partner_"))
+      result.otherServices.find(_.title == "Trusted helpers").flatMap(_.hintText) mustBe
+        Some(messages("label.trusted_helpers_content"))
+    }
+
+    "not set unapproved Self Assessment or MTD hints on the redesign" in {
+      implicit val request: UserRequest[AnyContent] =
+        buildRequest(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")))
+
+      val result = service.getHomePageServices(isRedesign = true).futureValue
+
+      result.myServices.find(_.title == "Self Assessment").flatMap(_.hintText) mustBe None
+      result.otherServices.find(_.title == messages("label.mtd_for_it")).flatMap(_.hintText) mustBe None
+    }
+
+    "not set hintText on services when isRedesign is false" in {
+      implicit val request: UserRequest[AnyContent] = buildRequest()
+
+      when(mockFeatureFlagService.get(eqTo(ShowTaxCalcTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
+
+      val result = service.getHomePageServices().futureValue
+
+      result.myServices.foreach(_.hintText mustBe None)
+      result.otherServices.foreach(_.hintText mustBe None)
     }
   }
 }
