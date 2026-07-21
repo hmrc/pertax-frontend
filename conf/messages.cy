@@ -888,7 +888,6 @@ ptap.recent-activity.container.default_text.p.line2.3=am unrhyw beth arall rydyc
 
 ptap.support.uya.title=TBC
 ptap.support.uya.p1=TBC
-ptap.support.uya.p1.list=TBC
 
 ptap.support.uya.p2.header=TBC
 ptap.support.uya.p2=TBC
@@ -896,8 +895,6 @@ ptap.support.uya.p2.link=TBC
 
 ptap.support.uya.p2.sub=Eich tasgau
 ptap.support.uya.p2.tasks=TBC
-ptap.support.uya.p2.tasks.list=TBC
-ptap.support.uya.p2.tasks.list.other=TBC
 
 ptap.support.uya.p3.sub=Gweithgarwch diweddar
 ptap.support.uya.p3.recent=TBC

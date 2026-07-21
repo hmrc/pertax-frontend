@@ -17,7 +17,6 @@
 package controllers.support
 
 import com.google.inject.Inject
-import config.ConfigDecorator
 import controllers.PertaxBaseController
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
@@ -29,8 +28,6 @@ import scala.concurrent.Future
 class SupportController @Inject (authJourney: AuthJourney)(
   cc: MessagesControllerComponents,
   understandingYourAccountView: UnderstandingYourAccountView
-)(implicit
-  configDecorator: ConfigDecorator
 ) extends PertaxBaseController(cc) {
 
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =

@@ -58,94 +58,51 @@ class UnderstandingYourAccountViewSpec extends ViewSpec {
   "Rendering UnderstandingYourAccountView.scala.html" must {
     lazy val document: Document = asDocument(page().toString)
 
-    "show the expected title for Understanding your HMRC Online account page" in {
-      document.select("title").asScala.exists(e => e.text contains "Understanding your HMRC Online account") mustBe true
+    "show the expected title and content for Understanding your personal tax account page" in {
+      val title = document.select("h1").asScala
+
+      title.exists(e => e.text contains "Understanding your personal tax account") mustBe true
+
     }
 
-    "show the expected headers for Understanding your HMRC Online account page" in {
-      document.select("h1").asScala.exists(e => e.text == "Understanding your HMRC Online account") mustBe true
-      document.select("h2").asScala.exists(e => e.text == "How to use your HMRC Online account") mustBe true
+    "show the expected list content  for the access list section" in {
+      val list = document.select("ul[id*='accessList']").select("li").asScala
 
-      val h3s = document.select("h3").asScala
-      h3s.exists(e => e.text == "Your tasks")
-      h3s.exists(e => e.text == "Recent activity")
-      h3s.exists(e => e.text == "Taxes and benefits")
-      h3s.exists(e => e.text == "HMRC news")
-      h3s.exists(e => e.text == "HMRC support")
+      list.exists(e => e.text contains "Taxes and benefits") mustBe true
+      list.exists(e => e.text contains "Your tasks") mustBe true
+      list.exists(e => e.text contains "HMRC news") mustBe true
+      list.exists(e => e.text contains "Support") mustBe true
+      list.size mustBe 4
     }
 
-    "show the expected paragraphs" in {
-      val paragraphs = document.select("p").asScala
+    "show the expected headers for Understanding your personal tax account page" in {
+      val h2s = document.select("div.govuk-grid-column-two-thirds").select("h2").asScala
+      h2s.exists(e => e.text == "Taxes and benefits")
+      h2s.exists(e => e.text == "Your tasks")
+      h2s.exists(e => e.text == "HMRC news")
+      h2s.exists(e => e.text == "Support")
+      h2s.size mustBe 4
+    }
+
+    "show the expected paragraphs for Understanding your personal account page" in {
+      val paragraphs = document.select("div.govuk-grid-column-two-thirds").select("p.govuk-body").asScala
 
       paragraphs.exists(e =>
-        e.text contains "Use your HMRC Online account by selecting the following sections within your"
-      ) mustBe true
-      paragraphs.exists(e => e.text contains "Personal tax account.") mustBe true
-
-      paragraphs.exists(e =>
-        e.text contains "Complete tasks, such as claiming a refund or paying a tax bill."
-      ) mustBe true
-      paragraphs.exists(e => e.text contains "You’ll only see tasks for:") mustBe true
-      paragraphs.exists(e => e.text contains "You may have other tasks if:") mustBe true
-      paragraphs.exists(e =>
-        e.text contains "View recent updates, such as payments from your employer or changes to your tax code."
+        e.text contains "Your personal tax account lets you manage your taxes and benefits in one place. You can use your account to access:"
       ) mustBe true
       paragraphs.exists(e =>
         e.text contains "Check the taxes and benefits you currently have and find others that may be relevant to you."
       ) mustBe true
-      paragraphs.exists(e => e.text contains "Read the latest updates and announcements from HMRC.") mustBe true
+      paragraphs.exists(e =>
+        e.text contains "Complete tasks such as claiming a refund or paying tax you owe. This section only shows your Pay As You Earn (PAYE) related tasks."
+      ) mustBe true
+      paragraphs.exists(e => e.text contains "Read the latest updates from HMRC.") mustBe true
       paragraphs.exists(e => e.text contains "Get technical support and help with taxes and benefits.") mustBe true
-    }
-
-    "show the expected content for the access list" in {
-      val list = document.select("ul[id*='accessList']").select("li").asScala
-      list.size mustBe 6
-
-      list.exists(e => e.text contains "Pay As You Earn (PAYE)") mustBe true
-      list.exists(e => e.text contains "Self Assessment") mustBe true
-      list.exists(e => e.text contains "National Insurance and State Pension") mustBe true
-      list.exists(e => e.text contains "Annual Tax Summary") mustBe true
-      list.exists(e => e.text contains "Child Benefit") mustBe true
-      list.exists(e => e.text contains "Marriage Allowance") mustBe true
-    }
-
-    "show the expected content for the task list" in {
-      val list = document.select("ul[id*='taskList']").select("li").asScala
-      list.size mustBe 4
-
-      list.exists(e => e.text contains "Pay As You Earn (PAYE)") mustBe true
-      list.exists(e => e.text contains "Self Assessment") mustBe true
-      list.exists(e => e.text contains "National Insurance and State Pension") mustBe true
-      list.exists(e => e.text contains "Child Benefit") mustBe true
-    }
-
-    "show the expected content for the other list" in {
-      val list = document.select("ul[id*='otherList']").select("li").asScala
-      list.size mustBe 3
-
-      list.exists(e => e.text contains "you use other HMRC services") mustBe true
-      list.exists(e => e.text contains "your circumstances change (opens in new tab)") mustBe true
-      list.exists(e => e.text contains "you have a Business Tax Account") mustBe true
-    }
-
-    "show the expected content for the personal account link" in {
-      val link = document.select("a[id*='personalAccountLink']").asScala
-
-      link.exists(e => e.attribute("href").getValue == "/personal-account") mustBe true
-      link.exists(e => e.text contains "Personal tax account.") mustBe true
-    }
-
-    "show the expected content for the notify change of details link" in {
-      val link = document.select("a[id*='notifyChangeOfDetailsLink']").asScala
-
-      link.exists(e => e.attribute("href").getValue == "/notify-changes-of-details") mustBe true
-      link.exists(e => e.text contains "your circumstances change (opens in new tab)") mustBe true
+      paragraphs.size mustBe 5
     }
 
     "show the expected content for the back link" in {
       val link = document.select("a[id*='menu.back']").asScala
-
-      println(link)
 
       link.exists(e => e.attribute("href").getValue == "#") mustBe true
       link.exists(e => e.text contains "Back") mustBe true
