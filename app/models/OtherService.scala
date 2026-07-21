@@ -22,7 +22,8 @@ final case class OtherService(
   divAttr: Map[String, String] = Map.empty,
   gaAction: Option[String] = None,
   gaLabel: Option[String] = None,
-  id: Option[String] = None
+  id: Option[String] = None,
+  hintText: Option[String] = None
 ) extends HomePageService {
   override val category: HomePageServiceCategory = HomePageServiceCategory.OtherServices
 }
