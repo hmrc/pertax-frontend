@@ -874,18 +874,15 @@ ptap.recent-activity.container.default_text.p.line1=This page shows your recent 
 ptap.recent-activity.container.default_text.p.line2.2=Your tasks
 ptap.recent-activity.container.default_text.p.line2.3=for anything you need to do.
 
-ptap.support.uya.title=Understanding your HMRC Online account
-ptap.support.uya.p1=Your HMRC Online account lets you manage your taxes and benefits in one place.
-ptap.support.uya.p1.list=You can use it to access:
+ptap.support.uya.title=Understanding your personal tax account
+ptap.support.uya.p1=Your personal tax account lets you manage your taxes and benefits in one place. You can use your account to access:
 
 ptap.support.uya.p2.header=How to use your HMRC Online account
 ptap.support.uya.p2=Use your HMRC Online account by selecting the following sections within your
 ptap.support.uya.p2.link=Personal tax account.
 
 ptap.support.uya.p2.sub=Your tasks
-ptap.support.uya.p2.tasks=Complete tasks, such as claiming a refund or paying a tax bill.
-ptap.support.uya.p2.tasks.list=You’ll only see tasks for:
-ptap.support.uya.p2.tasks.list.other=You may have other tasks if:
+ptap.support.uya.p2.tasks=Complete tasks such as claiming a refund or paying tax you owe. This section only shows your Pay As You Earn (PAYE) related tasks.
 
 ptap.support.uya.p3.sub=Recent activity
 ptap.support.uya.p3.recent=View recent updates, such as payments from your employer or changes to your tax code.
@@ -894,7 +891,7 @@ ptap.support.uya.p4.sub=Taxes and benefits
 ptap.support.uya.p4.tab=Check the taxes and benefits you currently have and find others that may be relevant to you.
 
 ptap.support.uya.p5.sub=HMRC news
-ptap.support.uya.p5.hs=Read the latest updates and announcements from HMRC.
+ptap.support.uya.p5.hs=Read the latest updates from HMRC.
 
 ptap.support.uya.p6.sub= Support
 ptap.support.uya.p6.hs=Get technical support and help with taxes and benefits.
@@ -919,7 +916,7 @@ ptap.support.tab.card.annual.tax.summary.heading=Annual Tax Summary
 ptap.support.tab.card.insurance.state.pension.heading=National Insurance and State Pension
 ptap.support.tab.cards.header=Support
 
-ptap.support.tab.card.hmrc.online.link.understanding.account=Understanding your HMRC Online account
+ptap.support.tab.card.hmrc.online.link.understanding.account=Understanding your personal tax account
 ptap.support.tab.card.hmrc.online.link.understanding.account.url=/support/understanding-your-account
 ptap.support.tab.card.hmrc.online.link.extra.support=Get help from HMRC if you need extra support
 ptap.support.tab.card.hmrc.online.link.extra.support.url=https://www.gov.uk/get-help-hmrc-extra-support

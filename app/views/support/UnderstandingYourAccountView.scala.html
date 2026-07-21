@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import tags._
 @import uk.gov.hmrc.domain.Nino
@@ -24,18 +23,16 @@
 @import viewmodels.AlertBannerViewModel
 @import views.MainView
 @import views.html.components.alertBanner.AlertBanner
-@import views.html.components.{H1, H2, H3, Link, P}
+@import views.html.components.{H1, H2, Link, P}
 
 @this(
         main: MainView,
         h1: H1,
         h2: H2,
-        h3: H3,
-        p: P,
-        link: Link
+        p: P
 )
 
-@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+@()(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @main(
     pageTitle = messages("ptap.support.uya.title"),
@@ -44,57 +41,27 @@
     @h1("ptap.support.uya.title")
 
     @p(Text(messages("ptap.support.uya.p1")))
-    @p(Text(messages("ptap.support.uya.p1.list")))
 
     <ul class="govuk-list govuk-list--bullet" id="accessList">
-        <li>@messages("ptap.support.uya.list.paye")</li>
-        <li>@messages("ptap.support.uya.list.sa")</li>
-        <li>@messages("ptap.support.uya.list.ni")</li>
-        <li>@messages("ptap.support.uya.list.ats")</li>
-        <li>@messages("ptap.support.uya.list.cb")</li>
-        <li>@messages("ptap.support.uya.list.ma")</li>
+        <li>@messages("ptap.support.uya.p4.sub")</li>
+        <li>@messages("ptap.support.uya.p2.sub")</li>
+        <li>@messages("ptap.support.uya.p5.sub")</li>
+        <li>@messages("ptap.support.uya.p6.sub")</li>
     </ul>
-
-    @h2("ptap.support.uya.p2.header")
-    <p class="govuk-body">
-        @messages("ptap.support.uya.p2")
-        @link(configDecorator.personalAccount, messageKey = "ptap.support.uya.p2.link", id = Some("personalAccountLink"), inParagraph = true)
-    </p>
-
-    @h3("ptap.support.uya.p2.sub")
-
-    @p(Text(messages("ptap.support.uya.p2.tasks")))
-
-    @p(Text(messages("ptap.support.uya.p2.tasks.list")))
-
-    <ul class="govuk-list govuk-list--bullet" id="taskList">
-        <li>@messages("ptap.support.uya.list.paye")</li>
-        <li>@messages("ptap.support.uya.list.sa")</li>
-        <li>@messages("ptap.support.uya.list.ni")</li>
-        <li>@messages("ptap.support.uya.list.cb")</li>
-    </ul>
-
-    @p(Text(messages("ptap.support.uya.p2.tasks.list.other")))
-
-    <ul class="govuk-list govuk-list--bullet" id="otherList">
-        <li>@messages("ptap.support.uya.list.uos")</li>
-        <li>@link(configDecorator.notifyChangeOfDetails, messageKey = "ptap.support.uya.list.circumstances.link", id = Some("notifyChangeOfDetailsLink"), inParagraph = true)</li>
-        <li>@messages("ptap.support.uya.list.bta")</li>
-    </ul>
-
-    @h3("ptap.support.uya.p3.sub")
-
-    @p(Text(messages("ptap.support.uya.p3.recent")))
-
-    @h3("ptap.support.uya.p4.sub")
+   
+    @h2("ptap.support.uya.p4.sub")
 
     @p(Text(messages("ptap.support.uya.p4.tab")))
 
-    @h3("ptap.support.uya.p5.sub")
+    @h2("ptap.support.uya.p2.sub")
+
+    @p(Text(messages("ptap.support.uya.p2.tasks")))
+
+    @h2("ptap.support.uya.p5.sub")
 
     @p(Text(messages("ptap.support.uya.p5.hs")))
 
-    @h3("ptap.support.uya.p6.sub")
+    @h2("ptap.support.uya.p6.sub")
 
     @p(Text(messages("ptap.support.uya.p6.hs")))
 }
