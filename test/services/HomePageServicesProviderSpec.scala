@@ -524,16 +524,15 @@ class HomePageServicesProviderSpec extends BaseSpec {
         Some(messages("label.trusted_helpers_content"))
     }
 
-    "set approved Self Assessment and MTD hints on the redesign" in {
+    "not set a hint on the standalone Self Assessment link but set the agreed MTD hint on the redesign" in {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")))
 
       val result = service.getHomePageServices(isRedesign = true).futureValue
 
-      result.myServices.find(_.title == "Self Assessment").flatMap(_.hintText) mustBe
-        Some(messages("label.view_and_manage_your_income_tax_obligations_and_payments"))
+      result.myServices.find(_.title == "Self Assessment").flatMap(_.hintText) mustBe None
       result.otherServices.find(_.title == messages("label.mtd_for_it")).flatMap(_.hintText) mustBe
-        Some(messages("label.view_and_manage_your_income_tax_obligations_and_payments"))
+        Some(messages("label.mtdit.p1"))
     }
 
     "not set hintText on services when isRedesign is false" in {

@@ -68,7 +68,7 @@ class HomePageServicesProvider @Inject() (
       payAsYouEarn        <- getPayAsYouEarn(isRedesign)
       taxCalc             <- getTaxCalculation(isTrustedHelperUser, isRedesign)
       nationalInsurance   <- getNationalInsurance(isRedesign)
-      selfAssessmentOther <- getOtherSelfAssessment(request.saUserType, isTrustedHelperUser, isRedesign)
+      selfAssessmentOther <- getOtherSelfAssessment(request.saUserType, isTrustedHelperUser)
       mtdOther            <- getMtdOtherService(isTrustedHelperUser, isRedesign)
       childBenefit        <- getChildBenefit(isTrustedHelperUser, isRedesign)
       annualTaxSummary    <- getAnnualTaxSummaries(isTrustedHelperUser, isRedesign)
@@ -101,28 +101,23 @@ class HomePageServicesProvider @Inject() (
       id = Some("itsa")
     )
 
-  private def mySaTile(href: String, body: String, isRedesign: Boolean)(implicit messages: Messages): MyService =
+  private def mySaTile(href: String, body: String)(implicit messages: Messages): MyService =
     MyService(
       messages("label.self_assessment"),
       Some(href),
-      Option(body)
-        .filter(_.nonEmpty)
-        .orElse(redesignHint(isRedesign, "label.view_and_manage_your_income_tax_obligations_and_payments")),
+      Option(body).filter(_.nonEmpty),
       gaAction = Some("Income"),
       gaLabel = Some("Self Assessment"),
       id = Some("self-assessment")
     )
 
-  private def otherSaTile(title: String, linkUrl: String, isRedesign: Boolean)(implicit
-    messages: Messages
-  ): OtherService =
+  private def otherSaTile(title: String, linkUrl: String): OtherService =
     OtherService(
       title,
       linkUrl,
       gaAction = Some("Income"),
       gaLabel = Some("Self Assessment"),
-      id = Some("self-assessment"),
-      hintText = redesignHint(isRedesign, "label.view_and_manage_your_income_tax_obligations_and_payments")
+      id = Some("self-assessment")
     )
 
   private def mtdTile(linkUrl: String, isRedesign: Boolean)(implicit messages: Messages): OtherService =
@@ -132,7 +127,7 @@ class HomePageServicesProvider @Inject() (
       gaAction = Some("MTDIT"),
       gaLabel = Some("Making Tax Digital for Income Tax"),
       id = Some("mtdit"),
-      hintText = redesignHint(isRedesign, "label.view_and_manage_your_income_tax_obligations_and_payments")
+      hintText = redesignHint(isRedesign, "label.mtdit.p1")
     )
 
   private def getMySelfAssessment(
@@ -168,8 +163,7 @@ class HomePageServicesProvider @Inject() (
             Some(
               mySaTile(
                 href = controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url,
-                body = "",
-                isRedesign = isRedesign
+                body = ""
               )
             )
 
@@ -177,8 +171,7 @@ class HomePageServicesProvider @Inject() (
             Some(
               mySaTile(
                 href = controllers.routes.SaWrongCredentialsController.landingPage().url,
-                body = messages("title.signed_in_wrong_account.h1"),
-                isRedesign = isRedesign
+                body = messages("title.signed_in_wrong_account.h1")
               )
             )
 
@@ -190,8 +183,7 @@ class HomePageServicesProvider @Inject() (
 
   private def getOtherSelfAssessment(
     saUserType: SelfAssessmentUserType,
-    isTrustedHelperUser: Boolean,
-    isRedesign: Boolean
+    isTrustedHelperUser: Boolean
   )(implicit messages: Messages): Future[Option[OtherService]] =
     Future.successful {
       if (isTrustedHelperUser) {
@@ -202,8 +194,7 @@ class HomePageServicesProvider @Inject() (
             Some(
               otherSaTile(
                 title = messages("label.self_assessment"),
-                linkUrl = controllers.routes.SelfAssessmentController.requestAccess.url,
-                isRedesign = isRedesign
+                linkUrl = controllers.routes.SelfAssessmentController.requestAccess.url
               )
             )
 
@@ -211,8 +202,7 @@ class HomePageServicesProvider @Inject() (
             Some(
               otherSaTile(
                 title = messages("label.self_assessment"),
-                linkUrl = configDecorator.ssoToActivateSaEnrolmentPinUrl,
-                isRedesign = isRedesign
+                linkUrl = configDecorator.ssoToActivateSaEnrolmentPinUrl
               )
             )
 
