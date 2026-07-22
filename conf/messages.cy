@@ -824,6 +824,7 @@ label.view_and_manage_your_income_tax_obligations_and_payments=Bwrw golwg dros a
 label.mtd_for_it_sa=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.send_updates_sole_traders=Ar gyfer unig fasnachwyr a landlordiaid sy’n anfon diweddariadau chwarterol gan ddefnyddio meddalwedd.
 label.view_manage_your_mtd_for_it=Bwrw golwg dros y cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli
+label.view_manage_your_mtd_it=TBC
 label.it_header=Treth Incwm
 label.online_deadline_tax_returns=Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth yw 31 Ionawr {0}.
 
