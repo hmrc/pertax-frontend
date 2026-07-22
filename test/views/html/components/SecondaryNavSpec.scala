@@ -16,10 +16,15 @@
 
 package views.html.components
 
-import org.jsoup.nodes.Document
+import models.admin.PtapActivityTabToggle
+import org.mockito.Mockito.when
 import org.scalatest.matchers.must.Matchers
-import views.html.ViewSpec
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
+import viewmodels.TabEnum.*
 import viewmodels.{SecondaryNavModel, TabModel}
+import views.html.ViewSpec
+
+import scala.concurrent.Future
 
 class SecondaryNavSpec extends ViewSpec with Matchers {
 
@@ -131,8 +136,8 @@ class SecondaryNavSpec extends ViewSpec with Matchers {
 
       val doc = asDocument(views.html.components.SecondaryNav(model).toString)
 
-      doc.select(".x-govuk-secondary-navigation__badge").size() mustBe 1
-      doc.select(".x-govuk-secondary-navigation__badge").text() mustBe "1"
+      doc.select(".hmrc-notification-badge").size() mustBe 1
+      doc.select(".hmrc-notification-badge").text() mustBe "1"
     }
 
     "not display notification count when not present" in {
@@ -146,7 +151,7 @@ class SecondaryNavSpec extends ViewSpec with Matchers {
 
       val doc = asDocument(views.html.components.SecondaryNav(model).toString)
 
-      doc.select(".x-govuk-secondary-navigation__badge").size() mustBe 0
+      doc.select(".hmrc-notification-badge").size() mustBe 0
     }
 
     "style notification count with correct CSS class" in {
@@ -158,8 +163,8 @@ class SecondaryNavSpec extends ViewSpec with Matchers {
 
       val doc = asDocument(views.html.components.SecondaryNav(model).toString)
 
-      val notificationCount = doc.select(".x-govuk-secondary-navigation__badge").first()
-      notificationCount.hasClass("x-govuk-secondary-navigation__badge") mustBe true
+      val notificationCount = doc.select(".hmrc-notification-badge").first()
+      notificationCount.hasClass("hmrc-notification-badge") mustBe true
     }
 
     "notification badge displays the count correctly" in {
@@ -171,7 +176,7 @@ class SecondaryNavSpec extends ViewSpec with Matchers {
 
       val doc = asDocument(views.html.components.SecondaryNav(model).toString)
 
-      val notificationCount = doc.select(".x-govuk-secondary-navigation__badge").first()
+      val notificationCount = doc.select(".hmrc-notification-badge").first()
       notificationCount.text() mustBe "5"
     }
 
@@ -279,7 +284,48 @@ class SecondaryNavSpec extends ViewSpec with Matchers {
 
       val doc = asDocument(views.html.components.SecondaryNav(model).toString)
 
-      doc.select(".x-govuk-secondary-navigation__badge").size() mustBe 2
+      doc.select(".hmrc-notification-badge").size() mustBe 2
+    }
+
+    "render the Activity tab link when PtapActivityTabToggle is enabled" in {
+      when(mockFeatureFlagService.get(PtapActivityTabToggle))
+        .thenReturn(Future.successful(FeatureFlag(PtapActivityTabToggle, isEnabled = true)))
+
+      val model = SecondaryNavModel(
+        classes = Some("govuk-!-margin-bottom-6"),
+        items = Seq(
+          TabModel(text = "Your tasks", href = Task.href(), current = true),
+          TabModel(text = "Recent activity", href = Activity.href()),
+          TabModel(text = "Taxes and benefits", href = Tax.href()),
+          TabModel(text = "HMRC news", href = News.href()),
+          TabModel(text = "Support", href = Support.href())
+        )
+      )
+
+      val doc = asDocument(views.html.components.SecondaryNav(model).toString)
+
+      doc.select("li.x-govuk-secondary-navigation__list-item").size() mustBe 5
+      doc.select(s"a[href='${Activity.href()}']").size() mustBe 1
+    }
+
+    "not render the Activity tab link when PtapActivityTabToggle is disabled" in {
+      when(mockFeatureFlagService.get(PtapActivityTabToggle))
+        .thenReturn(Future.successful(FeatureFlag(PtapActivityTabToggle, isEnabled = false)))
+
+      val model = SecondaryNavModel(
+        classes = Some("govuk-!-margin-bottom-6"),
+        items = Seq(
+          TabModel(text = "Your tasks", href = Task.href(), current = true),
+          TabModel(text = "Taxes and benefits", href = Tax.href()),
+          TabModel(text = "HMRC news", href = News.href()),
+          TabModel(text = "Support", href = Support.href())
+        )
+      )
+
+      val doc = asDocument(views.html.components.SecondaryNav(model).toString)
+
+      doc.select("li.x-govuk-secondary-navigation__list-item").size() mustBe 4
+      doc.select(s"a[href='${Activity.href()}']").size() mustBe 0
     }
   }
 }

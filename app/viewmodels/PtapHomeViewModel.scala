@@ -31,8 +31,8 @@ enum TabEnum(val name: String):
   def href(ptap: Option[String] = None): String                              = {
     val queryString = ptap.fold("")(v => s"?ptap=$v")
     this match {
-      case Task => s"/personal-account$queryString"
-      case tab  => s"/personal-account/${tab.name}$queryString"
+      case Tax => s"/personal-account$queryString"
+      case tab => s"/personal-account/${tab.name}$queryString"
     }
   }
   def defaultInset(query: Option[String])(implicit messages: Messages): Html =

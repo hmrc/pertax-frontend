@@ -19,6 +19,7 @@ package views.html
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.bindable.Origin
+import models.admin.PtapActivityTabToggle
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentMatchers.any
@@ -32,10 +33,11 @@ import repositories.JourneyCacheRepository
 import testUtils.HmrcCardModelFixtures
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.domain.SaUtrGenerator
-import viewmodels.{CardContainerModel, PtapAlertBanner, PtapHomeViewModel, SecondaryNavModel, TabEnum, TabModel}
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
+import viewmodels.{CardContainerModel, PtapAlertBanner, PtapHomeViewModel, SecondaryNavModel, TabModel}
 import viewmodels.TabEnum.*
 
-import scala.jdk.CollectionConverters.*
+import scala.concurrent.Future
 
 class PtapHomeViewSpec extends ViewSpec {
 
@@ -71,11 +73,10 @@ class PtapHomeViewSpec extends ViewSpec {
   private val defaultSecondaryNav = SecondaryNavModel(
     classes = Some("govuk-!-margin-bottom-6"),
     items = Seq(
-      TabModel(text = "Your tasks", href = Task.href(Some("true")), current = true, notificationCount = Some(2)),
-      TabModel(text = "Recent activity", href = Activity.href(Some("true")), current = false),
-      TabModel(text = "Taxes and benefits", href = Tax.href(Some("true")), current = false),
-      TabModel(text = "HMRC news", href = News.href(Some("true")), current = false),
-      TabModel(text = "Support", href = Support.href(Some("true")), current = false)
+      TabModel(text = "Your tasks", href = Task.href(Some("?ptap=true")), notificationCount = Some(2)),
+      TabModel(text = "Taxes and benefits", href = Tax.href(Some("?ptap=true")), current = true),
+      TabModel(text = "HMRC news", href = News.href(Some("?ptap=true"))),
+      TabModel(text = "Support", href = Support.href(Some("?ptap=true")))
     )
   )
 
@@ -198,10 +199,9 @@ class PtapHomeViewSpec extends ViewSpec {
 
       doc.select("nav.x-govuk-secondary-navigation").size mustBe 1
       doc.select("ul.x-govuk-secondary-navigation__list").size mustBe 1
-      doc.select("a.x-govuk-secondary-navigation__link").size mustBe 5
+      doc.select("a.x-govuk-secondary-navigation__link").size mustBe 4
 
       doc.select("a[href=/personal-account].x-govuk-secondary-navigation__link")                    must not be null
-      doc.select("a[href=/personal-account/recent-activity].x-govuk-secondary-navigation__link")    must not be null
       doc.select("a[href=/personal-account/taxes-and-benefits].x-govuk-secondary-navigation__link") must not be null
       doc.select("a[href=/personal-account/hmrc-news].x-govuk-secondary-navigation__link")          must not be null
       doc.select("a[href=/personal-account/support].x-govuk-secondary-navigation__link")            must not be null
@@ -226,11 +226,13 @@ class PtapHomeViewSpec extends ViewSpec {
     "render the task count badge on the tasks tab nav item" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val doc                                                       = asDocument(home(homeViewModel).toString)
-      doc.select(".x-govuk-secondary-navigation__badge").text() mustBe "2"
+      doc.select(".hmrc-notification-badge").text() mustBe "2"
     }
 
     "render Activity cards without a duplicate visible heading" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      when(mockFeatureFlagService.get(PtapActivityTabToggle))
+        .thenReturn(Future.successful(FeatureFlag(PtapActivityTabToggle, isEnabled = true)))
       val activityNav                                               = defaultSecondaryNav.copy(
         items = defaultSecondaryNav.items.map(i => i.copy(current = i.href == Activity.href()))
       )
@@ -339,18 +341,22 @@ class PtapHomeViewSpec extends ViewSpec {
     }
     "show the default inset text when the Recent activity tab is selected and there are no cards to load." in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val activityNav                                               = defaultSecondaryNav.copy(
+
+      when(mockFeatureFlagService.get(PtapActivityTabToggle))
+        .thenReturn(Future.successful(FeatureFlag(PtapActivityTabToggle, isEnabled = true)))
+
+      val activityNav      = defaultSecondaryNav.copy(
         items = defaultSecondaryNav.items.map(i => i.copy(current = i.href == Activity.href()))
       )
-      val viewModel                                                 = homeViewModel.copy(secondaryNav = activityNav, tabContent = List(activityTabContent()))
-      val doc                                                       = asDocument(home(viewModel).toString)
-      val placeholder_text                                          = doc
+      val viewModel        = homeViewModel.copy(secondaryNav = activityNav, tabContent = List(activityTabContent()))
+      val doc              = asDocument(home(viewModel).toString)
+      val placeholder_text = doc
         .select("div.govuk-grid-column-two-thirds")
         .select("div.govuk-inset-text")
       placeholder_text.size mustBe 1
       placeholder_text.select("p.govuk-body").size mustBe 2
-      val first_line                                                = placeholder_text.select("p.govuk-body").asList().get(0)
-      val second_line                                               = placeholder_text.select("p.govuk-body").asList().get(1)
+      val first_line       = placeholder_text.select("p.govuk-body").asList().get(0)
+      val second_line      = placeholder_text.select("p.govuk-body").asList().get(1)
       first_line.text() mustBe "This page shows your recent activity."
       second_line
         .text() mustBe "Check Your tasks for anything you need to do."
