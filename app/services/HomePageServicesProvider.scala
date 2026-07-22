@@ -185,7 +185,6 @@ class HomePageServicesProvider @Inject() (
       }
     }
 
-  // TODO:This or the MTD one
   private def getOtherSelfAssessment(
     saUserType: SelfAssessmentUserType,
     isTrustedHelperUser: Boolean
