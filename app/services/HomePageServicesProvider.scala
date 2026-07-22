@@ -198,7 +198,7 @@ class HomePageServicesProvider @Inject() (
             Some(
               otherSaTile(
                 title = messages("label.self_assessment"),
-                linkUrl = controllers.routes.SelfAssessmentController.requestAccess.url,
+                linkUrl = controllers.routes.SelfAssessmentController.redirectToEnrolForSa.url,
                 hint = Some(messages("label.request_access_to_your_sa"))
               )
             )

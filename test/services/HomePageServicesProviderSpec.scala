@@ -269,7 +269,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       result.otherServices           must contain(
         OtherService(
           "Self Assessment",
-          controllers.routes.SelfAssessmentController.requestAccess.url,
+          controllers.routes.SelfAssessmentController.redirectToEnrolForSa.url,
           Map(),
           Some("Income"),
           Some("Self Assessment"),
