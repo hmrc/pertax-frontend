@@ -40,8 +40,8 @@ class HomePageServicesProvider @Inject() (
 
   private val MtdItsaEnrolmentKey = "HMRC-MTD-IT"
 
-  private def redesignHint(isRedesign: Boolean, key: String)(implicit messages: Messages): Option[String] =
-    Option.when(isRedesign)(messages(key))
+  private def redesignHint(isRedesign: Boolean, hint: String): Option[String] =
+    Option.when(isRedesign)(hint)
 
   private def nationalInsuranceHint(isRedesign: Boolean)(implicit messages: Messages): Option[String] =
     Option.when(isRedesign)(s"${messages("label.view_national_insurance")} ${messages("label.view_state_pension")}")
@@ -95,7 +95,10 @@ class HomePageServicesProvider @Inject() (
     MyService(
       messages("label.mtd_for_itsa"),
       Some(href),
-      redesignHint(isRedesign, "label.view_and_manage_your_income_tax_obligations_and_payments"),
+      redesignHint(
+        isRedesign,
+        s"${messages("label.view_manage_your_mtd_it")} ${messages("label.online_deadline_tax_returns", (current.currentYear + 1).toString)}"
+      ),
       gaAction = Some("Income"),
       gaLabel = Some("MTD IT & SA"),
       id = Some("itsa")
@@ -111,13 +114,14 @@ class HomePageServicesProvider @Inject() (
       id = Some("self-assessment")
     )
 
-  private def otherSaTile(title: String, linkUrl: String): OtherService =
+  private def otherSaTile(title: String, linkUrl: String, hint: Option[String]): OtherService =
     OtherService(
       title,
       linkUrl,
       gaAction = Some("Income"),
       gaLabel = Some("Self Assessment"),
-      id = Some("self-assessment")
+      id = Some("self-assessment"),
+      hintText = hint
     )
 
   private def mtdTile(linkUrl: String, isRedesign: Boolean)(implicit messages: Messages): OtherService =
@@ -127,7 +131,7 @@ class HomePageServicesProvider @Inject() (
       gaAction = Some("MTDIT"),
       gaLabel = Some("Making Tax Digital for Income Tax"),
       id = Some("mtdit"),
-      hintText = redesignHint(isRedesign, "label.mtdit.p1")
+      hintText = redesignHint(isRedesign, messages("label.mtdit.p1"))
     )
 
   private def getMySelfAssessment(
@@ -143,7 +147,7 @@ class HomePageServicesProvider @Inject() (
         val hasMtdItsa = userHasMtdItsaEnrolment(enrolments)
 
         (saUserType, hasMtdItsa) match {
-          case (_: ActivatedOnlineFilerSelfAssessmentUser, true) =>
+          case (ActivatedOnlineFilerSelfAssessmentUser(_), true) =>
             Some(
               combinedMtdSaTile(
                 href = controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url,
@@ -159,11 +163,11 @@ class HomePageServicesProvider @Inject() (
               )
             )
 
-          case (_: ActivatedOnlineFilerSelfAssessmentUser, false) =>
+          case (ActivatedOnlineFilerSelfAssessmentUser(_), false) =>
             Some(
               mySaTile(
                 href = controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url,
-                body = ""
+                body = messages("label.viewAndManageSA", (current.currentYear + 1).toString)
               )
             )
 
@@ -194,7 +198,8 @@ class HomePageServicesProvider @Inject() (
             Some(
               otherSaTile(
                 title = messages("label.self_assessment"),
-                linkUrl = controllers.routes.SelfAssessmentController.requestAccess.url
+                linkUrl = controllers.routes.SelfAssessmentController.requestAccess.url,
+                hint = Some(messages("label.request_access_to_your_sa"))
               )
             )
 
@@ -202,7 +207,8 @@ class HomePageServicesProvider @Inject() (
             Some(
               otherSaTile(
                 title = messages("label.self_assessment"),
-                linkUrl = configDecorator.ssoToActivateSaEnrolmentPinUrl
+                linkUrl = configDecorator.ssoToActivateSaEnrolmentPinUrl,
+                hint = Some(messages("label.activate_your_self_assessment"))
               )
             )
 
@@ -241,7 +247,7 @@ class HomePageServicesProvider @Inject() (
         MyService(
           messages("label.pay_as_you_earn_paye"),
           Some(controllers.routes.RedirectToPayeController.redirectToPaye.url),
-          redesignHint(isRedesign, "label.your_income_from_employers_and_private_pensions_"),
+          redesignHint(isRedesign, messages("label.your_income_from_employers_and_private_pensions_")),
           gaAction = Some("Income"),
           gaLabel = Some("Pay As You Earn (PAYE)"),
           id = Some("paye")
@@ -267,7 +273,7 @@ class HomePageServicesProvider @Inject() (
               Some(configDecorator.taxCalcHomePageUrl),
               redesignHint(
                 isRedesign,
-                "label.check_whether_you_paid_too_much_or_too_little_tax_in_a_previous_tax_year"
+                messages("label.check_whether_you_paid_too_much_or_too_little_tax_in_a_previous_tax_year")
               ),
               gaAction = Some("Income"),
               gaLabel = Some("Tax Calculation"),
@@ -308,7 +314,7 @@ class HomePageServicesProvider @Inject() (
             gaAction = Some("Benefits"),
             gaLabel = Some("Child Benefit"),
             id = Some("child-benefit"),
-            hintText = redesignHint(isRedesign, "label.get_help_with_the_cost_of_bringing_up_children")
+            hintText = redesignHint(isRedesign, messages("label.get_help_with_the_cost_of_bringing_up_children"))
           )
         )
       }
@@ -328,7 +334,7 @@ class HomePageServicesProvider @Inject() (
             gaAction = Some("Tax Summaries"),
             gaLabel = Some("Annual Tax Summary"),
             id = Some("tax-summary"),
-            hintText = redesignHint(isRedesign, "card.ats.text")
+            hintText = redesignHint(isRedesign, messages("card.ats.text"))
           )
         )
       }
@@ -370,7 +376,8 @@ class HomePageServicesProvider @Inject() (
             gaAction = Some("Benefits"),
             gaLabel = Some("Marriage Allowance"),
             id = Some("marriage-allowance"),
-            hintText = redesignHint(isRedesign, "label.transfer_part_of_your_personal_allowance_to_your_partner_")
+            hintText =
+              redesignHint(isRedesign, messages("label.transfer_part_of_your_personal_allowance_to_your_partner_"))
           )
         )
     }
@@ -383,7 +390,7 @@ class HomePageServicesProvider @Inject() (
         MyService(
           messages("label.trusted_helpers_heading"),
           Some(configDecorator.manageTrustedHelpersUrl),
-          redesignHint(isRedesign, "label.trusted_helpers_content"),
+          redesignHint(isRedesign, messages("label.trusted_helpers_content")),
           gaAction = Some("Account"),
           gaLabel = Some("Trusted helpers"),
           id = Some("trusted-helper")
@@ -397,7 +404,7 @@ class HomePageServicesProvider @Inject() (
           gaAction = Some("Account"),
           gaLabel = Some("Trusted helpers"),
           id = Some("trusted-helper"),
-          hintText = redesignHint(isRedesign, "label.trusted_helpers_content")
+          hintText = redesignHint(isRedesign, messages("label.trusted_helpers_content"))
         )
       )
     }
