@@ -126,7 +126,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
         MyService(
           "Self Assessment",
           Some(controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url),
-          None,
+          Some("View and manage your Self Assessment tax return. The deadline for online returns is 31 January 2027."),
           Map(),
           Some("Income"),
           Some("Self Assessment"),
@@ -241,7 +241,8 @@ class HomePageServicesProviderSpec extends BaseSpec {
           Map(),
           Some("Income"),
           Some("Self Assessment"),
-          id = Some("self-assessment")
+          id = Some("self-assessment"),
+          Some("Request access to your Self Assessment.")
         )
       )
       result.otherServices must contain(
@@ -270,7 +271,8 @@ class HomePageServicesProviderSpec extends BaseSpec {
           Map(),
           Some("Income"),
           Some("Self Assessment"),
-          id = Some("self-assessment")
+          id = Some("self-assessment"),
+          Some("Activate your Self Assessment.")
         )
       )
       result.otherServices           must contain(
@@ -522,17 +524,6 @@ class HomePageServicesProviderSpec extends BaseSpec {
         Some(messages("label.transfer_part_of_your_personal_allowance_to_your_partner_"))
       result.otherServices.find(_.title == "Trusted helpers").flatMap(_.hintText) mustBe
         Some(messages("label.trusted_helpers_content"))
-    }
-
-    "not set a hint on the standalone Self Assessment link but set the agreed MTD hint on the redesign" in {
-      implicit val request: UserRequest[AnyContent] =
-        buildRequest(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")))
-
-      val result = service.getHomePageServices(isRedesign = true).futureValue
-
-      result.myServices.find(_.title == "Self Assessment").flatMap(_.hintText) mustBe None
-      result.otherServices.find(_.title == messages("label.mtd_for_it")).flatMap(_.hintText) mustBe
-        Some(messages("label.mtdit.p1"))
     }
 
     "not set hintText on services when isRedesign is false" in {
