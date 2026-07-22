@@ -126,7 +126,9 @@ class HomePageServicesProviderSpec extends BaseSpec {
         MyService(
           "Self Assessment",
           Some(controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url),
-          Some("View and manage your Self Assessment tax return. The deadline for online returns is 31 January 2027."),
+          Some(
+            s"View and manage your Self Assessment tax return. The deadline for online returns is 31 January ${TaxYear.current.startYear + 1}."
+          ),
           Map(),
           Some("Income"),
           Some("Self Assessment"),
@@ -242,7 +244,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
           Some("Income"),
           Some("Self Assessment"),
           id = Some("self-assessment"),
-          Some("Request access to your Self Assessment.")
+          Some("Activate your Self Assessment.")
         )
       )
       result.otherServices must contain(
@@ -272,7 +274,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
           Some("Income"),
           Some("Self Assessment"),
           id = Some("self-assessment"),
-          Some("Activate your Self Assessment.")
+          Some("Request access to your Self Assessment.")
         )
       )
       result.otherServices           must contain(

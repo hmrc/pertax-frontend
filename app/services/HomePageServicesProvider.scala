@@ -199,7 +199,7 @@ class HomePageServicesProvider @Inject() (
               otherSaTile(
                 title = messages("label.self_assessment"),
                 linkUrl = controllers.routes.SelfAssessmentController.requestAccess.url,
-                hint = Some(messages("label.activate_your_self_assessment"))
+                hint = Some(messages("label.request_access_to_your_sa"))
               )
             )
 
@@ -208,7 +208,7 @@ class HomePageServicesProvider @Inject() (
               otherSaTile(
                 title = messages("label.self_assessment"),
                 linkUrl = configDecorator.ssoToActivateSaEnrolmentPinUrl,
-                hint = Some(messages("label.request_access_to_your_sa"))
+                hint = Some(messages("label.activate_your_self_assessment"))
               )
             )
 
