@@ -38,7 +38,7 @@
             <a class="x-govuk-secondary-navigation__link" href="@item.href" @if(item.current) { aria-current="page" }>
               @item.text
               @item.notificationCount.map { count =>
-                <span class="x-govuk-secondary-navigation__badge">@count</span>
+                <span class="hmrc-notification-badge">@count</span>
               }
             </a>
           </li>

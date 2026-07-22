@@ -54,10 +54,10 @@
     @cardContainer(CardContainerModel(
         header = Some(messages("label.taxes_and_benefits_subheading")),
         headerId = Some("my-services-heading"),
+        defaultInset = HtmlFormat.empty,
         headingLevel = "h3",
         cardHeadingLevel = "h4",
         headerClasses = Some("govuk-heading-s"),
-        emptyView = HtmlFormat.empty,
         cards = myServiceCards
     ))
 }
@@ -66,10 +66,10 @@
     @cardContainer(CardContainerModel(
         header = Some(messages("label.other_taxes_and_benefits_heading")),
         headerId = Some("other-services-heading"),
+        defaultInset = HtmlFormat.empty,
         headingLevel = "h3",
         cardHeadingLevel = "h4",
         headerClasses = Some("govuk-heading-s govuk-!-margin-top-5"),
-        emptyView = HtmlFormat.empty,
         cards = otherServiceCards
     ))
 }

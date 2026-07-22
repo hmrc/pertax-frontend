@@ -500,7 +500,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       result.myServices.map(_.title) must not contain "Trusted helpers"
     }
 
-    "set hintText on services when isRedesign is true" in {
+    "set approved existing hintText on services when isRedesign is true" in {
       implicit val request: UserRequest[AnyContent] = buildRequest()
 
       when(mockFeatureFlagService.get(eqTo(ShowTaxCalcTileToggle)))

@@ -23,8 +23,8 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import error.ErrorRenderer
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
-import models.admin.HomePagePersonalisationToggle
 import models.{HomePageServices, SelfAssessmentUser}
+import models.admin.{HomePagePersonalisationToggle, PtapActivityTabToggle}
 import play.api.i18n.Messages
 import play.api.mvc.*
 import play.twirl.api.Html
@@ -106,6 +106,7 @@ class HomeController @Inject() (
         val fHomePageServices        =
           if (currentTab == Tax) homePageServicesProvider.getHomePageServices(isRedesign = true)
           else Future.successful(HomePageServices(Seq.empty))
+        val fActivityTabEnabled      = featureFlagService.get(PtapActivityTabToggle).map(_.isEnabled)
 
         for {
           breathingSpaceIndicator <- fBreathingSpaceIndicator
@@ -113,20 +114,25 @@ class HomeController @Inject() (
           alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten)
           tabContentCards         <- fTabContentCards
           homePageServices        <- fHomePageServices
+          activityTabEnabled      <- fActivityTabEnabled
         } yield {
           val personDetailsOpt = eitherPersonDetails.toOption.flatten
           val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
 
           val taskCount    = tabContentCards.taskCount
-          val secondaryNav = buildSecondaryNav(currentTab, taskCount)
-          val tabContent   = currentTab.cardContainerHeading.map { heading =>
-            CardContainerModel(
-              emptyView = currentTab.empty(),
-              header = Some(heading),
-              cards = tabContentCards.tabCards,
-              headerId = Some("tab-content-header")
-            )
-          }.toList
+          val secondaryNav = buildSecondaryNav(currentTab, taskCount, activityTabEnabled)
+          val tabContent   = currentTab match {
+            case Task | Activity =>
+              List(
+                CardContainerModel(
+                  defaultInset = currentTab.defaultInset(ptapParam),
+                  cards = tabContentCards.tabCards,
+                  cardHeadingLevel = "h2",
+                  listAriaLabel = secondaryNav.items.find(_.current).map(_.text)
+                )
+              )
+            case _               => List.empty
+          }
 
           Ok(
             pTapHomeView(
@@ -141,6 +147,7 @@ class HomeController @Inject() (
                 showNewsAndUpdatesView = currentTab == News,
                 showSupportView = currentTab == Support,
                 showTaxesAndBenefitsView = currentTab == Tax,
+                showTaskCompletedMessage = currentTab == Task && tabContentCards.tabCards.nonEmpty,
                 myServices = homePageServices.myServices,
                 otherServices = homePageServices.otherServices
               )
@@ -150,40 +157,51 @@ class HomeController @Inject() (
       }
     }
 
-  private def buildSecondaryNav(currentTab: TabEnum, taskCount: Int)(implicit
+  private def buildSecondaryNav(currentTab: TabEnum, taskCount: Int, showActivityTab: Boolean)(implicit
     messages: Messages,
     request: UserRequest[AnyContent]
   ): SecondaryNavModel =
+    val activityTabItem = Option.when(showActivityTab)(
+      TabModel(
+        text = messages("ptap.support.uya.p3.sub"),
+        href = Activity.href(ptapParam),
+        current = currentTab == Activity
+      )
+    )
     SecondaryNavModel(
       classes = Some("govuk-!-margin-bottom-6"),
       items = Seq(
-        TabModel(
-          text = messages("ptap.support.uya.p2.sub"),
-          href = Task.href(ptapParam),
-          current = currentTab == Task,
-          notificationCount = if (taskCount > 0) Some(taskCount) else None
+        Some(
+          TabModel(
+            text = messages("ptap.support.uya.p4.sub"),
+            href = Tax.href(ptapParam),
+            current = currentTab == Tax
+          )
         ),
-        TabModel(
-          text = messages("ptap.support.uya.p3.sub"),
-          href = Activity.href(ptapParam),
-          current = currentTab == Activity
+        Some(
+          TabModel(
+            text = messages("ptap.support.uya.p2.sub"),
+            href = Task.href(ptapParam),
+            current = currentTab == Task,
+            notificationCount = if (taskCount > 0) Some(taskCount) else None
+          )
         ),
-        TabModel(
-          text = messages("ptap.support.uya.p4.sub"),
-          href = Tax.href(ptapParam),
-          current = currentTab == Tax
+        activityTabItem,
+        Some(
+          TabModel(
+            text = messages("ptap.support.uya.p5.sub"),
+            href = News.href(ptapParam),
+            current = currentTab == News
+          )
         ),
-        TabModel(
-          text = messages("ptap.support.uya.p5.sub"),
-          href = News.href(ptapParam),
-          current = currentTab == News
-        ),
-        TabModel(
-          text = messages("ptap.support.uya.p6.sub"),
-          href = Support.href(ptapParam),
-          current = currentTab == Support
+        Some(
+          TabModel(
+            text = messages("ptap.support.uya.p6.sub"),
+            href = Support.href(ptapParam),
+            current = currentTab == Support
+          )
         )
-      )
+      ).flatten
     )
 
   private def newHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
@@ -232,7 +250,7 @@ class HomeController @Inject() (
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     isPersonalisationEnabledAndNinoEligible.flatMap {
-      case true  => personalisationHomePageTab(Task.name)
+      case true  => personalisationHomePageTab(Tax.name)
       case false => newHomePage
     }
   }

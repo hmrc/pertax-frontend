@@ -21,22 +21,27 @@ import views.html.components.TabDefaultInsetText
 import play.api.i18n.Messages
 import play.twirl.api.Html
 
-enum TabEnum(val name: String, val cardContainerHeading: Option[String] = None):
-  case Task extends TabEnum("your-tasks", Some("Your tasks"))
-  case Activity extends TabEnum("recent-activity", Some("Recent activity"))
+enum TabEnum(val name: String):
+  case Task extends TabEnum("your-tasks")
+  case Activity extends TabEnum("recent-activity")
   case Tax extends TabEnum("taxes-and-benefits")
   case News extends TabEnum("hmrc-news")
   case Support extends TabEnum("support")
 
-  def href(ptap: Option[String] = None): String  = {
+  def href(ptap: Option[String] = None): String                              = {
     val queryString = ptap.fold("")(v => s"?ptap=$v")
     this match {
-      case Task => s"/personal-account$queryString"
-      case tab  => s"/personal-account/${tab.name}$queryString"
+      case Tax => s"/personal-account$queryString"
+      case tab => s"/personal-account/${tab.name}$queryString"
     }
   }
-  def empty()(implicit messages: Messages): Html =
-    TabDefaultInsetText(this)
+  def defaultInset(query: Option[String])(implicit messages: Messages): Html =
+    TabDefaultInsetText(this, query)
+  def cardContainerHeading(implicit messages: Messages): Option[String]      =
+    this match
+      case Task     => Some(messages("ptap.support.uya.p2.sub"))
+      case Activity => Some(messages("ptap.support.uya.p3.sub"))
+      case _        => None
 
 final case class PtapAlertBanner(content: Html) extends AnyVal
 
@@ -51,6 +56,7 @@ final case class PtapHomeViewModel(
   showNewsAndUpdatesView: Boolean = false,
   showSupportView: Boolean = false,
   showTaxesAndBenefitsView: Boolean = false,
+  showTaskCompletedMessage: Boolean = false,
   myServices: Seq[MyService] = Seq.empty,
   otherServices: Seq[OtherService] = Seq.empty
 )

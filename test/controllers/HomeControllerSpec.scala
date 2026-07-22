@@ -22,7 +22,7 @@ import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
-import models.admin.{GetPersonFromCitizenDetailsToggle, HomePagePersonalisationToggle, ShowPlannedOutageBannerToggle}
+import models.admin.{GetPersonFromCitizenDetailsToggle, HomePagePersonalisationToggle, PtapActivityTabToggle, ShowPlannedOutageBannerToggle}
 import models.{BreathingSpaceIndicatorResponse, HomePageServices, MyService, OtherService}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.{any, anyBoolean}
@@ -66,6 +66,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
   val mockTabContentService: TabContentService               = mock[TabContentService]
   val mockConfigDecorator: ConfigDecorator                   = mock[ConfigDecorator]
   val mockCitizenDetailsService: CitizenDetailsService       = mock[CitizenDetailsService]
+
+  val taskCompletedMessage = "It can take up to 10 days for completed tasks to be removed from the list."
 
   lazy val appBuilder: GuiceApplicationBuilder =
     localGuiceApplicationBuilder()
@@ -132,6 +134,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
     when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
       .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = false)))
+
+    when(mockFeatureFlagService.get(PtapActivityTabToggle))
+      .thenReturn(Future.successful(FeatureFlag(PtapActivityTabToggle, isEnabled = false)))
 
     when(mockConfigDecorator.getFeedbackSurveyUrl(any()))
       .thenReturn("/personal-account/signed-out")
@@ -208,7 +213,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       content.getElementById("taxes-and-benefits-heading") must not be null
     }
 
-    "Render to the tasks tab without redirecting when HomePagePersonalisationToggle is true and ptap param is true" in {
+    "Render to the Taxes and benefits tab without redirecting when HomePagePersonalisationToggle is true and ptap param is true" in {
       val path    = "/personal-account?ptap=true"
       val request = FakeRequest("GET", path)
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
@@ -269,8 +274,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       content.getElementById("taxes-and-benefits-heading") must not be null
     }
 
-    "fetch tab content once for the default Task tab and derive badge count from task cards" in {
-      val path    = "/personal-account?ptap=true"
+    "fetch tab content once for Task tab and derive badge count from task cards" in {
+      val path    = "/personal-account/your-tasks?ptap=true"
       val request = FakeRequest("GET", path)
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
@@ -287,16 +292,20 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       val appLocal   = appBuilder.build()
       val controller = appLocal.injector.instanceOf[HomeController]
-      val result     = controller.index()(request)
+      val result     = controller.homePageTab("your-tasks")(request)
 
       status(result) mustBe OK
       verify(mockTabContentService).getTaskAndTabCards(any[TabEnum]())(any(), any())
 
       val content = Jsoup.parse(contentAsString(result))
-      content.select(".x-govuk-secondary-navigation__badge").text() mustBe "2"
-      content.getElementById("tab-content-header").text() mustBe "Your tasks"
+      content.select(".hmrc-notification-badge").text() mustBe "2"
+      content.getElementById("tab-content-header") mustBe null
+      content.select("ul.hmrc-card__container").attr("aria-label") mustBe "Your tasks"
+      content.select("h2.hmrc-card__heading").size() mustBe 2
       content.text() must include("You owe tax for 2023-24")
       content.text() must not include "Tax code change"
+
+      content.text() must include(taskCompletedMessage)
     }
 
     "fetch tab content once for the Activity tab and render only activity cards" in {
@@ -306,6 +315,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      when(mockFeatureFlagService.get(PtapActivityTabToggle))
+        .thenReturn(Future.successful(FeatureFlag(PtapActivityTabToggle, isEnabled = true)))
 
       when(mockTabContentService.getTaskAndTabCards(any[TabEnum]())(any(), any()))
         .thenReturn(
@@ -322,8 +334,10 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       verify(mockTabContentService).getTaskAndTabCards(any[TabEnum]())(any(), any())
 
       val content = Jsoup.parse(contentAsString(result))
-      content.select(".x-govuk-secondary-navigation__badge").text() mustBe "2"
-      content.getElementById("tab-content-header").text() mustBe "Recent activity"
+      content.select(".hmrc-notification-badge").text() mustBe "2"
+      content.getElementById("tab-content-header") mustBe null
+      content.select("ul.hmrc-card__container").attr("aria-label") mustBe "Recent activity"
+      content.select("h2.hmrc-card__heading").size() mustBe 2
       content.text() must include("Tax code change")
       content.text() must not include "You owe tax for 2023-24"
     }
@@ -351,7 +365,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       verify(mockTabContentService).getTaskAndTabCards(any[TabEnum]())(any(), any())
 
       val content = Jsoup.parse(contentAsString(result))
-      content.select(".x-govuk-secondary-navigation__badge").text() mustBe "2"
+      content.select(".hmrc-notification-badge").text() mustBe "2"
       content.getElementById("tab-content-header") mustBe null
       content.select(".hmrc-card").size() mustBe 0
       content.text() must not include "You owe tax for 2023-24"
