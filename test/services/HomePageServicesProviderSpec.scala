@@ -510,21 +510,29 @@ class HomePageServicesProviderSpec extends BaseSpec {
 
       result.myServices.find(_.title == "Pay As You Earn (PAYE)").flatMap(_.hintText) mustBe
         Some(messages("label.your_income_from_employers_and_private_pensions_"))
-      result.myServices.find(_.gaLabel.contains("Tax Calculation")).flatMap(_.hintText) mustBe
-        Some(messages("ptap.taxes-and-benefits.tax-calculation.hint"))
       result.myServices.find(_.title == "National Insurance and State Pension").flatMap(_.hintText) mustBe
         Some(s"${messages("label.view_state_pension")} ${messages("label.view_national_insurance")}")
-      result.otherServices.find(_.title == "Child Benefit").flatMap(_.hintText) mustBe
-        Some(messages("ptap.taxes-and-benefits.child-benefit.hint"))
       result.otherServices.find(_.title == "Annual Tax Summary").flatMap(_.hintText) mustBe
         Some(messages("card.ats.text"))
       result.otherServices.find(_.title == "Marriage Allowance").flatMap(_.hintText) mustBe
         Some(messages("label.transfer_part_of_your_personal_allowance_to_your_partner_"))
-      result.otherServices.find(_.title == "Trusted helpers").flatMap(_.hintText) mustBe
-        Some(messages("ptap.taxes-and-benefits.trusted-helpers.hint"))
     }
 
-    "use PTAD-specific Self Assessment and MTD message keys for redesign hints" in {
+    "not set hintText on out-of-scope services when isRedesign is true" in {
+      implicit val request: UserRequest[AnyContent] = buildRequest()
+
+      when(mockFeatureFlagService.get(eqTo(ShowTaxCalcTileToggle)))
+        .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
+
+      val result = service.getHomePageServices(isRedesign = true).futureValue
+
+      result.myServices.find(_.gaLabel.contains("Tax Calculation")).flatMap(_.hintText) mustBe None
+      result.otherServices.find(_.title == "Child Benefit").flatMap(_.hintText) mustBe None
+      result.otherServices.find(_.title == "Trusted helpers").flatMap(_.hintText) mustBe
+        None
+    }
+
+    "use PTAD-specific Self Assessment hint and leave MTD out of scope" in {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")))
 
@@ -533,7 +541,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       result.myServices.find(_.title == "Self Assessment").flatMap(_.hintText) mustBe
         Some(messages("ptap.taxes-and-benefits.self-assessment.hint"))
       result.otherServices.find(_.title == messages("label.mtd_for_it")).flatMap(_.hintText) mustBe
-        Some(messages("ptap.taxes-and-benefits.mtd.hint"))
+        None
     }
 
     "not set hintText on services when isRedesign is false" in {

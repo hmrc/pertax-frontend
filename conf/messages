@@ -415,7 +415,7 @@ label.account_home=Account home
 # Income
 title.income=Income
 label.pay_as_you_earn_paye=Pay As You Earn (PAYE)
-label.your_income_from_employers_and_private_pensions_=Check or update the employment, pension, company benefits or other income information used to work out your PAYE Income Tax and Tax Codes.
+label.your_income_from_employers_and_private_pensions_=Check or update the employment, pension, company benefits or other income information used to work out your PAYE Income Tax and tax codes.
 label.claim_your_tax_refund=Claim your tax refund
 label.find_out_why_you_paid_too_much=Find out why you paid too much
 label.find_out_why_you_paid_too_little=Find out why you paid too little
@@ -845,11 +845,7 @@ label.taxes_and_benefits_heading=Taxes and benefits
 label.taxes_and_benefits_subheading=Your current HMRC Online taxes and benefits
 label.other_taxes_and_benefits_heading=Other taxes and benefits that may be relevant to you
 
-ptap.taxes-and-benefits.tax-calculation.hint=Check if you have paid too much or too little tax.
 ptap.taxes-and-benefits.self-assessment.hint=View and manage your Self Assessment tax return.
-ptap.taxes-and-benefits.mtd.hint=Use Making Tax Digital for Income Tax to keep your records and submit updates to HMRC.
-ptap.taxes-and-benefits.child-benefit.hint=A payment to help with the cost of bringing up children.
-ptap.taxes-and-benefits.trusted-helpers.hint=Get help with your tax online from someone you trust, or help someone you know.
 
 label.tax_calc_option=Your tax calculation — PAYE {0} to {1}
 
