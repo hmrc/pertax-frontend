@@ -847,8 +847,6 @@ label.taxes_and_benefits_heading=Taxes and benefits
 label.taxes_and_benefits_subheading=Your current HMRC Online taxes and benefits
 label.other_taxes_and_benefits_heading=Other taxes and benefits that may be relevant to you
 
-ptap.taxes-and-benefits.self-assessment.hint=View and manage your Self Assessment tax return.
-
 label.tax_calc_option=Your tax calculation — PAYE {0} to {1}
 label.check_whether_you_paid_too_much_or_too_little_tax_in_a_previous_tax_year=Check whether you paid too much or too little tax in a previous tax year.
 

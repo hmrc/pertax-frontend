@@ -858,8 +858,6 @@ label.taxes_and_benefits_heading=Trethi a budd-daliadau
 label.taxes_and_benefits_subheading=Eich trethi a budd-daliadau CThEF ar-lein presennol
 label.other_taxes_and_benefits_heading=Trethi a budd-daliadau eraill a allai fod yn berthnasol i chi
 
-ptap.taxes-and-benefits.self-assessment.hint=Bwrw golwg dros eich Ffurflen Dreth Hunanasesiad a’i rheoli.
-
 label.tax_calc_option=Eich cyfrifiad treth – TWE {0} i {1}
 label.check_whether_you_paid_too_much_or_too_little_tax_in_a_previous_tax_year=Gwiriwch a wnaethoch dalu gormod neu rhy ychydig o dreth mewn blwyddyn dreth flaenorol.
 
