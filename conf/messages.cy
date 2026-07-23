@@ -892,7 +892,7 @@ ptap.recent-activity.container.default_text.p.line1=Mae’r dudalen hon yn dango
 ptap.recent-activity.container.default_text.p.line2.2=Eich tasgau
 ptap.recent-activity.container.default_text.p.line2.3=am unrhyw beth arall rydych am ei wybod.
 
-ptap.support.uya.title=TBC
+ptap.support.uya.title=Deall eich Cyfrif Treth Personol
 ptap.support.uya.p1=TBC
 
 ptap.support.uya.p2.header=TBC
@@ -911,7 +911,7 @@ ptap.support.uya.p4.tab=TBC
 ptap.support.uya.p5.sub=TBC
 ptap.support.uya.p5.hs=TBC
 
-ptap.support.uya.p6.sub=TBC
+ptap.support.uya.p6.sub=Cymorth
 ptap.support.uya.p6.hs=TBC
 
 ptap.support.uya.list.paye=TBC
@@ -925,16 +925,16 @@ ptap.support.uya.list.uos=TBC
 ptap.support.uya.list.circumstances.link=TBC
 ptap.support.uya.list.bta=TBC
 
-ptap.support.tab.card.hmrc.online.heading=TBC
-ptap.support.tab.card.paye.heading=TBC
-ptap.support.tab.card.self.assessment.heading=TBC
-ptap.support.tab.card.child.benefit.heading=TBC
-ptap.support.tab.card.mariage.allowance.heading=TBC
-ptap.support.tab.card.annual.tax.summary.heading=TBC
-ptap.support.tab.card.insurance.state.pension.heading=TBC
-ptap.support.tab.cards.header=TBC
+ptap.support.tab.card.pta.heading=Cyfrif Treth Personol
+ptap.support.tab.card.paye.heading=Talu Wrth Ennill (TWE)
+ptap.support.tab.card.self.assessment.heading=Hunanasesiad
+ptap.support.tab.card.child.benefit.heading=Budd-dal Plant
+ptap.support.tab.card.mariage.allowance.heading=Lwfans Priodasol
+ptap.support.tab.card.annual.tax.summary.heading=Crynodeb Treth Blynyddol
+ptap.support.tab.card.insurance.state.pension.heading=Yswiriant Gwladol a Phensiwn y Wladwriaeth 
+ptap.support.tab.cards.header=Cymorth
 
-ptap.support.tab.card.hmrc.online.link.understanding.account=Deall eich cyfrif ar-lein CThEF
+ptap.support.tab.card.hmrc.online.link.understanding.account=Deall eich Cyfrif Treth Personol
 ptap.support.tab.card.hmrc.online.link.understanding.account.url=https://www.gov.uk/mewngofnodi-cofrestru-gwasanaethau-ar-lein-cthef
 ptap.support.tab.card.hmrc.online.link.extra.support=Cael help gan CThEF os oes angen cymorth ychwanegol arnoch
 ptap.support.tab.card.hmrc.online.link.extra.support.url=https://www.gov.uk/cael-help-cthem-cymorth-ychwanegol
