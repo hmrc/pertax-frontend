@@ -923,7 +923,7 @@ ptap.support.tab.card.insurance.state.pension.heading=National Insurance and Sta
 ptap.support.tab.cards.header=Support
 
 ptap.support.tab.card.hmrc.online.link.understanding.account=Understanding your personal tax account
-ptap.support.tab.card.hmrc.online.link.understanding.account.url=/support/understanding-your-account
+ptap.support.tab.card.hmrc.online.link.understanding.account.url=/personal-account/support/understanding-your-account
 ptap.support.tab.card.hmrc.online.link.extra.support=Get help from HMRC if you need extra support
 ptap.support.tab.card.hmrc.online.link.extra.support.url=https://www.gov.uk/get-help-hmrc-extra-support
 ptap.support.tab.card.hmrc.online.link.technical.support=Technical support with HMRC online services
