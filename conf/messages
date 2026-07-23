@@ -205,7 +205,7 @@ label.you_cannot_view_your_self_assessment_information_here_=You cannot view you
 label.you_cannot_view_your_self_assessment_information_here_the_deadline_text_before_link=The deadline for paper tax returns is midnight on 31 October. After this date, you will have to
 label.you_cannot_view_your_self_assessment_information_here_the_deadline_link_text=do your tax return online
 label.activate_your_self_assessment_registration=Activate your Self Assessment registration
-label.activate_your_self_assessment=Activate your Self Assessment
+label.activate_your_self_assessment=Activate your Self Assessment.
 label.get_your_sa302_calculation=Get your SA302 calculation
 label.we_can_only_show_your_sa302_calculation_if_you_=We can only show your SA302 calculation if you filed through this website.
 label.i_didnt_file_through_this_website=I did not file through this website
@@ -415,7 +415,7 @@ label.account_home=Account home
 # Income
 title.income=Income
 label.pay_as_you_earn_paye=Pay As You Earn (PAYE)
-label.your_income_from_employers_and_private_pensions_=Check or update the employment, pension, company benefits or other income information used to work out your PAYE Income Tax and Tax Codes.
+label.your_income_from_employers_and_private_pensions_=Check or update the employment, pension, company benefits or other income information used to work out your PAYE Income Tax and tax codes.
 label.claim_your_tax_refund=Claim your tax refund
 label.find_out_why_you_paid_too_much=Find out why you paid too much
 label.find_out_why_you_paid_too_little=Find out why you paid too little
@@ -441,6 +441,7 @@ label.you_have_no_payments_to_make_to_hmrc=You have no payments to make to HMRC.
 
 label.self_assessment=Self Assessment
 label.mtd_for_itsa=Making Tax Digital for Income Tax and Self Assessment
+label.view_and_manage_your_income_tax_obligations_and_payments=View and manage your Income Tax obligations and payments.
 label.make_a_payment=Make a payment
 label.check_if_you_need_to_fill_in_a_tax_return=Check if you need to fill in a tax return
 label.find_out_how_to_access_self_assessment=Find out how to access Self Assessment
@@ -497,6 +498,8 @@ label.mtd_for_it_sa=Making Tax Digital for Income Tax
 label.send_updates_hmrc_compatible_software=Send updates using HMRC compatible software.
 label.send_updates_sole_traders=For sole traders and landlords that send quarterly updates using software.
 label.view_manage_your_mtd_for_it=View and manage Making Tax Digital for Income Tax
+label.view_manage_your_mtd_itsa=View and manage your Making Tax Digital for Income Tax or access your Self Assessment tax returns.
+label.view_manage_your_mtd_it=View and manage Making Tax Digital for Income Tax, and access Self Assessment.
 label.itsa_header=Income Tax Self Assessment
 label.it_header=Income Tax
 label.view_manage_sa_return=More details about your Self Assessment returns and payments
@@ -539,6 +542,7 @@ label.manage_your_marriage_allowance=Manage your Marriage Allowance
 label.your_partner_currently_transfers_part_of_their_personal_allowance_to_you=Your partner currently transfers part of their Personal Allowance to you.
 label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner=You currently transfer part of your Personal Allowance to your partner.
 label.child_benefit=Child Benefit
+label.get_help_with_the_cost_of_bringing_up_children=Get help with the cost of bringing up children.
 label.make_or_manage_a_child_benefit_claim=Make or manage a Child Benefit claim
 label.make_a_claim=Make a claim
 label.making_a_claim=Making a claim
@@ -842,9 +846,11 @@ label.trusted_helpers_heading=Trusted helpers
 label.trusted_helpers_content=Get help with your tax online from someone you trust, or help someone you know.
 
 label.taxes_and_benefits_heading=Taxes and benefits
-label.taxes_and_benefits_subheading=Your current HMRC online taxes and benefits
+label.taxes_and_benefits_subheading=Your current HMRC Online taxes and benefits
 label.other_taxes_and_benefits_heading=Other taxes and benefits that may be relevant to you
+
 label.tax_calc_option=Your tax calculation — PAYE {0} to {1}
+label.check_whether_you_paid_too_much_or_too_little_tax_in_a_previous_tax_year=Check whether you paid too much or too little tax in a previous tax year.
 
 label.task_heading=Refunds and tax you owe — Pay As You Earn (PAYE)
 label.task_paragraph=It can take up to 10 days for completed tasks to be removed from the list.
@@ -858,3 +864,101 @@ label.mtdit.claim.p1.suffix=(opens in new tab). You need to add the service to y
 label.mtdit.claim.question=Do you want to add Making Tax Digital for Income Tax to your personal tax account now?
 label.mtdit.claim.error=Select yes to add Making Tax Digital for Income Tax to your personal tax account
 head.label.mtdit.claim.error=Select yes to add Making Tax Digital for Income Tax to your personal tax account
+
+#************************************************************
+# Default case (no tasks)
+#************************************************************
+ptap.your-tasks.container.default_text.p.line1=This page shows refunds and tax you owe.
+ptap.your-tasks.container.default_text.p.line2.1=Check
+ptap.your-tasks.container.default_text.p.line2.2=Taxes and benefits
+ptap.your-tasks.container.default_text.p.line2.3=for anything else you need to do.
+
+#************************************************************
+# Default case (no activity)
+#************************************************************
+ptap.recent-activity.container.default_text.p.line1=This page shows your recent activity.
+ptap.recent-activity.container.default_text.p.line2.2=Your tasks
+ptap.recent-activity.container.default_text.p.line2.3=for anything you need to do.
+
+ptap.support.uya.title=Understanding your personal tax account
+ptap.support.uya.p1=Your personal tax account lets you manage your taxes and benefits in one place. You can use your account to access:
+
+ptap.support.uya.p2.header=How to use your HMRC Online account
+ptap.support.uya.p2=Use your HMRC Online account by selecting the following sections within your
+ptap.support.uya.p2.link=Personal tax account.
+
+ptap.support.uya.p2.sub=Your tasks
+ptap.support.uya.p2.tasks=Complete tasks such as claiming a refund or paying tax you owe. This section only shows your Pay As You Earn (PAYE) related tasks.
+
+ptap.support.uya.p3.sub=Recent activity
+ptap.support.uya.p3.recent=View recent updates, such as payments from your employer or changes to your tax code.
+
+ptap.support.uya.p4.sub=Taxes and benefits
+ptap.support.uya.p4.tab=Check the taxes and benefits you currently have and find others that may be relevant to you.
+
+ptap.support.uya.p5.sub=HMRC news
+ptap.support.uya.p5.hs=Read the latest updates from HMRC.
+
+ptap.support.uya.p6.sub= Support
+ptap.support.uya.p6.hs=Get technical support and help with taxes and benefits.
+
+ptap.support.uya.list.paye=Pay As You Earn (PAYE)
+ptap.support.uya.list.sa=Self Assessment
+ptap.support.uya.list.ni=National Insurance and State Pension
+ptap.support.uya.list.ats=Annual Tax Summary
+ptap.support.uya.list.cb=Child Benefit
+ptap.support.uya.list.ma=Marriage Allowance
+
+ptap.support.uya.list.uos=you use other HMRC services
+ptap.support.uya.list.circumstances.link=your circumstances change (opens in new tab)
+ptap.support.uya.list.bta=you have a Business Tax Account
+
+ptap.support.tab.card.hmrc.online.heading=Personal tax account
+ptap.support.tab.card.paye.heading=Pay As You Earn (PAYE)
+ptap.support.tab.card.self.assessment.heading=Self Assessment
+ptap.support.tab.card.child.benefit.heading=Child Benefit
+ptap.support.tab.card.mariage.allowance.heading=Marriage Allowance
+ptap.support.tab.card.annual.tax.summary.heading=Annual Tax Summary
+ptap.support.tab.card.insurance.state.pension.heading=National Insurance and State Pension
+ptap.support.tab.cards.header=Support
+
+ptap.support.tab.card.hmrc.online.link.understanding.account=Understanding your personal tax account
+ptap.support.tab.card.hmrc.online.link.understanding.account.url=/support/understanding-your-account
+ptap.support.tab.card.hmrc.online.link.extra.support=Get help from HMRC if you need extra support
+ptap.support.tab.card.hmrc.online.link.extra.support.url=https://www.gov.uk/get-help-hmrc-extra-support
+ptap.support.tab.card.hmrc.online.link.technical.support=Technical support with HMRC online services
+ptap.support.tab.card.hmrc.online.link.technical.support.url=https://www.gov.uk/find-hmrc-contacts/technical-support-with-hmrc-online-services
+ptap.support.tab.card.hmrc.online.link.help.friends=Help friends or family with their tax
+ptap.support.tab.card.hmrc.online.link.help.friends.url=https://www.gov.uk/help-friends-family-tax
+ptap.support.tab.card.hmrc.online.link.chat=Ask HMRC online, digital assistant chat
+ptap.support.tab.card.hmrc.online.link.chat.url=https://www.gov.uk/contact-hmrc
+ptap.support.tab.card.hmrc.online.link.change.details=Tell HMRC about a change to your personal details
+ptap.support.tab.card.hmrc.online.link.change.details.url=https://www.gov.uk/tell-hmrc-change-of-details
+
+ptap.support.tab.card.paye.link.guidance=Income Tax guidance
+ptap.support.tab.card.paye.link.guidance.url=https://www.gov.uk/income-tax
+ptap.support.tab.card.paye.link.enquiries=Income Tax general enquiries, including contact details
+ptap.support.tab.card.paye.link.enquiries.url=https://www.gov.uk/find-hmrc-contacts/income-tax-enquiries
+
+ptap.support.tab.card.self.assessment.link.guidance=Self Assessment guidance
+ptap.support.tab.card.self.assessment.link.guidance.url=https://www.gov.uk/self-assessment-tax-returns
+ptap.support.tab.card.self.assessment.link.enquiries=Self Assessment general enquiries, including contact details
+ptap.support.tab.card.self.assessment.link.enquiries.url=https://www.gov.uk/find-hmrc-contacts/self-assessment-general-enquiries
+
+ptap.support.tab.card.child.benefit.link.guidance=Child Benefit guidance
+ptap.support.tab.card.child.benefit.link.guidance.url=https://www.gov.uk/child-benefit
+ptap.support.tab.card.child.benefit.link.enquiries=Child Benefit general enquiries, including contact details
+ptap.support.tab.card.child.benefit.link.enquiries.url=https://www.gov.uk/find-hmrc-contacts/child-benefit-general-enquiries
+
+ptap.support.tab.card.mariage.allowance.link.guidance=Marriage Allowance guidance
+ptap.support.tab.card.mariage.allowance.link.guidance.url=https://www.gov.uk/marriage-allowance
+ptap.support.tab.card.mariage.allowance.link.enquiries=Income Tax general enquiries, including contact details for Marriage Allowance
+ptap.support.tab.card.mariage.allowance.link.enquiries.url=https://www.gov.uk/find-hmrc-contacts/income-tax-enquiries
+
+ptap.support.tab.card.annual.tax.summary.link.guidance=Annual Tax Summary guidance
+ptap.support.tab.card.annual.tax.summary.link.guidance.url=https://www.gov.uk/guidance/annual-tax-summary
+
+ptap.support.tab.card.insurance.state.pension.link.ni=Find out more about National Insurance
+ptap.support.tab.card.insurance.state.pension.link.ni.url=https://www.gov.uk/national-insurance
+ptap.support.tab.card.insurance.state.pension.link.enquiries=Income Tax general enquiries, including contact details for National Insurance and State Pension
+ptap.support.tab.card.insurance.state.pension.link.enquiries.url=https://www.gov.uk/find-hmrc-contacts/income-tax-enquiries

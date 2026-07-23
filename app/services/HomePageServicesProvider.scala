@@ -40,7 +40,13 @@ class HomePageServicesProvider @Inject() (
 
   private val MtdItsaEnrolmentKey = "HMRC-MTD-IT"
 
-  def getHomePageServices(implicit
+  private def redesignHint(isRedesign: Boolean, hint: String): Option[String] =
+    Option.when(isRedesign)(hint)
+
+  private def nationalInsuranceHint(isRedesign: Boolean)(implicit messages: Messages): Option[String] =
+    Option.when(isRedesign)(s"${messages("label.view_national_insurance")} ${messages("label.view_state_pension")}")
+
+  def getHomePageServices(isRedesign: Boolean = false)(implicit
     request: UserRequest[?],
     hc: HeaderCarrier,
     messages: Messages
@@ -51,21 +57,21 @@ class HomePageServicesProvider @Inject() (
 
     val marriageAllowanceF: Future[Seq[HomePageService]] =
       if (isTrustedHelperUser) Future.successful(Seq.empty)
-      else taiService.getTaxComponentsList(nino, current.currentYear).map(buildMarriageAllowanceServices)
+      else taiService.getTaxComponentsList(nino, current.currentYear).map(buildMarriageAllowanceServices(_, isRedesign))
 
     val trustedHelperF: Future[Seq[HomePageService]] =
       if (isTrustedHelperUser) Future.successful(Seq.empty)
-      else fandFService.isAnyFandFRelationships(nino).map(buildTrustedHelperServices)
+      else fandFService.isAnyFandFRelationships(nino).map(buildTrustedHelperServices(_, isRedesign))
 
     for {
-      selfAssessmentMy    <- getMySelfAssessment(request.saUserType, request.enrolments, isTrustedHelperUser)
-      payAsYouEarn        <- getPayAsYouEarn()
-      taxCalc             <- getTaxCalculation(isTrustedHelperUser)
-      nationalInsurance   <- getNationalInsurance()
+      selfAssessmentMy    <- getMySelfAssessment(request.saUserType, request.enrolments, isTrustedHelperUser, isRedesign)
+      payAsYouEarn        <- getPayAsYouEarn(isRedesign)
+      taxCalc             <- getTaxCalculation(isTrustedHelperUser, isRedesign)
+      nationalInsurance   <- getNationalInsurance(isRedesign)
       selfAssessmentOther <- getOtherSelfAssessment(request.saUserType, isTrustedHelperUser)
-      mtdOther            <- getMtdOtherService(isTrustedHelperUser)
-      childBenefit        <- getChildBenefit(isTrustedHelperUser)
-      annualTaxSummary    <- getAnnualTaxSummaries(isTrustedHelperUser)
+      mtdOther            <- getMtdOtherService(isTrustedHelperUser, isRedesign)
+      childBenefit        <- getChildBenefit(isTrustedHelperUser, isRedesign)
+      annualTaxSummary    <- getAnnualTaxSummaries(isTrustedHelperUser, isRedesign)
       marriageAllowance   <- marriageAllowanceF
       trustedHelper       <- trustedHelperF
     } yield HomePageServices(
@@ -85,11 +91,14 @@ class HomePageServicesProvider @Inject() (
   private def userHasMtdItsaEnrolment(enrolments: Set[Enrolment]): Boolean =
     enrolments.exists(_.key == MtdItsaEnrolmentKey)
 
-  private def combinedMtdSaTile(href: String)(implicit messages: Messages): MyService =
+  private def combinedMtdSaTile(href: String, isRedesign: Boolean)(implicit messages: Messages): MyService =
     MyService(
       messages("label.mtd_for_itsa"),
       Some(href),
-      None,
+      redesignHint(
+        isRedesign,
+        s"${messages("label.view_manage_your_mtd_it")} ${messages("label.online_deadline_tax_returns", (current.currentYear + 1).toString)}"
+      ),
       gaAction = Some("Income"),
       gaLabel = Some("MTD IT & SA"),
       id = Some("itsa")
@@ -105,28 +114,31 @@ class HomePageServicesProvider @Inject() (
       id = Some("self-assessment")
     )
 
-  private def otherSaTile(title: String, linkUrl: String): OtherService =
+  private def otherSaTile(title: String, linkUrl: String, hint: Option[String]): OtherService =
     OtherService(
       title,
       linkUrl,
       gaAction = Some("Income"),
       gaLabel = Some("Self Assessment"),
-      id = Some("self-assessment")
+      id = Some("self-assessment"),
+      hintText = hint
     )
 
-  private def mtdTile(linkUrl: String)(implicit messages: Messages): OtherService =
+  private def mtdTile(linkUrl: String, isRedesign: Boolean)(implicit messages: Messages): OtherService =
     OtherService(
       messages("label.mtd_for_it"),
       linkUrl,
       gaAction = Some("MTDIT"),
       gaLabel = Some("Making Tax Digital for Income Tax"),
-      id = Some("mtdit")
+      id = Some("mtdit"),
+      hintText = redesignHint(isRedesign, messages("label.mtdit.p1"))
     )
 
   private def getMySelfAssessment(
     saUserType: SelfAssessmentUserType,
     enrolments: Set[Enrolment],
-    isTrustedHelperUser: Boolean
+    isTrustedHelperUser: Boolean,
+    isRedesign: Boolean
   )(implicit messages: Messages): Future[Option[MyService]] =
     Future.successful {
       if (isTrustedHelperUser) {
@@ -135,25 +147,27 @@ class HomePageServicesProvider @Inject() (
         val hasMtdItsa = userHasMtdItsaEnrolment(enrolments)
 
         (saUserType, hasMtdItsa) match {
-          case (_: ActivatedOnlineFilerSelfAssessmentUser, true) =>
+          case (ActivatedOnlineFilerSelfAssessmentUser(_), true) =>
             Some(
               combinedMtdSaTile(
-                href = controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url
+                href = controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url,
+                isRedesign = isRedesign
               )
             )
 
           case (WrongCredentialsSelfAssessmentUser(_), true) =>
             Some(
               combinedMtdSaTile(
-                href = controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url
+                href = controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url,
+                isRedesign = isRedesign
               )
             )
 
-          case (_: ActivatedOnlineFilerSelfAssessmentUser, false) =>
+          case (ActivatedOnlineFilerSelfAssessmentUser(_), false) =>
             Some(
               mySaTile(
                 href = controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url,
-                body = ""
+                body = messages("label.viewAndManageSA", (current.currentYear + 1).toString)
               )
             )
 
@@ -184,7 +198,8 @@ class HomePageServicesProvider @Inject() (
             Some(
               otherSaTile(
                 title = messages("label.self_assessment"),
-                linkUrl = controllers.routes.SelfAssessmentController.redirectToEnrolForSa.url
+                linkUrl = controllers.routes.SelfAssessmentController.redirectToEnrolForSa.url,
+                hint = Some(messages("label.request_access_to_your_sa"))
               )
             )
 
@@ -192,7 +207,8 @@ class HomePageServicesProvider @Inject() (
             Some(
               otherSaTile(
                 title = messages("label.self_assessment"),
-                linkUrl = configDecorator.ssoToActivateSaEnrolmentPinUrl
+                linkUrl = configDecorator.ssoToActivateSaEnrolmentPinUrl,
+                hint = Some(messages("label.activate_your_self_assessment"))
               )
             )
 
@@ -203,7 +219,8 @@ class HomePageServicesProvider @Inject() (
     }
 
   private def getMtdOtherService(
-    isTrustedHelperUser: Boolean
+    isTrustedHelperUser: Boolean,
+    isRedesign: Boolean
   )(implicit request: UserRequest[?], messages: Messages): Future[Option[OtherService]] =
     if (isTrustedHelperUser) {
       Future.successful(None)
@@ -215,7 +232,8 @@ class HomePageServicesProvider @Inject() (
           Future.successful(
             Some(
               mtdTile(
-                controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url
+                controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url,
+                isRedesign = isRedesign
               )
             )
           )
@@ -223,13 +241,13 @@ class HomePageServicesProvider @Inject() (
       }
     }
 
-  private def getPayAsYouEarn()(implicit messages: Messages): Future[Option[MyService]] =
+  private def getPayAsYouEarn(isRedesign: Boolean)(implicit messages: Messages): Future[Option[MyService]] =
     Future.successful(
       Some(
         MyService(
           messages("label.pay_as_you_earn_paye"),
           Some(controllers.routes.RedirectToPayeController.redirectToPaye.url),
-          None,
+          redesignHint(isRedesign, messages("label.your_income_from_employers_and_private_pensions_")),
           gaAction = Some("Income"),
           gaLabel = Some("Pay As You Earn (PAYE)"),
           id = Some("paye")
@@ -237,7 +255,9 @@ class HomePageServicesProvider @Inject() (
       )
     )
 
-  private def getTaxCalculation(isTrustedHelperUser: Boolean)(implicit messages: Messages): Future[Option[MyService]] =
+  private def getTaxCalculation(isTrustedHelperUser: Boolean, isRedesign: Boolean)(implicit
+    messages: Messages
+  ): Future[Option[MyService]] =
     if (isTrustedHelperUser) {
       Future.successful(None)
     } else {
@@ -251,7 +271,10 @@ class HomePageServicesProvider @Inject() (
                 s"${current.startYear}"
               ),
               Some(configDecorator.taxCalcHomePageUrl),
-              None,
+              redesignHint(
+                isRedesign,
+                messages("label.check_whether_you_paid_too_much_or_too_little_tax_in_a_previous_tax_year")
+              ),
               gaAction = Some("Income"),
               gaLabel = Some("Tax Calculation"),
               id = Some("tax-calc")
@@ -263,13 +286,13 @@ class HomePageServicesProvider @Inject() (
       }
     }
 
-  private def getNationalInsurance()(implicit messages: Messages): Future[Option[MyService]] =
+  private def getNationalInsurance(isRedesign: Boolean)(implicit messages: Messages): Future[Option[MyService]] =
     Future.successful(
       Some(
         MyService(
           messages("label.new_national_insurance_and_state_pension"),
           Some(controllers.interstitials.routes.InterstitialController.displayNISP.url),
-          None,
+          nationalInsuranceHint(isRedesign),
           gaAction = Some("Income"),
           gaLabel = Some("National Insurance and State Pension"),
           id = Some("state-pension")
@@ -277,7 +300,9 @@ class HomePageServicesProvider @Inject() (
       )
     )
 
-  private def getChildBenefit(isTrustedHelperUser: Boolean)(implicit messages: Messages): Future[Option[OtherService]] =
+  private def getChildBenefit(isTrustedHelperUser: Boolean, isRedesign: Boolean)(implicit
+    messages: Messages
+  ): Future[Option[OtherService]] =
     Future.successful {
       if (isTrustedHelperUser) {
         None
@@ -288,13 +313,14 @@ class HomePageServicesProvider @Inject() (
             controllers.interstitials.routes.InterstitialController.displayChildBenefitsSingleAccountView.url,
             gaAction = Some("Benefits"),
             gaLabel = Some("Child Benefit"),
-            id = Some("child-benefit")
+            id = Some("child-benefit"),
+            hintText = redesignHint(isRedesign, messages("label.get_help_with_the_cost_of_bringing_up_children"))
           )
         )
       }
     }
 
-  private def getAnnualTaxSummaries(isTrustedHelperUser: Boolean)(implicit
+  private def getAnnualTaxSummaries(isTrustedHelperUser: Boolean, isRedesign: Boolean)(implicit
     messages: Messages
   ): Future[Option[OtherService]] =
     Future.successful {
@@ -307,13 +333,14 @@ class HomePageServicesProvider @Inject() (
             configDecorator.annualTaxSaSummariesTileLinkShow,
             gaAction = Some("Tax Summaries"),
             gaLabel = Some("Annual Tax Summary"),
-            id = Some("tax-summary")
+            id = Some("tax-summary"),
+            hintText = redesignHint(isRedesign, messages("card.ats.text"))
           )
         )
       }
     }
 
-  private def buildMarriageAllowanceServices(taxComponents: List[String])(implicit
+  private def buildMarriageAllowanceServices(taxComponents: List[String], isRedesign: Boolean)(implicit
     messages: Messages
   ): Seq[HomePageService] =
     taxComponents match {
@@ -348,12 +375,14 @@ class HomePageServicesProvider @Inject() (
             "/marriage-allowance-application/history",
             gaAction = Some("Benefits"),
             gaLabel = Some("Marriage Allowance"),
-            id = Some("marriage-allowance")
+            id = Some("marriage-allowance"),
+            hintText =
+              redesignHint(isRedesign, messages("label.transfer_part_of_your_personal_allowance_to_your_partner_"))
           )
         )
     }
 
-  private def buildTrustedHelperServices(hasRelationships: Boolean)(implicit
+  private def buildTrustedHelperServices(hasRelationships: Boolean, isRedesign: Boolean)(implicit
     messages: Messages
   ): Seq[HomePageService] =
     if (hasRelationships) {
@@ -361,7 +390,7 @@ class HomePageServicesProvider @Inject() (
         MyService(
           messages("label.trusted_helpers_heading"),
           Some(configDecorator.manageTrustedHelpersUrl),
-          None,
+          redesignHint(isRedesign, messages("label.trusted_helpers_content")),
           gaAction = Some("Account"),
           gaLabel = Some("Trusted helpers"),
           id = Some("trusted-helper")
@@ -374,7 +403,8 @@ class HomePageServicesProvider @Inject() (
           configDecorator.manageTrustedHelpersUrl,
           gaAction = Some("Account"),
           gaLabel = Some("Trusted helpers"),
-          id = Some("trusted-helper")
+          id = Some("trusted-helper"),
+          hintText = redesignHint(isRedesign, messages("label.trusted_helpers_content"))
         )
       )
     }

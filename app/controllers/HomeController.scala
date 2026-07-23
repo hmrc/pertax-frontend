@@ -17,18 +17,25 @@
 package controllers
 
 import com.google.inject.Inject
+import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
+import error.ErrorRenderer
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
-import models.SelfAssessmentUser
+import models.{HomePageServices, SelfAssessmentUser}
+import models.admin.{HomePagePersonalisationToggle, PtapActivityTabToggle}
+import play.api.i18n.Messages
 import play.api.mvc.*
+import play.twirl.api.Html
 import services.*
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
-import viewmodels.{AlertBanner, HomeViewModel, NewsAndUpdates}
-import views.html.HomeView
+import viewmodels.{AlertBanner, CardContainerModel, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeViewModel, SecondaryNavModel, TabEnum, TabModel}
+import viewmodels.TabEnum.*
+import views.html.{HomeView, PtapHomeView}
 
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
@@ -36,15 +43,20 @@ import scala.concurrent.{ExecutionContext, Future}
 class HomeController @Inject() (
   paperlessInterruptHelper: PaperlessInterruptHelper,
   breathingSpaceService: BreathingSpaceService,
+  featureFlagService: FeatureFlagService,
   citizenDetailsService: CitizenDetailsService,
   homePageServicesProvider: HomePageServicesProvider,
   tasksService: TasksService,
+  tabContentService: TabContentService,
   homeOptionsGenerator: HomeOptionsGenerator,
+  configDecorator: ConfigDecorator,
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   homeView: HomeView,
+  pTapHomeView: PtapHomeView,
   rlsInterruptHelper: RlsInterruptHelper,
-  alertBannerHelper: AlertBannerHelper
+  alertBannerHelper: AlertBannerHelper,
+  errorRenderer: ErrorRenderer
 )(implicit val ec: ExecutionContext)
     extends PertaxBaseController(cc)
     with CurrentTaxYear {
@@ -54,7 +66,145 @@ class HomeController @Inject() (
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
 
-  def index: Action[AnyContent] = authenticate.async { implicit request =>
+  def homePageTab(tab: String) =
+    authenticate.async { implicit request =>
+      isPersonalisationEnabledAndNinoEligible.flatMap {
+        case true  => personalisationHomePageTab(tab)
+        case false => newHomePage
+      }
+    }
+
+  private def ptapParam(implicit request: UserRequest[AnyContent]): Option[String] =
+    request.queryString.get("ptap").flatMap(_.headOption).filter(_ == "true")
+
+  private def isPersonalisationEnabledAndNinoEligible(implicit
+    request: UserRequest[AnyContent]
+  ): Future[Boolean] =
+    featureFlagService.get(HomePagePersonalisationToggle).map { toggle =>
+      val lastNumericDigit = request.helpeeNinoOrElse.nino.filter(_.isDigit).last.asDigit
+      toggle.isEnabled && ptapParam.isDefined && configDecorator.ptapHomepageNinoRolloutLastNumericDigits.contains(
+        lastNumericDigit
+      )
+    }
+
+  private def personalisationHomePageTab(tab: String)(implicit
+    request: UserRequest[AnyContent],
+    messages: Messages
+  ): Future[Result] =
+    withValidTab(tab) { currentTab =>
+      val nino: Nino = request.helpeeNinoOrElse
+
+      val utr: Option[String] = request.saUserType match {
+        case saUser: SelfAssessmentUser => Some(saUser.saUtr.utr)
+        case _                          => None
+      }
+
+      enforceInterrupts {
+        val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
+        val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
+        val fTabContentCards         = tabContentService.getTaskAndTabCards(currentTab)
+        val fHomePageServices        =
+          if (currentTab == Tax) homePageServicesProvider.getHomePageServices(isRedesign = true)
+          else Future.successful(HomePageServices(Seq.empty))
+        val fActivityTabEnabled      = featureFlagService.get(PtapActivityTabToggle).map(_.isEnabled)
+
+        for {
+          breathingSpaceIndicator <- fBreathingSpaceIndicator
+          eitherPersonDetails     <- fEitherPersonDetails
+          alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten)
+          tabContentCards         <- fTabContentCards
+          homePageServices        <- fHomePageServices
+          activityTabEnabled      <- fActivityTabEnabled
+        } yield {
+          val personDetailsOpt = eitherPersonDetails.toOption.flatten
+          val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
+
+          val taskCount    = tabContentCards.taskCount
+          val secondaryNav = buildSecondaryNav(currentTab, taskCount, activityTabEnabled)
+          val tabContent   = currentTab match {
+            case Task | Activity =>
+              List(
+                CardContainerModel(
+                  defaultInset = currentTab.defaultInset(ptapParam),
+                  cards = tabContentCards.tabCards,
+                  cardHeadingLevel = "h2",
+                  listAriaLabel = secondaryNav.items.find(_.current).map(_.text)
+                )
+              )
+            case _               => List.empty
+          }
+
+          Ok(
+            pTapHomeView(
+              PtapHomeViewModel(
+                showUserResearchBanner = false,
+                utr,
+                breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
+                alertBannerContent = alertBannerContent.map(PtapAlertBanner.apply),
+                name = nameToDisplay,
+                secondaryNav = secondaryNav,
+                tabContent = tabContent,
+                showNewsAndUpdatesView = currentTab == News,
+                showSupportView = currentTab == Support,
+                showTaxesAndBenefitsView = currentTab == Tax,
+                showTaskCompletedMessage = currentTab == Task && tabContentCards.tabCards.nonEmpty,
+                myServices = homePageServices.myServices,
+                otherServices = homePageServices.otherServices
+              )
+            )
+          )
+        }
+      }
+    }
+
+  private def buildSecondaryNav(currentTab: TabEnum, taskCount: Int, showActivityTab: Boolean)(implicit
+    messages: Messages,
+    request: UserRequest[AnyContent]
+  ): SecondaryNavModel =
+    val activityTabItem = Option.when(showActivityTab)(
+      TabModel(
+        text = messages("ptap.support.uya.p3.sub"),
+        href = Activity.href(ptapParam),
+        current = currentTab == Activity
+      )
+    )
+    SecondaryNavModel(
+      classes = Some("govuk-!-margin-bottom-6"),
+      items = Seq(
+        Some(
+          TabModel(
+            text = messages("ptap.support.uya.p4.sub"),
+            href = Tax.href(ptapParam),
+            current = currentTab == Tax
+          )
+        ),
+        Some(
+          TabModel(
+            text = messages("ptap.support.uya.p2.sub"),
+            href = Task.href(ptapParam),
+            current = currentTab == Task,
+            notificationCount = if (taskCount > 0) Some(taskCount) else None
+          )
+        ),
+        activityTabItem,
+        Some(
+          TabModel(
+            text = messages("ptap.support.uya.p5.sub"),
+            href = News.href(ptapParam),
+            current = currentTab == News
+          )
+        ),
+        Some(
+          TabModel(
+            text = messages("ptap.support.uya.p6.sub"),
+            href = Support.href(ptapParam),
+            current = currentTab == Support
+          )
+        )
+      ).flatten
+    )
+
+  private def newHomePage(implicit request: UserRequest[AnyContent]): Future[Result] = {
 
     val nino: Nino = request.helpeeNinoOrElse
 
@@ -66,7 +216,7 @@ class HomeController @Inject() (
     enforceInterrupts {
       val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
       val fListOfTasks             = tasksService.getListOfTasks
-      val fHomePageServices        = homePageServicesProvider.getHomePageServices
+      val fHomePageServices        = homePageServicesProvider.getHomePageServices(isRedesign = false)
       val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
 
       for {
@@ -97,6 +247,29 @@ class HomeController @Inject() (
       }
     }
   }
+
+  def index: Action[AnyContent] = authenticate.async { implicit request =>
+    isPersonalisationEnabledAndNinoEligible.flatMap {
+      case true  => personalisationHomePageTab(Tax.name)
+      case false => newHomePage
+    }
+  }
+
+  private def withValidTab(tab: String)(block: TabEnum => Future[Result])(implicit
+    request: UserRequest[AnyContent]
+  ): Future[Result] =
+    val currentTab: Option[TabEnum] = tab match {
+      case Task.name     => Some(Task)
+      case Activity.name => Some(Activity)
+      case Tax.name      => Some(Tax)
+      case News.name     => Some(News)
+      case Support.name  => Some(Support)
+      case _             => None
+    }
+    currentTab match {
+      case Some(value) => block(value)
+      case None        => errorRenderer.futureError(NOT_FOUND)
+    }
 
   private def enforceInterrupts(block: => Future[Result])(implicit request: UserRequest[AnyContent]): Future[Result] =
     rlsInterruptHelper.enforceByRlsStatus(

@@ -291,6 +291,11 @@ class ConfigDecorator @Inject() (
 
   lazy val taxCalcYearsToShow: Int = runModeConfiguration.get[Int]("feature.taxCalcYearsToShow")
 
+  lazy val ptapHomepageNinoRolloutLastNumericDigits: Seq[Int] =
+    runModeConfiguration
+      .getOptional[Seq[Int]]("feature.ptap-homepage.nino-rollout.last-numeric-digits")
+      .getOrElse(Seq.empty)
+
   lazy val mtdClaimFromPtaHandoffUrl: String =
     runModeConfiguration.get[String]("external-url.mtd-claim-from-pta.url")
 
@@ -314,6 +319,8 @@ class ConfigDecorator @Inject() (
     runModeConfiguration.get[String]("feature.address-change-error.profile.text.en")
   lazy val addressChangeProfileTextCy: String      =
     runModeConfiguration.get[String]("feature.address-change-error.profile.text.cy")
+
+  lazy val notifyChangeOfDetails = "https://www.gov.uk/tell-hmrc-change-of-details"
 
   def addressChangeStartDateParagraphEn(addressType: String, date: String): String =
     runModeConfiguration

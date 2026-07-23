@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package models
+package viewmodels
 
-final case class OtherService(
-  title: String,
-  link: String,
-  divAttr: Map[String, String] = Map.empty,
-  gaAction: Option[String] = None,
-  gaLabel: Option[String] = None,
-  id: Option[String] = None,
-  hintText: Option[String] = None
-) extends HomePageService {
-  override val category: HomePageServiceCategory = HomePageServiceCategory.OtherServices
-}
+final case class TabModel(
+  text: String,
+  href: String,
+  current: Boolean = false,
+  notificationCount: Option[Int] = None,
+  classes: Option[String] = None
+)

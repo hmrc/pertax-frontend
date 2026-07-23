@@ -192,6 +192,7 @@ label.back_to_account_home=Yn ôl i hafan y cyfrif
 label.return_to_your_account_home=Yn ôl i hafan eich cyfrif
 label.national_insurance_summary=Crynodeb Yswiriant Gwladol
 label.child_benefit=Budd-dal Plant
+label.get_help_with_the_cost_of_bringing_up_children=Cael help gyda chostau magu plant.
 label.report_changes_that_affect_your_child_benefit=Rhoi gwybod am newidiadau sy’n effeithio ar eich Budd-dal Plant
 label.tell_us_your_child_is_staying_in_full_time_education=Rhowch wybod i ni fod eich plentyn yn parhau ag addysg amser llawn
 label.tell_us_if_you_need_to=Rhowch wybod i ni os oes angen i chi:
@@ -819,9 +820,12 @@ tax_credits.ended.information.how.continue.li2 = cysylltu â Gwasanaeth Cwsmeria
 
 label.mtd_for_it=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.mtd_for_itsa=Troi Treth yn Ddigidol ar gyfer Treth Incwm a Hunanasesiad
+label.view_and_manage_your_income_tax_obligations_and_payments=Bwrw golwg dros a rheoli’ch rhwymedigaethau a’ch taliadau Treth Incwm.
 label.mtd_for_it_sa=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.send_updates_sole_traders=Ar gyfer unig fasnachwyr a landlordiaid sy’n anfon diweddariadau chwarterol gan ddefnyddio meddalwedd.
 label.view_manage_your_mtd_for_it=Bwrw golwg dros y cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli
+label.view_manage_your_mtd_itsa=Bwrw golwg dros eich cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli, neu gael at eich Ffurflenni Treth Hunanasesiad.
+label.view_manage_your_mtd_it=Bwrw golwg dros y cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli, a chael mynediad at Hunanasesiad.
 label.it_header=Treth Incwm
 label.online_deadline_tax_returns=Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth yw 31 Ionawr {0}.
 
@@ -855,7 +859,9 @@ label.trusted_helpers_content=Cael help gyda’ch treth ar-lein gan rywun dibyna
 label.taxes_and_benefits_heading=Trethi a budd-daliadau
 label.taxes_and_benefits_subheading=Eich trethi a budd-daliadau CThEF ar-lein presennol
 label.other_taxes_and_benefits_heading=Trethi a budd-daliadau eraill a allai fod yn berthnasol i chi
+
 label.tax_calc_option=Eich cyfrifiad treth – TWE {0} i {1}
+label.check_whether_you_paid_too_much_or_too_little_tax_in_a_previous_tax_year=Gwiriwch a wnaethoch dalu gormod neu rhy ychydig o dreth mewn blwyddyn dreth flaenorol.
 
 label.task_heading=Ad-daliadau a’r dreth sydd arnoch – Talu Wrth Ennill (TWE)
 label.task_paragraph=Gall gymryd hyd at 10 diwrnod i’r tasgau sydd wedi’u cwblhau gael eu tynnu o’r rhestr.
@@ -870,3 +876,101 @@ label.mtdit.claim.p1.suffix=(yn agor tab newydd). Mae angen i chi ychwanegu’r 
 label.mtdit.claim.question=A ydych am ychwanegu’r cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm i’ch Cyfrif Treth Personol nawr?
 label.mtdit.claim.error=Dewiswch ‘Iawn’ i ychwanegu’r cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm i’ch cyfrif treth personol
 head.label.mtdit.claim.error=Dewiswch ‘Iawn’ i ychwanegu’r cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm i’ch cyfrif treth personol
+
+#************************************************************
+# Default case (no tasks)
+#************************************************************
+ptap.your-tasks.container.default_text.p.line1=Mae’r dudalen hon yn dangos ad-daliadau a threth sydd arnoch.
+ptap.your-tasks.container.default_text.p.line2.1=Gwiriwch
+ptap.your-tasks.container.default_text.p.line2.2=Trethi a budd-daliadau
+ptap.your-tasks.container.default_text.p.line2.3=am unrhyw beth arall rydych am ei wybod.
+
+#************************************************************
+# Default case (no activity)
+#************************************************************
+ptap.recent-activity.container.default_text.p.line1=Mae’r dudalen hon yn dangos eich gweithgarwch diweddar.
+ptap.recent-activity.container.default_text.p.line2.2=Eich tasgau
+ptap.recent-activity.container.default_text.p.line2.3=am unrhyw beth arall rydych am ei wybod.
+
+ptap.support.uya.title=TBC
+ptap.support.uya.p1=TBC
+
+ptap.support.uya.p2.header=TBC
+ptap.support.uya.p2=TBC
+ptap.support.uya.p2.link=TBC
+
+ptap.support.uya.p2.sub=Eich tasgau
+ptap.support.uya.p2.tasks=TBC
+
+ptap.support.uya.p3.sub=Gweithgarwch diweddar
+ptap.support.uya.p3.recent=TBC
+
+ptap.support.uya.p4.sub=Trethi a budd-daliadau
+ptap.support.uya.p4.tab=TBC
+
+ptap.support.uya.p5.sub=TBC
+ptap.support.uya.p5.hs=TBC
+
+ptap.support.uya.p6.sub=TBC
+ptap.support.uya.p6.hs=TBC
+
+ptap.support.uya.list.paye=TBC
+ptap.support.uya.list.sa=TBC
+ptap.support.uya.list.ni=TBC
+ptap.support.uya.list.ats=TBC
+ptap.support.uya.list.cb=TBC
+ptap.support.uya.list.ma=TBC
+
+ptap.support.uya.list.uos=TBC
+ptap.support.uya.list.circumstances.link=TBC
+ptap.support.uya.list.bta=TBC
+
+ptap.support.tab.card.hmrc.online.heading=TBC
+ptap.support.tab.card.paye.heading=TBC
+ptap.support.tab.card.self.assessment.heading=TBC
+ptap.support.tab.card.child.benefit.heading=TBC
+ptap.support.tab.card.mariage.allowance.heading=TBC
+ptap.support.tab.card.annual.tax.summary.heading=TBC
+ptap.support.tab.card.insurance.state.pension.heading=TBC
+ptap.support.tab.cards.header=TBC
+
+ptap.support.tab.card.hmrc.online.link.understanding.account=Deall eich cyfrif ar-lein CThEF
+ptap.support.tab.card.hmrc.online.link.understanding.account.url=https://www.gov.uk/mewngofnodi-cofrestru-gwasanaethau-ar-lein-cthef
+ptap.support.tab.card.hmrc.online.link.extra.support=Cael help gan CThEF os oes angen cymorth ychwanegol arnoch
+ptap.support.tab.card.hmrc.online.link.extra.support.url=https://www.gov.uk/cael-help-cthem-cymorth-ychwanegol
+ptap.support.tab.card.hmrc.online.link.technical.support=Cymorth technegol â gwasanaethau ar-lein CThEF
+ptap.support.tab.card.hmrc.online.link.technical.support.url=https://www.gov.uk/find-hmrc-contacts/technical-support-with-hmrc-online-services
+ptap.support.tab.card.hmrc.online.link.help.friends=Helpu ffrindiau neu aelodau o’r teulu gyda’u treth
+ptap.support.tab.card.hmrc.online.link.help.friends.url=https://www.gov.uk/helpwch-ffrindiau-teulu-treth
+ptap.support.tab.card.hmrc.online.link.chat=Gofynnwch i CThEF ar-lein, sgwrs â’r cynorthwyydd digidol
+ptap.support.tab.card.hmrc.online.link.chat.url=https://www.gov.uk/contact-hmrc
+ptap.support.tab.card.hmrc.online.link.change.details=Rhoi gwybod i CThEF am newid i’ch manylion personol
+ptap.support.tab.card.hmrc.online.link.change.details.url=https://www.gov.uk/rhoi-gwybod-i-cthem-newid-manylion
+
+ptap.support.tab.card.paye.link.guidance=Arweiniad Treth Incwm
+ptap.support.tab.card.paye.link.guidance.url=https://www.gov.uk/treth-incwm
+ptap.support.tab.card.paye.link.enquiries=Ymholiadau cyffredinol am Dreth Incwm, gan gynnwys manylion cyswllt
+ptap.support.tab.card.paye.link.enquiries.url=https://www.gov.uk/find-hmrc-contacts/treth-incwm-hunanasesiad-a-mwy
+
+ptap.support.tab.card.self.assessment.link.guidance=Arweiniad Hunanasesiad
+ptap.support.tab.card.self.assessment.link.guidance.url=https://www.gov.uk/ffurflenni-treth-hunanasesiad
+ptap.support.tab.card.self.assessment.link.enquiries=Ymholiadau cyffredinol am Hunanasesiad, gan gynnwys manylion cyswllt
+ptap.support.tab.card.self.assessment.link.enquiries.url=https://www.gov.uk/find-hmrc-contacts/treth-incwm-hunanasesiad-a-mwy
+
+ptap.support.tab.card.child.benefit.link.guidance=Arweiniad Budd-dal Plant
+ptap.support.tab.card.child.benefit.link.guidance.url=https://www.gov.uk/budd-dal-plant
+ptap.support.tab.card.child.benefit.link.enquiries=Ymholiadau cyffredinol am Fudd-dal Plant, gan gynnwys manylion cyswllt
+ptap.support.tab.card.child.benefit.link.enquiries.url=https://www.gov.uk/find-hmrc-contacts/budd-dal-plant-ymholiadau-cyffredinol
+
+ptap.support.tab.card.mariage.allowance.link.guidance=Arweiniad Lwfans Priodasol
+ptap.support.tab.card.mariage.allowance.link.guidance.url=https://www.gov.uk/lwfans-priodas
+ptap.support.tab.card.mariage.allowance.link.enquiries=Ymholiadau cyffredinol am Dreth Incwm, gan gynnwys manylion cyswllt ar gyfer Lwfans Priodasol
+ptap.support.tab.card.mariage.allowance.link.enquiries.url=https://www.gov.uk/find-hmrc-contacts/treth-incwm-hunanasesiad-a-mwy
+
+ptap.support.tab.card.annual.tax.summary.link.guidance=Arweiniad Crynodeb Treth Blynyddol
+ptap.support.tab.card.annual.tax.summary.link.guidance.url=https://www.gov.uk/guidance/annual-tax-summary.cy
+
+ptap.support.tab.card.insurance.state.pension.link.ni=Dysgwch ragor am Yswiriant Gwladol
+ptap.support.tab.card.insurance.state.pension.link.ni.url=https://www.gov.uk/yswiriant-gwladol
+ptap.support.tab.card.insurance.state.pension.link.enquiries=Ymholiadau cyffredinol am Dreth Incwm, gan gynnwys manylion cyswllt ar gyfer Yswiriant Gwladol a Phensiwn y Wladwriaeth
+ptap.support.tab.card.insurance.state.pension.link.enquiries.url=https://www.gov.uk/find-hmrc-contacts/treth-incwm-hunanasesiad-a-mwy
