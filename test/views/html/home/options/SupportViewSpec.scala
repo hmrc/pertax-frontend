@@ -64,7 +64,7 @@ class SupportViewSpec extends ViewSpec {
     "render all card headings in English" in {
       val headings = document.select("h3.hmrc-card__heading").asScala.map(_.text).toSeq
 
-      headings must contain(messages("ptap.support.tab.card.hmrc.online.heading"))
+      headings must contain(messages("ptap.support.tab.card.pta.heading"))
       headings must contain(messages("ptap.support.tab.card.paye.heading"))
       headings must contain(messages("ptap.support.tab.card.self.assessment.heading"))
       headings must contain(messages("ptap.support.tab.card.child.benefit.heading"))
@@ -77,7 +77,7 @@ class SupportViewSpec extends ViewSpec {
       val welshDoc = asDocument(page()(welshMessages).toString)
       val headings = welshDoc.select("h3.hmrc-card__heading").asScala.map(_.text).toSeq
 
-      headings must contain(welshMessages("ptap.support.tab.card.hmrc.online.heading"))
+      headings must contain(welshMessages("ptap.support.tab.card.pta.heading"))
       headings must contain(welshMessages("ptap.support.tab.card.paye.heading"))
       headings must contain(welshMessages("ptap.support.tab.card.self.assessment.heading"))
       headings must contain(welshMessages("ptap.support.tab.card.child.benefit.heading"))
