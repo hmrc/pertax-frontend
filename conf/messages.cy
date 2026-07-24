@@ -908,7 +908,6 @@ ptap.support.uya.p3.recent=TBC
 ptap.support.uya.p4.sub=Trethi a budd-daliadau
 ptap.support.uya.p4.tab=TBC
 
-ptap.support.uya.p5.sub=TBC
 ptap.support.uya.p5.hs=TBC
 
 ptap.support.uya.p6.sub=Cymorth
