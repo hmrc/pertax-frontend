@@ -189,7 +189,7 @@ class HomeController @Inject() (
         activityTabItem,
         Some(
           TabModel(
-            text = messages("ptap.support.uya.p5.sub"),
+            text = messages("label.hmrc_news"),
             href = News.href(ptapParam),
             current = currentTab == News
           )

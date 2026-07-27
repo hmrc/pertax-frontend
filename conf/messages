@@ -896,7 +896,6 @@ ptap.support.uya.p3.recent=View recent updates, such as payments from your emplo
 ptap.support.uya.p4.sub=Taxes and benefits
 ptap.support.uya.p4.tab=Check the taxes and benefits you currently have and find others that may be relevant to you.
 
-ptap.support.uya.p5.sub=HMRC news
 ptap.support.uya.p5.hs=Read the latest updates from HMRC.
 
 ptap.support.uya.p6.sub= Support
@@ -913,7 +912,7 @@ ptap.support.uya.list.uos=you use other HMRC services
 ptap.support.uya.list.circumstances.link=your circumstances change (opens in new tab)
 ptap.support.uya.list.bta=you have a Business Tax Account
 
-ptap.support.tab.card.hmrc.online.heading=Personal tax account
+ptap.support.tab.card.pta.heading=Personal tax account
 ptap.support.tab.card.paye.heading=Pay As You Earn (PAYE)
 ptap.support.tab.card.self.assessment.heading=Self Assessment
 ptap.support.tab.card.child.benefit.heading=Child Benefit
