@@ -65,6 +65,20 @@ class UnderstandingYourAccountViewSpec extends ViewSpec {
 
     }
 
+    "show the expected Welsh title and intro content for Understanding your personal tax account page" in {
+      val welshDocument = asDocument(page()(userRequest, welshMessages).toString)
+      val expectedTitle = "Deall eich Cyfrif Treth Personol"
+      val expectedIntro =
+        "Mae’ch Cyfrif Treth Personol yn caniatáu i chi reoli’ch trethi a’ch budd-daliadau mewn un lle."
+
+      welshDocument.select("h1").text() mustBe expectedTitle
+      welshDocument
+        .select("div.govuk-grid-column-two-thirds")
+        .select("p.govuk-body")
+        .first()
+        .text() mustBe expectedIntro
+    }
+
     "show the expected list content  for the access list section" in {
       val list = document.select("ul[id*='accessList']").select("li").asScala
 

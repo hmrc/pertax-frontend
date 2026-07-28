@@ -893,7 +893,7 @@ ptap.recent-activity.container.default_text.p.line2.2=Eich tasgau
 ptap.recent-activity.container.default_text.p.line2.3=am unrhyw beth arall rydych am ei wybod.
 
 ptap.support.uya.title=Deall eich Cyfrif Treth Personol
-ptap.support.uya.p1=TBC
+ptap.support.uya.p1=Mae’ch Cyfrif Treth Personol yn caniatáu i chi reoli’ch trethi a’ch budd-daliadau mewn un lle.
 
 ptap.support.uya.p2.header=TBC
 ptap.support.uya.p2=TBC
