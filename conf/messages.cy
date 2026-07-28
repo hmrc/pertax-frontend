@@ -637,7 +637,7 @@ global.page.not.found.error.contact.link=https://www.gov.uk/government/organisat
 
 label.access_your_self_assessment=Cael at eich cyfrif Hunanasesiad
 
-title.signed_in_wrong_account.h1=Nid ydych wedi mewngofnodi i’r cyfrif cywir
+title.signed_in_wrong_account.h1=Nid ydych wedi mewngofnodi i’r cyfrif cywir.
 label.signed_in_wrong_account=Defnyddioch gyfrif gwahanol pan wnaethoch gofrestru gyntaf i fwrw golwg dros eich Ffurflenni Treth, neu eu hanfon, ar-lein.
 
 title.sign_in_again.h1=Mae angen i chi fewngofnodi eto i Borth y Llywodraeth gan ddefnyddio manylion gwahanol
