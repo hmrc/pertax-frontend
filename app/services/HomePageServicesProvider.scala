@@ -175,7 +175,7 @@ class HomePageServicesProvider @Inject() (
             Some(
               mySaTile(
                 href = controllers.routes.SaWrongCredentialsController.landingPage().url,
-                body = messages("title.signed_in_wrong_account.h1")
+                body = s"${messages("title.signed_in_wrong_account.h1")}."
               )
             )
 
