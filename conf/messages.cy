@@ -638,6 +638,7 @@ global.page.not.found.error.contact.link=https://www.gov.uk/government/organisat
 label.access_your_self_assessment=Cael at eich cyfrif Hunanasesiad
 
 title.signed_in_wrong_account.h1=Nid ydych wedi mewngofnodi i’r cyfrif cywir
+title.signed_in_wrong_account.stop=Nid ydych wedi mewngofnodi i’r cyfrif cywir.
 label.signed_in_wrong_account=Defnyddioch gyfrif gwahanol pan wnaethoch gofrestru gyntaf i fwrw golwg dros eich Ffurflenni Treth, neu eu hanfon, ar-lein.
 
 title.sign_in_again.h1=Mae angen i chi fewngofnodi eto i Borth y Llywodraeth gan ddefnyddio manylion gwahanol
@@ -819,8 +820,8 @@ tax_credits.ended.information.how.continue.li2 = cysylltu â Gwasanaeth Cwsmeria
 
 
 label.mtd_for_it=Troi Treth yn Ddigidol ar gyfer Treth Incwm
-label.mtd_for_itsa=Troi Treth yn Ddigidol ar gyfer Treth Incwm a Hunanasesiad
-label.view_and_manage_your_income_tax_obligations_and_payments=Bwrw golwg dros a rheoli’ch rhwymedigaethau a’ch taliadau Treth Incwm.
+label.mtd_for_itsa=Hunanasesiad a Throi Treth yn Ddigidol ar gyfer Treth Incwm
+label.view_and_manage_your_income_tax_obligations_and_payments=Bwrw golwg dros eich rhwymedigaethau a’ch taliadau Treth Incwm, a’u rheoli.
 label.mtd_for_it_sa=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.interstice.sa_mtdit.title=Hunanasesiad a’r cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.send_updates_sole_traders=Ar gyfer unig fasnachwyr a landlordiaid sy’n anfon diweddariadau chwarterol gan ddefnyddio meddalwedd.
@@ -828,7 +829,6 @@ label.view_manage_your_mtd_for_it=Bwrw golwg dros y cynllun Troi Treth yn Ddigid
 label.view_manage_your_mtd_itsa=Bwrw golwg dros eich cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli, neu gael at eich Ffurflenni Treth Hunanasesiad.
 label.view_manage_your_mtd_it=Bwrw golwg dros y cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli, a chael mynediad at Hunanasesiad.
 label.it_header=Treth Incwm
-label.online_deadline_tax_returns=Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth yw 31 Ionawr {0}.
 
 waiting_for_callback=Os ydych yn aros i gael galwad ffôn yn ôl
 no_need_to_contact=, does dim angen i chi gysylltu â ni eto.
@@ -894,25 +894,25 @@ ptap.recent-activity.container.default_text.p.line2.2=Eich tasgau
 ptap.recent-activity.container.default_text.p.line2.3=am unrhyw beth arall rydych am ei wybod.
 
 ptap.support.uya.title=Deall eich Cyfrif Treth Personol
-ptap.support.uya.p1=TBC
+ptap.support.uya.p1=Mae’ch Cyfrif Treth Personol yn caniatáu i chi reoli’ch trethi a’ch budd-daliadau mewn un lle. Gallwch ddefnyddio’ch cyfrif i gael mynediad at y canlynol:
 
 ptap.support.uya.p2.header=TBC
 ptap.support.uya.p2=TBC
 ptap.support.uya.p2.link=TBC
 
 ptap.support.uya.p2.sub=Eich tasgau
-ptap.support.uya.p2.tasks=TBC
+ptap.support.uya.p2.tasks=Cwblhau tasgau fel hawlio ad-daliad neu dalu dreth sydd arnoch. Mae’r adran hon yn dangos y tasgau sy’n berthnasol i’ch Talu Wrth Ennill (TWE) yn unig.
 
 ptap.support.uya.p3.sub=Gweithgarwch diweddar
 ptap.support.uya.p3.recent=TBC
 
 ptap.support.uya.p4.sub=Trethi a budd-daliadau
-ptap.support.uya.p4.tab=TBC
+ptap.support.uya.p4.tab=Gwiriwch y trethi a’r budd-daliadau sydd gennych ar hyn o bryd a dod o hyd i eraill a allai fod yn berthnasol i chi.
 
-ptap.support.uya.p5.hs=TBC
+ptap.support.uya.p5.hs=Darllenwch y diweddaraf gan CThEF
 
 ptap.support.uya.p6.sub=Cymorth
-ptap.support.uya.p6.hs=TBC
+ptap.support.uya.p6.hs=Cael cymorth technegol a chymorth gyda threthi a budd-daliadau
 
 ptap.support.uya.list.paye=TBC
 ptap.support.uya.list.sa=TBC
@@ -935,7 +935,7 @@ ptap.support.tab.card.insurance.state.pension.heading=Yswiriant Gwladol a Phensi
 ptap.support.tab.cards.header=Cymorth
 
 ptap.support.tab.card.hmrc.online.link.understanding.account=Deall eich Cyfrif Treth Personol
-ptap.support.tab.card.hmrc.online.link.understanding.account.url=https://www.gov.uk/mewngofnodi-cofrestru-gwasanaethau-ar-lein-cthef
+ptap.support.tab.card.hmrc.online.link.understanding.account.url=/personal-account/support/understanding-your-account
 ptap.support.tab.card.hmrc.online.link.extra.support=Cael help gan CThEF os oes angen cymorth ychwanegol arnoch
 ptap.support.tab.card.hmrc.online.link.extra.support.url=https://www.gov.uk/cael-help-cthem-cymorth-ychwanegol
 ptap.support.tab.card.hmrc.online.link.technical.support=Cymorth technegol â gwasanaethau ar-lein CThEF

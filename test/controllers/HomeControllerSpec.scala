@@ -25,7 +25,7 @@ import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.{GetPersonFromCitizenDetailsToggle, HomePagePersonalisationToggle, PtapActivityTabToggle, ShowPlannedOutageBannerToggle}
 import models.{BreathingSpaceIndicatorResponse, HomePageServices, MyService, OtherService}
 import org.jsoup.Jsoup
-import org.mockito.ArgumentMatchers.{any, anyBoolean}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, verify, when}
 import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesImpl}
@@ -144,7 +144,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     when(mockConfigDecorator.ptapHomepageNinoRolloutLastNumericDigits)
       .thenReturn(Seq(0, 1, 2, 3, 4, 5, 6, 7, 8, 9))
 
-    when(mockHomePageServicesProvider.getHomePageServices(anyBoolean())(any(), any(), any()))
+    when(mockHomePageServicesProvider.getHomePageServices(any())(any(), any(), any()))
       .thenReturn(Future.successful(HomePageServices(Seq.empty)))
 
     when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
@@ -667,7 +667,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
         hintText = Some("Child Benefit hint")
       )
 
-      when(mockHomePageServicesProvider.getHomePageServices(anyBoolean())(any(), any(), any()))
+      when(mockHomePageServicesProvider.getHomePageServices(any())(any(), any(), any()))
         .thenReturn(Future.successful(HomePageServices(Seq(payeService, childBenefitService))))
 
       val appLocal   = appBuilder.build()

@@ -179,6 +179,22 @@ class TaxesAndBenefitsViewSpec extends ViewSpec {
       document.select("div.hmrc-card p.govuk-hint").text() mustBe "PAYE hint text"
     }
 
+    "render combined Self Assessment and MTD supporting text in the tabular redesign" in {
+      val combinedService = MyService(
+        messages("label.mtd_for_itsa"),
+        Some("/itsa"),
+        Some(messages("label.view_and_manage_your_income_tax_obligations_and_payments")),
+        id = Some("itsa")
+      )
+
+      val document = asDocument(page(Seq(combinedService), Seq.empty).toString)
+
+      document.select("div.hmrc-card h4.hmrc-card__heading").text() mustBe messages("label.mtd_for_itsa")
+      document.select("div.hmrc-card p.govuk-hint").text() mustBe messages(
+        "label.view_and_manage_your_income_tax_obligations_and_payments"
+      )
+    }
+
     "render otherService hints when present" in {
       val childBenefitWithHint = childBenefitService.copy(hintText = Some("Child Benefit hint text"))
       val document             = asDocument(page(Seq.empty, Seq(childBenefitWithHint)).toString)
