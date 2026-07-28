@@ -152,7 +152,10 @@ class HomePageServicesProviderSpec extends BaseSpec {
           Map(),
           Some("MTDIT"),
           Some("Making Tax Digital for Income Tax"),
-          id = Some("mtdit")
+          id = Some("mtdit"),
+          Some(
+            "If you're a sole trader or landlord, there's a new way to report your income and expenses. Find out more."
+          )
         ),
         OtherService(
           "Child Benefit",
@@ -225,7 +228,10 @@ class HomePageServicesProviderSpec extends BaseSpec {
           controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url,
           gaAction = Some("MTDIT"),
           gaLabel = Some("Making Tax Digital for Income Tax"),
-          id = Some("mtdit")
+          id = Some("mtdit"),
+          Some(
+            "If you're a sole trader or landlord, there's a new way to report your income and expenses. Find out more."
+          )
         )
       )
     }
@@ -253,7 +259,10 @@ class HomePageServicesProviderSpec extends BaseSpec {
           controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url,
           gaAction = Some("MTDIT"),
           gaLabel = Some("Making Tax Digital for Income Tax"),
-          id = Some("mtdit")
+          id = Some("mtdit"),
+          Some(
+            "If you're a sole trader or landlord, there's a new way to report your income and expenses. Find out more."
+          )
         )
       )
 
@@ -283,7 +292,10 @@ class HomePageServicesProviderSpec extends BaseSpec {
           controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url,
           gaAction = Some("MTDIT"),
           gaLabel = Some("Making Tax Digital for Income Tax"),
-          id = Some("mtdit")
+          id = Some("mtdit"),
+          Some(
+            "If you're a sole trader or landlord, there's a new way to report your income and expenses. Find out more."
+          )
         )
       )
       result.myServices.map(_.title) must not contain "Self Assessment"
