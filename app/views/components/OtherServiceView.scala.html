@@ -28,4 +28,9 @@
     <a class="govuk-link govuk-!-font-weight-bold govuk-!-font-size-19 govuk-link--no-visited-state govuk-!-display-inline-block" href="@otherService.link">
     @otherService.title
     </a>
+    @otherService.hintText.map { hint =>
+        <p class="govuk-body govuk-!-margin-bottom-0">
+            @hint
+        </p>
+    }
 </li>
