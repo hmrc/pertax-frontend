@@ -212,7 +212,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
         MyService(
           "Self Assessment",
           Some(controllers.routes.SaWrongCredentialsController.landingPage().url),
-          Some(s"${messages("title.signed_in_wrong_account.h1")}."),
+          Some(messages("title.signed_in_wrong_account.stop")),
           Map(),
           Some("Income"),
           Some("Self Assessment"),
