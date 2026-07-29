@@ -216,7 +216,7 @@ class HomeController @Inject() (
     enforceInterrupts {
       val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
       val fListOfTasks             = tasksService.getListOfTasks
-      val fHomePageServices        = homePageServicesProvider.getHomePageServices(isRedesign = false)
+      val fHomePageServices        = homePageServicesProvider.getHomePageServices()
       val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
 
       for {
