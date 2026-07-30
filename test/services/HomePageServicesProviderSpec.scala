@@ -153,7 +153,10 @@ class HomePageServicesProviderSpec extends BaseSpec {
           Map(),
           Some("MTDIT"),
           Some("Making Tax Digital for Income Tax"),
-          id = Some("mtdit")
+          id = Some("mtdit"),
+          Some(
+            "If you're a sole trader or landlord, there's a new way to report your income and expenses. Find out more."
+          )
         ),
         OtherService(
           "Child Benefit",
@@ -226,7 +229,10 @@ class HomePageServicesProviderSpec extends BaseSpec {
           controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url,
           gaAction = Some("MTDIT"),
           gaLabel = Some("Making Tax Digital for Income Tax"),
-          id = Some("mtdit")
+          id = Some("mtdit"),
+          Some(
+            "If you're a sole trader or landlord, there's a new way to report your income and expenses. Find out more."
+          )
         )
       )
     }
@@ -255,7 +261,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
         controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url
     }
 
-    "return combined MTD/SA tile in myServices without hint for activated online filer with HMRC-MTD-IT when redesign is false" in {
+    "return combined MTD/SA tile in myServices for activated online filer with HMRC-MTD-IT when redesign is false" in {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")), hasMtdItsaEnrolment = true)
 
@@ -265,7 +271,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
         MyService(
           messages("label.mtd_for_itsa"),
           Some(controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url),
-          None,
+          Some("View and manage your Income Tax obligations and payments."),
           Map(),
           Some("Income"),
           Some("MTD IT & SA"),
@@ -303,7 +309,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
         controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url
     }
 
-    "return combined MTD/SA tile in myServices without hint for wrong credentials user with HMRC-MTD-IT when redesign is false" in {
+    "return combined MTD/SA tile in myServices for wrong credentials user with HMRC-MTD-IT when redesign is false" in {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(WrongCredentialsSelfAssessmentUser(SaUtr("11")), hasMtdItsaEnrolment = true)
 
@@ -313,7 +319,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
         MyService(
           messages("label.mtd_for_itsa"),
           Some(controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url),
-          None,
+          Some("View and manage your Income Tax obligations and payments."),
           Map(),
           Some("Income"),
           Some("MTD IT & SA"),
@@ -366,7 +372,10 @@ class HomePageServicesProviderSpec extends BaseSpec {
           controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url,
           gaAction = Some("MTDIT"),
           gaLabel = Some("Making Tax Digital for Income Tax"),
-          id = Some("mtdit")
+          id = Some("mtdit"),
+          Some(
+            "If you're a sole trader or landlord, there's a new way to report your income and expenses. Find out more."
+          )
         )
       )
 
@@ -396,7 +405,10 @@ class HomePageServicesProviderSpec extends BaseSpec {
           controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url,
           gaAction = Some("MTDIT"),
           gaLabel = Some("Making Tax Digital for Income Tax"),
-          id = Some("mtdit")
+          id = Some("mtdit"),
+          Some(
+            "If you're a sole trader or landlord, there's a new way to report your income and expenses. Find out more."
+          )
         )
       )
       result.myServices.map(_.title) must not contain "Self Assessment"

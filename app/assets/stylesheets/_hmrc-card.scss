@@ -79,7 +79,7 @@ a:hover .hmrc-card__chevron {
   }
 }
 
-@include govuk-media-query($until: tablet) {
+@media (max-width: 640px) {
   .hmrc-card__heading {
     font-size: 1.1rem;
   }

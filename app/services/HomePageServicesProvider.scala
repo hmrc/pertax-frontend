@@ -64,12 +64,12 @@ class HomePageServicesProvider @Inject() (
       else fandFService.isAnyFandFRelationships(nino).map(buildTrustedHelperServices(_, isRedesign))
 
     for {
-      selfAssessmentMy    <- getMySelfAssessment(request.saUserType, request.enrolments, isTrustedHelperUser, isRedesign)
+      selfAssessmentMy    <- getMySelfAssessment(request.saUserType, request.enrolments, isTrustedHelperUser)
       payAsYouEarn        <- getPayAsYouEarn(isRedesign)
       taxCalc             <- getTaxCalculation(isTrustedHelperUser, isRedesign)
       nationalInsurance   <- getNationalInsurance(isRedesign)
       selfAssessmentOther <- getOtherSelfAssessment(request.saUserType, isTrustedHelperUser)
-      mtdOther            <- getMtdOtherService(isTrustedHelperUser, isRedesign)
+      mtdOther            <- getMtdOtherService(isTrustedHelperUser)
       childBenefit        <- getChildBenefit(isTrustedHelperUser, isRedesign)
       annualTaxSummary    <- getAnnualTaxSummaries(isTrustedHelperUser, isRedesign)
       marriageAllowance   <- marriageAllowanceF
@@ -91,11 +91,11 @@ class HomePageServicesProvider @Inject() (
   private def userHasMtdItsaEnrolment(enrolments: Set[Enrolment]): Boolean =
     enrolments.exists(_.key == MtdItsaEnrolmentKey)
 
-  private def combinedMtdSaTile(href: String, isRedesign: Boolean)(implicit messages: Messages): MyService =
+  private def combinedMtdSaTile(href: String)(implicit messages: Messages): MyService =
     MyService(
       messages("label.mtd_for_itsa"),
       Some(href),
-      redesignHint(isRedesign, messages("label.view_and_manage_your_income_tax_obligations_and_payments")),
+      Some(messages("label.view_and_manage_your_income_tax_obligations_and_payments")),
       gaAction = Some("Income"),
       gaLabel = Some("MTD IT & SA"),
       id = Some("itsa")
@@ -121,21 +121,20 @@ class HomePageServicesProvider @Inject() (
       hintText = hint
     )
 
-  private def mtdTile(linkUrl: String, isRedesign: Boolean)(implicit messages: Messages): OtherService =
+  private def mtdTile(linkUrl: String)(implicit messages: Messages): OtherService =
     OtherService(
       messages("label.mtd_for_it"),
       linkUrl,
       gaAction = Some("MTDIT"),
       gaLabel = Some("Making Tax Digital for Income Tax"),
       id = Some("mtdit"),
-      hintText = redesignHint(isRedesign, messages("label.mtdit.p1"))
+      hintText = Some(messages("label.mtdit.p1"))
     )
 
   private def getMySelfAssessment(
     saUserType: SelfAssessmentUserType,
     enrolments: Set[Enrolment],
-    isTrustedHelperUser: Boolean,
-    isRedesign: Boolean
+    isTrustedHelperUser: Boolean
   )(implicit messages: Messages): Future[Option[MyService]] =
     Future.successful {
       if (isTrustedHelperUser) {
@@ -147,16 +146,14 @@ class HomePageServicesProvider @Inject() (
           case (ActivatedOnlineFilerSelfAssessmentUser(_), true) =>
             Some(
               combinedMtdSaTile(
-                href = controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url,
-                isRedesign = isRedesign
+                href = controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url
               )
             )
 
           case (WrongCredentialsSelfAssessmentUser(_), true) =>
             Some(
               combinedMtdSaTile(
-                href = controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url,
-                isRedesign = isRedesign
+                href = controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url
               )
             )
 
@@ -216,8 +213,7 @@ class HomePageServicesProvider @Inject() (
     }
 
   private def getMtdOtherService(
-    isTrustedHelperUser: Boolean,
-    isRedesign: Boolean
+    isTrustedHelperUser: Boolean
   )(implicit request: UserRequest[?], messages: Messages): Future[Option[OtherService]] =
     if (isTrustedHelperUser) {
       Future.successful(None)
@@ -229,8 +225,7 @@ class HomePageServicesProvider @Inject() (
           Future.successful(
             Some(
               mtdTile(
-                controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url,
-                isRedesign = isRedesign
+                controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url
               )
             )
           )
