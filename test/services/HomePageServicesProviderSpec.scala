@@ -241,7 +241,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
         MyService(
           messages("label.mtd_for_itsa"),
           Some(controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url),
-          Some("View and manage your Income Tax obligations and payments"),
+          Some("View and manage your Income Tax obligations and payments."),
           Map(),
           Some("Income"),
           Some("MTD IT & SA"),
@@ -289,7 +289,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
         MyService(
           messages("label.mtd_for_itsa"),
           Some(controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url),
-          Some("View and manage your Income Tax obligations and payments"),
+          Some("View and manage your Income Tax obligations and payments."),
           Map(),
           Some("Income"),
           Some("MTD IT & SA"),

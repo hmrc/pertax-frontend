@@ -820,7 +820,7 @@ tax_credits.ended.information.how.continue.li2 = cysylltu â Gwasanaeth Cwsmeria
 
 label.mtd_for_it=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.mtd_for_itsa=Hunanasesiad a Throi Treth yn Ddigidol ar gyfer Treth Incwm
-label.view_and_manage_your_income_tax_obligations_and_payments=Bwrw golwg dros a rheoli’ch rhwymedigaethau a’ch taliadau Treth Incwm
+label.view_and_manage_your_income_tax_obligations_and_payments=Bwrw golwg dros a rheoli’ch rhwymedigaethau a’ch taliadau Treth Incwm.
 label.mtd_for_it_sa=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.send_updates_sole_traders=Ar gyfer unig fasnachwyr a landlordiaid sy’n anfon diweddariadau chwarterol gan ddefnyddio meddalwedd.
 label.view_manage_your_mtd_for_it=Bwrw golwg dros y cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli
