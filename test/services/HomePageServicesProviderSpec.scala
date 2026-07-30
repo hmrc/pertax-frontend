@@ -241,9 +241,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
         MyService(
           messages("label.mtd_for_itsa"),
           Some(controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url),
-          Some(
-            s"${messages("label.view_manage_your_mtd_it")} ${messages("label.online_deadline_tax_returns", (TaxYear.current.startYear + 1).toString)}"
-          ),
+          Some("View and manage your Income Tax obligations and payments"),
           Map(),
           Some("Income"),
           Some("MTD IT & SA"),
@@ -291,9 +289,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
         MyService(
           messages("label.mtd_for_itsa"),
           Some(controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url),
-          Some(
-            s"${messages("label.view_manage_your_mtd_it")} ${messages("label.online_deadline_tax_returns", (TaxYear.current.startYear + 1).toString)}"
-          ),
+          Some("View and manage your Income Tax obligations and payments"),
           Map(),
           Some("Income"),
           Some("MTD IT & SA"),
@@ -341,9 +337,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       val itsaService = result.myServices.find(_.id.contains("itsa"))
       itsaService.map(_.title) mustBe Some(welshMessages("label.mtd_for_itsa"))
       itsaService.flatMap(_.hintText) mustBe
-        Some(
-          s"${welshMessages("label.view_manage_your_mtd_it")} ${welshMessages("label.online_deadline_tax_returns", (TaxYear.current.startYear + 1).toString)}"
-        )
+        Some(welshMessages("label.view_and_manage_your_income_tax_obligations_and_payments"))
       result.myServices.map(_.title)    must contain(welshMessages("label.mtd_for_itsa"))
       result.otherServices.map(_.title) must not contain welshMessages("label.mtd_for_itsa")
       result.otherServices.map(_.title) must not contain welshMessages("label.self_assessment")

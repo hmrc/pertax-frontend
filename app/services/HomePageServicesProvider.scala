@@ -95,10 +95,7 @@ class HomePageServicesProvider @Inject() (
     MyService(
       messages("label.mtd_for_itsa"),
       Some(href),
-      redesignHint(
-        isRedesign,
-        s"${messages("label.view_manage_your_mtd_it")} ${messages("label.online_deadline_tax_returns", (current.currentYear + 1).toString)}"
-      ),
+      redesignHint(isRedesign, messages("label.view_and_manage_your_income_tax_obligations_and_payments")),
       gaAction = Some("Income"),
       gaLabel = Some("MTD IT & SA"),
       id = Some("itsa")
