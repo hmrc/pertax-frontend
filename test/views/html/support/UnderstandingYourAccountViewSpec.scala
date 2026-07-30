@@ -69,7 +69,7 @@ class UnderstandingYourAccountViewSpec extends ViewSpec {
       val welshDocument = asDocument(page()(userRequest, welshMessages).toString)
       val expectedTitle = "Deall eich Cyfrif Treth Personol"
       val expectedIntro =
-        "Mae’ch Cyfrif Treth Personol yn caniatáu i chi reoli’ch trethi a’ch budd-daliadau mewn un lle."
+        "Mae’ch Cyfrif Treth Personol yn caniatáu i chi reoli’ch trethi a’ch budd-daliadau mewn un lle. Gallwch ddefnyddio’ch cyfrif i gael mynediad at y canlynol:"
 
       welshDocument.select("h1").text() mustBe expectedTitle
       welshDocument

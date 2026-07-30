@@ -893,25 +893,25 @@ ptap.recent-activity.container.default_text.p.line2.2=Eich tasgau
 ptap.recent-activity.container.default_text.p.line2.3=am unrhyw beth arall rydych am ei wybod.
 
 ptap.support.uya.title=Deall eich Cyfrif Treth Personol
-ptap.support.uya.p1=Mae’ch Cyfrif Treth Personol yn caniatáu i chi reoli’ch trethi a’ch budd-daliadau mewn un lle.
+ptap.support.uya.p1=Mae’ch Cyfrif Treth Personol yn caniatáu i chi reoli’ch trethi a’ch budd-daliadau mewn un lle. Gallwch ddefnyddio’ch cyfrif i gael mynediad at y canlynol:
 
 ptap.support.uya.p2.header=TBC
 ptap.support.uya.p2=TBC
 ptap.support.uya.p2.link=TBC
 
 ptap.support.uya.p2.sub=Eich tasgau
-ptap.support.uya.p2.tasks=TBC
+ptap.support.uya.p2.tasks=Cwblhau tasgau fel hawlio ad-daliad neu dalu dreth sydd arnoch. Mae’r adran hon yn dangos y tasgau sy’n berthnasol i’ch Talu Wrth Ennill (TWE) yn unig.
 
 ptap.support.uya.p3.sub=Gweithgarwch diweddar
 ptap.support.uya.p3.recent=TBC
 
 ptap.support.uya.p4.sub=Trethi a budd-daliadau
-ptap.support.uya.p4.tab=TBC
+ptap.support.uya.p4.tab=Gwiriwch y trethi a’r budd-daliadau sydd gennych ar hyn o bryd a dod o hyd i eraill a allai fod yn berthnasol i chi.
 
-ptap.support.uya.p5.hs=TBC
+ptap.support.uya.p5.hs=Darllenwch y diweddaraf gan CThEF
 
 ptap.support.uya.p6.sub=Cymorth
-ptap.support.uya.p6.hs=TBC
+ptap.support.uya.p6.hs=Cael cymorth technegol a chymorth gyda threthi a budd-daliadau
 
 ptap.support.uya.list.paye=TBC
 ptap.support.uya.list.sa=TBC
