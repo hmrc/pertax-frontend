@@ -19,6 +19,7 @@ package views.html
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.bindable.Origin
+import models.MyService
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentMatchers.any
@@ -135,6 +136,23 @@ class HomeViewSpec extends ViewSpec {
 
       view must include(messages("label.home_page.utr"))
       view must include(utr)
+    }
+
+    "render combined Self Assessment and MTD supporting text in the current design" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val combinedService                                           = MyService(
+        messages("label.mtd_for_itsa"),
+        Some("/itsa"),
+        Some(messages("label.view_and_manage_your_income_tax_obligations_and_payments")),
+        id = Some("itsa")
+      )
+
+      val document = asDocument(home(homeViewModel.copy(myServices = Seq(combinedService))).toString)
+
+      document.select("ul#my_taxes li#itsa a").text() mustBe messages("label.mtd_for_itsa")
+      document.select("ul#my_taxes li#itsa p.govuk-body").text() mustBe messages(
+        "label.view_and_manage_your_income_tax_obligations_and_payments"
+      )
     }
 
     "show the alert banner if there is some alert content" in {
