@@ -143,14 +143,16 @@ class HomeViewSpec extends ViewSpec {
       val combinedService                                           = MyService(
         messages("label.mtd_for_itsa"),
         Some("/itsa"),
-        Some(messages("label.view_manage_your_mtd_it")),
+        Some(messages("label.view_and_manage_your_income_tax_obligations_and_payments")),
         id = Some("itsa")
       )
 
       val document = asDocument(home(homeViewModel.copy(myServices = Seq(combinedService))).toString)
 
       document.select("ul#my_taxes li#itsa a").text() mustBe messages("label.mtd_for_itsa")
-      document.select("ul#my_taxes li#itsa p.govuk-body").text() mustBe messages("label.view_manage_your_mtd_it")
+      document.select("ul#my_taxes li#itsa p.govuk-body").text() mustBe messages(
+        "label.view_and_manage_your_income_tax_obligations_and_payments"
+      )
     }
 
     "render Self Assessment other service supporting text in the current design" in {

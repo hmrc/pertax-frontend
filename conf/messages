@@ -643,6 +643,7 @@ label.access_your_self_assessment=Access your Self Assessment
 
 title.signed_in_wrong_account.h1=You are not signed in to the right account
 label.signed_in_wrong_account=You used a different account when you first signed-up to view or send your tax returns online.
+label.signed_in_wrong_account.tile=You are not signed in to the right account.
 
 title.sign_in_again.h1=You need to sign back in to Government Gateway using different details
 label.sign_in_again=You will be asked to sign in again with the user ID and password for the account you use for Self Assessment.

@@ -639,6 +639,7 @@ label.access_your_self_assessment=Cael at eich cyfrif Hunanasesiad
 
 title.signed_in_wrong_account.h1=Nid ydych wedi mewngofnodi i’r cyfrif cywir
 label.signed_in_wrong_account=Defnyddioch gyfrif gwahanol pan wnaethoch gofrestru gyntaf i fwrw golwg dros eich Ffurflenni Treth, neu eu hanfon, ar-lein.
+label.signed_in_wrong_account.tile=Nid ydych wedi mewngofnodi i’r cyfrif cywir.
 
 title.sign_in_again.h1=Mae angen i chi fewngofnodi eto i Borth y Llywodraeth gan ddefnyddio manylion gwahanol
 label.sign_in_again=Gofynnir i chi fewngofnodi eto gyda’r Dynodydd Defnyddiwr (ID) a’r cyfrinair ar gyfer y cyfrif rydych yn ei ddefnyddio ar gyfer Hunanasesiad.
@@ -820,7 +821,7 @@ tax_credits.ended.information.how.continue.li2 = cysylltu â Gwasanaeth Cwsmeria
 
 label.mtd_for_it=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.mtd_for_itsa=Hunanasesiad a Throi Treth yn Ddigidol ar gyfer Treth Incwm
-label.view_and_manage_your_income_tax_obligations_and_payments=Bwrw golwg dros a rheoli’ch rhwymedigaethau a’ch taliadau Treth Incwm.
+label.view_and_manage_your_income_tax_obligations_and_payments=Bwrw golwg dros eich rhwymedigaethau a’ch taliadau Treth Incwm, a’u rheoli.
 label.mtd_for_it_sa=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.send_updates_sole_traders=Ar gyfer unig fasnachwyr a landlordiaid sy’n anfon diweddariadau chwarterol gan ddefnyddio meddalwedd.
 label.view_manage_your_mtd_for_it=Bwrw golwg dros y cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli

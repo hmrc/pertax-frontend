@@ -216,7 +216,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
         MyService(
           "Self Assessment",
           Some(controllers.routes.SaWrongCredentialsController.landingPage().url),
-          Some(messages("label.signed_in_wrong_account")),
+          Some(messages("label.signed_in_wrong_account.tile")),
           Map(),
           Some("Income"),
           Some("Self Assessment"),
@@ -247,7 +247,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
         MyService(
           messages("label.mtd_for_itsa"),
           Some(controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url),
-          Some("View and manage Making Tax Digital for Income Tax and access Self Assessment."),
+          Some(messages("label.view_and_manage_your_income_tax_obligations_and_payments")),
           Map(),
           Some("Income"),
           Some("MTD IT & SA"),
@@ -271,7 +271,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
         MyService(
           messages("label.mtd_for_itsa"),
           Some(controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url),
-          Some("View and manage Making Tax Digital for Income Tax and access Self Assessment."),
+          Some(messages("label.view_and_manage_your_income_tax_obligations_and_payments")),
           Map(),
           Some("Income"),
           Some("MTD IT & SA"),
@@ -295,7 +295,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
         MyService(
           messages("label.mtd_for_itsa"),
           Some(controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url),
-          Some("View and manage Making Tax Digital for Income Tax and access Self Assessment."),
+          Some(messages("label.view_and_manage_your_income_tax_obligations_and_payments")),
           Map(),
           Some("Income"),
           Some("MTD IT & SA"),
@@ -319,7 +319,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
         MyService(
           messages("label.mtd_for_itsa"),
           Some(controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url),
-          Some("View and manage Making Tax Digital for Income Tax and access Self Assessment."),
+          Some(messages("label.view_and_manage_your_income_tax_obligations_and_payments")),
           Map(),
           Some("Income"),
           Some("MTD IT & SA"),
@@ -342,7 +342,9 @@ class HomePageServicesProviderSpec extends BaseSpec {
 
       val itsaService = result.myServices.find(_.id.contains("itsa"))
       itsaService.map(_.title) mustBe Some(welshMessages("label.mtd_for_itsa"))
-      itsaService.flatMap(_.hintText) mustBe Some(welshMessages("label.view_manage_your_mtd_it"))
+      itsaService.flatMap(_.hintText) mustBe Some(
+        welshMessages("label.view_and_manage_your_income_tax_obligations_and_payments")
+      )
       result.myServices.map(_.title)    must contain(welshMessages("label.mtd_for_itsa"))
       result.otherServices.map(_.title) must not contain welshMessages("label.mtd_for_itsa")
       result.otherServices.map(_.title) must not contain welshMessages("label.self_assessment")
