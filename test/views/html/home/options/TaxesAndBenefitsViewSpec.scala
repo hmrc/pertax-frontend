@@ -183,16 +183,14 @@ class TaxesAndBenefitsViewSpec extends ViewSpec {
       val combinedService = MyService(
         messages("label.mtd_for_itsa"),
         Some("/itsa"),
-        Some(messages("label.view_and_manage_your_income_tax_obligations_and_payments")),
+        Some(messages("label.view_manage_your_mtd_it")),
         id = Some("itsa")
       )
 
       val document = asDocument(page(Seq(combinedService), Seq.empty).toString)
 
       document.select("div.hmrc-card h4.hmrc-card__heading").text() mustBe messages("label.mtd_for_itsa")
-      document.select("div.hmrc-card p.govuk-hint").text() mustBe messages(
-        "label.view_and_manage_your_income_tax_obligations_and_payments"
-      )
+      document.select("div.hmrc-card p.govuk-hint").text() mustBe messages("label.view_manage_your_mtd_it")
     }
 
     "render otherService hints when present" in {

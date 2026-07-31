@@ -95,7 +95,7 @@ class HomePageServicesProvider @Inject() (
     MyService(
       messages("label.mtd_for_itsa"),
       Some(href),
-      Some(messages("label.view_and_manage_your_income_tax_obligations_and_payments")),
+      Some(messages("label.view_manage_your_mtd_it")),
       gaAction = Some("Income"),
       gaLabel = Some("MTD IT & SA"),
       id = Some("itsa")
@@ -169,7 +169,7 @@ class HomePageServicesProvider @Inject() (
             Some(
               mySaTile(
                 href = controllers.routes.SaWrongCredentialsController.landingPage().url,
-                body = messages("title.signed_in_wrong_account.h1")
+                body = messages("label.signed_in_wrong_account")
               )
             )
 
