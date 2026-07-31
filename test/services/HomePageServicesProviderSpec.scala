@@ -42,13 +42,15 @@ class HomePageServicesProviderSpec extends BaseSpec {
   private val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
   private val mockFandFService: FandFService             = mock[FandFService]
   private val mockTaiService: TaiService                 = mock[TaiService]
+  private val mockLeppService: LeppService               = mock[LeppService]
 
   private lazy val service =
     new HomePageServicesProvider(
       mockConfigDecorator,
       mockFeatureFlagService,
       mockFandFService,
-      mockTaiService
+      mockTaiService,
+      mockLeppService
     )
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
@@ -76,6 +78,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
     reset(mockFeatureFlagService)
     reset(mockFandFService)
     reset(mockTaiService)
+    reset(mockLeppService)
 
     when(mockFeatureFlagService.get(eqTo(ShowTaxCalcTileToggle)))
       .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = false)))
@@ -85,6 +88,9 @@ class HomePageServicesProviderSpec extends BaseSpec {
 
     when(mockFandFService.isAnyFandFRelationships(any())(any()))
       .thenReturn(Future.successful(false))
+
+    when(mockLeppService.getLeppLink(any(), any()))
+      .thenReturn(Future.successful(None))
 
     when(mockConfigDecorator.taxCalcHomePageUrl).thenReturn("taxcalc/")
     when(mockConfigDecorator.taxCalcYearsToShow).thenReturn(4)
@@ -329,7 +335,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       verify(mockFeatureFlagService, times(0)).get(eqTo(ShowTaxCalcTileToggle))
     }
 
-    "return no self assessment, child benefit, annual tax summary, marriage allowance or trusted helpers when trusted helper is active" in {
+    "return no self assessment, child benefit, LEPP, annual tax summary, marriage allowance or trusted helpers when trusted helper is active" in {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(
           ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")),
@@ -364,6 +370,43 @@ class HomePageServicesProviderSpec extends BaseSpec {
 
       verify(mockTaiService, times(0)).getTaxComponentsList(any(), any())(any(), any())
       verify(mockFandFService, times(0)).isAnyFandFRelationships(any())(any())
+      verify(mockLeppService, times(0)).getLeppLink(any(), any())
+    }
+
+    "return LEPP in myServices when the LEPP service returns a link" in {
+      implicit val request: UserRequest[AnyContent] =
+        buildRequest()
+      val leppStartUrl                              =
+        "https://www.tax.service.gov.uk/accept-your-low-earners-pension-payment/start"
+
+      when(mockLeppService.getLeppLink(any(), any()))
+        .thenReturn(Future.successful(Some(leppStartUrl)))
+
+      val result = service.getHomePageServices().futureValue
+
+      result.myServices must contain(
+        MyService(
+          "Low earner's pension payment (LEPP)",
+          Some(leppStartUrl),
+          Some("View and accept your low earner's pension payment."),
+          Map(),
+          gaAction = Some("Benefits"),
+          gaLabel = Some("Low earner's pension payment (LEPP)"),
+          id = Some("lepp")
+        )
+      )
+
+      result.otherServices.map(_.id) must not contain Some("lepp")
+    }
+
+    "return no LEPP service when the LEPP service returns no link" in {
+      implicit val request: UserRequest[AnyContent] =
+        buildRequest()
+
+      val result = service.getHomePageServices().futureValue
+
+      result.myServices.map(_.id)    must not contain Some("lepp")
+      result.otherServices.map(_.id) must not contain Some("lepp")
     }
 
     "return no tax calculation service when feature flag is disabled" in {

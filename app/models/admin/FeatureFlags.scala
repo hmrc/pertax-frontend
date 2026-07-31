@@ -40,6 +40,7 @@ object AllFeatureFlags {
     MTDUserStatusToggle,
     GetMatchingFromCitizenDetailsToggle,
     ClaimMtdFromPtaToggle,
+    LowEarnersPensionsPaymentToggle,
     HomePageChangesBannerToggle,
     HomePagePersonalisationToggle,
     PtapActivityTabToggle
@@ -205,6 +206,16 @@ case object ClaimMtdFromPtaToggle extends FeatureFlagName {
 
   override val lockedEnvironments: Seq[Environment] =
     Seq(Environment.Staging, Environment.Qa, Environment.Production)
+}
+
+case object LowEarnersPensionsPaymentToggle extends FeatureFlagName {
+  override val name: String = "low-earners-pensions-payment-toggle"
+
+  override val description: Option[String] = Some(
+    "Enable/disable Low earner's pension payment tile in Taxes and benefits"
+  )
+
+  override val defaultState: Boolean = false
 }
 
 case object HomePageChangesBannerToggle extends FeatureFlagName {

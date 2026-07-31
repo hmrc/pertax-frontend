@@ -34,7 +34,8 @@ class HomePageServicesProvider @Inject() (
   configDecorator: ConfigDecorator,
   featureFlagService: FeatureFlagService,
   fandFService: FandFService,
-  taiService: TaiService
+  taiService: TaiService,
+  leppService: LeppService
 )(implicit ec: ExecutionContext)
     extends CurrentTaxYear {
 
@@ -71,6 +72,7 @@ class HomePageServicesProvider @Inject() (
       selfAssessmentOther <- getOtherSelfAssessment(request.saUserType, isTrustedHelperUser)
       mtdOther            <- getMtdOtherService(isTrustedHelperUser)
       childBenefit        <- getChildBenefit(isTrustedHelperUser, isRedesign)
+      lepp                <- getLepp(isTrustedHelperUser)
       annualTaxSummary    <- getAnnualTaxSummaries(isTrustedHelperUser, isRedesign)
       marriageAllowance   <- marriageAllowanceF
       trustedHelper       <- trustedHelperF
@@ -83,6 +85,7 @@ class HomePageServicesProvider @Inject() (
         selfAssessmentOther,
         mtdOther,
         childBenefit,
+        lepp,
         annualTaxSummary
       ).flatten ++ marriageAllowance ++ trustedHelper
     )
@@ -131,6 +134,16 @@ class HomePageServicesProvider @Inject() (
       gaLabel = Some("Making Tax Digital for Income Tax"),
       id = Some("mtdit"),
       hintText = Some(messages("label.mtdit.p1"))
+    )
+
+  private def leppTile(linkUrl: String)(implicit messages: Messages): MyService =
+    MyService(
+      messages("label.lepp.title"),
+      Some(linkUrl),
+      gaAction = Some("Benefits"),
+      gaLabel = Some("Low earner's pension payment (LEPP)"),
+      id = Some("lepp"),
+      hintText = Some(messages("label.lepp.hint"))
     )
 
   private def getMySelfAssessment(
@@ -233,6 +246,15 @@ class HomePageServicesProvider @Inject() (
           )
         case _             => Future.successful(None)
       }
+    }
+
+  private def getLepp(
+    isTrustedHelperUser: Boolean
+  )(implicit hc: HeaderCarrier, request: UserRequest[?], messages: Messages): Future[Option[MyService]] =
+    if (isTrustedHelperUser) {
+      Future.successful(None)
+    } else {
+      leppService.getLeppLink.map(_.map(leppTile))
     }
 
   private def getPayAsYouEarn(isRedesign: Boolean)(implicit messages: Messages): Future[Option[MyService]] =
