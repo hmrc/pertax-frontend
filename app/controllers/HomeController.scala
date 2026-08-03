@@ -104,7 +104,7 @@ class HomeController @Inject() (
         val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
         val fTabContentCards         = tabContentService.getTaskAndTabCards(currentTab)
         val fHomePageServices        =
-          if (currentTab == Tax) homePageServicesProvider.getHomePageServices()
+          if (currentTab == Tax) homePageServicesProvider.getHomePageServices(isRedesign = true)
           else Future.successful(HomePageServices(Seq.empty))
         val fActivityTabEnabled      = featureFlagService.get(PtapActivityTabToggle).map(_.isEnabled)
 

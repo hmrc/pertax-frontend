@@ -216,7 +216,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
         MyService(
           "Self Assessment",
           Some(controllers.routes.SaWrongCredentialsController.landingPage().url),
-          Some(messages("label.signed_in_wrong_account.tile")),
+          Some(messages("title.signed_in_wrong_account.stop")),
           Map(),
           Some("Income"),
           Some("Self Assessment"),
@@ -636,7 +636,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       when(mockFeatureFlagService.get(eqTo(ShowTaxCalcTileToggle)))
         .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
 
-      val result = service.getHomePageServices().futureValue
+      val result = service.getHomePageServices(isRedesign = true).futureValue
 
       result.myServices.find(_.title == "Pay As You Earn (PAYE)").flatMap(_.hintText) mustBe
         Some(messages("label.your_income_from_employers_and_private_pensions_"))

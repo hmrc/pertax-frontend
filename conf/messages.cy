@@ -640,7 +640,6 @@ label.access_your_self_assessment=Cael at eich cyfrif Hunanasesiad
 title.signed_in_wrong_account.h1=Nid ydych wedi mewngofnodi i’r cyfrif cywir
 title.signed_in_wrong_account.stop=Nid ydych wedi mewngofnodi i’r cyfrif cywir.
 label.signed_in_wrong_account=Defnyddioch gyfrif gwahanol pan wnaethoch gofrestru gyntaf i fwrw golwg dros eich Ffurflenni Treth, neu eu hanfon, ar-lein.
-label.signed_in_wrong_account.tile=Nid ydych wedi mewngofnodi i’r cyfrif cywir.
 
 title.sign_in_again.h1=Mae angen i chi fewngofnodi eto i Borth y Llywodraeth gan ddefnyddio manylion gwahanol
 label.sign_in_again=Gofynnir i chi fewngofnodi eto gyda’r Dynodydd Defnyddiwr (ID) a’r cyfrinair ar gyfer y cyfrif rydych yn ei ddefnyddio ar gyfer Hunanasesiad.
