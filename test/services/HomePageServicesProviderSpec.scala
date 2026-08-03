@@ -241,7 +241,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")), hasMtdItsaEnrolment = true)
 
-      val result = service.getHomePageServices(isRedesign = true).futureValue
+      val result = service.getHomePageServices().futureValue
 
       result.myServices                 must contain(
         MyService(
@@ -289,7 +289,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(WrongCredentialsSelfAssessmentUser(SaUtr("11")), hasMtdItsaEnrolment = true)
 
-      val result = service.getHomePageServices(isRedesign = true).futureValue
+      val result = service.getHomePageServices().futureValue
 
       result.myServices                 must contain(
         MyService(
@@ -338,7 +338,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")), hasMtdItsaEnrolment = true)
 
-      val result = service.getHomePageServices(isRedesign = true).futureValue
+      val result = service.getHomePageServices().futureValue
 
       val itsaService = result.myServices.find(_.id.contains("itsa"))
       itsaService.map(_.title) mustBe Some(welshMessages("label.mtd_for_itsa"))
@@ -636,7 +636,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       when(mockFeatureFlagService.get(eqTo(ShowTaxCalcTileToggle)))
         .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = true)))
 
-      val result = service.getHomePageServices(isRedesign = true).futureValue
+      val result = service.getHomePageServices().futureValue
 
       result.myServices.find(_.title == "Pay As You Earn (PAYE)").flatMap(_.hintText) mustBe
         Some(messages("label.your_income_from_employers_and_private_pensions_"))
