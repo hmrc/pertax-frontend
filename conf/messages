@@ -642,6 +642,7 @@ global.page.not.found.error.contact.link=https://www.gov.uk/government/organisat
 label.access_your_self_assessment=Access your Self Assessment
 
 title.signed_in_wrong_account.h1=You are not signed in to the right account
+title.signed_in_wrong_account.stop=You are not signed in to the right account.
 label.signed_in_wrong_account=You used a different account when you first signed-up to view or send your tax returns online.
 label.signed_in_wrong_account.tile=You are not signed in to the right account.
 
