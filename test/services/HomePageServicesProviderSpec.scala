@@ -38,11 +38,11 @@ import scala.concurrent.Future
 
 class HomePageServicesProviderSpec extends BaseSpec {
 
-  private val mockConfigDecorator: ConfigDecorator       = mock[ConfigDecorator]
+  private val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
   private val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
-  private val mockFandFService: FandFService             = mock[FandFService]
-  private val mockTaiService: TaiService                 = mock[TaiService]
-  private val mockLeppService: LeppService               = mock[LeppService]
+  private val mockFandFService: FandFService = mock[FandFService]
+  private val mockTaiService: TaiService = mock[TaiService]
+  private val mockLeppService: LeppService = mock[LeppService]
 
   private lazy val service =
     new HomePageServicesProvider(

@@ -31,9 +31,9 @@ import scala.concurrent.{ExecutionContext, Future}
 class CachingLeppConnectorSpec extends ConnectorSpec with BaseSpec with WireMockHelper {
 
   private val injectedCacheService: CacheService = app.injector.instanceOf[CacheService]
-  private val mockLeppConnector: LeppConnector   = mock[LeppConnector]
+  private val mockLeppConnector: LeppConnector = mock[LeppConnector]
 
-  override implicit val hc: HeaderCarrier         = HeaderCarrier()
+  override implicit val hc: HeaderCarrier = HeaderCarrier()
   override implicit lazy val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
   private def connector: CachingLeppConnector =
