@@ -224,7 +224,7 @@ case object HomePagePersonalisationToggle extends FeatureFlagName {
   )
   override val lockedEnvironments: Seq[Environment] =
     Seq(Environment.Local, Environment.Staging, Environment.Qa, Environment.Production)
-  override val defaultState: Boolean                = true
+  override val defaultState: Boolean                = false
 }
 
 case object PtapActivityTabToggle extends FeatureFlagName {
