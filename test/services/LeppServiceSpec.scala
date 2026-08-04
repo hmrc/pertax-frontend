@@ -35,13 +35,13 @@ import scala.concurrent.Future
 
 class LeppServiceSpec extends BaseSpec {
 
-  private val mockLeppConnector: LeppConnector = mock[LeppConnector]
+  private val mockLeppConnector: LeppConnector     = mock[LeppConnector]
   private val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
-  private val startUrl =
+  private val startUrl                             =
     "https://www.tax.service.gov.uk/accept-your-low-earners-pension-payment/start"
-  private val paymentsUrl =
+  private val paymentsUrl                          =
     "https://www.tax.service.gov.uk/accept-your-low-earners-pension-payment/payments"
-  private val sut: LeppService =
+  private val sut: LeppService                     =
     new LeppService(mockLeppConnector, mockFeatureFlagService, mockConfigDecorator)
 
   implicit val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()

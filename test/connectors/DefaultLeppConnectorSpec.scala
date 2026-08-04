@@ -30,9 +30,9 @@ class DefaultLeppConnectorSpec extends ConnectorSpec with WireMockHelper with In
   override implicit lazy val app: Application =
     app(
       Map(
-        "microservice.services.low-earners-pensions-payment.port" -> server.port(),
+        "microservice.services.low-earners-pensions-payment.port"                  -> server.port(),
         "microservice.services.low-earners-pensions-payment.timeoutInMilliseconds" -> 1000,
-        "feature.low-earners-pensions-payment.maxTps" -> 1000
+        "feature.low-earners-pensions-payment.maxTps"                              -> 1000
       )
     )
 
