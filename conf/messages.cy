@@ -934,7 +934,7 @@ ptap.support.tab.card.insurance.state.pension.heading=Yswiriant Gwladol a Phensi
 ptap.support.tab.cards.header=Cymorth
 
 ptap.support.tab.card.hmrc.online.link.understanding.account=Deall eich Cyfrif Treth Personol
-ptap.support.tab.card.hmrc.online.link.understanding.account.url=https://www.gov.uk/mewngofnodi-cofrestru-gwasanaethau-ar-lein-cthef
+ptap.support.tab.card.hmrc.online.link.understanding.account.url=/personal-account/support/understanding-your-account
 ptap.support.tab.card.hmrc.online.link.extra.support=Cael help gan CThEF os oes angen cymorth ychwanegol arnoch
 ptap.support.tab.card.hmrc.online.link.extra.support.url=https://www.gov.uk/cael-help-cthem-cymorth-ychwanegol
 ptap.support.tab.card.hmrc.online.link.technical.support=Cymorth technegol â gwasanaethau ar-lein CThEF
