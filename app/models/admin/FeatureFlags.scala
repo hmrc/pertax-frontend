@@ -210,11 +210,11 @@ case object ClaimMtdFromPtaToggle extends FeatureFlagName {
 case object HomePageChangesBannerToggle extends FeatureFlagName {
   override val name: String = "home-change-banner-toggle"
 
-  override val description: Option[String] = Some(
+  override val description: Option[String]          = Some(
     "Enable/disable the banner on PTA home page informing users about changes made to the home page design"
   )
   override val lockedEnvironments: Seq[Environment] = Seq(Environment.Production, Environment.Staging)
-  override val defaultState: Boolean = false
+  override val defaultState: Boolean                = false
 }
 
 case object HomePagePersonalisationToggle extends FeatureFlagName {
