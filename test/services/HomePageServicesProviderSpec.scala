@@ -26,7 +26,7 @@ import play.api.i18n.{Lang, Messages, MessagesImpl}
 import play.api.mvc.AnyContent
 import play.api.test.FakeRequest
 import testUtils.BaseSpec
-import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
@@ -55,7 +55,8 @@ class HomePageServicesProviderSpec extends BaseSpec {
 
   private def buildRequest(
     saUserType: SelfAssessmentUserType = NonFilerSelfAssessmentUser,
-    trustedHelper: Option[TrustedHelper] = None
+    trustedHelper: Option[TrustedHelper] = None,
+    hasMtdItsaEnrolment: Boolean = false
   ): UserRequest[AnyContent] =
     UserRequest(
       authNino = generatedNino,
@@ -63,7 +64,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       credentials = Credentials("credId", "GovernmentGateway"),
       confidenceLevel = ConfidenceLevel.L200,
       trustedHelper = trustedHelper,
-      enrolments = Set.empty,
+      enrolments = if (hasMtdItsaEnrolment) Set(Enrolment("HMRC-MTD-IT")) else Set.empty,
       profile = None,
       breadcrumb = None,
       request = FakeRequest(),
@@ -234,6 +235,119 @@ class HomePageServicesProviderSpec extends BaseSpec {
           )
         )
       )
+    }
+
+    "return combined MTD/SA tile in myServices for activated online filer with HMRC-MTD-IT when redesign is true" in {
+      implicit val request: UserRequest[AnyContent] =
+        buildRequest(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")), hasMtdItsaEnrolment = true)
+
+      val result = service.getHomePageServices().futureValue
+
+      result.myServices                 must contain(
+        MyService(
+          messages("label.mtd_for_itsa"),
+          Some(controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url),
+          Some(messages("label.view_and_manage_your_income_tax_obligations_and_payments")),
+          Map(),
+          Some("Income"),
+          Some("MTD IT & SA"),
+          id = Some("itsa")
+        )
+      )
+      result.myServices.map(_.title)    must contain(messages("label.mtd_for_itsa"))
+      result.otherServices.map(_.title) must not contain messages("label.mtd_for_itsa")
+      result.otherServices.map(_.title) must not contain messages("label.self_assessment")
+      result.otherServices.map(_.link)  must not contain
+        controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url
+    }
+
+    "return combined MTD/SA tile in myServices for activated online filer with HMRC-MTD-IT when redesign is false" in {
+      implicit val request: UserRequest[AnyContent] =
+        buildRequest(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")), hasMtdItsaEnrolment = true)
+
+      val result = service.getHomePageServices().futureValue
+
+      result.myServices                 must contain(
+        MyService(
+          messages("label.mtd_for_itsa"),
+          Some(controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url),
+          Some(messages("label.view_and_manage_your_income_tax_obligations_and_payments")),
+          Map(),
+          Some("Income"),
+          Some("MTD IT & SA"),
+          id = Some("itsa")
+        )
+      )
+      result.myServices.map(_.title)    must contain(messages("label.mtd_for_itsa"))
+      result.otherServices.map(_.title) must not contain messages("label.mtd_for_itsa")
+      result.otherServices.map(_.title) must not contain messages("label.self_assessment")
+      result.otherServices.map(_.link)  must not contain
+        controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url
+    }
+
+    "return combined MTD/SA tile in myServices for wrong credentials user with HMRC-MTD-IT when redesign is true" in {
+      implicit val request: UserRequest[AnyContent] =
+        buildRequest(WrongCredentialsSelfAssessmentUser(SaUtr("11")), hasMtdItsaEnrolment = true)
+
+      val result = service.getHomePageServices().futureValue
+
+      result.myServices                 must contain(
+        MyService(
+          messages("label.mtd_for_itsa"),
+          Some(controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url),
+          Some(messages("label.view_and_manage_your_income_tax_obligations_and_payments")),
+          Map(),
+          Some("Income"),
+          Some("MTD IT & SA"),
+          id = Some("itsa")
+        )
+      )
+      result.myServices.map(_.title)    must contain(messages("label.mtd_for_itsa"))
+      result.otherServices.map(_.title) must not contain messages("label.mtd_for_itsa")
+      result.otherServices.map(_.title) must not contain messages("label.self_assessment")
+      result.otherServices.map(_.link)  must not contain
+        controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url
+    }
+
+    "return combined MTD/SA tile in myServices for wrong credentials user with HMRC-MTD-IT when redesign is false" in {
+      implicit val request: UserRequest[AnyContent] =
+        buildRequest(WrongCredentialsSelfAssessmentUser(SaUtr("11")), hasMtdItsaEnrolment = true)
+
+      val result = service.getHomePageServices().futureValue
+
+      result.myServices                 must contain(
+        MyService(
+          messages("label.mtd_for_itsa"),
+          Some(controllers.interstitials.routes.InterstitialController.displayItsaMergePage.url),
+          Some(messages("label.view_and_manage_your_income_tax_obligations_and_payments")),
+          Map(),
+          Some("Income"),
+          Some("MTD IT & SA"),
+          id = Some("itsa")
+        )
+      )
+      result.myServices.map(_.title)    must contain(messages("label.mtd_for_itsa"))
+      result.otherServices.map(_.title) must not contain messages("label.mtd_for_itsa")
+      result.otherServices.map(_.title) must not contain messages("label.self_assessment")
+      result.otherServices.map(_.link)  must not contain
+        controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url
+    }
+
+    "return Welsh content for combined MTD/SA tile in myServices for activated online filer with HMRC-MTD-IT" in {
+      implicit val welshMessages: Messages          = MessagesImpl(Lang("cy"), messagesApi)
+      implicit val request: UserRequest[AnyContent] =
+        buildRequest(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")), hasMtdItsaEnrolment = true)
+
+      val result = service.getHomePageServices().futureValue
+
+      val itsaService = result.myServices.find(_.id.contains("itsa"))
+      itsaService.map(_.title) mustBe Some(welshMessages("label.mtd_for_itsa"))
+      itsaService.flatMap(_.hintText) mustBe Some(
+        welshMessages("label.view_and_manage_your_income_tax_obligations_and_payments")
+      )
+      result.myServices.map(_.title)    must contain(welshMessages("label.mtd_for_itsa"))
+      result.otherServices.map(_.title) must not contain welshMessages("label.mtd_for_itsa")
+      result.otherServices.map(_.title) must not contain welshMessages("label.self_assessment")
     }
 
     "return self assessment and MTD in otherServices for not yet activated SA user" in {
