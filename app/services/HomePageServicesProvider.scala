@@ -34,11 +34,18 @@ class HomePageServicesProvider @Inject() (
   configDecorator: ConfigDecorator,
   featureFlagService: FeatureFlagService,
   fandFService: FandFService,
-  taiService: TaiService
+  taiService: TaiService,
+  leppService: LeppService
 )(implicit ec: ExecutionContext)
     extends CurrentTaxYear {
 
   private val MtdItsaEnrolmentKey = "HMRC-MTD-IT"
+
+  private def redesignHint(isRedesign: Boolean, hint: String): Option[String] =
+    Option.when(isRedesign)(hint)
+
+  private def nationalInsuranceHint(isRedesign: Boolean)(implicit messages: Messages): Option[String] =
+    Option.when(isRedesign)(s"${messages("label.view_national_insurance")} ${messages("label.view_state_pension")}")
 
   def getHomePageServices(isRedesign: Boolean = false)(implicit
     request: UserRequest[?],
@@ -49,11 +56,11 @@ class HomePageServicesProvider @Inject() (
     val isTrustedHelperUser = request.trustedHelper.isDefined
     val nino                = request.authNino
 
-    def marriageAllowanceF(isRedesign: Boolean): Future[Seq[HomePageService]] =
+    val marriageAllowanceF: Future[Seq[HomePageService]] =
       if (isTrustedHelperUser) Future.successful(Seq.empty)
       else taiService.getTaxComponentsList(nino, current.currentYear).map(buildMarriageAllowanceServices(_, isRedesign))
 
-    def trustedHelperF(isRedesign: Boolean): Future[Seq[HomePageService]] =
+    val trustedHelperF: Future[Seq[HomePageService]] =
       if (isTrustedHelperUser) Future.successful(Seq.empty)
       else fandFService.isAnyFandFRelationships(nino).map(buildTrustedHelperServices(_, isRedesign))
 
@@ -65,9 +72,10 @@ class HomePageServicesProvider @Inject() (
       selfAssessmentOther <- getOtherSelfAssessment(request.saUserType, isTrustedHelperUser)
       mtdOther            <- getMtdOtherService(isTrustedHelperUser)
       childBenefit        <- getChildBenefit(isTrustedHelperUser, isRedesign)
+      lepp                <- getLepp(isTrustedHelperUser)
       annualTaxSummary    <- getAnnualTaxSummaries(isTrustedHelperUser, isRedesign)
-      marriageAllowance   <- marriageAllowanceF(isRedesign)
-      trustedHelper       <- trustedHelperF(isRedesign)
+      marriageAllowance   <- marriageAllowanceF
+      trustedHelper       <- trustedHelperF
     } yield HomePageServices(
       Seq(
         payAsYouEarn,
@@ -77,6 +85,7 @@ class HomePageServicesProvider @Inject() (
         selfAssessmentOther,
         mtdOther,
         childBenefit,
+        lepp,
         annualTaxSummary
       ).flatten ++ marriageAllowance ++ trustedHelper
     )
@@ -89,7 +98,9 @@ class HomePageServicesProvider @Inject() (
     MyService(
       messages("label.mtd_for_itsa"),
       Some(href),
-      Some(messages("label.view_and_manage_your_income_tax_obligations_and_payments")),
+      Some(
+        s"${messages("label.view_manage_your_mtd_it")} ${messages("label.online_deadline_tax_returns", (current.currentYear + 1).toString)}"
+      ),
       gaAction = Some("Income"),
       gaLabel = Some("MTD IT & SA"),
       id = Some("itsa")
@@ -123,6 +134,16 @@ class HomePageServicesProvider @Inject() (
       gaLabel = Some("Making Tax Digital for Income Tax"),
       id = Some("mtdit"),
       hintText = Some(messages("label.mtdit.p1"))
+    )
+
+  private def leppTile(linkUrl: String)(implicit messages: Messages): MyService =
+    MyService(
+      messages("label.lepp.title"),
+      Some(linkUrl),
+      gaAction = Some("Benefits"),
+      gaLabel = Some("Low earner's pension payment (LEPP)"),
+      id = Some("lepp"),
+      hintText = Some(messages("label.lepp.hint"))
     )
 
   private def getMySelfAssessment(
@@ -163,7 +184,7 @@ class HomePageServicesProvider @Inject() (
             Some(
               mySaTile(
                 href = controllers.routes.SaWrongCredentialsController.landingPage().url,
-                body = messages("title.signed_in_wrong_account.stop")
+                body = messages("title.signed_in_wrong_account.h1")
               )
             )
 
@@ -227,13 +248,22 @@ class HomePageServicesProvider @Inject() (
       }
     }
 
+  private def getLepp(
+    isTrustedHelperUser: Boolean
+  )(implicit hc: HeaderCarrier, request: UserRequest[?], messages: Messages): Future[Option[MyService]] =
+    if (isTrustedHelperUser) {
+      Future.successful(None)
+    } else {
+      leppService.getLeppLink.map(_.map(leppTile))
+    }
+
   private def getPayAsYouEarn(isRedesign: Boolean)(implicit messages: Messages): Future[Option[MyService]] =
     Future.successful(
       Some(
         MyService(
           messages("label.pay_as_you_earn_paye"),
           Some(controllers.routes.RedirectToPayeController.redirectToPaye.url),
-          Option.when(isRedesign)(messages("label.your_income_from_employers_and_private_pensions_")),
+          redesignHint(isRedesign, messages("label.your_income_from_employers_and_private_pensions_")),
           gaAction = Some("Income"),
           gaLabel = Some("Pay As You Earn (PAYE)"),
           id = Some("paye")
@@ -257,7 +287,8 @@ class HomePageServicesProvider @Inject() (
                 s"${current.startYear}"
               ),
               Some(configDecorator.taxCalcHomePageUrl),
-              Option.when(isRedesign)(
+              redesignHint(
+                isRedesign,
                 messages("label.check_whether_you_paid_too_much_or_too_little_tax_in_a_previous_tax_year")
               ),
               gaAction = Some("Income"),
@@ -277,9 +308,7 @@ class HomePageServicesProvider @Inject() (
         MyService(
           messages("label.new_national_insurance_and_state_pension"),
           Some(controllers.interstitials.routes.InterstitialController.displayNISP.url),
-          Option.when(isRedesign)(
-            s"${messages("label.view_national_insurance")} ${messages("label.view_state_pension")}"
-          ),
+          nationalInsuranceHint(isRedesign),
           gaAction = Some("Income"),
           gaLabel = Some("National Insurance and State Pension"),
           id = Some("state-pension")
@@ -301,7 +330,7 @@ class HomePageServicesProvider @Inject() (
             gaAction = Some("Benefits"),
             gaLabel = Some("Child Benefit"),
             id = Some("child-benefit"),
-            hintText = Option.when(isRedesign)(messages("label.get_help_with_the_cost_of_bringing_up_children"))
+            hintText = redesignHint(isRedesign, messages("label.get_help_with_the_cost_of_bringing_up_children"))
           )
         )
       }
@@ -321,7 +350,7 @@ class HomePageServicesProvider @Inject() (
             gaAction = Some("Tax Summaries"),
             gaLabel = Some("Annual Tax Summary"),
             id = Some("tax-summary"),
-            hintText = Option.when(isRedesign)(messages("card.ats.text"))
+            hintText = redesignHint(isRedesign, messages("card.ats.text"))
           )
         )
       }
@@ -364,7 +393,7 @@ class HomePageServicesProvider @Inject() (
             gaLabel = Some("Marriage Allowance"),
             id = Some("marriage-allowance"),
             hintText =
-              Option.when(isRedesign)(messages("label.transfer_part_of_your_personal_allowance_to_your_partner_"))
+              redesignHint(isRedesign, messages("label.transfer_part_of_your_personal_allowance_to_your_partner_"))
           )
         )
     }
@@ -377,7 +406,7 @@ class HomePageServicesProvider @Inject() (
         MyService(
           messages("label.trusted_helpers_heading"),
           Some(configDecorator.manageTrustedHelpersUrl),
-          Option.when(isRedesign)(messages("label.trusted_helpers_content")),
+          redesignHint(isRedesign, messages("label.trusted_helpers_content")),
           gaAction = Some("Account"),
           gaLabel = Some("Trusted helpers"),
           id = Some("trusted-helper")
@@ -391,7 +420,7 @@ class HomePageServicesProvider @Inject() (
           gaAction = Some("Account"),
           gaLabel = Some("Trusted helpers"),
           id = Some("trusted-helper"),
-          hintText = Option.when(isRedesign)(messages("label.trusted_helpers_content"))
+          hintText = redesignHint(isRedesign, messages("label.trusted_helpers_content"))
         )
       )
     }

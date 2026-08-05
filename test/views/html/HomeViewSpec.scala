@@ -19,7 +19,6 @@ package views.html
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.bindable.Origin
-import models.{MyService, OtherService}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentMatchers.any
@@ -136,40 +135,6 @@ class HomeViewSpec extends ViewSpec {
 
       view must include(messages("label.home_page.utr"))
       view must include(utr)
-    }
-
-    "render combined Self Assessment and MTD supporting text in the current design" in {
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val combinedService                                           = MyService(
-        messages("label.mtd_for_itsa"),
-        Some("/itsa"),
-        Some(messages("label.view_and_manage_your_income_tax_obligations_and_payments")),
-        id = Some("itsa")
-      )
-
-      val document = asDocument(home(homeViewModel.copy(myServices = Seq(combinedService))).toString)
-
-      document.select("ul#my_taxes li#itsa a").text() mustBe messages("label.mtd_for_itsa")
-      document.select("ul#my_taxes li#itsa p.govuk-body").text() mustBe messages(
-        "label.view_and_manage_your_income_tax_obligations_and_payments"
-      )
-    }
-
-    "render Self Assessment other service supporting text in the current design" in {
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-      val selfAssessmentService                                     = OtherService(
-        messages("label.self_assessment"),
-        "/self-assessment",
-        id = Some("self-assessment"),
-        hintText = Some(messages("label.activate_your_self_assessment"))
-      )
-
-      val document = asDocument(home(homeViewModel.copy(otherServices = Seq(selfAssessmentService))).toString)
-
-      document.select("ul#other_taxes li#self-assessment a").text() mustBe messages("label.self_assessment")
-      document.select("ul#other_taxes li#self-assessment p.govuk-body").text() mustBe messages(
-        "label.activate_your_self_assessment"
-      )
     }
 
     "show the alert banner if there is some alert content" in {

@@ -440,7 +440,7 @@ label.you_owe_hmrc_you_must_pay_by_=You owe HMRC £{0}. You must pay by {1}.
 label.you_have_no_payments_to_make_to_hmrc=You have no payments to make to HMRC.
 
 label.self_assessment=Self Assessment
-label.mtd_for_itsa=Self Assessment and Making Tax Digital for Income Tax
+label.mtd_for_itsa=Making Tax Digital for Income Tax and Self Assessment
 label.view_and_manage_your_income_tax_obligations_and_payments=View and manage your Income Tax obligations and payments.
 label.make_a_payment=Make a payment
 label.check_if_you_need_to_fill_in_a_tax_return=Check if you need to fill in a tax return
@@ -495,11 +495,13 @@ label.your_self_assessment=Your Self Assessment
 label.online_returns_deadline=The deadline for online returns is 31 January {0}.
 label.mtd_for_it=Making Tax Digital for Income Tax
 label.mtd_for_it_sa=Making Tax Digital for Income Tax
+label.lepp.title=Low earner''s pension payment (LEPP)
+label.lepp.hint=View and accept your low earner''s pension payment.
 label.send_updates_hmrc_compatible_software=Send updates using HMRC compatible software.
 label.send_updates_sole_traders=For sole traders and landlords that send quarterly updates using software.
 label.view_manage_your_mtd_for_it=View and manage Making Tax Digital for Income Tax
 label.view_manage_your_mtd_itsa=View and manage your Making Tax Digital for Income Tax or access your Self Assessment tax returns.
-label.view_manage_your_mtd_it=View and manage Making Tax Digital for Income Tax and access Self Assessment.
+label.view_manage_your_mtd_it=View and manage Making Tax Digital for Income Tax, and access Self Assessment.
 label.itsa_header=Income Tax Self Assessment
 label.it_header=Income Tax
 label.view_manage_sa_return=More details about your Self Assessment returns and payments
@@ -507,6 +509,7 @@ label.access_your_sa_returns=Access your Self Assessment tax returns
 label.old_way_sa_returns=The old way for filing your Self Assessment tax returns.
 label.self_assessment_tax_returns=Self Assessment tax returns
 label.online_deadline_final_declarations=The deadline for final declarations or online returns is 31 January {0}.
+label.online_deadline_tax_returns=The deadline for tax returns is 31 January {0}.
 label.making_tax_digital=Making Tax Digital
 
 label.mtdit.heading=Making Tax Digital for Income Tax
@@ -642,7 +645,6 @@ global.page.not.found.error.contact.link=https://www.gov.uk/government/organisat
 label.access_your_self_assessment=Access your Self Assessment
 
 title.signed_in_wrong_account.h1=You are not signed in to the right account
-title.signed_in_wrong_account.stop=You are not signed in to the right account.
 label.signed_in_wrong_account=You used a different account when you first signed-up to view or send your tax returns online.
 
 title.sign_in_again.h1=You need to sign back in to Government Gateway using different details
