@@ -261,7 +261,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
         controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url
     }
 
-    "return combined MTD/SA tile in myServices without hint for activated online filer with HMRC-MTD-IT when redesign is false" in {
+    "return combined MTD/SA tile in myServices for activated online filer with HMRC-MTD-IT when redesign is false" in {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")), hasMtdItsaEnrolment = true)
 
@@ -309,7 +309,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
         controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url
     }
 
-    "return combined MTD/SA tile in myServices without hint for wrong credentials user with HMRC-MTD-IT when redesign is false" in {
+    "return combined MTD/SA tile in myServices for wrong credentials user with HMRC-MTD-IT when redesign is false" in {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(WrongCredentialsSelfAssessmentUser(SaUtr("11")), hasMtdItsaEnrolment = true)
 
