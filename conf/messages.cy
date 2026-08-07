@@ -507,7 +507,7 @@ label.mtdit.heading=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.mtdit.p1=Os ydych yn unig fasnachwr neu’n landlord, mae ffordd newydd o adrodd am eich incwm a’ch treuliau. Dysgwch ragor.
 
 label.mtdit.page.p1=Mae’r cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm yn ffordd newydd i unig fasnachwyr a landlordiaid roi gwybod i CThEF am incwm a threuliau.
-label.mtdit.page.p2=O 6 Ebrill 2026 ymlaen, mae’n rhaid i rai unig fasnachwyr a landlordiaid ei ddefnyddio, yn seiliedig ar gyfanswm eu hincwm blynyddol o hunangyflogaeth ac eiddo.
+label.mtdit.page.p2=O 6 Ebrill 2027 ymlaen, bydd yn rhaid i rai unig fasnachwyr a landlordiaid ddechrau ei ddefnyddio, a hynny’n seiliedig ar gyfanswm eu hincwm blynyddol o hunangyflogaeth ac eiddo.
 label.mtdit.page.find_out_more=Dysgwch ragor ynghylch Troi Treth yn Ddigidol ar gyfer Treth Incwm a gweld a allwch gofrestru’n gynnar
 
 #
@@ -823,6 +823,7 @@ label.mtd_for_it=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.mtd_for_itsa=Hunanasesiad a Throi Treth yn Ddigidol ar gyfer Treth Incwm
 label.view_and_manage_your_income_tax_obligations_and_payments=Bwrw golwg dros eich rhwymedigaethau a’ch taliadau Treth Incwm, a’u rheoli.
 label.mtd_for_it_sa=Troi Treth yn Ddigidol ar gyfer Treth Incwm
+label.interstice.sa_mtdit.title=Hunanasesiad a’r cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.send_updates_sole_traders=Ar gyfer unig fasnachwyr a landlordiaid sy’n anfon diweddariadau chwarterol gan ddefnyddio meddalwedd.
 label.view_manage_your_mtd_for_it=Bwrw golwg dros y cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli
 label.view_manage_your_mtd_itsa=Bwrw golwg dros eich cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli, neu gael at eich Ffurflenni Treth Hunanasesiad.

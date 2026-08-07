@@ -57,22 +57,49 @@ class MTDITAdvertPageViewSpec extends ViewSpec {
 
   "Rendering MTDITAdvertPageView.scala.html" must {
 
-    "show content" in {
+    "show english content" in {
       val doc =
         asDocument(
           mtditAdvertPageView(
           ).toString
         )
 
-      doc.text() must include(Messages("label.mtdit.heading"))
-      doc.text() must include(Messages("label.mtdit.page.p1"))
-      doc.text() must include(Messages("label.mtdit.page.p2"))
+      doc.text() must include("Self Assessment and Making Tax Digital for Income Tax")
+      doc.text() must include(
+        "Making Tax Digital for Income Tax is a new way for sole traders and landlords to report income and expenses to HMRC."
+      )
+      doc.text() must include(
+        "Some sole traders and landlords must start using it from 6 April 2027, based on their total annual income from self-employment and property."
+      )
 
       hasLink(
         doc,
-        Messages("label.mtdit.page.find_out_more")
+        "Find out more about Making Tax Digital for Income Tax and see if you can sign up early"
+      )
+    }
+    "show welsh content" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest())
+      val doc                                                       =
+        asDocument(
+          mtditAdvertPageView(
+          )(userRequest, welshMessages).toString
+        )
+
+      doc.text() must include("Hunanasesiad a’r cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm")
+      doc.text() must include(
+        "Mae’r cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm yn ffordd newydd i unig fasnachwyr a landlordiaid roi gwybod i CThEF am incwm a threuliau."
+      )
+      doc.text() must include(
+        "O 6 Ebrill 2027 ymlaen, bydd yn rhaid i rai unig fasnachwyr a landlordiaid ddechrau ei ddefnyddio, a hynny’n seiliedig ar gyfanswm eu hincwm blynyddol o hunangyflogaeth ac eiddo."
+      )
+
+      hasLink(
+        doc,
+        "Dysgwch ragor ynghylch Troi Treth yn Ddigidol ar gyfer Treth Incwm a gweld a allwch gofrestru’n gynnar"
       )
     }
 
   }
+
 }
