@@ -53,10 +53,10 @@ class ConfigDecorator @Inject() (
 
   def seissUrl: String = servicesConfig.baseUrl("self-employed-income-support")
 
-  private lazy val formFrontendService          = servicesConfig.baseUrl("dfs-digital-forms-frontend")
-  private lazy val taxCalcFrontendService       = servicesConfig.baseUrl("taxcalc-frontend")
-  private lazy val taxCalcFrontendExternal      = getExternalUrl("taxcalc-frontend.host").getOrElse("")
-  private lazy val leppFrontendService          = servicesConfig.baseUrl("low-earners-pensions-payment-frontend")
+  private lazy val formFrontendService     = servicesConfig.baseUrl("dfs-digital-forms-frontend")
+  private lazy val taxCalcFrontendService  = servicesConfig.baseUrl("taxcalc-frontend")
+  private lazy val taxCalcFrontendExternal = getExternalUrl("taxcalc-frontend.host").getOrElse("")
+  private lazy val leppFrontendService     = servicesConfig.baseUrl("low-earners-pensions-payment-frontend")
 
   lazy val businessTaxAccountService: String = servicesConfig.baseUrl("business-tax-account")
 
