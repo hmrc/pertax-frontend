@@ -509,7 +509,6 @@ label.access_your_sa_returns=Access your Self Assessment tax returns
 label.old_way_sa_returns=The old way for filing your Self Assessment tax returns.
 label.self_assessment_tax_returns=Self Assessment tax returns
 label.online_deadline_final_declarations=The deadline for final declarations or online returns is 31 January {0}.
-label.online_deadline_tax_returns=The deadline for tax returns is 31 January {0}.
 label.making_tax_digital=Making Tax Digital
 
 label.mtdit.heading=Making Tax Digital for Income Tax
