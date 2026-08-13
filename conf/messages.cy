@@ -638,6 +638,7 @@ global.page.not.found.error.contact.link=https://www.gov.uk/government/organisat
 label.access_your_self_assessment=Cael at eich cyfrif Hunanasesiad
 
 title.signed_in_wrong_account.h1=Nid ydych wedi mewngofnodi i’r cyfrif cywir
+title.signed_in_wrong_account.stop=Nid ydych wedi mewngofnodi i’r cyfrif cywir.
 label.signed_in_wrong_account=Defnyddioch gyfrif gwahanol pan wnaethoch gofrestru gyntaf i fwrw golwg dros eich Ffurflenni Treth, neu eu hanfon, ar-lein.
 
 title.sign_in_again.h1=Mae angen i chi fewngofnodi eto i Borth y Llywodraeth gan ddefnyddio manylion gwahanol
@@ -819,8 +820,8 @@ tax_credits.ended.information.how.continue.li2 = cysylltu â Gwasanaeth Cwsmeria
 
 
 label.mtd_for_it=Troi Treth yn Ddigidol ar gyfer Treth Incwm
-label.mtd_for_itsa=Troi Treth yn Ddigidol ar gyfer Treth Incwm a Hunanasesiad
-label.view_and_manage_your_income_tax_obligations_and_payments=Bwrw golwg dros a rheoli’ch rhwymedigaethau a’ch taliadau Treth Incwm.
+label.mtd_for_itsa=Hunanasesiad a Throi Treth yn Ddigidol ar gyfer Treth Incwm
+label.view_and_manage_your_income_tax_obligations_and_payments=Bwrw golwg dros eich rhwymedigaethau a’ch taliadau Treth Incwm, a’u rheoli.
 label.mtd_for_it_sa=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.lepp.title=Taliad pensiwn i’r sawl sy’n ennill incwm isel (LEPP)
 label.lepp.hint=Bwrw golwg dros a derbyn eich taliad pensiwn i’r sawl sy’n ennill incwm isel.
@@ -936,7 +937,7 @@ ptap.support.tab.card.insurance.state.pension.heading=Yswiriant Gwladol a Phensi
 ptap.support.tab.cards.header=Cymorth
 
 ptap.support.tab.card.hmrc.online.link.understanding.account=Deall eich Cyfrif Treth Personol
-ptap.support.tab.card.hmrc.online.link.understanding.account.url=https://www.gov.uk/mewngofnodi-cofrestru-gwasanaethau-ar-lein-cthef
+ptap.support.tab.card.hmrc.online.link.understanding.account.url=/personal-account/support/understanding-your-account
 ptap.support.tab.card.hmrc.online.link.extra.support=Cael help gan CThEF os oes angen cymorth ychwanegol arnoch
 ptap.support.tab.card.hmrc.online.link.extra.support.url=https://www.gov.uk/cael-help-cthem-cymorth-ychwanegol
 ptap.support.tab.card.hmrc.online.link.technical.support=Cymorth technegol â gwasanaethau ar-lein CThEF

@@ -53,9 +53,10 @@ class ConfigDecorator @Inject() (
 
   def seissUrl: String = servicesConfig.baseUrl("self-employed-income-support")
 
-  private lazy val formFrontendService     = servicesConfig.baseUrl("dfs-digital-forms-frontend")
-  private lazy val taxCalcFrontendService  = servicesConfig.baseUrl("taxcalc-frontend")
-  private lazy val taxCalcFrontendExternal = getExternalUrl("taxcalc-frontend.host").getOrElse("")
+  private lazy val formFrontendService          = servicesConfig.baseUrl("dfs-digital-forms-frontend")
+  private lazy val taxCalcFrontendService       = servicesConfig.baseUrl("taxcalc-frontend")
+  private lazy val taxCalcFrontendExternal      = getExternalUrl("taxcalc-frontend.host").getOrElse("")
+  private lazy val leppFrontendService          = servicesConfig.baseUrl("low-earners-pensions-payment-frontend")
 
   lazy val businessTaxAccountService: String = servicesConfig.baseUrl("business-tax-account")
 
@@ -304,10 +305,10 @@ class ConfigDecorator @Inject() (
   lazy val mtdGuidanceUrl: String = runModeConfiguration.get[String]("external-url.mtd-guidance.url")
 
   lazy val leppStartUrl: String =
-    runModeConfiguration.get[String]("external-url.low-earners-pensions-payment.start")
+    s"$leppFrontendService/accept-your-low-earners-pension-payment/start"
 
   lazy val leppPaymentsUrl: String =
-    runModeConfiguration.get[String]("external-url.low-earners-pensions-payment.payments")
+    s"$leppFrontendService/accept-your-low-earners-pension-payment/payments"
 
   lazy val addressChangeBannerTextEn: String       =
     runModeConfiguration.get[String]("feature.address-change-error.banner.paragraph.en")
