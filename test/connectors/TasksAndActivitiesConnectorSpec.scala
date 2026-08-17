@@ -97,7 +97,9 @@ class TasksAndActivitiesConnectorSpec extends ConnectorSpec with WireMockHelper 
 
       val result = connector.getTasks(generatedNino).value.futureValue
 
-      result mustBe Right(Seq(Task("You owe £500 for tax year 2026 to 2027", TaskStatus.Incomplete, "/tax-you-paid", None)))
+      result mustBe Right(
+        Seq(Task("You owe £500 for tax year 2026 to 2027", TaskStatus.Incomplete, "/tax-you-paid", None))
+      )
     }
 
     List(BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND).foreach { statusCode =>

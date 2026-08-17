@@ -55,7 +55,7 @@ class TasksAndActivitiesConnector @Inject() (
         .value
         .map {
           case Right(response) => parseTasks(response)
-          case Left(error)    => Left(error)
+          case Left(error)     => Left(error)
         }
     )
   }
@@ -114,7 +114,7 @@ private object TasksAndActivitiesTask {
     case JsString(value) =>
       value.trim.toLowerCase match {
         case "incomplete" | "open" | "todo" | "to-do" | "not-started" => JsSuccess(TaskStatus.Incomplete)
-        case "completed" | "complete" | "done"                       => JsSuccess(TaskStatus.Completed)
+        case "completed" | "complete" | "done"                        => JsSuccess(TaskStatus.Completed)
         case _                                                        => JsError(s"Unsupported task status: $value")
       }
     case _               => JsError("Expected task status to be a string")

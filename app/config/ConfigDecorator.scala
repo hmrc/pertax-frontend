@@ -255,10 +255,6 @@ class ConfigDecorator @Inject() (
 
   lazy val breathingSpaceBaseUrl: String                 = servicesConfig.baseUrl("breathing-space-if-proxy")
   private lazy val tasksAndActivitiesBaseUrl: String     = servicesConfig.baseUrl("pta-tasks-and-events")
-  private lazy val tasksAndActivitiesPath: String        =
-    runModeConfiguration
-      .getOptional[String]("tasks-and-activities.tasks-path")
-      .getOrElse("/pta-tasks-and-events/:nino/tasks")
   lazy val breathingSpaceTimeoutInMilliseconds: Int      =
     servicesConfig.getInt("microservice.services.breathing-space-if-proxy.timeoutInMilliseconds")
   lazy val tasksAndActivitiesTimeoutInMilliseconds: Int  =
@@ -289,7 +285,7 @@ class ConfigDecorator @Inject() (
   val mongoEncryptionEnabled: Boolean = runModeConfiguration.get[Boolean]("mongodb.encryption.enabled")
 
   def tasksAndActivitiesTasksUrl(nino: Nino): String =
-    s"$tasksAndActivitiesBaseUrl${tasksAndActivitiesPath.replace(":nino", nino.nino)}"
+    s"$tasksAndActivitiesBaseUrl/pta-tasks-and-events/${nino.nino}/tasks"
 
   val payeToPegaRedirectList: Seq[Int] = runModeConfiguration.get[Seq[Int]]("paye.to.pega.redirect.list")
   val payeToPegaRedirectUrl: String    = runModeConfiguration.get[String]("paye.to.pega.redirect.url")
