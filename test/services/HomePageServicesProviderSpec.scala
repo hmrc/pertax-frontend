@@ -42,13 +42,15 @@ class HomePageServicesProviderSpec extends BaseSpec {
   private val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
   private val mockFandFService: FandFService             = mock[FandFService]
   private val mockTaiService: TaiService                 = mock[TaiService]
+  private val mockLeppService: LeppService               = mock[LeppService]
 
   private lazy val service =
     new HomePageServicesProvider(
       mockConfigDecorator,
       mockFeatureFlagService,
       mockFandFService,
-      mockTaiService
+      mockTaiService,
+      mockLeppService
     )
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
@@ -77,6 +79,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
     reset(mockFeatureFlagService)
     reset(mockFandFService)
     reset(mockTaiService)
+    reset(mockLeppService)
 
     when(mockFeatureFlagService.get(eqTo(ShowTaxCalcTileToggle)))
       .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = false)))
@@ -86,6 +89,9 @@ class HomePageServicesProviderSpec extends BaseSpec {
 
     when(mockFandFService.isAnyFandFRelationships(any())(any()))
       .thenReturn(Future.successful(false))
+
+    when(mockLeppService.getLeppLink(any(), any()))
+      .thenReturn(Future.successful(None))
 
     when(mockConfigDecorator.taxCalcHomePageUrl).thenReturn("taxcalc/")
     when(mockConfigDecorator.taxCalcYearsToShow).thenReturn(4)
