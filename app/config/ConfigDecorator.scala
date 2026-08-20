@@ -307,7 +307,8 @@ class ConfigDecorator @Inject() (
     runModeConfiguration.get[String]("external-url.lepp.url")
 
   lazy val leppPaymentsUrl: String =
-    runModeConfiguration.getOptional[String]("external-url.lepp.paymentsUrl")
+    runModeConfiguration
+      .getOptional[String]("external-url.lepp.paymentsUrl")
       .getOrElse(leppStartUrl.replace("start", "payments"))
 
   lazy val addressChangeBannerTextEn: String       =
