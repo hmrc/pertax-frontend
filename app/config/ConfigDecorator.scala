@@ -304,7 +304,7 @@ class ConfigDecorator @Inject() (
   lazy val mtdGuidanceUrl: String = runModeConfiguration.get[String]("external-url.mtd-guidance.url")
 
   lazy val leppStartUrl: String =
-    runModeConfiguration.get[String]("external-url.lepp.url")
+    runModeConfiguration.get[String]("external-url.leppUrl")
 
   lazy val leppPaymentsUrl: String =
     runModeConfiguration
