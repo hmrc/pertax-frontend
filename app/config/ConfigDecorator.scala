@@ -267,6 +267,8 @@ class ConfigDecorator @Inject() (
     servicesConfig.getInt("feature.preferences-frontend.timeoutInSec")
   lazy val enrolmentStoreProxyTimeoutInMilliseconds: Int =
     servicesConfig.getInt("microservice.services.enrolment-store-proxy.timeoutInMilliseconds")
+  lazy val leppTimeoutInMilliseconds: Int                =
+    servicesConfig.getInt("microservice.services.low-earners-pensions-payment.timeoutInMilliseconds")
   lazy val ptaNinoSaveUrl: String                        = saveYourNationalInsuranceNumberHost + "/save-your-national-insurance-number"
   lazy val tellUsYourChildIsStayingInFullTimeEducation   = "https://www.gov.uk/child-benefit-16-19"
 
@@ -300,6 +302,14 @@ class ConfigDecorator @Inject() (
     runModeConfiguration.get[String]("external-url.mtd-claim-from-pta.url")
 
   lazy val mtdGuidanceUrl: String = runModeConfiguration.get[String]("external-url.mtd-guidance.url")
+
+  lazy val leppStartUrl: String =
+    runModeConfiguration.get[String]("external-url.leppUrl")
+
+  lazy val leppPaymentsUrl: String =
+    runModeConfiguration
+      .getOptional[String]("external-url.lepp.paymentsUrl")
+      .getOrElse(leppStartUrl.replace("start", "payments"))
 
   lazy val addressChangeBannerTextEn: String       =
     runModeConfiguration.get[String]("feature.address-change-error.banner.paragraph.en")

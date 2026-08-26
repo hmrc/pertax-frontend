@@ -30,7 +30,7 @@ import org.mockito.Mockito.{reset, when}
 import play.api.Application
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.inject.bind
-import play.api.mvc.{ActionBuilder, AnyContent, BodyParser, Request, Result}
+import play.api.mvc.{ActionBuilder, AnyContent, BodyParser, Cookie, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.JourneyCacheRepository
@@ -323,6 +323,29 @@ class UpdateAddressControllerSpec extends BaseSpec {
       status(result) mustBe OK
       val doc: Document = Jsoup.parse(contentAsString(result))
       doc.getElementsByClass("govuk-fieldset__heading").toString.contains("Edit the address (optional)") mustBe true
+    }
+
+    "show Welsh town and county labels when user amends correspondence address manually in Welsh" in {
+
+      val userAnswers: UserAnswers = UserAnswers
+        .empty("id")
+        .setOrException(SelectedAddressRecordPage(PostalAddrType), fakeStreetPafAddressRecord)
+        .setOrException(HasAddressAlreadyVisitedPage, AddressPageVisitedDto(true))
+
+      when(mockJourneyCacheRepository.get(any[HeaderCarrier])).thenReturn(Future.successful(userAnswers))
+      when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any())).thenReturn(
+        EitherT[Future, UpstreamErrorResponse, Option[PersonDetails]](
+          Future.successful(Right(Some(personDetails)))
+        )
+      )
+
+      val result: Future[Result] =
+        controller.onPageLoad(PostalAddrType)(FakeRequest().withCookies(Cookie("PLAY_LANG", "cy")))
+
+      status(result) mustBe OK
+      val doc: Document = Jsoup.parse(contentAsString(result))
+      doc.select("label[for=line4OrTown]").text() mustBe "Tref neu ddinas"
+      doc.select("label[for=line5OrCounty]").text() mustBe "Sir (dewisol)"
     }
 
     "show 'Edit your address (optional)' when user amends residential address manually and address has been selected" in {
