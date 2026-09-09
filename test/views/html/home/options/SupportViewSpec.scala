@@ -127,6 +127,19 @@ class SupportViewSpec extends ViewSpec {
       )
     }
 
+    "render updated HMRC Online digital assistant link text in English and keep the existing href" in
+      assertContainsLink(
+        document,
+        "Chat with HMRC's digital assistant",
+        "https://www.gov.uk/contact-hmrc"
+      )
+
+    "render updated HMRC Online digital assistant link text in Welsh and keep the existing href" in {
+      val welshDoc = asDocument(page()(welshMessages).toString)
+
+      assertContainsLink(welshDoc, "Sgwrsio â chynorthwyydd digidol CThEF", "https://www.gov.uk/contact-hmrc")
+    }
+
     "render PAYE card link text and hrefs" in {
       assertContainsLink(
         document,
