@@ -182,7 +182,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
             "trusted_helpers",
             "label.trusted_helpers",
             HtmlFormat.raw(messages("label.manage_trusted_helpers")),
-            "label.manage",
+            "label.trusted_helpers_cta",
             "label.your_trusted_helpers",
             Some(configDecorator.manageTrustedHelpersUrl)
           )
@@ -199,13 +199,31 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
             "trusted_helpers",
             "label.trusted_helpers",
             HtmlFormat.raw(messages("label.manage_trusted_helpers")),
-            "label.manage",
+            "label.trusted_helpers_cta",
             "label.your_trusted_helpers",
             Some(configDecorator.manageTrustedHelpersUrl)
           )
         )
         actual mustBe expected
       }
+    }
+
+    "use the confirmed English content and unchanged URL" in {
+      val actual = personalDetailsViewModel.getTrustedHelpersRow(messages).get
+
+      messages(actual.titleMessage) mustBe "Trusted helpers"
+      actual.content.toString mustBe "Get help with your tax online from someone you trust, or help someone you know."
+      messages(actual.linkTextMessage) mustBe "View/Manage"
+      actual.linkUrl mustBe Some(configDecorator.manageTrustedHelpersUrl)
+    }
+
+    "use the confirmed Welsh content and unchanged URL" in {
+      val actual = personalDetailsViewModel.getTrustedHelpersRow(welshMessages).get
+
+      welshMessages(actual.titleMessage) mustBe "Cynorthwywyr dibynadwy"
+      actual.content.toString mustBe "Cael help gyda’ch treth ar-lein gan rywun dibynadwy, neu helpu rhywun rydych yn ei adnabod."
+      welshMessages(actual.linkTextMessage) mustBe "Bwrw golwg dros/Rheoli"
+      actual.linkUrl mustBe Some(configDecorator.manageTrustedHelpersUrl)
     }
   }
 
