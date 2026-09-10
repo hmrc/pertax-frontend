@@ -166,9 +166,10 @@ class ConfigDecorator @Inject() (
     "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/change-your-personal-details"
   lazy val scottishRateIncomeTaxUrl  = "https://www.gov.uk/scottish-rate-income-tax/how-it-works"
 
-  lazy val serviceIdentityCheckFailedUrl = "/personal-account/identity-check-failed"
-  lazy val personalAccountYourAddress    = "/personal-account/your-address"
-  lazy val personalAccount               = "/personal-account"
+  lazy val serviceIdentityCheckFailedUrl    = "/personal-account/identity-check-failed"
+  lazy val personalAccountYourAddress       = "/personal-account/your-address"
+  lazy val personalAccount                  = "/personal-account"
+  lazy val selfAssessmentRegInterstitialUrl = "/personal-account/self-assessment-who-needs-to-register"
 
   lazy val claimChildBenefits: String = "https://www.gov.uk/child-benefit/how-to-claim"
 
