@@ -421,7 +421,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       result.myServices.map(_.title) must not contain "Self Assessment"
     }
 
-    "not return any self assessment or MTD service for non filer user" in {
+    "not return any self assessment or MTD service in myServices for non filer user" in {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(NonFilerSelfAssessmentUser)
 
@@ -434,6 +434,32 @@ class HomePageServicesProviderSpec extends BaseSpec {
       result.otherServices.map(_.link) must not contain
         controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url
     }
+
+    "return self assessment in otherServices for non filer user" in {
+      implicit val request: UserRequest[AnyContent] =
+        buildRequest(NonFilerSelfAssessmentUser)
+
+      val result = service.getHomePageServices(isRedesign = true).futureValue
+
+      result.otherServices.map(_.title)    must contain("Self Assessment")
+      result.otherServices.map(_.link)     must contain("/personal-account/self-assessment-who-needs-to-register")
+      result.otherServices.map(_.hintText) must contain(
+        Some("Check how to register for Self Assessment if you need to send a tax return.")
+      )
+    }
+
+    // "return welsh content version of self assessment in otherServices for non filer user" in {
+    //   implicit val request: UserRequest[AnyContent] =
+    //     buildRequest(NonFilerSelfAssessmentUser)
+
+    //   val result = service.getHomePageServices().futureValue
+
+    //   result.otherServices.map(_.title)    must contain("Hunanasesiad")
+    //   result.otherServices.map(_.link)     must contain("/personal-account/self-assessment-who-needs-to-register")
+    //   result.otherServices.map(_.hintText) must contain(
+    //     "Gwiriwch sut i gofrestru ar gyfer Hunanasesiad os oes angen i chi anfon Ffurflen Dreth."
+    //   )
+    // }
 
     "return no tax calculation service when trusted helper is active" in {
       implicit val request: UserRequest[AnyContent] =

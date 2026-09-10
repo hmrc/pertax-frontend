@@ -63,7 +63,7 @@ class HomePageServicesProvider @Inject() (
       payAsYouEarn        <- getPayAsYouEarn(isRedesign)
       taxCalc             <- getTaxCalculation(isTrustedHelperUser, isRedesign)
       nationalInsurance   <- getNationalInsurance(isRedesign)
-      selfAssessmentOther <- getOtherSelfAssessment(request.saUserType, isTrustedHelperUser)
+      selfAssessmentOther <- getOtherSelfAssessment(request.saUserType, isTrustedHelperUser, isRedesign)
       mtdOther            <- getMtdOtherService(isTrustedHelperUser)
       childBenefit        <- getChildBenefit(isTrustedHelperUser, isRedesign)
       lepp                <- getLepp(isTrustedHelperUser)
@@ -178,7 +178,8 @@ class HomePageServicesProvider @Inject() (
 
   private def getOtherSelfAssessment(
     saUserType: SelfAssessmentUserType,
-    isTrustedHelperUser: Boolean
+    isTrustedHelperUser: Boolean,
+    isRedesign: Boolean
   )(implicit messages: Messages): Future[Option[OtherService]] =
     Future.successful {
       if (isTrustedHelperUser) {
@@ -206,8 +207,8 @@ class HomePageServicesProvider @Inject() (
             Some(
               otherSaTile(
                 title = messages("label.self_assessment"),
-                linkUrl = configDecorator.selfAssessmentRegInterstitialUrl,
-                hint = Some(messages("label.other_services.sa.reg.card.hint"))
+                linkUrl = controllers.interstitials.routes.InterstitialController.displaySaRegistrationPage.url,
+                hint = Option.when(isRedesign)(messages("label.other_services.sa.reg.card.hint"))
               )
             )
 
