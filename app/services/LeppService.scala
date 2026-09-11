@@ -19,9 +19,9 @@ package services
 import com.google.inject.Inject
 import config.ConfigDecorator
 import connectors.LeppConnector
+import controllers.auth.requests.UserRequest
 import models.admin.LowEarnersPensionsPaymentToggle
 import play.api.Logging
-import play.api.mvc.Request
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
@@ -34,12 +34,16 @@ class LeppService @Inject() (
 )(implicit ec: ExecutionContext)
     extends Logging {
 
-  def getLeppLink(implicit hc: HeaderCarrier, request: Request[?]): Future[Option[String]] =
+  def getLeppLink(implicit hc: HeaderCarrier, request: UserRequest[?]): Future[Option[String]] =
     featureFlagService.get(LowEarnersPensionsPaymentToggle).flatMap { toggle =>
       if (toggle.isEnabled) {
-        leppConnector.getLeppSummary
-          .fold(_ => Option.empty[String], response => linkForStatus(response.status))
-          .recover { case _ => None }
+        if (request.confidenceLevel.level >= 250) {
+          leppConnector.getLeppSummary
+            .fold(_ => Option.empty[String], response => linkForStatus(response.status))
+            .recover { case _ => None }
+        } else {
+          Future.successful(Some(configDecorator.leppStartUrl))
+        }
       } else {
         Future.successful(None)
       }
