@@ -945,7 +945,7 @@ ptap.support.tab.card.hmrc.online.link.technical.support.url=https://www.gov.uk/
 ptap.support.tab.card.hmrc.online.link.help.friends=Helpu ffrindiau neu aelodau o’r teulu gyda’u treth
 ptap.support.tab.card.hmrc.online.link.help.friends.url=https://www.gov.uk/helpwch-ffrindiau-teulu-treth
 ptap.support.tab.card.hmrc.online.link.chat=Sgwrsio â chynorthwyydd digidol CThEF
-ptap.support.tab.card.hmrc.online.link.chat.url=https://www.gov.uk/contact-hmrc
+ptap.support.tab.card.hmrc.online.link.chat.url=https://www.tax.service.gov.uk/ask-hmrc/chat/online-services-helpdesk
 ptap.support.tab.card.hmrc.online.link.change.details=Rhoi gwybod i CThEF am newid i’ch manylion personol
 ptap.support.tab.card.hmrc.online.link.change.details.url=https://www.gov.uk/rhoi-gwybod-i-cthem-newid-manylion
 
