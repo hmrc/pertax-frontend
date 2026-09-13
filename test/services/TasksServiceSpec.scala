@@ -16,9 +16,11 @@
 
 package services
 
+import cats.data.EitherT
+import connectors.TasksAndActivitiesConnector
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import models.admin.ShowTaxCalcTileToggle
+import models.admin.{ShowTaxCalcTileToggle, TasksAndActivitiesServiceToggle}
 import models.*
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
@@ -31,6 +33,7 @@ import services.partials.TaxCalcPartialService
 import testUtils.BaseSpec
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import viewmodels.{Task, TaskStatus}
@@ -42,9 +45,15 @@ class TasksServiceSpec extends BaseSpec {
   private val mockConfigDecorator: ConfigDecorator             = mock[ConfigDecorator]
   private val mockTaxCalcPartialService: TaxCalcPartialService = mock[TaxCalcPartialService]
   private val mockFeatureFlagService: FeatureFlagService       = mock[FeatureFlagService]
+  private val mockTasksAndActivitiesConnector                  = mock[TasksAndActivitiesConnector]
 
   private lazy val service: TasksService =
-    new TasksService(mockConfigDecorator, mockTaxCalcPartialService, mockFeatureFlagService)
+    new TasksService(
+      mockConfigDecorator,
+      mockTaxCalcPartialService,
+      mockFeatureFlagService,
+      mockTasksAndActivitiesConnector
+    )
   implicit lazy val messages: Messages   = MessagesImpl(Lang("en"), messagesApi)
 
   override def beforeEach(): Unit = {
@@ -52,6 +61,7 @@ class TasksServiceSpec extends BaseSpec {
     reset(mockConfigDecorator)
     reset(mockFeatureFlagService)
     reset(mockTaxCalcPartialService)
+    reset(mockTasksAndActivitiesConnector)
   }
 
   val overpaid: String =
@@ -79,6 +89,107 @@ class TasksServiceSpec extends BaseSpec {
       |<p class="govuk-body">You should have paid by 19 February 2018 but you can still make a payment now.</p>
       |  </div>
       |""".stripMargin
+
+  private def userRequest: UserRequest[AnyContent] = UserRequest(
+    generatedNino,
+    NonFilerSelfAssessmentUser,
+    Credentials("credId", "GovernmentGateway"),
+    ConfidenceLevel.L200,
+    None,
+    Set.empty,
+    None,
+    None,
+    FakeRequest(),
+    UserAnswers.empty
+  )
+
+  "getListOfTasks" when {
+    "the Tasks and Activities Service toggle is disabled" must {
+      "use the existing task logic" in {
+        implicit val request: UserRequest[AnyContent] = userRequest
+        when(mockConfigDecorator.taxCalcHomePageUrl).thenReturn("http://link/to/taxcalc")
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TasksAndActivitiesServiceToggle)))
+          .thenReturn(Future.successful(FeatureFlag(TasksAndActivitiesServiceToggle, false)))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
+          .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, true)))
+        when(mockTaxCalcPartialService.getTaxCalcPartial(any())).thenReturn(
+          Future.successful(Seq(SummaryCardPartial("tc1", Html(underpaid), Underpaid, 2026)))
+        )
+
+        val result = service.getListOfTasks.futureValue
+
+        result mustBe Seq(
+          Task("You owe £500 for tax year 2026 to 2027", TaskStatus.Incomplete, "http://link/to/taxcalc", None)
+        )
+        verify(mockTasksAndActivitiesConnector, times(0)).getTasks(any())(any(), any())
+      }
+    }
+
+    "the Tasks and Activities Service toggle is enabled" must {
+      "return tasks from the Tasks and Activities service" in {
+        implicit val request: UserRequest[AnyContent] = userRequest
+        val tasks                                     =
+          Seq(Task("You owe £500 for tax year 2026 to 2027", TaskStatus.Incomplete, "/tax-you-paid", None))
+
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TasksAndActivitiesServiceToggle)))
+          .thenReturn(Future.successful(FeatureFlag(TasksAndActivitiesServiceToggle, true)))
+        when(mockTasksAndActivitiesConnector.getTasks(ArgumentMatchers.eq(generatedNino))(any(), any()))
+          .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](tasks))
+
+        val result = service.getListOfTasks.futureValue
+
+        result mustBe tasks
+        verify(mockTaxCalcPartialService, times(0)).getTaxCalcPartial(any())
+      }
+
+      "handle an empty response from the Tasks and Activities service" in {
+        implicit val request: UserRequest[AnyContent] = userRequest
+
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TasksAndActivitiesServiceToggle)))
+          .thenReturn(Future.successful(FeatureFlag(TasksAndActivitiesServiceToggle, true)))
+        when(mockTasksAndActivitiesConnector.getTasks(ArgumentMatchers.eq(generatedNino))(any(), any()))
+          .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Seq.empty[Task]))
+
+        val result = service.getListOfTasks.futureValue
+
+        result mustBe Seq.empty
+      }
+
+      "handle an error from the Tasks and Activities service" in {
+        implicit val request: UserRequest[AnyContent] = userRequest
+
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TasksAndActivitiesServiceToggle)))
+          .thenReturn(Future.successful(FeatureFlag(TasksAndActivitiesServiceToggle, true)))
+        when(mockTasksAndActivitiesConnector.getTasks(ArgumentMatchers.eq(generatedNino))(any(), any()))
+          .thenReturn(EitherT.leftT[Future, Seq[Task]](UpstreamErrorResponse("service unavailable", 503)))
+
+        val result = service.getListOfTasks.futureValue
+
+        result mustBe Seq.empty
+        verify(mockTaxCalcPartialService, times(0)).getTaxCalcPartial(any())
+      }
+    }
+
+    "the Tasks and Activities Service toggle cannot be retrieved" must {
+      "log the toggle issue and use the existing task logic" in {
+        implicit val request: UserRequest[AnyContent] = userRequest
+        when(mockConfigDecorator.taxCalcHomePageUrl).thenReturn("http://link/to/taxcalc")
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(TasksAndActivitiesServiceToggle)))
+          .thenReturn(Future.failed(new RuntimeException("toggle unavailable")))
+        when(mockFeatureFlagService.get(ArgumentMatchers.eq(ShowTaxCalcTileToggle)))
+          .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, true)))
+        when(mockTaxCalcPartialService.getTaxCalcPartial(any())).thenReturn(
+          Future.successful(Seq(SummaryCardPartial("tc1", Html(underpaid), Underpaid, 2026)))
+        )
+
+        val result = service.getListOfTasks.futureValue
+
+        result mustBe Seq(
+          Task("You owe £500 for tax year 2026 to 2027", TaskStatus.Incomplete, "http://link/to/taxcalc", None)
+        )
+      }
+    }
+  }
 
   "getTaxcalcTasks" when {
     "trusted helper is disable" must {

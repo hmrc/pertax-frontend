@@ -24,6 +24,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.net.{URL, URLEncoder}
 import java.time.LocalDate
+import uk.gov.hmrc.domain.Nino
 
 @Singleton
 class ConfigDecorator @Inject() (
@@ -253,8 +254,11 @@ class ConfigDecorator @Inject() (
     runModeConfiguration.getOptional[String]("feature.alert-shuttering.page.paragraph.cy").getOrElse("")
 
   lazy val breathingSpaceBaseUrl: String                 = servicesConfig.baseUrl("breathing-space-if-proxy")
+  private lazy val tasksAndActivitiesBaseUrl: String     = servicesConfig.baseUrl("pta-tasks-and-events")
   lazy val breathingSpaceTimeoutInMilliseconds: Int      =
     servicesConfig.getInt("microservice.services.breathing-space-if-proxy.timeoutInMilliseconds")
+  lazy val tasksAndActivitiesTimeoutInMilliseconds: Int  =
+    servicesConfig.getInt("microservice.services.pta-tasks-and-events.timeoutInMilliseconds")
   lazy val citizenDetailsTimeoutInMilliseconds: Int      =
     servicesConfig.getInt("microservice.services.citizen-details.timeoutInMilliseconds")
   lazy val taiTimeoutInMilliseconds: Int                 =
@@ -281,6 +285,9 @@ class ConfigDecorator @Inject() (
     servicesConfig.getBoolean("feature.pegaSaRegistration.enabled")
 
   val mongoEncryptionEnabled: Boolean = runModeConfiguration.get[Boolean]("mongodb.encryption.enabled")
+
+  def tasksAndActivitiesTasksUrl(nino: Nino): String =
+    s"$tasksAndActivitiesBaseUrl/pta-tasks-and-events/${nino.nino}/tasks"
 
   val payeToPegaRedirectList: Seq[Int] = runModeConfiguration.get[Seq[Int]]("paye.to.pega.redirect.list")
   val payeToPegaRedirectUrl: String    = runModeConfiguration.get[String]("paye.to.pega.redirect.url")

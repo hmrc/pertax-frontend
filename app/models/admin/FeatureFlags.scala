@@ -43,7 +43,8 @@ object AllFeatureFlags {
     LowEarnersPensionsPaymentToggle,
     HomePageChangesBannerToggle,
     HomePagePersonalisationToggle,
-    PtapActivityTabToggle
+    PtapActivityTabToggle,
+    TasksAndActivitiesServiceToggle
   )
 }
 
@@ -242,4 +243,12 @@ case object PtapActivityTabToggle extends FeatureFlagName {
   )
   override val lockedEnvironments: Seq[Environment] =
     Seq(Environment.Local, Environment.Staging, Environment.Qa, Environment.Production)
+}
+
+case object TasksAndActivitiesServiceToggle extends FeatureFlagName {
+  override val name: String                = "tasks-and-activities-service-toggle"
+  override val description: Option[String] = Some(
+    "Enable retrieval of Your Tasks tab data from the PTA Tasks and Events service"
+  )
+  override val defaultState: Boolean       = false
 }
