@@ -19,9 +19,10 @@ package services
 import com.google.inject.Inject
 import config.ConfigDecorator
 import connectors.LeppConnector
+import controllers.auth.requests.UserRequest
+import models.LeppLink
 import models.admin.LowEarnersPensionsPaymentToggle
 import play.api.Logging
-import play.api.mvc.Request
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
@@ -34,21 +35,25 @@ class LeppService @Inject() (
 )(implicit ec: ExecutionContext)
     extends Logging {
 
-  def getLeppLink(implicit hc: HeaderCarrier, request: Request[?]): Future[Option[String]] =
+  def getLeppLink(implicit hc: HeaderCarrier, request: UserRequest[?]): Future[Option[LeppLink]] =
     featureFlagService.get(LowEarnersPensionsPaymentToggle).flatMap { toggle =>
       if (toggle.isEnabled) {
-        leppConnector.getLeppSummary
-          .fold(_ => Option.empty[String], response => linkForStatus(response.status))
-          .recover { case _ => None }
+        if (request.confidenceLevel.level >= 250) {
+          leppConnector.getLeppSummary
+            .fold(_ => Option.empty[LeppLink], response => linkForStatus(response.status))
+            .recover { case _ => None }
+        } else {
+          Future.successful(Some(LeppLink.OtherServiceLink(configDecorator.leppStartUrl)))
+        }
       } else {
         Future.successful(None)
       }
     }
 
-  private def linkForStatus(status: String): Option[String] =
+  private def linkForStatus(status: String): Option[LeppLink] =
     status match {
-      case "PAYMENTS_AVAILABLE" => Some(configDecorator.leppStartUrl)
-      case "NO_ACTIONS"         => Some(configDecorator.leppPaymentsUrl)
+      case "PAYMENTS_AVAILABLE" => Some(LeppLink.CurrentServiceLink(configDecorator.leppStartUrl))
+      case "NO_ACTIONS"         => Some(LeppLink.CurrentServiceLink(configDecorator.leppPaymentsUrl))
       case _                    => None
     }
 }

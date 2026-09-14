@@ -19,7 +19,8 @@ package services
 import cats.data.EitherT
 import config.ConfigDecorator
 import connectors.LeppConnector
-import models.LeppSummaryResponse
+import controllers.auth.requests.UserRequest
+import models.{LeppLink, LeppSummaryResponse}
 import models.admin.LowEarnersPensionsPaymentToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
@@ -27,7 +28,8 @@ import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import testUtils.BaseSpec
+import testUtils.{BaseSpec, UserRequestFixture}
+import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
@@ -44,7 +46,11 @@ class LeppServiceSpec extends BaseSpec {
   private val sut: LeppService                     =
     new LeppService(mockLeppConnector, mockFeatureFlagService, mockConfigDecorator)
 
-  implicit val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  implicit val fakeRequest: UserRequest[AnyContentAsEmpty.type] =
+    UserRequestFixture.buildUserRequest(
+      confidenceLevel = ConfidenceLevel.L250,
+      request = FakeRequest()
+    )
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -74,13 +80,13 @@ class LeppServiceSpec extends BaseSpec {
     "return the start URL when payments are available" in {
       stubSummary("PAYMENTS_AVAILABLE")
 
-      sut.getLeppLink.futureValue mustBe Some(startUrl)
+      sut.getLeppLink.futureValue mustBe Some(LeppLink.CurrentServiceLink(startUrl))
     }
 
     "return the payments URL when no actions are available" in {
       stubSummary("NO_ACTIONS")
 
-      sut.getLeppLink.futureValue mustBe Some(paymentsUrl)
+      sut.getLeppLink.futureValue mustBe Some(LeppLink.CurrentServiceLink(paymentsUrl))
     }
 
     "return None when the user is not eligible" in {
@@ -121,6 +127,29 @@ class LeppServiceSpec extends BaseSpec {
         )
 
       sut.getLeppLink.futureValue mustBe None
+    }
+
+    "return static start URL for CL200 users without calling backend" in {
+      val cl200Request: UserRequest[AnyContentAsEmpty.type] =
+        UserRequestFixture.buildUserRequest(
+          confidenceLevel = ConfidenceLevel.L200,
+          request = FakeRequest()
+        )
+
+      sut.getLeppLink(implicitly, cl200Request).futureValue mustBe Some(LeppLink.OtherServiceLink(startUrl))
+      verify(mockLeppConnector, times(0)).getLeppSummary(any(), any(), any())
+    }
+
+    "call backend and return link for CL250 users" in {
+      stubSummary("PAYMENTS_AVAILABLE")
+      val cl250Request: UserRequest[AnyContentAsEmpty.type] =
+        UserRequestFixture.buildUserRequest(
+          confidenceLevel = ConfidenceLevel.L250,
+          request = FakeRequest()
+        )
+
+      sut.getLeppLink(implicitly, cl250Request).futureValue mustBe Some(LeppLink.CurrentServiceLink(startUrl))
+      verify(mockLeppConnector, times(1)).getLeppSummary(any(), any(), any())
     }
   }
 }
