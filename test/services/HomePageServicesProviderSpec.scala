@@ -199,6 +199,52 @@ class HomePageServicesProviderSpec extends BaseSpec {
       )
     }
 
+    "return LEPP in myServices with current-service content when the backend returns a link" in {
+      implicit val request: UserRequest[AnyContent] =
+        buildRequest()
+
+      when(mockLeppService.getLeppLink(any(), any()))
+        .thenReturn(Future.successful(Some(LeppLink.CurrentServiceLink("lepp-start-url"))))
+
+      val result = service.getHomePageServices().futureValue
+
+      result.myServices              must contain(
+        MyService(
+          "Low earner's pension payment",
+          Some("lepp-start-url"),
+          Some("View and accept your low earner's pension payment."),
+          Map(),
+          Some("Benefits"),
+          Some("Low earner's pension payment (LEPP)"),
+          id = Some("lepp")
+        )
+      )
+      result.otherServices.map(_.id) must not contain Some("lepp")
+    }
+
+    "return LEPP in otherServices with eligibility content when the user is below CL250" in {
+      implicit val request: UserRequest[AnyContent] =
+        buildRequest()
+
+      when(mockLeppService.getLeppLink(any(), any()))
+        .thenReturn(Future.successful(Some(LeppLink.OtherServiceLink("lepp-start-url"))))
+
+      val result = service.getHomePageServices().futureValue
+
+      result.otherServices        must contain(
+        OtherService(
+          "Low earner's pension payment (LEPP)",
+          "lepp-start-url",
+          Map(),
+          Some("Benefits"),
+          Some("Low earner's pension payment (LEPP)"),
+          id = Some("lepp"),
+          Some("Check if you are eligible for a low earner's pension payment")
+        )
+      )
+      result.myServices.map(_.id) must not contain Some("lepp")
+    }
+
     "return self assessment in myServices for activated online filer" in {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("11")))

@@ -310,7 +310,7 @@ class HomePageServicesProvider @Inject() (
       }
     }
 
-  private def leppTile(linkUrl: String)(implicit messages: Messages): MyService =
+  private def currentLeppTile(linkUrl: String)(implicit messages: Messages): MyService =
     MyService(
       messages("label.lepp.title"),
       Some(linkUrl),
@@ -320,13 +320,28 @@ class HomePageServicesProvider @Inject() (
       hintText = Some(messages("label.lepp.hint"))
     )
 
+  private def otherLeppTile(linkUrl: String)(implicit messages: Messages): OtherService =
+    OtherService(
+      messages("label.lepp.other.title"),
+      linkUrl,
+      gaAction = Some("Benefits"),
+      gaLabel = Some("Low earner's pension payment (LEPP)"),
+      id = Some("lepp"),
+      hintText = Some(messages("label.lepp.other.hint"))
+    )
+
   private def getLepp(
     isTrustedHelperUser: Boolean
-  )(implicit hc: HeaderCarrier, request: UserRequest[?], messages: Messages): Future[Option[MyService]] =
+  )(implicit hc: HeaderCarrier, request: UserRequest[?], messages: Messages): Future[Option[HomePageService]] =
     if (isTrustedHelperUser) {
       Future.successful(None)
     } else {
-      leppService.getLeppLink.map(_.map(leppTile))
+      leppService.getLeppLink.map(
+        _.map {
+          case LeppLink.CurrentServiceLink(url) => currentLeppTile(url)
+          case LeppLink.OtherServiceLink(url)   => otherLeppTile(url)
+        }
+      )
     }
 
   private def getAnnualTaxSummaries(isTrustedHelperUser: Boolean, isRedesign: Boolean)(implicit

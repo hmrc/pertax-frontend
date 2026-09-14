@@ -20,7 +20,7 @@ import cats.data.EitherT
 import config.ConfigDecorator
 import connectors.LeppConnector
 import controllers.auth.requests.UserRequest
-import models.LeppSummaryResponse
+import models.{LeppLink, LeppSummaryResponse}
 import models.admin.LowEarnersPensionsPaymentToggle
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
@@ -80,13 +80,13 @@ class LeppServiceSpec extends BaseSpec {
     "return the start URL when payments are available" in {
       stubSummary("PAYMENTS_AVAILABLE")
 
-      sut.getLeppLink.futureValue mustBe Some(startUrl)
+      sut.getLeppLink.futureValue mustBe Some(LeppLink.CurrentServiceLink(startUrl))
     }
 
     "return the payments URL when no actions are available" in {
       stubSummary("NO_ACTIONS")
 
-      sut.getLeppLink.futureValue mustBe Some(paymentsUrl)
+      sut.getLeppLink.futureValue mustBe Some(LeppLink.CurrentServiceLink(paymentsUrl))
     }
 
     "return None when the user is not eligible" in {
@@ -136,7 +136,7 @@ class LeppServiceSpec extends BaseSpec {
           request = FakeRequest()
         )
 
-      sut.getLeppLink(implicitly, cl200Request).futureValue mustBe Some(startUrl)
+      sut.getLeppLink(implicitly, cl200Request).futureValue mustBe Some(LeppLink.OtherServiceLink(startUrl))
       verify(mockLeppConnector, times(0)).getLeppSummary(any(), any(), any())
     }
 
@@ -148,7 +148,7 @@ class LeppServiceSpec extends BaseSpec {
           request = FakeRequest()
         )
 
-      sut.getLeppLink(implicitly, cl250Request).futureValue mustBe Some(startUrl)
+      sut.getLeppLink(implicitly, cl250Request).futureValue mustBe Some(LeppLink.CurrentServiceLink(startUrl))
       verify(mockLeppConnector, times(1)).getLeppSummary(any(), any(), any())
     }
   }
