@@ -205,10 +205,11 @@ class HomePageServicesProviderSpec extends BaseSpec {
 
       val result = service.getHomePageServices().futureValue
 
-      result.myServices.flatMap(_.link) must contain(
+      result.myServices.flatMap(_.link)     must contain(
         controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url
       )
-      result.otherServices.map(_.link)  must not contain
+      result.otherServices.flatMap(_.title) must not contain "Self Assessment"
+      result.otherServices.map(_.link)      must not contain
         controllers.routes.SelfAssessmentController.requestAccess.url
     }
 
@@ -218,7 +219,8 @@ class HomePageServicesProviderSpec extends BaseSpec {
 
       val result = service.getHomePageServices().futureValue
 
-      result.myServices    must contain(
+      result.otherServices.flatMap(_.title) must not contain "Self Assessment"
+      result.myServices                     must contain(
         MyService(
           "Self Assessment",
           Some(controllers.routes.SaWrongCredentialsController.landingPage().url),
@@ -229,7 +231,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
           id = Some("self-assessment")
         )
       )
-      result.otherServices must contain(
+      result.otherServices                  must contain(
         OtherService(
           messages("label.mtd_for_it"),
           controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url,
