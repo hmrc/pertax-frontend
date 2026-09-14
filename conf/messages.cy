@@ -195,7 +195,7 @@ label.national_insurance_summary=Crynodeb Yswiriant Gwladol
 label.child_benefit=Budd-dal Plant
 label.get_help_with_the_cost_of_bringing_up_children=Cael help gyda chostau magu plant.
 
-label.lepp.other.title=Taliad pensiwn i''r sawl sy''n ennill incwm isel (LEPP)
+label.lepp.other.title=Taliad pensiwn i''r sawl sy''n ennill incwm isel
 label.lepp.other.hint=Gwirio a ydych yn gymwys ar gyfer taliad pensiwn i''r sawl sy''n ennill incwm isel
 label.report_changes_that_affect_your_child_benefit=Rhoi gwybod am newidiadau sy’n effeithio ar eich Budd-dal Plant
 label.tell_us_your_child_is_staying_in_full_time_education=Rhowch wybod i ni fod eich plentyn yn parhau ag addysg amser llawn

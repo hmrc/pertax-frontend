@@ -233,7 +233,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
 
       result.otherServices        must contain(
         OtherService(
-          "Low earner's pension payment (LEPP)",
+          "Low earner's pension payment",
           "lepp-start-url",
           Map(),
           Some("Benefits"),
