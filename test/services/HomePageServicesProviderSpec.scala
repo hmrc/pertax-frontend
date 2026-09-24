@@ -450,18 +450,19 @@ class HomePageServicesProviderSpec extends BaseSpec {
       )
     }
 
-    // "return welsh content version of self assessment in otherServices for non filer user" in {
-    //   implicit val request: UserRequest[AnyContent] =
-    //     buildRequest(NonFilerSelfAssessmentUser)
+    "return welsh content version of self assessment in otherServices for non filer user" in {
+      implicit val welshMessages: Messages          = MessagesImpl(Lang("cy"), messagesApi)
+      implicit val request: UserRequest[AnyContent] =
+        buildRequest(NonFilerSelfAssessmentUser)
 
-    //   val result = service.getHomePageServices().futureValue
+      val result = service.getHomePageServices(isRedesign = true).futureValue
 
-    //   result.otherServices.map(_.title)    must contain("Hunanasesiad")
-    //   result.otherServices.map(_.link)     must contain("/personal-account/self-assessment-who-needs-to-register")
-    //   result.otherServices.map(_.hintText) must contain(
-    //     "Gwiriwch sut i gofrestru ar gyfer Hunanasesiad os oes angen i chi anfon Ffurflen Dreth."
-    //   )
-    // }
+      result.otherServices.map(_.title)    must contain("Hunanasesiad")
+      result.otherServices.map(_.link)     must contain("/personal-account/self-assessment-who-needs-to-register")
+      result.otherServices.map(_.hintText) must contain(
+        Some("Gwiriwch sut i gofrestru ar gyfer Hunanasesiad os oes angen i chi anfon Ffurflen Dreth.")
+      )
+    }
 
     "return no tax calculation service when trusted helper is active" in {
       implicit val request: UserRequest[AnyContent] =
