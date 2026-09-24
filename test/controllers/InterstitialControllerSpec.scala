@@ -375,22 +375,6 @@ class InterstitialControllerSpec extends BaseSpec {
       contentAsString(result) must include("Self Assessment: who needs to register")
       contentAsString(result) must include(dummyUrl)
     }
-
-    "return UNAUTHORIZED when pegaEnabled is false" in {
-      val app                                     = appn(extraConfigValues = Map("feature.pegaSaRegistration.enabled" -> false))
-      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
-
-      setupAuth(
-        saUserType = Some(NonFilerSelfAssessmentUser)
-      )
-
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
-        .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
-
-      val result = controller.displaySaRegistrationPage()(fakeRequest)
-
-      status(result) mustBe UNAUTHORIZED
-    }
   }
 
   "Calling displayNpsShutteringPage" must {
