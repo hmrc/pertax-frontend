@@ -191,8 +191,6 @@ class ConfigDecorator @Inject() (
   lazy val viewProofEntitlement: String =
     runModeConfiguration.get[String]("external-url.child-benefits.view-proof-entitlement-location")
 
-  lazy val pegaSaRegistrationUrl: String = runModeConfiguration.get[String]("external-url.pegaSaRegistration.url")
-
   lazy val childBenefitTaxCharge: String = "https://www.gov.uk/child-benefit-tax-charge"
   lazy val useMTDIT: String              =
     "https://www.gov.uk/government/collections/making-tax-digital-for-income-tax-for-businesses-step-by-step"
@@ -276,9 +274,6 @@ class ConfigDecorator @Inject() (
 
   lazy val addressLookupTimeoutInSec: Int =
     servicesConfig.getInt("feature.address-lookup.timeoutInSec")
-
-  lazy val pegaSaRegistrationEnabled: Boolean =
-    servicesConfig.getBoolean("feature.pegaSaRegistration.enabled")
 
   val mongoEncryptionEnabled: Boolean = runModeConfiguration.get[Boolean]("mongodb.encryption.enabled")
 

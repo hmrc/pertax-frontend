@@ -15,17 +15,18 @@
  *@
 
 @import components.{H1, H2, Link, P}
-@import controllers.auth.requests.UserRequest
 @import views.MainView
+@import controllers.auth.requests.UserRequest
 @this(
         mainView: MainView,
         h1: H1,
         h2: H2,
         p: P,
-        link: Link
+        link: Link,
+        govukWarningText : GovukWarningText
 )
 
-@(url: String)(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+@()(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 @mainView(
     pageTitle = messages("label.your_self_assessment"),
@@ -33,44 +34,21 @@
 ) {
 
     @h1("selfAssessment.whoNeedsToRegister")
+    @govukWarningText(WarningText(content = Text(messages("selfAssessment.warningText"))))
 
-    @p(Text(messages("selfAssessment.tax.deductedFromWages") + " " + messages("selfAssessment.sendTaxReturn.businesses")))
+    @p(Text(messages("selfAssessment.tax.info.1")))
 
-    @p(Text(messages("selfAssessment.taxReturn.tellsIncome") + " " + messages("selfAssessment.taxReturn.howMuchTax")))
+    @p(Text(messages("selfAssessment.tax.info.2")))
 
-    @p(Text(messages("selfAssessment.sendReturn.needToRegister")))
+    <p class="govuk-body">
+        @messages("selfAssessment.tax.info.3") @link("https://www.gov.uk/check-if-you-need-tax-return", "selfAssessment.CheckTaxReturn.linkText", inParagraph = true)
+        @messages("selfAssessment.tax.info.4") @link("https://www.gov.uk/register-for-self-assessment", "selfAssessment.RegisterForSelfAssessment.linkText", inParagraph = true)
+    </p>
 
-    @h2("selfAssessment.whoMustSendReturn")
-
-    @p(Text(messages("selfAssessment.mustSendReturn.lastTaxYear")))
+    @h2("selfAssessment.moreInformation")
     <ul class="govuk-list govuk-list--bullet">
-        <li>@messages("selfAssessment.selfEmployedSoleTrader")</li>
-        <li>@messages("selfAssessment.partnerInBusiness")</li>
         <li>
-            @messages("selfAssessment.capitalGainsTax.prefix") @link("https://www.gov.uk/capital-gains-tax", "selfAssessment.capitalGainsTax.linkText", inParagraph = true)
-        </li>
-        <li>
-            @messages("selfAssessment.highIncomeChildBenefitCharge.prefix") @link("https://www.gov.uk/child-benefit-tax-charge", "selfAssessment.highIncomeChildBenefitCharge.linkText", inParagraph = true)
+            @link("https://www.gov.uk/browse/tax/self-assessment", "selfAssessment.selfAssessmentGuidance.linkText", inParagraph = true)
         </li>
     </ul>
-
-    @p(Text(messages("selfAssessment.untaxedIncome")))
-
-    <ul class="govuk-list govuk-list--bullet">
-        <li>@messages("selfAssessment.rentingProperty")</li>
-        <li>@messages("selfAssessment.tipsAndCommission")</li>
-        <li>@messages("selfAssessment.savingsInterest")</li>
-        <li>@messages("selfAssessment.investmentsAndDividends")</li>
-        <li>@messages("selfAssessment.foreignIncome")</li>
-    </ul>
-
-    @p(Text(messages("selfAssessment.registerByOctober5")))
-
-    @h2("selfAssessment.checkIfNeedReturn")
-
-    <p class="govuk-body">@link("https://www.gov.uk/check-if-you-need-tax-return", "selfAssessment.notSureCheckReturn.linkText", inParagraph = true) @messages("selfAssessment.notSureCheckReturn.suffix")</p>
-
-    @h2("selfAssessment.registerSelfAssessment")
-
-    <p class="govuk-body">@messages("selfAssessment.needToSendReturn.prefix") @link(url, "selfAssessment.needToSendReturn.linkText", inParagraph = true)</p>
 }

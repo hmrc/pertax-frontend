@@ -352,44 +352,18 @@ class InterstitialControllerSpec extends BaseSpec {
       status(result) mustBe UNAUTHORIZED
     }
 
-    "return OK with selfAssessmentRegistrationPageView when no trustedHelper, no ITSA enrolment, and not an SA user and pegaEnabled is true" in {
-      val dummyUrl                                = "/dummy"
-      val app                                     = appn(extraConfigValues =
-        Map(
-          "feature.pegaSaRegistration.enabled"  -> true,
-          "external-url.pegaSaRegistration.url" -> dummyUrl
-        )
-      )
+    "return OK with selfAssessmentRegistrationPageView when no trustedHelper, no ITSA enrolment, and not an SA user" in {
       lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
 
       setupAuth(
         saUserType = Some(NonFilerSelfAssessmentUser)
       )
-
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
-        .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
 
       val result = controller.displaySaRegistrationPage()(fakeRequest)
 
       status(result) mustBe OK
-      contentAsString(result) must include("Self Assessment: who needs to register")
-      contentAsString(result) must include(dummyUrl)
-    }
-
-    "return UNAUTHORIZED when pegaEnabled is false" in {
-      val app                                     = appn(extraConfigValues = Map("feature.pegaSaRegistration.enabled" -> false))
-      lazy val controller: InterstitialController = app.injector.instanceOf[InterstitialController]
-
-      setupAuth(
-        saUserType = Some(NonFilerSelfAssessmentUser)
-      )
-
-      when(mockFeatureFlagService.get(ArgumentMatchers.eq(BreathingSpaceIndicatorToggle)))
-        .thenReturn(Future.successful(FeatureFlag(BreathingSpaceIndicatorToggle, isEnabled = true)))
-
-      val result = controller.displaySaRegistrationPage()(fakeRequest)
-
-      status(result) mustBe UNAUTHORIZED
+      contentAsString(result) must include("Self Assessment tax returns")
+      contentAsString(result) must include("You are not currently registered for Self Assessment.")
     }
   }
 
