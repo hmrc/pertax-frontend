@@ -689,7 +689,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
         Some(messages("label.trusted_helpers_content"))
     }
 
-    "not set hintText on services when isRedesign is false" in {
+    "not set hintText on services when isRedesign is false except Self Assessment" in {
       implicit val request: UserRequest[AnyContent] = buildRequest()
 
       when(mockFeatureFlagService.get(eqTo(ShowTaxCalcTileToggle)))
@@ -697,8 +697,13 @@ class HomePageServicesProviderSpec extends BaseSpec {
 
       val result = service.getHomePageServices().futureValue
 
+      val (selfAssessmentService, remainingOtherServices) = result.otherServices.partition(_.title == "Self Assessment")
+
       result.myServices.foreach(_.hintText mustBe None)
-      result.otherServices.foreach(_.hintText mustBe None)
+      remainingOtherServices.foreach(_.hintText mustBe None)
+      selfAssessmentService.map(_.hintText) mustBe Seq(
+        Some("Check how to register for Self Assessment if you need to send a tax return.")
+      )
     }
   }
 }
