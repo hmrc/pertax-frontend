@@ -202,6 +202,14 @@ class HomePageServicesProvider @Inject() (
                 hint = Some(messages("label.activate_your_self_assessment"))
               )
             )
+          case NonFilerSelfAssessmentUser                      =>
+            Some(
+              otherSaTile(
+                title = messages("label.self_assessment"),
+                linkUrl = controllers.interstitials.routes.InterstitialController.displaySaRegistrationPage.url,
+                hint = Some(messages("label.other_services.sa.reg.card.hint"))
+              )
+            )
 
           case _ =>
             None
