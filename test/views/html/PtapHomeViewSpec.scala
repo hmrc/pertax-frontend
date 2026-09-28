@@ -290,14 +290,23 @@ class PtapHomeViewSpec extends ViewSpec {
         .select("div.govuk-grid-column-two-thirds")
         .select("div.govuk-inset-text")
       placeholder_text.size mustBe 1
-      placeholder_text.select("p.govuk-body").size mustBe 2
+      placeholder_text.select("p.govuk-body").size mustBe 1
 
-      val first_line  = placeholder_text.select("p.govuk-body").asList().get(0)
-      val second_line = placeholder_text.select("p.govuk-body").asList().get(1)
-      first_line.text() mustBe "This page shows refunds and tax you owe."
-      second_line
-        .text() mustBe "Check Taxes and benefits for anything else you need to do."
-      second_line.select(s"a.govuk-link").text() mustBe "Taxes and benefits"
+      val first_line = placeholder_text.select("p.govuk-body")
+      first_line.text() mustBe "This page only shows refunds and taxes you owe for PAYE."
+
+      val details = doc.select("div.govuk-grid-column-two-thirds").select("details.govuk-details")
+      val summary = details.select("summary.govuk-details__summary")
+      summary.text() mustBe "Why are my other tasks not listed here?"
+
+      val details_text = details.select("p.govuk-details__text")
+      val link1        = details_text.select("a[href=/personal-account/messages].govuk-link")
+      val link2        = details_text.select("a[href=/personal-account?ptap=true].govuk-link")
+      link1.text() must not be null
+      link2.text() must not be null
+      details_text
+        .text() mustBe "We are currently redesigning the service to make it more personalised to you. More functionality will be added over time. For now, you will be notified to check your Messages for any communications from other HMRC online services, or you can go to Taxes and benefits to access the services."
+
     }
     "show the default inset text when the Recent activity tab is selected." in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
@@ -313,13 +322,9 @@ class PtapHomeViewSpec extends ViewSpec {
         .select("div.govuk-grid-column-two-thirds")
         .select("div.govuk-inset-text")
       placeholder_text.size mustBe 1
-      placeholder_text.select("p.govuk-body").size mustBe 2
-      val first_line                                                = placeholder_text.select("p.govuk-body").asList().get(0)
-      val second_line                                               = placeholder_text.select("p.govuk-body").asList().get(1)
+      placeholder_text.select("p.govuk-body").size mustBe 1
+      val first_line                                                = placeholder_text.select("p.govuk-body")
       first_line.text() mustBe "This page shows your recent activity."
-      second_line
-        .text() mustBe "Check Your tasks for anything you need to do."
-      second_line.select(s"a.govuk-link").text() mustBe "Your tasks"
     }
     "show the default inset text when the Your tasks tab is selected and there are no cards to load." in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
@@ -330,14 +335,23 @@ class PtapHomeViewSpec extends ViewSpec {
         .select("div.govuk-grid-column-two-thirds")
         .select("div.govuk-inset-text")
       placeholder_text.size mustBe 1
-      placeholder_text.select("p.govuk-body").size mustBe 2
+      placeholder_text.select("p.govuk-body").size mustBe 1
 
-      val first_line  = placeholder_text.select("p.govuk-body").asList().get(0)
-      val second_line = placeholder_text.select("p.govuk-body").asList().get(1)
-      first_line.text() mustBe "This page shows refunds and tax you owe."
-      second_line
-        .text() mustBe "Check Taxes and benefits for anything else you need to do."
-      second_line.select(s"a.govuk-link").text() mustBe "Taxes and benefits"
+      val first_line = placeholder_text.select("p.govuk-body").asList().get(0)
+      first_line.text() mustBe "This page only shows refunds and taxes you owe for PAYE."
+
+      val details = doc.select("div.govuk-grid-column-two-thirds").select("details.govuk-details")
+      val summary = details.select("summary.govuk-details__summary")
+      summary.text() mustBe "Why are my other tasks not listed here?"
+
+      val details_text = details.select("p.govuk-details__text")
+      val link1        = details_text.select("a[href=/personal-account/messages].govuk-link")
+      val link2        = details_text.select("a[href=/personal-account?ptap=true].govuk-link")
+      link1.text() must not be null
+      link2.text() must not be null
+      details_text
+        .text() mustBe "We are currently redesigning the service to make it more personalised to you. More functionality will be added over time. For now, you will be notified to check your Messages for any communications from other HMRC online services, or you can go to Taxes and benefits to access the services."
+
     }
     "show the default inset text when the Recent activity tab is selected and there are no cards to load." in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
@@ -354,13 +368,9 @@ class PtapHomeViewSpec extends ViewSpec {
         .select("div.govuk-grid-column-two-thirds")
         .select("div.govuk-inset-text")
       placeholder_text.size mustBe 1
-      placeholder_text.select("p.govuk-body").size mustBe 2
+      placeholder_text.select("p.govuk-body").size mustBe 1
       val first_line       = placeholder_text.select("p.govuk-body").asList().get(0)
-      val second_line      = placeholder_text.select("p.govuk-body").asList().get(1)
       first_line.text() mustBe "This page shows your recent activity."
-      second_line
-        .text() mustBe "Check Your tasks for anything you need to do."
-      second_line.select(s"a.govuk-link").text() mustBe "Your tasks"
     }
 
     "render task completed message when enabled" in {
