@@ -871,11 +871,15 @@ head.label.mtdit.claim.error=Select yes to add Making Tax Digital for Income Tax
 #************************************************************
 # Default case (no tasks)
 #************************************************************
-ptap.your-tasks.container.default_text.p.line1=This page shows refunds and tax you owe.
-ptap.your-tasks.container.default_text.p.line2.1=Check
-ptap.your-tasks.container.default_text.p.line2.2=Taxes and benefits
-ptap.your-tasks.container.default_text.p.line2.3=for anything else you need to do.
+ptap.your-tasks.container.default_text.p.line1=This page only shows refunds and taxes you owe for PAYE.
 
+ptap.your-tasks.container.details.heading=Why are my other tasks not listed here?
+ptap.your-tasks.container.details.p.line.1=We are currently redesigning the service to make it more personalised to you. More functionality will be added over time.
+ptap.your-tasks.container.details.p.line.2.1=For now, you will be notified to check your
+ptap.your-tasks.container.details.p.line.2.2=Messages
+ptap.your-tasks.container.details.p.line.2.3=for any communications from other HMRC online services, or you can go to
+ptap.your-tasks.container.details.p.line.2.4=Taxes and benefits
+ptap.your-tasks.container.details.p.line.2.5=to access the services.
 #************************************************************
 # Default case (no activity)
 #************************************************************
