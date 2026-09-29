@@ -5,8 +5,9 @@ object AppDependencies {
 
   private val playVersion               = "play-30"
   private val cryptoVersion             = "8.4.0"
-  private val scaWrapperVersion         = "5.3.0"
+  private val scaWrapperVersion         = "6.4.0"
   private val mongoFeatureClientVersion = "2.5.0"
+  private val playFrontendHmrcVersion   = "13.15.0"
 
   val compile: Seq[ModuleID] = Seq(
     ws,
@@ -17,12 +18,14 @@ object AppDependencies {
     "org.typelevel"     %% "cats-effect"                                % "3.7.0",
     "org.apache.commons" % "commons-text"                               % "1.15.0",
     "uk.gov.hmrc"       %% s"sca-wrapper-$playVersion"                  % scaWrapperVersion,
+    "uk.gov.hmrc"       %% s"play-frontend-hmrc-$playVersion"           % playFrontendHmrcVersion,
     "uk.gov.hmrc"       %% s"mongo-feature-toggles-client-$playVersion" % mongoFeatureClientVersion,
     "uk.gov.hmrc"       %% s"crypto-json-$playVersion"                  % cryptoVersion
   )
 
   val test: Seq[ModuleID] = Seq(
     "uk.gov.hmrc" %% s"sca-wrapper-test-$playVersion"                  % scaWrapperVersion,
+    "uk.gov.hmrc" %% s"scalatest-accessibility-linter-$playVersion"    % "2.1.0",
     "uk.gov.hmrc" %% s"mongo-feature-toggles-client-test-$playVersion" % mongoFeatureClientVersion
   ).map(_ % "test")
 

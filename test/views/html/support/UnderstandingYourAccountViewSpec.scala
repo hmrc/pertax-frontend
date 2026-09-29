@@ -116,7 +116,7 @@ class UnderstandingYourAccountViewSpec extends ViewSpec {
     }
 
     "show the expected content for the back link" in {
-      val link = document.select("a[id*='menu.back']").asScala
+      val link = document.select("a.govuk-back-link").asScala
 
       link.exists(e => e.attribute("href").getValue == "#") mustBe true
       link.exists(e => e.text contains "Back") mustBe true
