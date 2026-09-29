@@ -206,7 +206,7 @@ class MainViewSpec extends IntegrationSpec {
       }
 
       "render the welsh language toggle" in new LocalSetup {
-        assertContainsLink(doc, "Cymraeg", "/hmrc-frontend/language/cy")
+        assertContainsLink(doc, "CYM", "/personal-account/hmrc-frontend/language/cy")
       }
     }
 

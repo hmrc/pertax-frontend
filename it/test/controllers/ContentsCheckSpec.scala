@@ -350,7 +350,7 @@ class ContentsCheckSpec extends IntegrationSpec {
           )
 
           val signoutLink = content
-            .getElementsByClass("hmrc-account-menu__link")
+            .getElementsByClass("hmrc-sign-out-nav__link")
             .asScala
             .toList
             .find(_.html().contains("Sign out"))
@@ -361,13 +361,13 @@ class ContentsCheckSpec extends IntegrationSpec {
           val displayedMessageCount = content.getElementsByClass("hmrc-notification-badge").get(0).text()
           displayedMessageCount mustBe messageCount.toString
 
-          val menuItems = content.getElementsByClass("hmrc-account-menu")
-          for (menuItem <- menuWrapperData)
+          val menuItems = content.getElementsByClass("govuk-service-navigation__list")
+          for (menuItem <- menuWrapperData.filterNot(_.id == "signout"))
             menuItems.text() must include(menuItem.text)
 
-          val languageToggle = content.getElementsByClass("hmrc-language-select__list")
-          languageToggle.text() must include("English")
-          languageToggle.text() must include("Cymraeg")
+          val languageToggle = content.getElementsByClass("hmrc-service-navigation-language-select__list")
+          languageToggle.text() must include("ENG")
+          languageToggle.text() must include("CYM")
 
           val reportIssueText = content.getElementsByClass("hmrc-report-technical-issue").get(0).text()
           val reportIssueLink = content.getElementsByClass("hmrc-report-technical-issue").get(0).attr("href")
@@ -424,7 +424,7 @@ class ContentsCheckSpec extends IntegrationSpec {
           urBannerPresent mustBe false withClue "UR banned must not be present"
 
           val menuItems = content
-            .getElementsByClass("hmrc-account-menu__link")
+            .getElementsByClass("govuk-service-navigation__item")
           menuItems.toString mustBe ""
         }
       }

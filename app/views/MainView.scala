@@ -26,6 +26,7 @@ import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.hmrcfrontend.config.AccessibilityStatementConfig
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
+import uk.gov.hmrc.sca.config.BackLinkConfig
 import uk.gov.hmrc.sca.models.{BannerConfig, TrustedHelper}
 import uk.gov.hmrc.sca.services.WrapperService
 import uk.gov.hmrc.sca.utils.Keys
@@ -110,10 +111,10 @@ class MainViewImpl @Inject() (
         accessibilityStatementUrl = accessibilityStatementConfig.url
       ),
       sidebarContent = sidebarContent,
-      timeOutUrl = Some(controllers.routes.SessionManagementController.timeOut.url),
-      keepAliveUrl = controllers.routes.SessionManagementController.keepAlive.url,
-      showBackLinkJS = showBackLink,
-      backLinkUrl = if (!backLinkUrl.equals("#")) Some(backLinkUrl) else None,
+      backLinkConfig =
+        if (backLinkUrl != "#") Some(BackLinkConfig.UrlBack(backLinkUrl))
+        else if (showBackLink) Some(BackLinkConfig.JsBack)
+        else None,
       scripts = Seq(additionalScripts(scripts)(request)),
       styleSheets = Seq(headBlock(stylesheets)(request)),
       bannerConfig = BannerConfig(
