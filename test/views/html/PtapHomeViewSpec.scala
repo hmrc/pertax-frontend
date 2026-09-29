@@ -373,6 +373,91 @@ class PtapHomeViewSpec extends ViewSpec {
       first_line.text() mustBe "This page shows your recent activity."
     }
 
+    "show the default inset text in welsh, when the Your tasks tab is selected." in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val welshModel: PtapHomeViewModel                             = PtapHomeViewModel(
+        showUserResearchBanner = true,
+        saUtr = None,
+        breathingSpaceIndicator = true,
+        alertBannerContent = None,
+        name = None,
+        secondaryNav = defaultSecondaryNav,
+        tabContent = List(
+          CardContainerModel(
+            defaultInset = Task.defaultInset(Some("true"))(welshMessages),
+            cards = Seq.empty,
+            cardHeadingLevel = "h2",
+            listAriaLabel = Some("Your tasks")
+          )
+        )
+      )
+      val doc                                                       = asDocument(home(welshModel)(userRequest, welshMessages).toString)
+
+      val placeholder_text = doc
+        .select("div.govuk-grid-column-two-thirds")
+        .select("div.govuk-inset-text")
+      placeholder_text.size mustBe 1
+      placeholder_text.select("p.govuk-body").size mustBe 1
+
+      val first_line = placeholder_text.select("p.govuk-body")
+      first_line.text() mustBe "Mae’r dudalen hon yn dangos ad-daliadau a threthi sydd arnoch ar gyfer TWE yn unig."
+
+      val details = doc.select("div.govuk-grid-column-two-thirds").select("details.govuk-details")
+      val summary = details.select("summary.govuk-details__summary")
+      summary.text() mustBe "Pam nad ydy fy nhasgau eraill wedi cael eu rhestru yma?"
+
+      val details_text = details.select("p.govuk-details__text")
+      val link1        = details_text.select("a[href=/personal-account/messages].govuk-link")
+      val link2        = details_text.select("a[href=/personal-account?ptap=true].govuk-link")
+      link1.text() must not be null
+      link2.text() must not be null
+      details_text
+        .text() mustBe "Rydym wrthi’n ailddylunio’r gwasanaeth er mwyn ei wneud yn fwy personol i chi. Bydd rhagor o swyddogaethau yn cael eu hychwanegu dros amser. Ar hyn o bryd, byddwch yn cael hysbysiad i wirio’ch Negeseuon am unrhyw ohebiaeth gan wasanaethau ar-lein eraill sydd gan CThEF, neu fel allwch gael mynediad at y gwasanaethau drwy fynd at y dudalen ynghylch Trethi a budd-daliadau."
+
+    }
+
+    "show the default inset text in welsh when the Your tasks tab is selected and there are no cards to load." in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      val welshModel: PtapHomeViewModel                             = PtapHomeViewModel(
+        showUserResearchBanner = true,
+        saUtr = None,
+        breathingSpaceIndicator = true,
+        alertBannerContent = None,
+        name = None,
+        secondaryNav = defaultSecondaryNav,
+        tabContent = List(
+          CardContainerModel(
+            defaultInset = Task.defaultInset(Some("true"))(welshMessages),
+            cards = Seq.empty,
+            cardHeadingLevel = "h2",
+            listAriaLabel = Some("Your tasks")
+          )
+        )
+      )
+      val doc                                                       = asDocument(home(welshModel)(userRequest, welshMessages).toString)
+
+      val placeholder_text = doc
+        .select("div.govuk-grid-column-two-thirds")
+        .select("div.govuk-inset-text")
+      placeholder_text.size mustBe 1
+      placeholder_text.select("p.govuk-body").size mustBe 1
+
+      val first_line = placeholder_text.select("p.govuk-body")
+      first_line.text() mustBe "Mae’r dudalen hon yn dangos ad-daliadau a threthi sydd arnoch ar gyfer TWE yn unig."
+
+      val details = doc.select("div.govuk-grid-column-two-thirds").select("details.govuk-details")
+      val summary = details.select("summary.govuk-details__summary")
+      summary.text() mustBe "Pam nad ydy fy nhasgau eraill wedi cael eu rhestru yma?"
+
+      val details_text = details.select("p.govuk-details__text")
+      val link1        = details_text.select("a[href=/personal-account/messages].govuk-link")
+      val link2        = details_text.select("a[href=/personal-account?ptap=true].govuk-link")
+      link1.text() must not be null
+      link2.text() must not be null
+      details_text
+        .text() mustBe "Rydym wrthi’n ailddylunio’r gwasanaeth er mwyn ei wneud yn fwy personol i chi. Bydd rhagor o swyddogaethau yn cael eu hychwanegu dros amser. Ar hyn o bryd, byddwch yn cael hysbysiad i wirio’ch Negeseuon am unrhyw ohebiaeth gan wasanaethau ar-lein eraill sydd gan CThEF, neu fel allwch gael mynediad at y gwasanaethau drwy fynd at y dudalen ynghylch Trethi a budd-daliadau."
+
+    }
     "render task completed message when enabled" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(request = FakeRequest())
