@@ -567,6 +567,8 @@ label.hicbc_deduction_tax_free=It will show as a deduction from your tax-free am
 label.change_your_bank_details=Change your bank details
 label.check_if_you_can_claim=Check if you can claim
 
+label.other_services.sa.reg.card.hint=Check how to register for Self Assessment if you need to send a tax return.
+
 #
 # Pensions
 #

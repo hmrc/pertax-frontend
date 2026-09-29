@@ -549,6 +549,8 @@ label.high_income_child_benefit_charge=Tâl Treth Budd-dal Plant Incwm Uchel
 label.change_your_bank_details=Newid eich manylion banc
 label.check_if_you_can_claim=Gwirio a allwch hawlio
 
+label.other_services.sa.reg.card.hint=Gwiriwch sut i gofrestru ar gyfer Hunanasesiad os oes angen i chi anfon Ffurflen Dreth.
+
 label.visit_high_income_child_benefit_charge=Ewch i Dâl Treth Budd-dal Plant Incwm Uchel
 label.hicbc_to = i wneud y canlynol:
 label.hicbc_li1=darganfod a oes angen i chi dalu’r tâl
