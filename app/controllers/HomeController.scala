@@ -82,9 +82,9 @@ class HomeController @Inject() (
   ): Future[Boolean] =
     featureFlagService.get(HomePagePersonalisationToggle).map { toggle =>
       val lastNumericDigit = request.helpeeNinoOrElse.nino.filter(_.isDigit).last.asDigit
-      toggle.isEnabled && ptapParam.isDefined && configDecorator.ptapHomepageNinoRolloutLastNumericDigits.contains(
-        lastNumericDigit
-      )
+      toggle.isEnabled
+      && (configDecorator.ptapHomepageNinoRolloutLastNumericDigits.contains(lastNumericDigit)
+        || ptapParam.isDefined)
     }
 
   private def personalisationHomePageTab(tab: String)(implicit
