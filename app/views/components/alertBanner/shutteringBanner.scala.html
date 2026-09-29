@@ -21,5 +21,5 @@
 @()(implicit messages: Messages)
 <p class="govuk-notification-banner__heading">
  @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerParagraphCy }else {@configDecorator.shutterBannerParagraphEn}<br/>
-<a class="govuk-notification-banner__link" href="@controllers.interstitials.routes.InterstitialController.displayShutteringPage.url"> @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerLinkTextCy }else {@configDecorator.shutterBannerLinkTextEn}</a>.
+<!--<a class="govuk-notification-banner__link" href="@controllers.interstitials.routes.InterstitialController.displayShutteringPage.url"> @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerLinkTextCy }else {@configDecorator.shutterBannerLinkTextEn}</a>.-->
 </p>
