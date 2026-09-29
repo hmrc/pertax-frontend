@@ -62,7 +62,7 @@ class SelfAssessmentRegistrationPageViewSpec extends ViewSpec {
           "Tax is usually deducted automatically from wages and pensions. People and businesses with other income must report it in a Self Assessment tax return."
         )
         doc.text() must include(
-          "You can Check if you need to send a tax return if you’re not sure, or register for Self Assessment."
+          "You can check if you need to send a tax return if you’re not sure, or register for Self Assessment."
         )
       }
 
