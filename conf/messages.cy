@@ -772,7 +772,7 @@ selfAssessment.bodyContent.p2 = Fel arfer, didynnir treth yn awtomatig oddi wrth
 selfAssessment.bodyContent.p3 = Gallwch wirio
 selfAssessment.CheckTaxReturn.linkText = a oes angen i chi anfon Ffurflen Dreth
 selfAssessment.bodyContent.p4 = os nad ydych yn siŵr, neu
-selfAssessment.RegisterForSelfAssessment.linkText = gofrestru ar gyfer Hunanasesiad.
+selfAssessment.RegisterForSelfAssessment.linkText = gofrestru ar gyfer Hunanasesiad
 selfAssessment.moreInformation = Rhagor o wybodaeth
 selfAssessment.selfAssessmentGuidance.linkText = Arweiniad Hunanasesiad
 

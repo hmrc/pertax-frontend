@@ -42,13 +42,9 @@
 
     <p class="govuk-body">
         @messages("selfAssessment.bodyContent.p3") @link("https://www.gov.uk/check-if-you-need-tax-return", "selfAssessment.CheckTaxReturn.linkText", inParagraph = true)
-        @messages("selfAssessment.bodyContent.p4") @link("https://www.gov.uk/register-for-self-assessment", "selfAssessment.RegisterForSelfAssessment.linkText", inParagraph = true)
+        @messages("selfAssessment.bodyContent.p4") @link("https://www.gov.uk/register-for-self-assessment", "selfAssessment.RegisterForSelfAssessment.linkText", inParagraph = true, fullStop = true)
     </p>
 
     @h2("selfAssessment.moreInformation")
-    <ul class="govuk-list govuk-list--bullet">
-        <li>
-            @link("https://www.gov.uk/browse/tax/self-assessment", "selfAssessment.selfAssessmentGuidance.linkText", inParagraph = true)
-        </li>
-    </ul>
+    @link("https://www.gov.uk/browse/tax/self-assessment", "selfAssessment.selfAssessmentGuidance.linkText")
 }
