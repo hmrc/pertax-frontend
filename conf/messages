@@ -777,7 +777,7 @@ selfAssessment.bodyContent.p2 = Tax is usually deducted automatically from wages
 selfAssessment.bodyContent.p3 = You can
 selfAssessment.CheckTaxReturn.linkText = check if you need to send a tax return
 selfAssessment.bodyContent.p4 = if you’re not sure, or
-selfAssessment.RegisterForSelfAssessment.linkText = register for Self Assessment.
+selfAssessment.RegisterForSelfAssessment.linkText = register for Self Assessment
 selfAssessment.moreInformation = More Information
 selfAssessment.selfAssessmentGuidance.linkText = Self Assessment guidance
 

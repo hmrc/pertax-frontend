@@ -68,13 +68,19 @@ class SelfAssessmentRegistrationPageViewSpec extends ViewSpec {
 
       "rendering the links" in {
         assertContainsLink(doc, "Check if you need to send a tax return", checkTaxReturnUrl)
-        assertContainsLink(doc, "register for Self Assessment.", registerForSaUrl)
+        assertContainsLink(doc, "register for Self Assessment", registerForSaUrl)
         assertContainsLink(doc, "Self Assessment guidance", saGuidanceUrl)
+      }
+
+      "rendering the full stop outside the register for Self Assessment link" in {
+        doc.select(s"a[href=$registerForSaUrl]").text() mustBe "register for Self Assessment"
+        doc.select(s"a[href=$registerForSaUrl]").first().parent().text() must endWith("register for Self Assessment.")
       }
 
       "rendering the more information section" in {
         doc.select("h2").text() must include("More Information")
-        doc.select("ul.govuk-list--bullet li a").attr("href") mustBe saGuidanceUrl
+        doc.select("ul.govuk-list--bullet").size mustBe 0
+        doc.select(s"p.govuk-body a[href=$saGuidanceUrl]").text() mustBe "Self Assessment guidance"
       }
     }
 
@@ -106,7 +112,7 @@ class SelfAssessmentRegistrationPageViewSpec extends ViewSpec {
 
       "rendering the links" in {
         assertContainsLink(doc, "a oes angen i chi anfon Ffurflen Dreth", checkTaxReturnUrl)
-        assertContainsLink(doc, "gofrestru ar gyfer Hunanasesiad.", registerForSaUrl)
+        assertContainsLink(doc, "gofrestru ar gyfer Hunanasesiad", registerForSaUrl)
         assertContainsLink(doc, "Arweiniad Hunanasesiad", saGuidanceUrl)
       }
 
