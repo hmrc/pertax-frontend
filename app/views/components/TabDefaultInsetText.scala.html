@@ -37,6 +37,22 @@
     @if(tab == Task|| tab == Activity){
         <div class="govuk-inset-text">
             <p class="govuk-body">@messages(s"ptap.${tab.name}.container.default_text.p.line1")</p>
-            <p class="govuk-body govuk-!-margin-bottom-0">@messages("ptap.your-tasks.container.default_text.p.line2.1") <a href="@if(tab == Task){@Tax.href(query)}else{@Task.href(query)}" class="govuk-link">@messages(s"ptap.${tab.name}.container.default_text.p.line2.2")</a> @messages(s"ptap.${tab.name}.container.default_text.p.line2.3")</p>
         </div>
+    }
+    @if(tab == Task){
+        <details class="govuk-details">
+            <summary class="govuk-details__summary">
+                <span class="govuk-details__summary-text">
+                @messages(s"ptap.${tab.name}.container.details.heading")
+                </span>
+            </summary>
+            <p class="govuk-details__text">
+                @messages(s"ptap.${tab.name}.container.details.p.line.1")
+                <br/><br/>
+                @messages(s"ptap.${tab.name}.container.details.p.line.2.1")
+                <a href="/personal-account/messages" class="govuk-link">@messages(s"ptap.${tab.name}.container.details.p.line.2.2")</a>
+                @messages(s"ptap.${tab.name}.container.details.p.line.2.3")
+                <a href="@{Tax.href(query)}"class="govuk-link">@messages(s"ptap.${tab.name}.container.details.p.line.2.4")</a>@if(messages.lang.code == "en"){&nbsp;}@messages(s"ptap.${tab.name}.container.details.p.line.2.5")
+            </p>
+        </details>
     }

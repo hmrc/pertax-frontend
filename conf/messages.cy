@@ -868,10 +868,15 @@ head.label.mtdit.claim.error=Dewiswch ‘Iawn’ i ychwanegu’r cynllun Troi Tr
 #************************************************************
 # Default case (no tasks)
 #************************************************************
-ptap.your-tasks.container.default_text.p.line1=Mae’r dudalen hon yn dangos ad-daliadau a threth sydd arnoch.
-ptap.your-tasks.container.default_text.p.line2.1=Gwiriwch
-ptap.your-tasks.container.default_text.p.line2.2=Trethi a budd-daliadau
-ptap.your-tasks.container.default_text.p.line2.3=am unrhyw beth arall rydych am ei wybod.
+ptap.your-tasks.container.default_text.p.line1=Mae’r dudalen hon yn dangos ad-daliadau a threthi sydd arnoch ar gyfer TWE yn unig.
+
+ptap.your-tasks.container.details.heading=Pam nad ydy fy nhasgau eraill wedi cael eu rhestru yma?
+ptap.your-tasks.container.details.p.line.1=Rydym wrthi’n ailddylunio’r gwasanaeth er mwyn ei wneud yn fwy personol i chi. Bydd rhagor o swyddogaethau yn cael eu hychwanegu dros amser.
+ptap.your-tasks.container.details.p.line.2.1=Ar hyn o bryd, byddwch yn cael hysbysiad i wirio’ch
+ptap.your-tasks.container.details.p.line.2.2=Negeseuon
+ptap.your-tasks.container.details.p.line.2.3=am unrhyw ohebiaeth gan wasanaethau ar-lein eraill sydd gan CThEF, neu fel allwch gael mynediad at y gwasanaethau drwy fynd at y dudalen ynghylch
+ptap.your-tasks.container.details.p.line.2.4=Trethi a budd-daliadau
+ptap.your-tasks.container.details.p.line.2.5=.
 
 #************************************************************
 # Default case (no activity)
