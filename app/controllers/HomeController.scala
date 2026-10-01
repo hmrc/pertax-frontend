@@ -60,7 +60,7 @@ class HomeController @Inject() (
   errorRenderer: ErrorRenderer
 )(implicit val ec: ExecutionContext)
     extends PertaxBaseController(cc)
-    with CurrentTaxYear 
+    with CurrentTaxYear
     with Logging {
 
   override def now: () => LocalDate = () => LocalDate.now()
@@ -102,9 +102,9 @@ class HomeController @Inject() (
       }
 
       enforceInterrupts {
-        
+
         logger.info("Personalisation View")
-        
+
         val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
         val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
         val fTabContentCards         = tabContentService.getTaskAndTabCards(currentTab)
@@ -219,9 +219,6 @@ class HomeController @Inject() (
     }
 
     enforceInterrupts {
-      
-      
-      
       val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
       val fListOfTasks             = tasksService.getListOfTasks
       val fHomePageServices        = homePageServicesProvider.getHomePageServices()
