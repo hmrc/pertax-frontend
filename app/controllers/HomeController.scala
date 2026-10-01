@@ -103,7 +103,7 @@ class HomeController @Inject() (
 
       enforceInterrupts {
 
-        logger.info("Personalisation View")
+        logger.info(s"PTAP: ${currentTab.name}")
 
         val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
         val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
