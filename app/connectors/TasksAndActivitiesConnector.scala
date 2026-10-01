@@ -21,7 +21,9 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import play.api.Logging
 import play.api.http.Status.BAD_GATEWAY
-import play.api.libs.json.{JsArray, JsError, JsObject, JsResult, JsString, JsSuccess, JsValue, Reads}
+import play.api.i18n.Lang
+import play.api.libs.json.{JsError, Json, OFormat}
+import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits.{readEitherOf, readRaw}
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -38,29 +40,31 @@ class TasksAndActivitiesConnector @Inject() (
   configDecorator: ConfigDecorator
 ) extends Logging {
 
-  def getTasks(nino: Nino)(implicit
+  def getTasks(nino: Nino, lang: Lang)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext
   ): EitherT[Future, UpstreamErrorResponse, Seq[Task]] = {
-    val url = configDecorator.tasksAndActivitiesTasksUrl(nino)
+    val url     = configDecorator.tasksAndActivitiesUrl
+    val request = TasksAndActivitiesRequest(nino.nino, List("p800"))
 
     EitherT(
       httpClientResponse
         .read(
           httpClientV2
-            .get(url"$url")
+            .post(url"$url")
+            .withBody(Json.toJson(request))
             .transform(_.withRequestTimeout(configDecorator.tasksAndActivitiesTimeoutInMilliseconds.milliseconds))
             .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
         )
         .value
         .map {
-          case Right(response) => parseTasks(response)
+          case Right(response) => parseTasks(response, lang)
           case Left(error)     => Left(error)
         }
     )
   }
 
-  private def parseTasks(response: HttpResponse): Either[UpstreamErrorResponse, Seq[Task]] =
+  private def parseTasks(response: HttpResponse, lang: Lang): Either[UpstreamErrorResponse, Seq[Task]] =
     Try(response.json).toEither.left
       .map { error =>
         logger.error("Unable to read Tasks and Activities response as JSON", error)
@@ -72,51 +76,28 @@ class TasksAndActivitiesConnector @Inject() (
           UpstreamErrorResponse("Unable to parse Tasks and Activities response", BAD_GATEWAY, BAD_GATEWAY)
         }
       }
-      .map(_.tasks.map(_.toTask))
+      .map(_.cards.map(_.toTask(lang)))
 }
 
-private final case class TasksAndActivitiesResponse(tasks: Seq[TasksAndActivitiesTask])
+private final case class TasksAndActivitiesRequest(userId: String, serviceList: List[String])
 
-private object TasksAndActivitiesResponse {
-  implicit val reads: Reads[TasksAndActivitiesResponse] = Reads {
-    case json: JsObject => (json \ "tasks").validate[Seq[TasksAndActivitiesTask]].map(TasksAndActivitiesResponse(_))
-    case json: JsArray  => json.validate[Seq[TasksAndActivitiesTask]].map(TasksAndActivitiesResponse(_))
-    case _              => JsError("Expected Tasks and Activities response to be an object or array")
-  }
-}
+private object TasksAndActivitiesRequest:
+  implicit val format: OFormat[TasksAndActivitiesRequest] = Json.format[TasksAndActivitiesRequest]
 
-private final case class TasksAndActivitiesTask(
-  title: String,
-  href: String,
-  status: TaskStatus,
-  hintText: Option[String]
-) {
-  def toTask: Task = Task(title, status, href, hintText)
-}
+private final case class TasksAndActivitiesResponse(cards: Seq[TasksAndActivitiesCard])
 
-private object TasksAndActivitiesTask {
-  implicit val reads: Reads[TasksAndActivitiesTask] = Reads { json =>
-    for {
-      title    <- readString(json, "title")
-      href     <- readString(json, "href").orElse(readString(json, "url"))
-      status   <- readStatus(json)
-      hintText <- (json \ "hintText").validateOpt[String]
-    } yield TasksAndActivitiesTask(title, href, status, hintText)
-  }
+private object TasksAndActivitiesResponse:
+  implicit val format: OFormat[TasksAndActivitiesResponse] = Json.format[TasksAndActivitiesResponse]
 
-  private def readString(json: JsValue, fieldName: String): JsResult[String] =
-    (json \ fieldName).validate[String]
+private final case class TasksAndActivitiesCard(en: CardContent, cy: CardContent):
+  def toTask(lang: Lang): Task =
+    val content = if lang.code == "cy" then cy else en
+    Task(content.header, TaskStatus.Incomplete, content.url, Some(content.body))
 
-  private def readStatus(json: JsValue): JsResult[TaskStatus] =
-    (json \ "status").validateOpt[TaskStatus].map(_.getOrElse(TaskStatus.Incomplete))
+private object TasksAndActivitiesCard:
+  implicit val format: OFormat[TasksAndActivitiesCard] = Json.format[TasksAndActivitiesCard]
 
-  implicit val taskStatusReads: Reads[TaskStatus] = Reads {
-    case JsString(value) =>
-      value.trim.toLowerCase match {
-        case "incomplete" | "open" | "todo" | "to-do" | "not-started" => JsSuccess(TaskStatus.Incomplete)
-        case "completed" | "complete" | "done"                        => JsSuccess(TaskStatus.Completed)
-        case _                                                        => JsError(s"Unsupported task status: $value")
-      }
-    case _               => JsError("Expected task status to be a string")
-  }
-}
+private final case class CardContent(header: String, body: String, url: String, hint: Option[String])
+
+private object CardContent:
+  implicit val format: OFormat[CardContent] = Json.format[CardContent]

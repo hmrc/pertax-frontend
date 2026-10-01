@@ -16,15 +16,18 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock.{getRequestedFor, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{postRequestedFor, urlEqualTo}
 import play.api.Application
+import play.api.i18n.Lang
 import testUtils.WireMockHelper
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import viewmodels.{Task, TaskStatus}
 
 class TasksAndActivitiesConnectorSpec extends ConnectorSpec with WireMockHelper {
 
-  private val url = s"/pta-tasks-and-events/${generatedNino.nino}/tasks"
+  private val url         = "/pta-tasks-and-events/tasks-and-events"
+  private val requestBody =
+    s"""{"userId":"${generatedNino.nino}","serviceList":["p800"]}"""
 
   override implicit lazy val app: Application = app(
     Map(
@@ -35,87 +38,86 @@ class TasksAndActivitiesConnectorSpec extends ConnectorSpec with WireMockHelper 
 
   private def connector: TasksAndActivitiesConnector = app.injector.instanceOf[TasksAndActivitiesConnector]
 
+  private val response =
+    """
+      |{
+      |  "cards": [
+      |    {
+      |      "en": {
+      |        "header": "You owe HMRC £500.",
+      |        "body": "You owe tax for tax year 2026 to 2027",
+      |        "url": "/tax-you-paid",
+      |        "hint": null
+      |      },
+      |      "cy": {
+      |        "header": "Mae arnoch £500 i CThEF.",
+      |        "body": "Mae arnoch dreth ar gyfer blwyddyn dreth 2026 i 2027",
+      |        "url": "/treth-a-dalwyd-gennych",
+      |        "hint": null
+      |      }
+      |    }
+      |  ]
+      |}
+      |""".stripMargin
+
   "getTasks" must {
-    "return tasks from a successful object response" in {
-      val response =
-        """
-          |{
-          |  "tasks": [
-          |    {
-          |      "title": "You owe £500 for tax year 2026 to 2027",
-          |      "status": "incomplete",
-          |      "href": "/tax-you-paid",
-          |      "hintText": "You should pay this now"
-          |    },
-          |    {
-          |      "title": "Refund claimed",
-          |      "status": "completed",
-          |      "href": "/tax-you-paid/refund"
-          |    }
-          |  ]
-          |}
-          |""".stripMargin
+    "post the user and requested domains and return English card content" in {
+      stubPost(url, OK, Some(requestBody), Some(response))
 
-      stubGet(url, OK, Some(response))
-
-      val result = connector.getTasks(generatedNino).value.futureValue
+      val result = connector.getTasks(generatedNino, Lang("en")).value.futureValue
 
       result mustBe Right(
         Seq(
           Task(
-            "You owe £500 for tax year 2026 to 2027",
+            "You owe HMRC £500.",
             TaskStatus.Incomplete,
             "/tax-you-paid",
-            Some("You should pay this now")
-          ),
-          Task("Refund claimed", TaskStatus.Completed, "/tax-you-paid/refund", None)
+            Some("You owe tax for tax year 2026 to 2027")
+          )
         )
       )
-      server.verify(getRequestedFor(urlEqualTo(url)))
+      server.verify(postRequestedFor(urlEqualTo(url)))
     }
 
-    "return an empty sequence when the service returns no tasks" in {
-      stubGet(url, OK, Some("""{"tasks": []}"""))
+    "return Welsh card content when Welsh is selected" in {
+      stubPost(url, OK, Some(requestBody), Some(response))
 
-      val result = connector.getTasks(generatedNino).value.futureValue
+      val result = connector.getTasks(generatedNino, Lang("cy")).value.futureValue
+
+      result mustBe Right(
+        Seq(
+          Task(
+            "Mae arnoch £500 i CThEF.",
+            TaskStatus.Incomplete,
+            "/treth-a-dalwyd-gennych",
+            Some("Mae arnoch dreth ar gyfer blwyddyn dreth 2026 i 2027")
+          )
+        )
+      )
+    }
+
+    "return an empty sequence when the service returns no cards" in {
+      stubPost(url, OK, Some(requestBody), Some("""{"cards": []}"""))
+
+      val result = connector.getTasks(generatedNino, Lang("en")).value.futureValue
 
       result mustBe Right(Seq.empty)
     }
 
-    "return tasks from an array response" in {
-      val response =
-        """
-          |[
-          |  {
-          |    "title": "You owe £500 for tax year 2026 to 2027",
-          |    "href": "/tax-you-paid"
-          |  }
-          |]
-          |""".stripMargin
-
-      stubGet(url, OK, Some(response))
-
-      val result = connector.getTasks(generatedNino).value.futureValue
-
-      result mustBe Right(
-        Seq(Task("You owe £500 for tax year 2026 to 2027", TaskStatus.Incomplete, "/tax-you-paid", None))
-      )
-    }
-
     List(BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND).foreach { statusCode =>
       s"return an UpstreamErrorResponse when $statusCode is returned" in {
-        stubGet(url, statusCode, Some("""{"reason":"failed"}"""))
+        stubPost(url, statusCode, Some(requestBody), Some("""{"reason":"failed"}"""))
 
-        val result = connector.getTasks(generatedNino).value.futureValue
+        val result = connector.getTasks(generatedNino, Lang("en")).value.futureValue
 
         result mustBe a[Left[UpstreamErrorResponse, _]]
       }
     }
 
     "return an UpstreamErrorResponse when the response cannot be parsed" in {
-      stubGet(url, OK, Some("""{"tasks": [{"title": "Missing href"}]}"""))
+      stubPost(url, OK, Some(requestBody), Some("""{"cards": [{"en": {}}]}"""))
 
-      val result = connector.getTasks(generatedNino).value.futureValue
+      val result = connector.getTasks(generatedNino, Lang("en")).value.futureValue
 
       result mustBe a[Left[UpstreamErrorResponse, _]]
       result.swap.exists(_.statusCode == BAD_GATEWAY) mustBe true

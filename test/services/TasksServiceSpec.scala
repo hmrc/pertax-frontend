@@ -121,7 +121,7 @@ class TasksServiceSpec extends BaseSpec {
         result mustBe Seq(
           Task("You owe £500 for tax year 2026 to 2027", TaskStatus.Incomplete, "http://link/to/taxcalc", None)
         )
-        verify(mockTasksAndActivitiesConnector, times(0)).getTasks(any())(any(), any())
+        verify(mockTasksAndActivitiesConnector, times(0)).getTasks(any(), any())(any(), any())
       }
     }
 
@@ -133,7 +133,7 @@ class TasksServiceSpec extends BaseSpec {
 
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(TasksAndActivitiesServiceToggle)))
           .thenReturn(Future.successful(FeatureFlag(TasksAndActivitiesServiceToggle, true)))
-        when(mockTasksAndActivitiesConnector.getTasks(ArgumentMatchers.eq(generatedNino))(any(), any()))
+        when(mockTasksAndActivitiesConnector.getTasks(ArgumentMatchers.eq(generatedNino), any())(any(), any()))
           .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](tasks))
 
         val result = service.getListOfTasks.futureValue
@@ -147,7 +147,7 @@ class TasksServiceSpec extends BaseSpec {
 
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(TasksAndActivitiesServiceToggle)))
           .thenReturn(Future.successful(FeatureFlag(TasksAndActivitiesServiceToggle, true)))
-        when(mockTasksAndActivitiesConnector.getTasks(ArgumentMatchers.eq(generatedNino))(any(), any()))
+        when(mockTasksAndActivitiesConnector.getTasks(ArgumentMatchers.eq(generatedNino), any())(any(), any()))
           .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](Seq.empty[Task]))
 
         val result = service.getListOfTasks.futureValue
@@ -160,7 +160,7 @@ class TasksServiceSpec extends BaseSpec {
 
         when(mockFeatureFlagService.get(ArgumentMatchers.eq(TasksAndActivitiesServiceToggle)))
           .thenReturn(Future.successful(FeatureFlag(TasksAndActivitiesServiceToggle, true)))
-        when(mockTasksAndActivitiesConnector.getTasks(ArgumentMatchers.eq(generatedNino))(any(), any()))
+        when(mockTasksAndActivitiesConnector.getTasks(ArgumentMatchers.eq(generatedNino), any())(any(), any()))
           .thenReturn(EitherT.leftT[Future, Seq[Task]](UpstreamErrorResponse("service unavailable", 503)))
 
         val result = service.getListOfTasks.futureValue

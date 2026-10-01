@@ -64,11 +64,11 @@ class TasksService @Inject() (
     Future.sequence(Seq(taxcalcF)).map(_.flatten)
   }
 
-  private def getTasksAndActivitiesTasks(implicit request: UserRequest[?]): Future[Seq[Task]] = {
+  private def getTasksAndActivitiesTasks(implicit request: UserRequest[?], messages: Messages): Future[Seq[Task]] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     tasksAndActivitiesConnector
-      .getTasks(request.authNino)
+      .getTasks(request.authNino, messages.lang)
       .value
       .map {
         case Right(tasks) => tasks

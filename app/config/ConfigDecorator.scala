@@ -24,7 +24,6 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.net.{URL, URLEncoder}
 import java.time.LocalDate
-import uk.gov.hmrc.domain.Nino
 
 @Singleton
 class ConfigDecorator @Inject() (
@@ -284,8 +283,8 @@ class ConfigDecorator @Inject() (
 
   val mongoEncryptionEnabled: Boolean = runModeConfiguration.get[Boolean]("mongodb.encryption.enabled")
 
-  def tasksAndActivitiesTasksUrl(nino: Nino): String =
-    s"$tasksAndActivitiesBaseUrl/pta-tasks-and-events/${nino.nino}/tasks"
+  val tasksAndActivitiesUrl: String =
+    s"$tasksAndActivitiesBaseUrl/pta-tasks-and-events/tasks-and-events"
 
   val payeToPegaRedirectList: Seq[Int] = runModeConfiguration.get[Seq[Int]]("paye.to.pega.redirect.list")
   val payeToPegaRedirectUrl: String    = runModeConfiguration.get[String]("paye.to.pega.redirect.url")
