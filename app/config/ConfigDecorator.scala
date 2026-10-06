@@ -284,7 +284,7 @@ class ConfigDecorator @Inject() (
   val mongoEncryptionEnabled: Boolean = runModeConfiguration.get[Boolean]("mongodb.encryption.enabled")
 
   val tasksAndActivitiesUrl: String =
-    s"$tasksAndActivitiesBaseUrl/pta-tasks-and-events/tasks-and-events"
+    s"$tasksAndActivitiesBaseUrl/pta-tasks-and-events/retrieve-tasks-and-events"
 
   val payeToPegaRedirectList: Seq[Int] = runModeConfiguration.get[Seq[Int]]("paye.to.pega.redirect.list")
   val payeToPegaRedirectUrl: String    = runModeConfiguration.get[String]("paye.to.pega.redirect.url")

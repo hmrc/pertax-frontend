@@ -25,7 +25,7 @@ import viewmodels.{Task, TaskStatus}
 
 class TasksAndActivitiesConnectorSpec extends ConnectorSpec with WireMockHelper {
 
-  private val url         = "/pta-tasks-and-events/tasks-and-events"
+  private val url         = "/pta-tasks-and-events/retrieve-tasks-and-events"
   private val requestBody =
     s"""{"userId":"${generatedNino.nino}","serviceList":["p800"]}"""
 
