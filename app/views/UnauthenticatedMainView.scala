@@ -26,6 +26,7 @@ import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.hmrcfrontend.config.AccessibilityStatementConfig
 import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
+import uk.gov.hmrc.sca.config.BackLinkConfig
 import uk.gov.hmrc.sca.models.BannerConfig
 import uk.gov.hmrc.sca.services.WrapperService
 import views.html.components.{AdditionalJavascript, HeadBlock}
@@ -86,9 +87,7 @@ class UnauthenticatedMainViewImpl @Inject() (
         ),
         accessibilityStatementUrl = accessibilityStatementConfig.url
       ),
-      timeOutUrl = Some(controllers.routes.SessionManagementController.timeOut.url),
-      keepAliveUrl = controllers.routes.SessionManagementController.keepAlive.url,
-      showBackLinkJS = showBackLink,
+      backLinkConfig = Option.when(showBackLink)(BackLinkConfig.JsBack),
       scripts = Seq(additionalScripts(None)(request)),
       styleSheets = Seq(headBlock(None)(request)),
       optTrustedHelper = attorney,

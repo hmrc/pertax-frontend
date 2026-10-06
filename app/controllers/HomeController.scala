@@ -25,6 +25,7 @@ import error.ErrorRenderer
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.{HomePageServices, SelfAssessmentUser}
 import models.admin.{HomePagePersonalisationToggle, PtapActivityTabToggle}
+import play.api.Logging
 import play.api.i18n.Messages
 import play.api.mvc.*
 import play.twirl.api.Html
@@ -59,7 +60,8 @@ class HomeController @Inject() (
   errorRenderer: ErrorRenderer
 )(implicit val ec: ExecutionContext)
     extends PertaxBaseController(cc)
-    with CurrentTaxYear {
+    with CurrentTaxYear
+    with Logging {
 
   override def now: () => LocalDate = () => LocalDate.now()
 
@@ -81,10 +83,10 @@ class HomeController @Inject() (
     request: UserRequest[AnyContent]
   ): Future[Boolean] =
     featureFlagService.get(HomePagePersonalisationToggle).map { toggle =>
-      val lastNumericDigit = request.helpeeNinoOrElse.nino.filter(_.isDigit).last.asDigit
-      toggle.isEnabled && ptapParam.isDefined && configDecorator.ptapHomepageNinoRolloutLastNumericDigits.contains(
-        lastNumericDigit
-      )
+      toggle.isEnabled
+      && (ptapParam.isDefined ||
+        configDecorator.ptapHomepageNinoRolloutLastNumericDigits
+          .contains(request.helpeeNinoOrElse.nino.filter(_.isDigit).last.asDigit))
     }
 
   private def personalisationHomePageTab(tab: String)(implicit
@@ -100,6 +102,9 @@ class HomeController @Inject() (
       }
 
       enforceInterrupts {
+
+        logger.info(s"PTAP: ${currentTab.name}")
+
         val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
         val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
         val fTabContentCards         = tabContentService.getTaskAndTabCards(currentTab)
