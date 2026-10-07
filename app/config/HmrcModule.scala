@@ -33,6 +33,8 @@ class HmrcModule extends Module {
         .to[CachingCitizenDetailsConnector], // do not disable caching. The address change relies on the cache
       bind[TaiConnector].qualifiedWith("default").to[DefaultTaiConnector],
       bind[TaiConnector].to[CachingTaiConnector],
+      bind[LeppConnector].qualifiedWith("default").to[DefaultLeppConnector],
+      bind[LeppConnector].to[CachingLeppConnector],
       bind[EnrolmentsConnector].qualifiedWith("default").to[DefaultEnrolmentsConnector],
       bind[EnrolmentsConnector].to[CachingEnrolmentsConnector],
       bind[Encrypter with Decrypter].toProvider[CryptoProvider],

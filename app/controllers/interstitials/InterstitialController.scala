@@ -143,11 +143,10 @@ class InterstitialController @Inject() (
     val isHelperOrEnrolledOrSa = request.trustedHelper.isDefined || enrolmentsHelper
       .mtdEnrolmentStatus(request.enrolments)
       .isDefined || request.isSa
-    if (isHelperOrEnrolledOrSa || !configDecorator.pegaSaRegistrationEnabled) {
-      // Temporarily restricting access based on pegaEnabled, this condition can be removed in future
+    if (isHelperOrEnrolledOrSa) {
       errorRenderer.error(UNAUTHORIZED)
     } else {
-      Ok(selfAssessmentRegistrationPageView(configDecorator.pegaSaRegistrationUrl))
+      Ok(selfAssessmentRegistrationPageView())
     }
   }
 

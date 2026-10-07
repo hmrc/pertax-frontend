@@ -68,9 +68,9 @@ label.change_your_main_address=Newid eich prif gyfeiriad
 label.change_your_postal_address=Newid eich cyfeiriad post
 label.postal_address=Cyfeiriad post
 label.your.postal_address=eich cyfeiriad post
-label.trusted_helpers=Cysylltiadau Cynorthwywyr Dibynadwy
+label.trusted_helpers=Cynorthwywyr dibynadwy
 label.your_trusted_helpers=eich cynorthwywyr y gellir ymddiried ynddynt
-label.manage_trusted_helpers=Gofyn am help gan deulu neu ffrindiau a rheoli cysylltiadau.
+label.manage_trusted_helpers=Cael help gyda’ch treth ar-lein gan rywun dibynadwy, neu helpu rhywun rydych yn ei adnabod.
 label.manage_tax_agents=Rheoli’ch asiantau treth
 label.your_tax_agents=eich asiantau treth
 label.add_view_change_tax_agents=Ychwanegu, newid neu fwrw golwg dros asiantau treth
@@ -123,8 +123,8 @@ label.second_line_of_your_address_optional=Ail linell eich cyfeiriad (opsiynol)
 label.third_line_of_your_address=Trydedd linell eich cyfeiriad (opsiynol)
 label.fourth_line_of_your_address=Pedwaredd linell eich cyfeiriad (opsiynol)
 label.fifth_line_of_your_address=Pumed linell eich cyfeiriad (opsiynol)
-label.town=Town or city
-label.county=County (optional)
+label.town=Tref neu ddinas
+label.county=Sir (dewisol)
 label.address_line_one=Llinell cyfeiriad 1
 label.address_line_two=Llinell cyfeiriad 2
 label.address_line_three=Llinell cyfeiriad 3 (dewisol)
@@ -134,6 +134,7 @@ label.country=Gwlad
 country.select=Dewiswch wlad
 label.change=Newid
 label.manage=Rheoli
+label.trusted_helpers_cta=Bwrw golwg dros/Rheoli
 label.telephone_0300_200_3300=Ffôn: 0300 200 1900
 label.textphone_0300_200_3319=Ffôn testun: 0300 200 3319
 label.outside_uk_441355359022=Y tu allan i’r DU: +44 135 535 9022
@@ -507,7 +508,7 @@ label.mtdit.heading=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.mtdit.p1=Os ydych yn unig fasnachwr neu’n landlord, mae ffordd newydd o adrodd am eich incwm a’ch treuliau. Dysgwch ragor.
 
 label.mtdit.page.p1=Mae’r cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm yn ffordd newydd i unig fasnachwyr a landlordiaid roi gwybod i CThEF am incwm a threuliau.
-label.mtdit.page.p2=O 6 Ebrill 2026 ymlaen, mae’n rhaid i rai unig fasnachwyr a landlordiaid ei ddefnyddio, yn seiliedig ar gyfanswm eu hincwm blynyddol o hunangyflogaeth ac eiddo.
+label.mtdit.page.p2=O 6 Ebrill 2027 ymlaen, bydd yn rhaid i rai unig fasnachwyr a landlordiaid ddechrau ei ddefnyddio, a hynny’n seiliedig ar gyfanswm eu hincwm blynyddol o hunangyflogaeth ac eiddo.
 label.mtdit.page.find_out_more=Dysgwch ragor ynghylch Troi Treth yn Ddigidol ar gyfer Treth Incwm a gweld a allwch gofrestru’n gynnar
 
 #
@@ -547,6 +548,8 @@ label.view_your_proof_of_entitlement_to_child_benefit=Bwrw golwg dros eich tysti
 label.high_income_child_benefit_charge=Tâl Treth Budd-dal Plant Incwm Uchel
 label.change_your_bank_details=Newid eich manylion banc
 label.check_if_you_can_claim=Gwirio a allwch hawlio
+
+label.other_services.sa.reg.card.hint=Gwiriwch sut i gofrestru ar gyfer Hunanasesiad os oes angen i chi anfon Ffurflen Dreth.
 
 label.visit_high_income_child_benefit_charge=Ewch i Dâl Treth Budd-dal Plant Incwm Uchel
 label.hicbc_to = i wneud y canlynol:
@@ -762,33 +765,16 @@ p85.bullet3=hawlio rhyddhad treth neu ad-daliad treth
 # Self Assessment Who Needs to Register
 #*************************************************************
 selfAssessment.register.findout = Cael gwybod a oes angen i chi gofrestru ar gyfer Hunanasesiad ac anfon Ffurflen Dreth.
-selfAssessment.whoNeedsToRegister = Hunanasesiad: pwy sydd angen cofrestru
-selfAssessment.tax.deductedFromWages = Fel arfer, didynnir treth yn uniongyrchol o gyflogau a phensiynau.
-selfAssessment.sendTaxReturn.businesses = Mae’n rhaid i bobl a busnesau sy’n cael incwm arall anfon Ffurflen Dreth.
-selfAssessment.taxReturn.tellsIncome = Mae Ffurflen Dreth yn rhoi gwybod i CThEF am eich incwm, gwariant a gwybodaeth ariannol arall sy’n berthnasol.
-selfAssessment.taxReturn.howMuchTax = Gan ddefnyddio’r wybodaeth hon, mae CThEF yn cyfrifo faint o dreth y bydd angen i chi ei dalu.
-selfAssessment.sendReturn.needToRegister = Bydd angen i chi gofrestru ar gyfer Hunanasesiad er mwyn anfon Ffurflen Dreth.
-selfAssessment.whoMustSendReturn = Pwy ddylai anfon Ffurflen Dreth
-selfAssessment.mustSendReturn.lastTaxYear = Os oedd unrhyw un o’r canlynol yn berthnasol i chi yn ystod y flwyddyn dreth ddiwethaf (6 Ebrill i 5 Ebrill), mae’n rhaid i chi anfon Ffurflen Dreth:
-selfAssessment.selfEmployedSoleTrader = roeddech yn hunangyflogedig fel unig fasnachwr ac wedi ennill mwy na £1,000 (cyn tynnu unrhyw beth y gallwch hawlio rhyddhad treth arno)
-selfAssessment.partnerInBusiness = roeddech yn bartner mewn partneriaeth busnes
-selfAssessment.capitalGainsTax.prefix = roedd angen i chi dalu
-selfAssessment.capitalGainsTax.linkText = Treth Enillion Cyfalaf
-selfAssessment.highIncomeChildBenefitCharge.prefix = roedd angen i chi dalu’r
-selfAssessment.highIncomeChildBenefitCharge.linkText = Tâl Treth Budd-dal Plant Incwm Uchel
-selfAssessment.untaxedIncome = Efallai y bydd hefyd angen i chi anfon Ffurflen Dreth os oes gennych unrhyw incwm sydd heb ei drethu, megis:
-selfAssessment.rentingProperty = arian o roi eiddo ar osod
-selfAssessment.tipsAndCommission = cildyrnau a chomisiwn
-selfAssessment.savingsInterest = llog o gynilion
-selfAssessment.investmentsAndDividends = buddsoddiadau a difidendau
-selfAssessment.foreignIncome = incwm tramor
-selfAssessment.registerByOctober5 = Mae’n rhaid i chi gofrestru ar gyfer Hunanasesiad erbyn 5 Hydref os oes angen i chi lenwi Ffurflen Dreth ac nid ydych wedi anfon un o’r blaen.
-selfAssessment.checkIfNeedReturn = Gwirio a oes angen i chi anfon Ffurflen Dreth Hunanasesiad
-selfAssessment.notSureCheckReturn.linkText = Os nad ydych yn siŵr, gwiriwch a oes angen i chi anfon Ffurflen Hunanasesiad Dreth
-selfAssessment.notSureCheckReturn.suffix = .
-selfAssessment.registerSelfAssessment = Cofrestru ar gyfer Hunanasesiad
-selfAssessment.needToSendReturn.prefix = Os bydd angen i chi anfon Ffurflen Dreth, bydd angen i chi
-selfAssessment.needToSendReturn.linkText = gofrestru ar gyfer Hunanasesiad
+selfAssessment.whoNeedsToRegister = Ffurflenni Treth Hunanasesiad
+selfAssessment.warningText = Nid ydych wedi cofrestru ar gyfer Hunanasesiad ar hyn o bryd.
+selfAssessment.bodyContent.p1 = System y mae CThEF yn ei defnyddio i gasglu Treth Incwm yw Hunanasesiad.
+selfAssessment.bodyContent.p2 = Fel arfer, didynnir treth yn awtomatig oddi wrth gyflogau a phensiynau. Os oes gan bobl a busnesau incwm arall, mae’n rhaid iddynt roi gwybod amdano mewn Ffurflen Dreth Hunanasesiad.
+selfAssessment.bodyContent.p3 = Gallwch wirio
+selfAssessment.CheckTaxReturn.linkText = a oes angen i chi anfon Ffurflen Dreth
+selfAssessment.bodyContent.p4 = os nad ydych yn siŵr, neu
+selfAssessment.RegisterForSelfAssessment.linkText = gofrestru ar gyfer Hunanasesiad
+selfAssessment.moreInformation = Rhagor o wybodaeth
+selfAssessment.selfAssessmentGuidance.linkText = Arweiniad Hunanasesiad
 
 changeMainAddress.title = Newid eich prif gyfeiriad
 changeMainAddress.h1 = Newid eich prif gyfeiriad
@@ -823,6 +809,8 @@ label.mtd_for_it=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.mtd_for_itsa=Hunanasesiad a Throi Treth yn Ddigidol ar gyfer Treth Incwm
 label.view_and_manage_your_income_tax_obligations_and_payments=Bwrw golwg dros eich rhwymedigaethau a’ch taliadau Treth Incwm, a’u rheoli.
 label.mtd_for_it_sa=Troi Treth yn Ddigidol ar gyfer Treth Incwm
+label.lepp.title=Taliad pensiwn i’r sawl sy’n ennill incwm isel
+label.lepp.hint=Bwrw golwg dros a derbyn eich taliad pensiwn i’r sawl sy’n ennill incwm isel.
 label.send_updates_sole_traders=Ar gyfer unig fasnachwyr a landlordiaid sy’n anfon diweddariadau chwarterol gan ddefnyddio meddalwedd.
 label.view_manage_your_mtd_for_it=Bwrw golwg dros y cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli
 label.view_manage_your_mtd_itsa=Bwrw golwg dros eich cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm a’i reoli, neu gael at eich Ffurflenni Treth Hunanasesiad.
@@ -880,10 +868,15 @@ head.label.mtdit.claim.error=Dewiswch ‘Iawn’ i ychwanegu’r cynllun Troi Tr
 #************************************************************
 # Default case (no tasks)
 #************************************************************
-ptap.your-tasks.container.default_text.p.line1=Mae’r dudalen hon yn dangos ad-daliadau a threth sydd arnoch.
-ptap.your-tasks.container.default_text.p.line2.1=Gwiriwch
-ptap.your-tasks.container.default_text.p.line2.2=Trethi a budd-daliadau
-ptap.your-tasks.container.default_text.p.line2.3=am unrhyw beth arall rydych am ei wybod.
+ptap.your-tasks.container.default_text.p.line1=Mae’r dudalen hon yn dangos ad-daliadau a threthi sydd arnoch ar gyfer TWE yn unig.
+
+ptap.your-tasks.container.details.heading=Pam nad ydy fy nhasgau eraill wedi cael eu rhestru yma?
+ptap.your-tasks.container.details.p.line.1=Rydym wrthi’n ailddylunio’r gwasanaeth er mwyn ei wneud yn fwy personol i chi. Bydd rhagor o swyddogaethau yn cael eu hychwanegu dros amser.
+ptap.your-tasks.container.details.p.line.2.1=Ar hyn o bryd, byddwch yn cael hysbysiad i wirio’ch
+ptap.your-tasks.container.details.p.line.2.2=Negeseuon
+ptap.your-tasks.container.details.p.line.2.3=am unrhyw ohebiaeth gan wasanaethau ar-lein eraill sydd gan CThEF, neu fel allwch gael mynediad at y gwasanaethau drwy fynd at y dudalen ynghylch
+ptap.your-tasks.container.details.p.line.2.4=Trethi a budd-daliadau
+ptap.your-tasks.container.details.p.line.2.5=.
 
 #************************************************************
 # Default case (no activity)
@@ -941,8 +934,8 @@ ptap.support.tab.card.hmrc.online.link.technical.support=Cymorth technegol â gw
 ptap.support.tab.card.hmrc.online.link.technical.support.url=https://www.gov.uk/find-hmrc-contacts/technical-support-with-hmrc-online-services
 ptap.support.tab.card.hmrc.online.link.help.friends=Helpu ffrindiau neu aelodau o’r teulu gyda’u treth
 ptap.support.tab.card.hmrc.online.link.help.friends.url=https://www.gov.uk/helpwch-ffrindiau-teulu-treth
-ptap.support.tab.card.hmrc.online.link.chat=Gofynnwch i CThEF ar-lein, sgwrs â’r cynorthwyydd digidol
-ptap.support.tab.card.hmrc.online.link.chat.url=https://www.gov.uk/contact-hmrc
+ptap.support.tab.card.hmrc.online.link.chat=Sgwrsio â chynorthwyydd digidol CThEF
+ptap.support.tab.card.hmrc.online.link.chat.url=https://www.tax.service.gov.uk/ask-hmrc/chat/online-services-helpdesk
 ptap.support.tab.card.hmrc.online.link.change.details=Rhoi gwybod i CThEF am newid i’ch manylion personol
 ptap.support.tab.card.hmrc.online.link.change.details.url=https://www.gov.uk/rhoi-gwybod-i-cthem-newid-manylion
 

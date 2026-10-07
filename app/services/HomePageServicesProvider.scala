@@ -34,7 +34,8 @@ class HomePageServicesProvider @Inject() (
   configDecorator: ConfigDecorator,
   featureFlagService: FeatureFlagService,
   fandFService: FandFService,
-  taiService: TaiService
+  taiService: TaiService,
+  leppService: LeppService
 )(implicit ec: ExecutionContext)
     extends CurrentTaxYear {
 
@@ -65,6 +66,7 @@ class HomePageServicesProvider @Inject() (
       selfAssessmentOther <- getOtherSelfAssessment(request.saUserType, isTrustedHelperUser)
       mtdOther            <- getMtdOtherService(isTrustedHelperUser)
       childBenefit        <- getChildBenefit(isTrustedHelperUser, isRedesign)
+      lepp                <- getLepp(isTrustedHelperUser)
       annualTaxSummary    <- getAnnualTaxSummaries(isTrustedHelperUser, isRedesign)
       marriageAllowance   <- marriageAllowanceF(isRedesign)
       trustedHelper       <- trustedHelperF(isRedesign)
@@ -77,6 +79,7 @@ class HomePageServicesProvider @Inject() (
         selfAssessmentOther,
         mtdOther,
         childBenefit,
+        lepp,
         annualTaxSummary
       ).flatten ++ marriageAllowance ++ trustedHelper
     )
@@ -199,6 +202,14 @@ class HomePageServicesProvider @Inject() (
                 hint = Some(messages("label.activate_your_self_assessment"))
               )
             )
+          case NonFilerSelfAssessmentUser                      =>
+            Some(
+              otherSaTile(
+                title = messages("label.self_assessment"),
+                linkUrl = controllers.interstitials.routes.InterstitialController.displaySaRegistrationPage.url,
+                hint = Some(messages("label.other_services.sa.reg.card.hint"))
+              )
+            )
 
           case _ =>
             None
@@ -305,6 +316,25 @@ class HomePageServicesProvider @Inject() (
           )
         )
       }
+    }
+
+  private def leppTile(linkUrl: String)(implicit messages: Messages): MyService =
+    MyService(
+      messages("label.lepp.title"),
+      Some(linkUrl),
+      gaAction = Some("Benefits"),
+      gaLabel = Some("Low earner's pension payment (LEPP)"),
+      id = Some("lepp"),
+      hintText = Some(messages("label.lepp.hint"))
+    )
+
+  private def getLepp(
+    isTrustedHelperUser: Boolean
+  )(implicit hc: HeaderCarrier, request: UserRequest[?], messages: Messages): Future[Option[MyService]] =
+    if (isTrustedHelperUser) {
+      Future.successful(None)
+    } else {
+      leppService.getLeppLink.map(_.map(leppTile))
     }
 
   private def getAnnualTaxSummaries(isTrustedHelperUser: Boolean, isRedesign: Boolean)(implicit

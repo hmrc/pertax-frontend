@@ -369,6 +369,7 @@ trait IntegrationSpec
         "microservice.services.breathing-space-if-proxy.port"           -> server.port(),
         "microservice.services.taxcalc-frontend.port"                   -> server.port(),
         "microservice.services.fandf.port"                              -> server.port(),
+        "microservice.services.low-earners-pensions-payment.port"       -> server.port(),
         "sca-wrapper.services.single-customer-account-wrapper-data.url" -> s"http://localhost:${server.port()}"
       )
 
@@ -433,7 +434,7 @@ trait IntegrationSpec
 
     server.stubFor(
       WireMock
-        .get(urlEqualTo("/single-customer-account-wrapper-data/wrapper-data-with-messages?lang=en&version=1.0.3"))
+        .get(urlEqualTo("/single-customer-account-wrapper-data/wrapper-data-with-messages?lang=en"))
         .willReturn(
           aResponse()
             .withBody(singleAccountWrapperDataResponse)

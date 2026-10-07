@@ -27,7 +27,11 @@ class Limiters @Inject() (configuration: Configuration) {
   private lazy val maxTpsForGetClientStatus      = configuration
     .getOptional[Double]("feature.agent-client-relationships.maxTps")
     .getOrElse(100.0)
+  private lazy val maxTpsForLeppSummary          = configuration
+    .getOptional[Double]("feature.low-earners-pensions-payment.maxTps")
+    .getOrElse(100.0)
   val rateLimiterForGetClientStatus: RateLimiter = RateLimiter.create(maxTpsForGetClientStatus)
+  val rateLimiterForLeppSummary: RateLimiter     = RateLimiter.create(maxTpsForLeppSummary)
 }
 
 case object RateLimitedException extends RuntimeException

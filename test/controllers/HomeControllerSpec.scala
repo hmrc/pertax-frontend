@@ -25,7 +25,8 @@ import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.{GetPersonFromCitizenDetailsToggle, HomePagePersonalisationToggle, PtapActivityTabToggle, ShowPlannedOutageBannerToggle}
 import models.{BreathingSpaceIndicatorResponse, HomePageServices, MyService, OtherService}
 import org.jsoup.Jsoup
-import org.mockito.ArgumentMatchers.any
+import org.jsoup.nodes.Document
+import org.mockito.ArgumentMatchers.{any, anyBoolean}
 import org.mockito.Mockito.{reset, verify, when}
 import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesImpl}
@@ -144,7 +145,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     when(mockConfigDecorator.ptapHomepageNinoRolloutLastNumericDigits)
       .thenReturn(Seq(0, 1, 2, 3, 4, 5, 6, 7, 8, 9))
 
-    when(mockHomePageServicesProvider.getHomePageServices(any())(any(), any(), any()))
+    when(mockHomePageServicesProvider.getHomePageServices(anyBoolean())(any(), any(), any()))
       .thenReturn(Future.successful(HomePageServices(Seq.empty)))
 
     when(mockCitizenDetailsService.personDetails(any(), any())(any(), any(), any()))
@@ -174,6 +175,16 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
         bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
       )
       .build()
+
+  private def assertPersonalisedHomePage(content: Document): Unit = {
+    content.select("nav.x-govuk-secondary-navigation").size mustBe 1
+    Option(content.getElementById("taxes-and-benefits-heading")) mustBe empty
+  }
+
+  private def assertClassicHomePage(content: Document): Unit = {
+    content.select("nav.x-govuk-secondary-navigation").size mustBe 0
+    Option(content.getElementById("taxes-and-benefits-heading")) mustBe defined
+  }
 
   "Calling HomeController.index" must {
 
@@ -210,7 +221,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       status(result) mustBe OK
 
       val content = Jsoup.parse(contentAsString(result))
-      content.getElementById("taxes-and-benefits-heading") must not be null
+      Option(content.getElementById("taxes-and-benefits-heading")) mustBe defined
     }
 
     "Render to the Taxes and benefits tab without redirecting when HomePagePersonalisationToggle is true and ptap param is true" in {
@@ -230,12 +241,11 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       redirectLocation(result) mustBe None
 
       val content = Jsoup.parse(contentAsString(result))
-      content.select("nav.x-govuk-secondary-navigation").size mustBe 1
-      content.getElementById("taxes-and-benefits-heading") mustBe null
+      assertPersonalisedHomePage(content)
 
     }
 
-    "Render the non Personalised home page when ptap param is absent and HomePagePersonalisationToggle is true" in {
+    "Render the Personalised home page when ptap param is absent and HomePagePersonalisationToggle is true" in {
       val request = FakeRequest("GET", "/personal-account")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
@@ -250,8 +260,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       status(result) mustBe OK
 
       val content = Jsoup.parse(contentAsString(result))
-      content.select("nav.x-govuk-secondary-navigation").size mustBe 0
-      content.getElementById("taxes-and-benefits-heading") must not be null
+      assertPersonalisedHomePage(content)
     }
 
     "Render the non Personalised home page when ptap param is present but HomePagePersonalisationToggle is false" in {
@@ -270,8 +279,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       status(result) mustBe OK
 
       val content = Jsoup.parse(contentAsString(result))
-      content.select("nav.x-govuk-secondary-navigation").size mustBe 0
-      content.getElementById("taxes-and-benefits-heading") must not be null
+      assertClassicHomePage(content)
     }
 
     "fetch tab content once for Task tab and derive badge count from task cards" in {
@@ -299,7 +307,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       val content = Jsoup.parse(contentAsString(result))
       content.select(".hmrc-notification-badge").text() mustBe "2"
-      content.getElementById("tab-content-header") mustBe null
+      Option(content.getElementById("tab-content-header")) mustBe empty
       content.select("ul.hmrc-card__container").attr("aria-label") mustBe "Your tasks"
       content.select("h2.hmrc-card__heading").size() mustBe 2
       content.text() must include("You owe tax for 2023-24")
@@ -335,7 +343,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       val content = Jsoup.parse(contentAsString(result))
       content.select(".hmrc-notification-badge").text() mustBe "2"
-      content.getElementById("tab-content-header") mustBe null
+      Option(content.getElementById("tab-content-header")) mustBe empty
       content.select("ul.hmrc-card__container").attr("aria-label") mustBe "Recent activity"
       content.select("h2.hmrc-card__heading").size() mustBe 2
       content.text() must include("Tax code change")
@@ -366,7 +374,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       val content = Jsoup.parse(contentAsString(result))
       content.select(".hmrc-notification-badge").text() mustBe "2"
-      content.getElementById("tab-content-header") mustBe null
+      Option(content.getElementById("tab-content-header")) mustBe empty
       content.select(".hmrc-card").size() mustBe 0
       content.text() must not include "You owe tax for 2023-24"
       content.text() must not include "Tax code change"
@@ -388,8 +396,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       redirectLocation(result) mustBe None
 
       val content = Jsoup.parse(contentAsString(result))
-      content.getElementById("taxes-and-benefits-heading") must not be null
-      content.select("nav.x-govuk-secondary-navigation").size mustBe 0
+      assertClassicHomePage(content)
     }
 
     "render the new design when HomePagePersonalisationToggle is true and ptap param is true and the NINO is eligible" in {
@@ -423,8 +430,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       status(result) mustBe OK
 
       val content = Jsoup.parse(contentAsString(result))
-      content.select("nav.x-govuk-secondary-navigation").size mustBe 1
-      content.getElementById("taxes-and-benefits-heading") mustBe null
+      assertPersonalisedHomePage(content)
     }
 
     "render the old design when HomePagePersonalisationToggle is true but the NINO is not eligible" in {
@@ -458,8 +464,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       status(result) mustBe OK
 
       val content = Jsoup.parse(contentAsString(result))
-      content.getElementById("taxes-and-benefits-heading") must not be null
-      content.select("nav.x-govuk-secondary-navigation").size mustBe 0
+      assertClassicHomePage(content)
     }
 
     "render the old design when HomePagePersonalisationToggle is false even if the NINO is eligible" in {
@@ -493,8 +498,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       status(result) mustBe OK
 
       val content = Jsoup.parse(contentAsString(result))
-      content.getElementById("taxes-and-benefits-heading") must not be null
-      content.select("nav.x-govuk-secondary-navigation").size mustBe 0
+      assertClassicHomePage(content)
     }
 
     "render the new design using the trusted-helper principal NINO when it is eligible" in {
@@ -536,8 +540,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       status(result) mustBe OK
 
       val content = Jsoup.parse(contentAsString(result))
-      content.select("nav.x-govuk-secondary-navigation").size mustBe 1
-      content.getElementById("taxes-and-benefits-heading") mustBe null
+      assertPersonalisedHomePage(content)
     }
 
     "render the new design falling back to auth NINO when trusted-helper has no principal NINO" in {
@@ -578,8 +581,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       status(result) mustBe OK
 
       val content = Jsoup.parse(contentAsString(result))
-      content.select("nav.x-govuk-secondary-navigation").size mustBe 1
-      content.getElementById("taxes-and-benefits-heading") mustBe null
+      assertPersonalisedHomePage(content)
     }
 
     "Return a Breathing space if that is returned within period" in {
@@ -667,7 +669,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
         hintText = Some("Child Benefit hint")
       )
 
-      when(mockHomePageServicesProvider.getHomePageServices(any())(any(), any(), any()))
+      when(mockHomePageServicesProvider.getHomePageServices(anyBoolean())(any(), any(), any()))
         .thenReturn(Future.successful(HomePageServices(Seq(payeService, childBenefitService))))
 
       val appLocal   = appBuilder.build()
@@ -679,16 +681,16 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       val content = Jsoup.parse(contentAsString(result))
       content.select("nav.x-govuk-secondary-navigation").size mustBe 1
       content.select("h2#taxes-and-benefits-tab-heading").text mustBe "Taxes and benefits"
-      content.getElementById("my-services-heading") must not be null
+      Option(content.getElementById("my-services-heading")) mustBe defined
       content.select("div.hmrc-card").size mustBe 2
       content.getElementsContainingText("Pay As You Earn (PAYE)").attr("href") mustBe "/paye"
       content.getElementsContainingText("Child Benefit").attr("href") mustBe "/child-benefit"
       content.select("div.hmrc-card p.govuk-hint").size mustBe 2
-      content.text()                                must include("PAYE hint")
-      content.text()                                must include("Child Benefit hint")
+      content.text() must include("PAYE hint")
+      content.text() must include("Child Benefit hint")
     }
 
-    "Render the current design when the ptap query parameter is missing" in {
+    "Render the Personalised home page when the ptap query parameter is missing and HomePagePersonalisationToggle is true" in {
       val request = FakeRequest("GET", "/personal-account")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
@@ -704,11 +706,10 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       redirectLocation(result) mustBe None
 
       val content = Jsoup.parse(contentAsString(result))
-      content.select("nav.x-govuk-secondary-navigation").size mustBe 0
-      content.getElementById("taxes-and-benefits-heading") must not be null
+      assertPersonalisedHomePage(content)
     }
 
-    "Render the current design when the NINO is not eligible for the phased beta" in {
+    "Render the Personalised home page with query parameters and when toggle is enabled and the NINO is not eligible" in {
       val request = FakeRequest("GET", "/personal-account?ptap=true")
         .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
         .asInstanceOf[Request[AnyContent]]
@@ -727,8 +728,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       redirectLocation(result) mustBe None
 
       val content = Jsoup.parse(contentAsString(result))
-      content.select("nav.x-govuk-secondary-navigation").size mustBe 0
-      content.getElementById("taxes-and-benefits-heading") must not be null
+      assertPersonalisedHomePage(content)
     }
 
     "Render the current design when the HomePagePersonalisationToggle is disabled" in {
@@ -747,8 +747,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       redirectLocation(result) mustBe None
 
       val content = Jsoup.parse(contentAsString(result))
-      content.select("nav.x-govuk-secondary-navigation").size mustBe 0
-      content.getElementById("taxes-and-benefits-heading") must not be null
+      assertClassicHomePage(content)
     }
 
     "Preserve the ptap query parameter in the secondary navigation tab links" in {

@@ -42,13 +42,15 @@ class HomePageServicesProviderSpec extends BaseSpec {
   private val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
   private val mockFandFService: FandFService             = mock[FandFService]
   private val mockTaiService: TaiService                 = mock[TaiService]
+  private val mockLeppService: LeppService               = mock[LeppService]
 
   private lazy val service =
     new HomePageServicesProvider(
       mockConfigDecorator,
       mockFeatureFlagService,
       mockFandFService,
-      mockTaiService
+      mockTaiService,
+      mockLeppService
     )
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
@@ -77,6 +79,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
     reset(mockFeatureFlagService)
     reset(mockFandFService)
     reset(mockTaiService)
+    reset(mockLeppService)
 
     when(mockFeatureFlagService.get(eqTo(ShowTaxCalcTileToggle)))
       .thenReturn(Future.successful(FeatureFlag(ShowTaxCalcTileToggle, isEnabled = false)))
@@ -86,6 +89,9 @@ class HomePageServicesProviderSpec extends BaseSpec {
 
     when(mockFandFService.isAnyFandFRelationships(any())(any()))
       .thenReturn(Future.successful(false))
+
+    when(mockLeppService.getLeppLink(any(), any()))
+      .thenReturn(Future.successful(None))
 
     when(mockConfigDecorator.taxCalcHomePageUrl).thenReturn("taxcalc/")
     when(mockConfigDecorator.taxCalcYearsToShow).thenReturn(4)
@@ -199,10 +205,11 @@ class HomePageServicesProviderSpec extends BaseSpec {
 
       val result = service.getHomePageServices().futureValue
 
-      result.myServices.flatMap(_.link) must contain(
+      result.myServices.flatMap(_.link)     must contain(
         controllers.interstitials.routes.InterstitialController.displaySelfAssessment.url
       )
-      result.otherServices.map(_.link)  must not contain
+      result.otherServices.flatMap(_.title) must not contain "Self Assessment"
+      result.otherServices.map(_.link)      must not contain
         controllers.routes.SelfAssessmentController.requestAccess.url
     }
 
@@ -212,7 +219,8 @@ class HomePageServicesProviderSpec extends BaseSpec {
 
       val result = service.getHomePageServices().futureValue
 
-      result.myServices    must contain(
+      result.otherServices.flatMap(_.title) must not contain "Self Assessment"
+      result.myServices                     must contain(
         MyService(
           "Self Assessment",
           Some(controllers.routes.SaWrongCredentialsController.landingPage().url),
@@ -223,7 +231,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
           id = Some("self-assessment")
         )
       )
-      result.otherServices must contain(
+      result.otherServices                  must contain(
         OtherService(
           messages("label.mtd_for_it"),
           controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url,
@@ -415,7 +423,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
       result.myServices.map(_.title) must not contain "Self Assessment"
     }
 
-    "not return any self assessment or MTD service for non filer user" in {
+    "not return any self assessment or MTD service in myServices for non filer user" in {
       implicit val request: UserRequest[AnyContent] =
         buildRequest(NonFilerSelfAssessmentUser)
 
@@ -427,6 +435,33 @@ class HomePageServicesProviderSpec extends BaseSpec {
         controllers.routes.SelfAssessmentController.requestAccess.url
       result.otherServices.map(_.link) must not contain
         controllers.interstitials.routes.MtdAdvertInterstitialController.displayMTDITPage.url
+    }
+
+    "return self assessment in otherServices for non filer user" in {
+      implicit val request: UserRequest[AnyContent] =
+        buildRequest(NonFilerSelfAssessmentUser)
+
+      val result = service.getHomePageServices(isRedesign = true).futureValue
+
+      result.otherServices.map(_.title)    must contain("Self Assessment")
+      result.otherServices.map(_.link)     must contain("/personal-account/self-assessment-who-needs-to-register")
+      result.otherServices.map(_.hintText) must contain(
+        Some("Check how to register for Self Assessment if you need to send a tax return.")
+      )
+    }
+
+    "return welsh content version of self assessment in otherServices for non filer user" in {
+      implicit val welshMessages: Messages          = MessagesImpl(Lang("cy"), messagesApi)
+      implicit val request: UserRequest[AnyContent] =
+        buildRequest(NonFilerSelfAssessmentUser)
+
+      val result = service.getHomePageServices(isRedesign = true).futureValue
+
+      result.otherServices.map(_.title)    must contain("Hunanasesiad")
+      result.otherServices.map(_.link)     must contain("/personal-account/self-assessment-who-needs-to-register")
+      result.otherServices.map(_.hintText) must contain(
+        Some("Gwiriwch sut i gofrestru ar gyfer Hunanasesiad os oes angen i chi anfon Ffurflen Dreth.")
+      )
     }
 
     "return no tax calculation service when trusted helper is active" in {
@@ -654,7 +689,7 @@ class HomePageServicesProviderSpec extends BaseSpec {
         Some(messages("label.trusted_helpers_content"))
     }
 
-    "not set hintText on services when isRedesign is false" in {
+    "not set hintText on services when isRedesign is false except Self Assessment" in {
       implicit val request: UserRequest[AnyContent] = buildRequest()
 
       when(mockFeatureFlagService.get(eqTo(ShowTaxCalcTileToggle)))
@@ -662,8 +697,13 @@ class HomePageServicesProviderSpec extends BaseSpec {
 
       val result = service.getHomePageServices().futureValue
 
+      val (selfAssessmentService, remainingOtherServices) = result.otherServices.partition(_.title == "Self Assessment")
+
       result.myServices.foreach(_.hintText mustBe None)
-      result.otherServices.foreach(_.hintText mustBe None)
+      remainingOtherServices.foreach(_.hintText mustBe None)
+      selfAssessmentService.map(_.hintText) mustBe Seq(
+        Some("Check how to register for Self Assessment if you need to send a tax return.")
+      )
     }
   }
 }

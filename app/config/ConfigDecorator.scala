@@ -191,8 +191,6 @@ class ConfigDecorator @Inject() (
   lazy val viewProofEntitlement: String =
     runModeConfiguration.get[String]("external-url.child-benefits.view-proof-entitlement-location")
 
-  lazy val pegaSaRegistrationUrl: String = runModeConfiguration.get[String]("external-url.pegaSaRegistration.url")
-
   lazy val childBenefitTaxCharge: String = "https://www.gov.uk/child-benefit-tax-charge"
   lazy val useMTDIT: String              =
     "https://www.gov.uk/government/collections/making-tax-digital-for-income-tax-for-businesses-step-by-step"
@@ -270,6 +268,8 @@ class ConfigDecorator @Inject() (
     servicesConfig.getInt("feature.preferences-frontend.timeoutInSec")
   lazy val enrolmentStoreProxyTimeoutInMilliseconds: Int =
     servicesConfig.getInt("microservice.services.enrolment-store-proxy.timeoutInMilliseconds")
+  lazy val leppTimeoutInMilliseconds: Int                =
+    servicesConfig.getInt("microservice.services.low-earners-pensions-payment.timeoutInMilliseconds")
   lazy val ptaNinoSaveUrl: String                        = saveYourNationalInsuranceNumberHost + "/save-your-national-insurance-number"
   lazy val tellUsYourChildIsStayingInFullTimeEducation   = "https://www.gov.uk/child-benefit-16-19"
 
@@ -277,9 +277,6 @@ class ConfigDecorator @Inject() (
 
   lazy val addressLookupTimeoutInSec: Int =
     servicesConfig.getInt("feature.address-lookup.timeoutInSec")
-
-  lazy val pegaSaRegistrationEnabled: Boolean =
-    servicesConfig.getBoolean("feature.pegaSaRegistration.enabled")
 
   val mongoEncryptionEnabled: Boolean = runModeConfiguration.get[Boolean]("mongodb.encryption.enabled")
 
@@ -306,6 +303,14 @@ class ConfigDecorator @Inject() (
     runModeConfiguration.get[String]("external-url.mtd-claim-from-pta.url")
 
   lazy val mtdGuidanceUrl: String = runModeConfiguration.get[String]("external-url.mtd-guidance.url")
+
+  lazy val leppStartUrl: String =
+    runModeConfiguration.get[String]("external-url.leppUrl")
+
+  lazy val leppPaymentsUrl: String =
+    runModeConfiguration
+      .getOptional[String]("external-url.lepp.paymentsUrl")
+      .getOrElse(leppStartUrl.replace("start", "payments"))
 
   lazy val addressChangeBannerTextEn: String       =
     runModeConfiguration.get[String]("feature.address-change-error.banner.paragraph.en")
