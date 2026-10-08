@@ -16,11 +16,11 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock.{postRequestedFor, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{equalTo, postRequestedFor, urlEqualTo}
 import play.api.Application
 import play.api.i18n.Lang
 import testUtils.WireMockHelper
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.{Authorization, HeaderCarrier, UpstreamErrorResponse}
 import viewmodels.{Task, TaskStatus}
 
 class TasksAndActivitiesConnectorSpec extends ConnectorSpec with WireMockHelper {
@@ -93,6 +93,20 @@ class TasksAndActivitiesConnectorSpec extends ConnectorSpec with WireMockHelper 
             Some("Mae arnoch dreth ar gyfer blwyddyn dreth 2026 i 2027")
           )
         )
+      )
+    }
+
+    "forward the user's authorisation to the Tasks and Activities service" in {
+      stubPost(url, OK, Some(requestBody), Some(response))
+      val authorisedHeaderCarrier = HeaderCarrier(
+        authorization = Some(Authorization("Bearer test-token"))
+      )
+
+      connector.getTasks(generatedNino, Lang("en"))(authorisedHeaderCarrier, ec).value.futureValue
+
+      server.verify(
+        postRequestedFor(urlEqualTo(url))
+          .withHeader(AUTHORIZATION, equalTo("Bearer test-token"))
       )
     }
 
