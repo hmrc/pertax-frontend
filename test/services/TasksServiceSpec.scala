@@ -33,9 +33,10 @@ import services.partials.TaxCalcPartialService
 import testUtils.BaseSpec
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
+import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 import viewmodels.{Task, TaskStatus}
 
 import scala.concurrent.Future
@@ -46,13 +47,15 @@ class TasksServiceSpec extends BaseSpec {
   private val mockTaxCalcPartialService: TaxCalcPartialService = mock[TaxCalcPartialService]
   private val mockFeatureFlagService: FeatureFlagService       = mock[FeatureFlagService]
   private val mockTasksAndActivitiesConnector                  = mock[TasksAndActivitiesConnector]
+  private val mockHeaderCarrierForPartialsConverter            = mock[HeaderCarrierForPartialsConverter]
 
   private lazy val service: TasksService =
     new TasksService(
       mockConfigDecorator,
       mockTaxCalcPartialService,
       mockFeatureFlagService,
-      mockTasksAndActivitiesConnector
+      mockTasksAndActivitiesConnector,
+      mockHeaderCarrierForPartialsConverter
     )
   implicit lazy val messages: Messages   = MessagesImpl(Lang("en"), messagesApi)
 
@@ -62,6 +65,9 @@ class TasksServiceSpec extends BaseSpec {
     reset(mockFeatureFlagService)
     reset(mockTaxCalcPartialService)
     reset(mockTasksAndActivitiesConnector)
+    reset(mockHeaderCarrierForPartialsConverter)
+    when(mockHeaderCarrierForPartialsConverter.fromRequestWithEncryptedCookie(any()))
+      .thenReturn(HeaderCarrier())
   }
 
   val overpaid: String =

@@ -26,7 +26,7 @@ import play.api.i18n.Messages
 import services.partials.TaxCalcPartialService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 import viewmodels.{Task, TaskStatus}
 import models.*
 import play.api.Logging
@@ -37,7 +37,8 @@ class TasksService @Inject() (
   configDecorator: ConfigDecorator,
   taxCalcPartialService: TaxCalcPartialService,
   featureFlagService: FeatureFlagService,
-  tasksAndActivitiesConnector: TasksAndActivitiesConnector
+  tasksAndActivitiesConnector: TasksAndActivitiesConnector,
+  headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter
 ) extends Logging {
 
   def getListOfTasks(implicit request: UserRequest[?], messages: Messages): Future[Seq[Task]] =
@@ -65,7 +66,7 @@ class TasksService @Inject() (
   }
 
   private def getTasksAndActivitiesTasks(implicit request: UserRequest[?], messages: Messages): Future[Seq[Task]] = {
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    implicit val hc: HeaderCarrier = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
 
     tasksAndActivitiesConnector
       .getTasks(request.authNino, messages.lang)
