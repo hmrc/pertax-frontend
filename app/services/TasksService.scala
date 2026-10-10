@@ -16,14 +16,17 @@
 
 package services
 
+import connectors.TasksAndActivitiesConnector
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.Execution.trampoline
-import models.admin.ShowTaxCalcTileToggle
+import models.admin.{ShowTaxCalcTileToggle, TasksAndActivitiesServiceToggle}
 import controllers.auth.requests.UserRequest
 import play.api.i18n.Messages
 import services.partials.TaxCalcPartialService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
+import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 import viewmodels.{Task, TaskStatus}
 import models.*
 import play.api.Logging
@@ -33,12 +36,53 @@ import scala.concurrent.Future
 class TasksService @Inject() (
   configDecorator: ConfigDecorator,
   taxCalcPartialService: TaxCalcPartialService,
-  featureFlagService: FeatureFlagService
+  featureFlagService: FeatureFlagService,
+  tasksAndActivitiesConnector: TasksAndActivitiesConnector,
+  headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter
 ) extends Logging {
 
-  def getListOfTasks(implicit request: UserRequest[?], messages: Messages): Future[Seq[Task]] = {
-    val taxcalcF = getTaxCalcTasks(request.trustedHelper.isDefined)
+  def getListOfTasks(implicit request: UserRequest[?], messages: Messages): Future[Seq[Task]] =
+    if (request.trustedHelper.isDefined) {
+      Future.successful(Seq.empty)
+    } else {
+      featureFlagService
+        .get(TasksAndActivitiesServiceToggle)
+        .flatMap { tasksAndActivitiesFlag =>
+          if (tasksAndActivitiesFlag.isEnabled) {
+            getTasksAndActivitiesTasks
+          } else {
+            getExistingTasks
+          }
+        }
+        .recoverWith { case error =>
+          logger.error("Unable to retrieve Tasks and Activities Service toggle. Using existing task logic.", error)
+          getExistingTasks
+        }
+    }
+
+  private def getExistingTasks(implicit request: UserRequest[?], messages: Messages): Future[Seq[Task]] = {
+    val taxcalcF = getTaxCalcTasks(isTrustedHelper = false)
     Future.sequence(Seq(taxcalcF)).map(_.flatten)
+  }
+
+  private def getTasksAndActivitiesTasks(implicit request: UserRequest[?], messages: Messages): Future[Seq[Task]] = {
+    implicit val hc: HeaderCarrier = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
+
+    tasksAndActivitiesConnector
+      .getTasks(request.authNino, messages.lang)
+      .value
+      .map {
+        case Right(tasks) => tasks
+        case Left(error)  =>
+          logger.error(
+            s"Unable to retrieve tasks from Tasks and Activities service. Status: ${error.statusCode}. Message: ${error.message}"
+          )
+          Seq.empty
+      }
+      .recover { case error =>
+        logger.error("Unexpected error retrieving tasks from Tasks and Activities service", error)
+        Seq.empty
+      }
   }
 
   def getTaxCalcTasks(
