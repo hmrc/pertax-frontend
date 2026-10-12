@@ -119,7 +119,7 @@ class TasksService @Inject() (
                   }
                 case Overpaid                 =>
                   val amountRegexp =
-                    "(?s).*(HMRC owe you|Mae ar CThEM arian i chi)\\s*£([0-9.,]+).*".r // `overpayment.hmrc_owe_you` message key in taxcalc-frontend
+                    "(?s).*(HMRC owes you|Mae ar CThEM arian i chi)\\s*£([0-9.,]+).*".r // `overpayment.hmrc_owe_you` message key in taxcalc-frontend
                   card.partialContent.body match {
                     case amountRegexp(_, amount) =>
                       Some(

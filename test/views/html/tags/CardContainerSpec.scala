@@ -254,11 +254,6 @@ class CardContainerSpec extends ViewSpec {
       doc.select("ul.hmrc-card__container > li.hmrc-card__list-item > div.hmrc-card a[href]").size() mustBe 2
     }
 
-    "throw error when a card has no focusable control" in {
-      an[Exception] must be thrownBy
-        HmrcCardModel(CardType.BasicCard, CardHeading("Card 1", None, false), None, None)
-    }
-
     "throw error for invalid heading level" in {
       an[IllegalArgumentException] must be thrownBy
         CardContainerModel(

@@ -92,7 +92,7 @@ private object TasksAndActivitiesResponse:
 private final case class TasksAndActivitiesCard(en: CardContent, cy: CardContent):
   def toTask(lang: Lang): Task =
     val content = if lang.code == "cy" then cy else en
-    Task(content.header, TaskStatus.Incomplete, content.url, Some(content.body))
+    Task(content.header, TaskStatus.Incomplete, content.url, Option(content.body).filter(_.trim.nonEmpty))
 
 private object TasksAndActivitiesCard:
   implicit val format: OFormat[TasksAndActivitiesCard] = Json.format[TasksAndActivitiesCard]

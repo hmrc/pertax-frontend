@@ -78,7 +78,7 @@ class TasksServiceSpec extends BaseSpec {
       |        6&nbsp;April&nbsp;2024&nbsp;to&nbsp;5&nbsp;April&nbsp;2025
       |      </a>
       |    </h3>
-      |<p class="govuk-body owe_message">HMRC owe you £84.23 .</p>
+      |<p class="govuk-body owe_message">HMRC owes you £84.23 .</p>
       |<p class="govuk-body">Get your refund paid online.</p>
       |  </div>
       |""".stripMargin

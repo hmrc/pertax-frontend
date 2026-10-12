@@ -18,8 +18,9 @@ package services
 
 import com.google.inject.Inject
 import controllers.auth.requests.UserRequest
-import models.{CardHeading, CardType, HmrcCardModel}
+import models.{CardBody, CardHeading, CardType, HmrcCardModel}
 import play.api.i18n.Messages
+import play.twirl.api.Html
 import viewmodels.TabEnum.{Activity, Task as TaskTab}
 import viewmodels.{TabEnum, Task, TaskStatus}
 
@@ -55,7 +56,7 @@ class TabContentService @Inject() (
           url = Some(task.href),
           opensNewTab = false
         ),
-        body = None,
+        body = task.hintText.map(s => CardBody(Html(s))),
         hint = None
       )
     }
