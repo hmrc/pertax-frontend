@@ -41,29 +41,4 @@ class CardHeading(val text: String, val url: Option[String], val opensNewTab: Bo
 class CardBody(val content: Html)
 class CardHint(val content: Html, val tag_colour: Option[TagColour])
 
-case class HmrcCardModel(cardType: CardType, heading: CardHeading, body: Option[CardBody], hint: Option[CardHint]) {
-  cardType match
-    case CardType.BasicCard            =>
-      if (!heading.url.isDefined || body.isDefined) {
-        throw new Exception("Invalid Parameters: BasicCard requires CardType and Heading with a url only.")
-      }
-    case CardType.BasicCardWithDueDate =>
-      if (!heading.url.isDefined || body.isDefined || !hint.isDefined || !hint.get.tag_colour.isDefined) {
-        throw new Exception(
-          "Invalid Parameters: BasicCardWithDueDate requires CardType Heading and CardHint only."
-        )
-      }
-    case CardType.SectionCard          =>
-      if (!heading.url.isDefined || !body.isDefined || !hint.isDefined) {
-        throw new Exception("Invalid Parameters: SectionCard requires CardType, Body and CardHint.")
-      }
-    case CardType.NoLinkCard           =>
-      if (heading.url.isDefined || !body.isDefined || hint.isDefined) {
-        throw new Exception("Invalid Parameters: NoLink Card requres CardType, Heading without a url and Body only.")
-      }
-    case CardType.NewTabCard           =>
-      if (!heading.url.isDefined || body.isDefined || hint.isDefined) {
-        throw new Exception("Invalid Parameters: NewTabCard requires CardType and Heading with a url only.")
-      }
-
-}
+case class HmrcCardModel(cardType: CardType, heading: CardHeading, body: Option[CardBody], hint: Option[CardHint]) {}
