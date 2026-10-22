@@ -53,7 +53,7 @@ class TabContentService @Inject() (
         cardType = CardType.BasicCard,
         heading = CardHeading(
           text = task.title,
-          url = Some(task.href),
+          url = task.href,
           opensNewTab = false
         ),
         body = task.hintText.map(s => CardBody(Html(s))),

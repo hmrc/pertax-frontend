@@ -22,13 +22,13 @@ import config.ConfigDecorator
 import play.api.Logging
 import play.api.http.Status.BAD_GATEWAY
 import play.api.i18n.Lang
-import play.api.libs.json.{JsError, Json, OFormat}
+import play.api.libs.json.{JsError, JsString, Json, OFormat, Reads}
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReads.Implicits.{readEitherOf, readRaw}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
-import viewmodels.{Task, TaskStatus}
+import viewmodels.{ActivityType, Task, TaskStatus}
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
@@ -87,17 +87,34 @@ private object TasksAndActivitiesRequest:
 private final case class TasksAndActivitiesResponse(cards: Seq[TasksAndActivitiesCard])
 
 private object TasksAndActivitiesResponse:
-  implicit val format: OFormat[TasksAndActivitiesResponse] = Json.format[TasksAndActivitiesResponse]
+  implicit val reads: Reads[TasksAndActivitiesResponse] = Json.reads[TasksAndActivitiesResponse]
 
-private final case class TasksAndActivitiesCard(en: CardContent, cy: CardContent):
+private final case class TasksAndActivitiesCard(activityType: ActivityType, en: CardContent, cy: CardContent):
   def toTask(lang: Lang): Task =
     val content = if lang.code == "cy" then cy else en
-    Task(content.header, TaskStatus.Incomplete, content.url, Option(content.body).filter(_.trim.nonEmpty))
+    Task(
+      title = content.header,
+      status = TaskStatus.Incomplete,
+      href = content.url,
+      hintText = Option(content.body).filter(_.trim.nonEmpty),
+      dateText = content.hint,
+      activityType = activityType
+    )
 
 private object TasksAndActivitiesCard:
-  implicit val format: OFormat[TasksAndActivitiesCard] = Json.format[TasksAndActivitiesCard]
+  import ActivityTypeJson.reads
 
-private final case class CardContent(header: String, body: String, url: String, hint: Option[String])
+  implicit val reads: Reads[TasksAndActivitiesCard] = Json.reads[TasksAndActivitiesCard]
+
+private final case class CardContent(header: String, body: String, url: Option[String], hint: Option[String])
 
 private object CardContent:
-  implicit val format: OFormat[CardContent] = Json.format[CardContent]
+  implicit val reads: Reads[CardContent] = Json.reads[CardContent]
+
+private object ActivityTypeJson:
+  implicit val reads: Reads[ActivityType] = Reads {
+    case JsString("task")  => play.api.libs.json.JsSuccess(viewmodels.ActivityType.Task)
+    case JsString("event") => play.api.libs.json.JsSuccess(viewmodels.ActivityType.Event)
+    case JsString(value)   => JsError(s"Invalid activity type: $value")
+    case _                 => JsError("Expected activity type to be a string")
+  }
