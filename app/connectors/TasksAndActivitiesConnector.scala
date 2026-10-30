@@ -19,6 +19,7 @@ package connectors
 import cats.data.EitherT
 import com.google.inject.Inject
 import config.ConfigDecorator
+import models.TagColour
 import play.api.Logging
 import play.api.http.Status.BAD_GATEWAY
 import play.api.i18n.Lang
@@ -98,7 +99,8 @@ private final case class TasksAndActivitiesCard(activityType: ActivityType, en: 
       href = content.url,
       hintText = Option(content.body).filter(_.trim.nonEmpty),
       dateText = content.hint,
-      activityType = activityType
+      activityType = activityType,
+      dateTag = content.dateTag.flatMap(DateTag.toTagColour)
     )
 
 private object TasksAndActivitiesCard:
@@ -106,10 +108,24 @@ private object TasksAndActivitiesCard:
 
   implicit val format: OFormat[TasksAndActivitiesCard] = Json.format[TasksAndActivitiesCard]
 
-private final case class CardContent(header: String, body: String, url: Option[String], hint: Option[String])
+private final case class CardContent(
+  header: String,
+  body: String,
+  url: Option[String],
+  hint: Option[String],
+  dateTag: Option[String]
+)
 
 private object CardContent:
   implicit val format: OFormat[CardContent] = Json.format[CardContent]
+
+private object DateTag:
+  def toTagColour(value: String): Option[TagColour] =
+    value match
+      case "govuk-tag--green"  => Some(TagColour.Green)
+      case "govuk-tag--orange" => Some(TagColour.Orange)
+      case "govuk-tag--red"    => Some(TagColour.Red)
+      case _                   => None
 
 private object ActivityTypeJson:
   implicit val format: Format[ActivityType] = Format(

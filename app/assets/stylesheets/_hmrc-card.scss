@@ -25,6 +25,10 @@ $hmrc-card-background: #f8f8f8;
     margin-top: .25rem;
   }
 
+  .govuk-tag--no-max {
+    max-width: none;
+  }
+
   *:last-child {
     margin-bottom: 0;
   }

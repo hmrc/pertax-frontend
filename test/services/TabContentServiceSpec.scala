@@ -17,7 +17,7 @@
 package services
 
 import controllers.auth.requests.UserRequest
-import models.CardType
+import models.{CardType, TagColour}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, verify, when}
 import play.api.i18n.Messages
@@ -59,14 +59,15 @@ class TabContentServiceSpec extends BaseSpec {
           Some("/tax"),
           Some("You owe £100"),
           Some("Due 31 January 2027"),
-          ActivityType.Task
+          ActivityType.Task,
+          Some(TagColour.Orange)
         ),
         Task(
           "Tax calculation",
           TaskStatus.Incomplete,
           Some("/tax-calculation"),
           Some("You paid too little tax"),
-          Some("Sent 1 July 2026"),
+          Some("Updated 1 July 2026"),
           ActivityType.Event
         )
       )
@@ -84,6 +85,7 @@ class TabContentServiceSpec extends BaseSpec {
       result.taskCards.head.heading.url mustBe Some("/tax")
       result.taskCards.head.body.map(_.content.body) mustBe Some("You owe £100")
       result.taskCards.head.hint.map(_.content.body) mustBe Some("Due 31 January 2027")
+      result.taskCards.head.hint.flatMap(_.tag_colour) mustBe Some(TagColour.Orange)
       result.tabCards.head.heading.text mustBe "Tax task"
       verify(mockTasksService).getListOfTasks(any(), any())
     }
@@ -96,8 +98,9 @@ class TabContentServiceSpec extends BaseSpec {
           TaskStatus.Incomplete,
           Some("/tax-calculation"),
           Some("You paid too little tax"),
-          Some("Sent 1 July 2026"),
-          ActivityType.Event
+          Some("Updated 1 July 2026"),
+          ActivityType.Event,
+          Some(TagColour.Green)
         )
       )
 
@@ -113,7 +116,8 @@ class TabContentServiceSpec extends BaseSpec {
       result.tabCards.head.heading.text mustBe "Tax calculation"
       result.tabCards.head.heading.url mustBe Some("/tax-calculation")
       result.tabCards.head.body.map(_.content.body) mustBe Some("You paid too little tax")
-      result.tabCards.head.hint.map(_.content.body) mustBe Some("Sent 1 July 2026")
+      result.tabCards.head.hint.map(_.content.body) mustBe Some("Updated 1 July 2026")
+      result.tabCards.head.hint.flatMap(_.tag_colour) mustBe Some(TagColour.Green)
     }
 
     "continue to return legacy completed tasks on the Activity tab" in {

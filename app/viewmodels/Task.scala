@@ -16,13 +16,16 @@
 
 package viewmodels
 
+import models.TagColour
+
 final case class Task(
   title: String,
   status: TaskStatus,
   href: Option[String],
   hintText: Option[String] = None,
   dateText: Option[String] = None,
-  activityType: ActivityType = ActivityType.Task
+  activityType: ActivityType = ActivityType.Task,
+  dateTag: Option[TagColour] = None
 )
 
 object Task {

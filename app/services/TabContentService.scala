@@ -61,7 +61,7 @@ class TabContentService @Inject() (
           opensNewTab = false
         ),
         body = task.hintText.map(s => CardBody(Html(s))),
-        hint = task.dateText.map(s => CardHint(Html(s), None))
+        hint = task.dateText.map(s => CardHint(Html(s), task.dateTag))
       )
     }
 }

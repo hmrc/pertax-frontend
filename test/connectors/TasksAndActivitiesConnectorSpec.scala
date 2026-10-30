@@ -19,6 +19,7 @@ package connectors
 import com.github.tomakehurst.wiremock.client.WireMock.{equalTo, postRequestedFor, urlEqualTo}
 import play.api.Application
 import play.api.i18n.Lang
+import models.TagColour
 import testUtils.WireMockHelper
 import uk.gov.hmrc.http.{Authorization, HeaderCarrier, UpstreamErrorResponse}
 import viewmodels.{ActivityType, Task, TaskStatus}
@@ -48,13 +49,15 @@ class TasksAndActivitiesConnectorSpec extends ConnectorSpec with WireMockHelper 
       |        "header": "You owe HMRC £500.",
       |        "body": "You owe tax for tax year 2026 to 2027",
       |        "url": "/tax-you-paid",
-      |        "hint": "Due 31 January 2027"
+      |        "hint": "Due 31 January 2027",
+      |        "dateTag": "govuk-tag--orange"
       |      },
       |      "cy": {
       |        "header": "Mae arnoch £500 i CThEF.",
       |        "body": "Mae arnoch dreth ar gyfer blwyddyn dreth 2026 i 2027",
       |        "url": "/treth-a-dalwyd-gennych",
-      |        "hint": "Yn ddyledus 31 Ionawr 2027"
+      |        "hint": "Yn ddyledus 31 Ionawr 2027",
+      |        "dateTag": "govuk-tag--orange"
       |      }
       |    }
       |  ]
@@ -75,7 +78,8 @@ class TasksAndActivitiesConnectorSpec extends ConnectorSpec with WireMockHelper 
             Some("/tax-you-paid"),
             Some("You owe tax for tax year 2026 to 2027"),
             Some("Due 31 January 2027"),
-            ActivityType.Task
+            ActivityType.Task,
+            Some(TagColour.Orange)
           )
         )
       )
@@ -95,7 +99,8 @@ class TasksAndActivitiesConnectorSpec extends ConnectorSpec with WireMockHelper 
             Some("/treth-a-dalwyd-gennych"),
             Some("Mae arnoch dreth ar gyfer blwyddyn dreth 2026 i 2027"),
             Some("Yn ddyledus 31 Ionawr 2027"),
-            ActivityType.Task
+            ActivityType.Task,
+            Some(TagColour.Orange)
           )
         )
       )
@@ -133,12 +138,14 @@ class TasksAndActivitiesConnectorSpec extends ConnectorSpec with WireMockHelper 
           |      "en": {
           |        "header": "Your tax calculation",
           |        "body": "You paid too little tax.",
-          |        "hint": "Updated 1 July 2026"
+          |        "hint": "Updated 1 July 2026",
+          |        "dateTag": "govuk-tag--green"
           |      },
           |      "cy": {
           |        "header": "Eich cyfrifiad treth",
           |        "body": "Gwnaethoch dalu rhy ychydig o dreth.",
-          |        "hint": "Diweddarwyd 1 Gorffennaf 2026"
+          |        "hint": "Diweddarwyd 1 Gorffennaf 2026",
+          |        "dateTag": "govuk-tag--green"
           |      }
           |    }
           |  ]
@@ -156,10 +163,29 @@ class TasksAndActivitiesConnectorSpec extends ConnectorSpec with WireMockHelper 
             href = None,
             hintText = Some("You paid too little tax."),
             dateText = Some("Updated 1 July 2026"),
-            activityType = ActivityType.Event
+            activityType = ActivityType.Event,
+            dateTag = Some(TagColour.Green)
           )
         )
       )
+    }
+
+    "ignore unsupported date tag values" in {
+      val unsupportedTagResponse = response.replace("govuk-tag--orange", "arbitrary-css-class")
+      stubPost(url, OK, Some(requestBody), Some(unsupportedTagResponse))
+
+      val result = connector.getTasks(generatedNino, Lang("en")).value.futureValue
+
+      result.map(_.head.dateTag) mustBe Right(None)
+    }
+
+    "accept responses with no date tag" in {
+      val responseWithoutDateTag = response.replace(",\n        \"dateTag\": \"govuk-tag--orange\"", "")
+      stubPost(url, OK, Some(requestBody), Some(responseWithoutDateTag))
+
+      val result = connector.getTasks(generatedNino, Lang("en")).value.futureValue
+
+      result.map(_.head.dateTag) mustBe Right(None)
     }
 
     List(BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND).foreach { statusCode =>
