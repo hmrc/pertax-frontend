@@ -18,11 +18,11 @@ package services
 
 import com.google.inject.Inject
 import controllers.auth.requests.UserRequest
-import models.{CardBody, CardHeading, CardType, HmrcCardModel}
+import models.{CardBody, CardHeading, CardHint, CardType, HmrcCardModel}
 import play.api.i18n.Messages
 import play.twirl.api.Html
 import viewmodels.TabEnum.{Activity, Task as TaskTab}
-import viewmodels.{TabEnum, Task, TaskStatus}
+import viewmodels.{ActivityType, TabEnum, Task, TaskStatus}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -34,10 +34,11 @@ class TabContentService @Inject() (
     currentTab: TabEnum
   )(implicit request: UserRequest[?], messages: Messages): Future[TabContentCards] =
     tasksService.getListOfTasks.map { tasks =>
-      val taskCards = toCards(tasks.filterNot(_.status == TaskStatus.Completed))
-      val tabCards  = currentTab match {
+      val (activityTasks, incompleteTasks) = tasks.partition(isActivity)
+      val taskCards                        = toCards(incompleteTasks)
+      val tabCards                         = currentTab match {
         case TaskTab  => taskCards
-        case Activity => toCards(tasks.filter(_.status == TaskStatus.Completed))
+        case Activity => toCards(activityTasks)
         case _        => Seq.empty
       }
 
@@ -47,17 +48,20 @@ class TabContentService @Inject() (
       )
     }
 
+  private def isActivity(task: Task): Boolean =
+    task.activityType == ActivityType.Event || task.status == TaskStatus.Completed
+
   private def toCards(tasks: Seq[Task]): Seq[HmrcCardModel] =
     tasks.map { task =>
       HmrcCardModel(
         cardType = CardType.BasicCard,
         heading = CardHeading(
           text = task.title,
-          url = Some(task.href),
+          url = task.href,
           opensNewTab = false
         ),
         body = task.hintText.map(s => CardBody(Html(s))),
-        hint = None
+        hint = task.dateText.map(s => CardHint(Html(s), task.dateTag))
       )
     }
 }

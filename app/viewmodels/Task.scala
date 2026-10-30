@@ -16,12 +16,30 @@
 
 package viewmodels
 
+import models.TagColour
+
 final case class Task(
   title: String,
   status: TaskStatus,
-  href: String,
-  hintText: Option[String] = None
+  href: Option[String],
+  hintText: Option[String] = None,
+  dateText: Option[String] = None,
+  activityType: ActivityType = ActivityType.Task,
+  dateTag: Option[TagColour] = None
 )
+
+object Task {
+  def apply(title: String, status: TaskStatus, href: String): Task =
+    Task(title, status, Some(href))
+
+  def apply(title: String, status: TaskStatus, href: String, hintText: Option[String]): Task =
+    Task(title, status, Some(href), hintText)
+}
+
+enum ActivityType {
+  case Task
+  case Event
+}
 
 enum TaskStatus(
   val classes: String = ""

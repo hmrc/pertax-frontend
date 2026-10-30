@@ -17,7 +17,7 @@
 package services
 
 import controllers.auth.requests.UserRequest
-import models.CardType
+import models.{CardType, TagColour}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, verify, when}
 import play.api.i18n.Messages
@@ -26,7 +26,7 @@ import play.api.test.FakeRequest
 import testUtils.{BaseSpec, UserRequestFixture}
 import uk.gov.hmrc.domain.Generator
 import viewmodels.TabEnum.{Activity, Task as TaskTab, Tax}
-import viewmodels.{Task, TaskStatus}
+import viewmodels.{ActivityType, Task, TaskStatus}
 
 import scala.concurrent.Future
 
@@ -53,8 +53,23 @@ class TabContentServiceSpec extends BaseSpec {
   "getTaskAndTabCards" must {
     "fetch tasks once and return task cards as the selected tab cards for the Tasks tab" in {
       val tasks = Seq(
-        Task("Tax task", TaskStatus.Incomplete, "/tax", Some("You owe £100")),
-        Task("Refund task", TaskStatus.Completed, "/refund", None)
+        Task(
+          "Tax task",
+          TaskStatus.Incomplete,
+          Some("/tax"),
+          Some("You owe £100"),
+          Some("Due 31 January 2027"),
+          ActivityType.Task,
+          Some(TagColour.Orange)
+        ),
+        Task(
+          "Tax calculation",
+          TaskStatus.Incomplete,
+          Some("/tax-calculation"),
+          Some("You paid too little tax"),
+          Some("Updated 1 July 2026"),
+          ActivityType.Event
+        )
       )
 
       when(mockTasksService.getListOfTasks(any(), any()))
@@ -68,14 +83,25 @@ class TabContentServiceSpec extends BaseSpec {
       result.taskCards.head.cardType mustBe CardType.BasicCard
       result.taskCards.head.heading.text mustBe "Tax task"
       result.taskCards.head.heading.url mustBe Some("/tax")
+      result.taskCards.head.body.map(_.content.body) mustBe Some("You owe £100")
+      result.taskCards.head.hint.map(_.content.body) mustBe Some("Due 31 January 2027")
+      result.taskCards.head.hint.flatMap(_.tag_colour) mustBe Some(TagColour.Orange)
       result.tabCards.head.heading.text mustBe "Tax task"
       verify(mockTasksService).getListOfTasks(any(), any())
     }
 
-    "return completed tasks as the selected tab cards for the Activity tab" in {
+    "return events as the selected tab cards for the Activity tab" in {
       val tasks = Seq(
         Task("Tax task", TaskStatus.Incomplete, "/tax", Some("You owe £100")),
-        Task("Refund task", TaskStatus.Completed, "/refund", None)
+        Task(
+          "Tax calculation",
+          TaskStatus.Incomplete,
+          Some("/tax-calculation"),
+          Some("You paid too little tax"),
+          Some("Updated 1 July 2026"),
+          ActivityType.Event,
+          Some(TagColour.Green)
+        )
       )
 
       when(mockTasksService.getListOfTasks(any(), any()))
@@ -87,8 +113,26 @@ class TabContentServiceSpec extends BaseSpec {
       result.tabCards  must have size 1
       result.taskCount mustBe 1
       result.tabCards.head.cardType mustBe CardType.BasicCard
-      result.tabCards.head.heading.text mustBe "Refund task"
-      result.tabCards.head.heading.url mustBe Some("/refund")
+      result.tabCards.head.heading.text mustBe "Tax calculation"
+      result.tabCards.head.heading.url mustBe Some("/tax-calculation")
+      result.tabCards.head.body.map(_.content.body) mustBe Some("You paid too little tax")
+      result.tabCards.head.hint.map(_.content.body) mustBe Some("Updated 1 July 2026")
+      result.tabCards.head.hint.flatMap(_.tag_colour) mustBe Some(TagColour.Green)
+    }
+
+    "continue to return legacy completed tasks on the Activity tab" in {
+      val tasks = Seq(
+        Task("Legacy task", TaskStatus.Incomplete, "/task"),
+        Task("Legacy activity", TaskStatus.Completed, "/activity")
+      )
+
+      when(mockTasksService.getListOfTasks(any(), any()))
+        .thenReturn(Future.successful(tasks))
+
+      val result = tabContentService.getTaskAndTabCards(Activity).futureValue
+
+      result.taskCards.map(_.heading.text) mustBe Seq("Legacy task")
+      result.tabCards.map(_.heading.text) mustBe Seq("Legacy activity")
     }
 
     "return no selected tab cards for tabs without card content" in {
