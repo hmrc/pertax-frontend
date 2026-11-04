@@ -1,10 +1,13 @@
-$govuk-blue: #005ea5;
-$grey-1: #6f777b;
+@import "lib/govuk-frontend/dist/govuk/settings/index";
+@import "lib/govuk-frontend/dist/govuk/helpers/colour";
+
+$govuk-blue: govuk-colour("blue");
 $grey-2: #bfc1c3;
 $grey-4: #f8f8f8;
-$light-blue: #2b8cc4;
-$link-colour: $govuk-blue;
+$hmrc-card-background: #f8f8f8;
+$link-colour: govuk-functional-colour("link");
+$link-hover-colour: govuk-functional-colour("link-hover");
 $black: #0b0c0c;
 $white: #fff;
 $panel-colour: #dee0e2;
-$page-colour: $white;
+$page-colour: govuk-colour("white");
