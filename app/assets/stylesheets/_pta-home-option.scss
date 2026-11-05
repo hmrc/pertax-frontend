@@ -26,12 +26,12 @@
         transition: 0.1s ease-in-out;
 
         .pta-home-option-heading a {
-          color: $link-colour;
+          color: govuk-functional-colour("link");
           margin-top: 0;
 
           &:focus {
             box-shadow: 0 -2px #fd0, 0 4px #0b0c0c;
-            color: $black;
+            color: govuk-colour("black");
             outline: 3px solid transparent;
           }
         }
@@ -61,11 +61,11 @@
 
         &:link,
         &:visited {
-          color: $link-colour;
+          color: govuk-functional-colour("link");
         }
 
         &:focus {
-          color: $black;
+          color: govuk-colour("black");
         }
       }
 

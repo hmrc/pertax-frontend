@@ -39,11 +39,11 @@
     margin-top: 0;
     font-weight: bold;
     a {
-      color: $link-colour;
+      color: govuk-functional-colour("link");
       text-decoration: none;
       display: block;
       &:hover {
-        color: $link-hover-colour;
+        color: govuk-functional-colour("link-hover");
         text-decoration: underline;
         text-decoration-thickness: max(3px, .1875rem, .12em);
       }
@@ -56,8 +56,8 @@
     margin-left: 1rem;
     &:before {
       content: '';
-      border-right: 3px solid $link-colour;
-      border-top: 3px solid $link-colour;
+      border-right: 3px solid govuk-functional-colour("link");
+      border-top: 3px solid govuk-functional-colour("link");
       display: block;
       height: 10px;
       width: 10px;
@@ -73,7 +73,7 @@
 
 a:hover .hmrc-card__chevron {
   &:before {
-    border-color: $link-hover-colour;
+    border-color: govuk-functional-colour("link-hover");
   }
 }
 

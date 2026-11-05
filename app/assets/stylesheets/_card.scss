@@ -37,12 +37,12 @@
   margin-top: 0;
 
   a {
-    color: $govuk-blue;
+    color: govuk-colour("blue");
     display: block;
     text-decoration: none;
 
     &:hover {
-      color: $govuk-blue;
+      color: govuk-colour("blue");
       text-decoration: underline;
       text-decoration-thickness: Max(3px, .1875rem, .12em);
     }
@@ -55,8 +55,8 @@
 
   &:before {
     content: "";
-    border-right: 3px solid $govuk-blue;
-    border-top: 3px solid $govuk-blue;
+    border-right: 3px solid govuk-colour("blue");
+    border-top: 3px solid govuk-colour("blue");
     display: block;
     height: 10px;
     width: 10px;
