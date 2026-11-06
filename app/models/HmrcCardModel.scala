@@ -26,16 +26,16 @@ enum CardType:
   case NewTabCard
 
 enum TagColour(val style: String):
-  case Default extends TagColour("govuk-tag")
-  case Grey extends TagColour("govuk-tag govuk-tag--grey")
-  case Green extends TagColour("govuk-tag govuk-tag--green")
-  case Teal extends TagColour("govuk-tag govuk-tag--teal")
-  case Blue extends TagColour("govuk-tag govuk-tag--blue")
-  case Purple extends TagColour("govuk-tag govuk-tag--purple")
-  case Magenta extends TagColour("govuk-tag govuk-tag--magenta")
-  case Red extends TagColour("govuk-tag govuk-tag--red")
-  case Orange extends TagColour("govuk-tag govuk-tag--orange")
-  case Yellow extends TagColour("govuk-tag govuk-tag--yellow")
+  case Default extends TagColour("")
+  case Grey extends TagColour("govuk-tag--grey")
+  case Green extends TagColour("govuk-tag--green")
+  case Teal extends TagColour("govuk-tag--teal")
+  case Blue extends TagColour("govuk-tag--blue")
+  case Purple extends TagColour("govuk-tag--purple")
+  case Magenta extends TagColour("govuk-tag--magenta")
+  case Red extends TagColour("govuk-tag--red")
+  case Orange extends TagColour("govuk-tag--orange")
+  case Yellow extends TagColour("govuk-tag--yellow")
 
 class CardHeading(val text: String, val url: Option[String], val opensNewTab: Boolean = false)
 class CardBody(val content: Html)

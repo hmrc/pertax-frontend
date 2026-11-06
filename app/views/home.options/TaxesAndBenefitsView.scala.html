@@ -30,8 +30,8 @@
             HmrcCardModel(
                 cardType = CardType.BasicCard,
                 heading = CardHeading(text = service.title, url = Some(href)),
-                body = None,
-                hint = service.hintText.map(hint => CardHint(HtmlFormat.escape(hint), None))
+                body = service.hintText.map(hint => CardBody(HtmlFormat.escape(hint))),
+                hint = None
             )
         }
     }
@@ -42,8 +42,8 @@
         HmrcCardModel(
             cardType = CardType.BasicCard,
             heading = CardHeading(text = service.title, url = Some(service.link)),
-            body = None,
-            hint = service.hintText.map(hint => CardHint(HtmlFormat.escape(hint), None))
+            body = service.hintText.map(hint => CardBody(HtmlFormat.escape(hint))),
+            hint = None
         )
     }
 }
