@@ -19,21 +19,21 @@
 $_current-link-border-width: 4px;
 
 .x-govuk-secondary-navigation {
-  border-bottom: 1px solid $grey-2;
+  border-bottom: 1px solid govuk-functional-colour("border");
 }
 
 .x-govuk-secondary-navigation__link {
   text-decoration: none;
-  color: $link-colour;
+  color: govuk-functional-colour("link");
   &:visited {
-    color: $link-colour;
+    color: govuk-functional-colour("link");
   }
   &:hover {
     text-decoration: underline;
-    color: $link-colour;
+    color: govuk-functional-colour("link");
   }
   &:focus {
-    outline: 3px solid $govuk-blue;
+    outline: 3px solid govuk-colour("blue");
     outline-offset: 0;
   }
 }
@@ -62,7 +62,7 @@ $_current-link-border-width: 4px;
 }
 
 .x-govuk-secondary-navigation__list-item {
-  border: 0 solid $link-colour;
+  border: 0 solid govuk-functional-colour("link");
   margin: 10px 0;
   position: relative;
 
@@ -94,7 +94,7 @@ $_current-link-border-width: 4px;
 
 .x-govuk-secondary-navigation__badge {
   background-color: #FF6347;
-  color: white;
+  color: govuk-colour("white");
   border-radius: 50%;
   padding: 2px 6px;
   margin-left: 8px;
