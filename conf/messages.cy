@@ -884,9 +884,13 @@ ptap.your-tasks.container.details.p.line.2.5=.
 #************************************************************
 # Default case (no activity)
 #************************************************************
-ptap.recent-activity.container.default_text.p.line1=Mae’r dudalen hon yn dangos eich gweithgarwch diweddar.
-ptap.recent-activity.container.default_text.p.line2.2=Eich tasgau
-ptap.recent-activity.container.default_text.p.line2.3=am unrhyw beth arall rydych am ei wybod.
+ptap.recent-activity.container.default_text.p.line1=Mae’r dudalen hon yn dangos eich gweithgarwch diweddar
+
+ptap.recent-activity.container.details.heading=Pam na allaf weld fy holl weithgarwch?
+ptap.recent-activity.container.details.p.line.1=Dim ond gweithgarwch sy’n ymwneud â Thalu Wrth Ennill (TWE) a newidiadau i’ch cod treth y gallwch ei weld. Wrth i ni barhau i wella’r cyfrif treth personol, byddwch yn gallu edrych dros weithgarwch diweddar o wasanaethau ar-lein eraill CThEF.
+ptap.recent-activity.container.details.p.line.2.1=Ar gyfer gwasanaethau eraill, ewch i’r adran ynghylch
+ptap.recent-activity.container.details.p.line.2.2=Trethi a budd-daliadau
+ptap.recent-activity.container.details.p.line.2.3=.
 
 ptap.support.uya.title=Deall eich Cyfrif Treth Personol
 ptap.support.uya.p1=Mae’ch Cyfrif Treth Personol yn caniatáu i chi reoli’ch trethi a’ch budd-daliadau mewn un lle. Gallwch ddefnyddio’ch cyfrif i gael mynediad at y canlynol:

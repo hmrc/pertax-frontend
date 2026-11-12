@@ -870,9 +870,13 @@ ptap.your-tasks.container.details.p.line.2.5=to access the services.
 #************************************************************
 # Default case (no activity)
 #************************************************************
-ptap.recent-activity.container.default_text.p.line1=This page shows your recent activity.
-ptap.recent-activity.container.default_text.p.line2.2=Your tasks
-ptap.recent-activity.container.default_text.p.line2.3=for anything you need to do.
+ptap.recent-activity.container.default_text.p.line1=This page shows a list of completed tasks and actions. It may take a few days for activity to show.
+
+ptap.recent-activity.container.details.heading=Why can’t I see all my activity?
+ptap.recent-activity.container.details.p.line.1=You can only view activity for Pay As You Earn (PAYE) and changes to your tax code. As we continue to improve the personal tax account, you will be able to view recent activity from other HMRC online services over time.
+ptap.recent-activity.container.details.p.line.2.1=For other services, go to
+ptap.recent-activity.container.details.p.line.2.2=Taxes and benefits
+ptap.recent-activity.container.details.p.line.2.3=.
 
 ptap.support.uya.title=Understanding your personal tax account
 ptap.support.uya.p1=Your personal tax account lets you manage your taxes and benefits in one place. You can use your account to access:
