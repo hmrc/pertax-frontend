@@ -871,7 +871,7 @@ head.label.mtdit.claim.error=Dewiswch ‘Iawn’ i ychwanegu’r cynllun Troi Tr
 #************************************************************
 # Default case (no tasks)
 #************************************************************
-ptap.your-tasks.container.default_text.p.line1=Mae’r dudalen hon yn dangos ad-daliadau a threthi sydd arnoch ar gyfer TWE yn unig.
+ptap.your-tasks.container.default_text.p.line1=Mae’r dudalen hon yn dangos ad-daliadau a threthi sydd arnoch ar gyfer Talu Wrth Ennill (TWE) yn unig.
 
 ptap.your-tasks.container.details.heading=Pam nad yw fy nhasgau eraill wedi’u rhestru yma?
 ptap.your-tasks.container.details.p.line.1=Rydym wrthi’n ailddylunio’r cyfrif treth personol er mwyn ei wneud yn fwy personol i chi. Bydd rhagor o wasanaethau yn cael eu hychwanegu dros amser.
