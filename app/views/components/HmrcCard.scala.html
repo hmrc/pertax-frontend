@@ -46,7 +46,7 @@
 }
 
 @cardTag(cardHint: CardHint)={
-    @cardHint.tag_colour.map{(t: TagColour)=> <span class="@t.style">@cardHint.content</span>}.getOrElse{@cardHint.content}
+    @cardHint.tag_colour.map{(t: TagColour)=> <span class="@t.style govuk-tag--no-max">@cardHint.content</span>}.getOrElse{@cardHint.content}
 }
 @cardBody(cardBody: CardBody)={
     <p class="govuk-body">
