@@ -23,6 +23,7 @@ import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import models.LeppSummaryResponse
 import play.api.Logging
+import play.api.http.Status.UNAUTHORIZED
 import play.api.mvc.Request
 import services.CacheService
 import uk.gov.hmrc.http.HttpReads.Implicits.*
@@ -47,7 +48,6 @@ trait LeppConnector {
 class DefaultLeppConnector @Inject() (
   val httpClientV2: HttpClientV2,
   servicesConfig: ServicesConfig,
-  httpClientResponse: HttpClientResponse,
   configDecorator: ConfigDecorator,
   limiters: Limiters
 ) extends LeppConnector
@@ -68,15 +68,20 @@ class DefaultLeppConnector @Inject() (
       "correlationId" -> randomUUID.toString
     )
 
-    val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
-      withThrottle {
-        httpClientV2
-          .get(url"$url")(leppHeaderCarrier)
-          .transform(_.withRequestTimeout(configDecorator.leppTimeoutInMilliseconds.milliseconds))
-          .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
-      }
-
-    httpClientResponse.read(response).map(_.json.as[LeppSummaryResponse])
+    EitherT(withThrottle {
+      httpClientV2
+        .get(url"$url")(leppHeaderCarrier)
+        .transform(_.withRequestTimeout(configDecorator.leppTimeoutInMilliseconds.milliseconds))
+        .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)
+        .map {
+          case Right(response)                                 =>
+            Right(response.json.as[LeppSummaryResponse])
+          case Left(error) if error.statusCode == UNAUTHORIZED =>
+            Right(LeppSummaryResponse("Unauthorised"))
+          case Left(error)                                     =>
+            Left(error)
+        }
+    })
   }
 }
 
