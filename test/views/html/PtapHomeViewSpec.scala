@@ -293,7 +293,7 @@ class PtapHomeViewSpec extends ViewSpec {
       placeholder_text.select("p.govuk-body").size mustBe 1
 
       val first_line = placeholder_text.select("p.govuk-body")
-      first_line.text() mustBe "This page only shows refunds and taxes you owe for PAYE."
+      first_line.text() mustBe "This page only shows refunds and taxes you owe for Pay As You Earn (PAYE)."
 
       val details = doc.select("div.govuk-grid-column-two-thirds").select("details.govuk-details")
       val summary = details.select("summary.govuk-details__summary")
@@ -305,7 +305,7 @@ class PtapHomeViewSpec extends ViewSpec {
       link1.text() must not be null
       link2.text() must not be null
       details_text
-        .text() mustBe "We are currently redesigning the service to make it more personalised to you. More functionality will be added over time. For now, you will be notified to check your Messages for any communications from other HMRC online services, or you can go to Taxes and benefits to access the services."
+        .text() mustBe "We are currently redesigning the personal tax account to make it more personalised to you. More services will be added over time. For now, you will be notified to check your Messages for any communications from other HMRC online services, or you can go to Taxes and benefits to access the services."
 
     }
     "show the default inset text when the Recent activity tab is selected." in {
@@ -324,7 +324,21 @@ class PtapHomeViewSpec extends ViewSpec {
       placeholder_text.size mustBe 1
       placeholder_text.select("p.govuk-body").size mustBe 1
       val first_line                                                = placeholder_text.select("p.govuk-body")
-      first_line.text() mustBe "This page shows your recent activity."
+      first_line
+        .text() mustBe "This page shows a list of completed tasks and actions. It may take a few days for activity to show."
+
+      val details = doc.select("div.govuk-grid-column-two-thirds").select("details.govuk-details")
+      val summary = details.select("summary.govuk-details__summary")
+      summary.text() mustBe "Why can’t I see all my activity?"
+
+      val details_text = details.select("p.govuk-details__text")
+      val link1        = details_text.select("a[href=/personal-account/messages].govuk-link")
+      val link2        = details_text.select("a[href=/personal-account?ptap=true].govuk-link")
+      link1.text() must not be null
+      link2.text() must not be null
+      details_text
+        .text() mustBe "You can only view activity for Pay As You Earn (PAYE) and changes to your tax code. As we continue to improve the personal tax account, you will be able to view recent activity from other HMRC online services over time. For other services, go to Taxes and benefits."
+
     }
     "show the default inset text when the Your tasks tab is selected and there are no cards to load." in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
@@ -338,7 +352,7 @@ class PtapHomeViewSpec extends ViewSpec {
       placeholder_text.select("p.govuk-body").size mustBe 1
 
       val first_line = placeholder_text.select("p.govuk-body").asList().get(0)
-      first_line.text() mustBe "This page only shows refunds and taxes you owe for PAYE."
+      first_line.text() mustBe "This page only shows refunds and taxes you owe for Pay As You Earn (PAYE)."
 
       val details = doc.select("div.govuk-grid-column-two-thirds").select("details.govuk-details")
       val summary = details.select("summary.govuk-details__summary")
@@ -350,7 +364,7 @@ class PtapHomeViewSpec extends ViewSpec {
       link1.text() must not be null
       link2.text() must not be null
       details_text
-        .text() mustBe "We are currently redesigning the service to make it more personalised to you. More functionality will be added over time. For now, you will be notified to check your Messages for any communications from other HMRC online services, or you can go to Taxes and benefits to access the services."
+        .text() mustBe "We are currently redesigning the personal tax account to make it more personalised to you. More services will be added over time. For now, you will be notified to check your Messages for any communications from other HMRC online services, or you can go to Taxes and benefits to access the services."
 
     }
     "show the default inset text when the Recent activity tab is selected and there are no cards to load." in {
@@ -369,8 +383,22 @@ class PtapHomeViewSpec extends ViewSpec {
         .select("div.govuk-inset-text")
       placeholder_text.size mustBe 1
       placeholder_text.select("p.govuk-body").size mustBe 1
-      val first_line       = placeholder_text.select("p.govuk-body").asList().get(0)
-      first_line.text() mustBe "This page shows your recent activity."
+      val first_line       = placeholder_text.select("p.govuk-body")
+      first_line
+        .text() mustBe "This page shows a list of completed tasks and actions. It may take a few days for activity to show."
+
+      val details = doc.select("div.govuk-grid-column-two-thirds").select("details.govuk-details")
+      val summary = details.select("summary.govuk-details__summary")
+      summary.text() mustBe "Why can’t I see all my activity?"
+
+      val details_text = details.select("p.govuk-details__text")
+      val link1        = details_text.select("a[href=/personal-account/messages].govuk-link")
+      val link2        = details_text.select("a[href=/personal-account?ptap=true].govuk-link")
+      link1.text() must not be null
+      link2.text() must not be null
+      details_text
+        .text() mustBe "You can only view activity for Pay As You Earn (PAYE) and changes to your tax code. As we continue to improve the personal tax account, you will be able to view recent activity from other HMRC online services over time. For other services, go to Taxes and benefits."
+
     }
 
     "show the default inset text in welsh, when the Your tasks tab is selected." in {
@@ -385,7 +413,7 @@ class PtapHomeViewSpec extends ViewSpec {
         tabContent = List(
           CardContainerModel(
             defaultInset = Task.defaultInset(Some("true"))(welshMessages),
-            cards = Seq.empty,
+            cards = HmrcCardModelFixtures.activityCards,
             cardHeadingLevel = "h2",
             listAriaLabel = Some("Your tasks")
           )
@@ -400,11 +428,12 @@ class PtapHomeViewSpec extends ViewSpec {
       placeholder_text.select("p.govuk-body").size mustBe 1
 
       val first_line = placeholder_text.select("p.govuk-body")
-      first_line.text() mustBe "Mae’r dudalen hon yn dangos ad-daliadau a threthi sydd arnoch ar gyfer TWE yn unig."
+      first_line
+        .text() mustBe "Mae’r dudalen hon yn dangos ad-daliadau a threthi sydd arnoch ar gyfer Talu Wrth Ennill (TWE) yn unig."
 
       val details = doc.select("div.govuk-grid-column-two-thirds").select("details.govuk-details")
       val summary = details.select("summary.govuk-details__summary")
-      summary.text() mustBe "Pam nad ydy fy nhasgau eraill wedi cael eu rhestru yma?"
+      summary.text() mustBe "Pam nad yw fy nhasgau eraill wedi’u rhestru yma?"
 
       val details_text = details.select("p.govuk-details__text")
       val link1        = details_text.select("a[href=/personal-account/messages].govuk-link")
@@ -412,8 +441,7 @@ class PtapHomeViewSpec extends ViewSpec {
       link1.text() must not be null
       link2.text() must not be null
       details_text
-        .text() mustBe "Rydym wrthi’n ailddylunio’r gwasanaeth er mwyn ei wneud yn fwy personol i chi. Bydd rhagor o swyddogaethau yn cael eu hychwanegu dros amser. Ar hyn o bryd, byddwch yn cael hysbysiad i wirio’ch Negeseuon am unrhyw ohebiaeth gan wasanaethau ar-lein eraill sydd gan CThEF, neu fel allwch gael mynediad at y gwasanaethau drwy fynd at y dudalen ynghylch Trethi a budd-daliadau."
-
+        .text() mustBe "Rydym wrthi’n ailddylunio’r cyfrif treth personol er mwyn ei wneud yn fwy personol i chi. Bydd rhagor o wasanaethau yn cael eu hychwanegu dros amser. Am y tro, byddwch yn cael hysbysiad yn gofyn i chi wirio’ch Negeseuon am unrhyw ohebiaeth gan wasanaethau ar-lein eraill sydd gan CThEF. Fel arall, gallwch gael mynediad at y gwasanaethau drwy fynd at y dudalen ynghylch Trethi a budd-daliadau."
     }
 
     "show the default inset text in welsh when the Your tasks tab is selected and there are no cards to load." in {
@@ -443,11 +471,12 @@ class PtapHomeViewSpec extends ViewSpec {
       placeholder_text.select("p.govuk-body").size mustBe 1
 
       val first_line = placeholder_text.select("p.govuk-body")
-      first_line.text() mustBe "Mae’r dudalen hon yn dangos ad-daliadau a threthi sydd arnoch ar gyfer TWE yn unig."
+      first_line
+        .text() mustBe "Mae’r dudalen hon yn dangos ad-daliadau a threthi sydd arnoch ar gyfer Talu Wrth Ennill (TWE) yn unig."
 
       val details = doc.select("div.govuk-grid-column-two-thirds").select("details.govuk-details")
       val summary = details.select("summary.govuk-details__summary")
-      summary.text() mustBe "Pam nad ydy fy nhasgau eraill wedi cael eu rhestru yma?"
+      summary.text() mustBe "Pam nad yw fy nhasgau eraill wedi’u rhestru yma?"
 
       val details_text = details.select("p.govuk-details__text")
       val link1        = details_text.select("a[href=/personal-account/messages].govuk-link")
@@ -455,8 +484,99 @@ class PtapHomeViewSpec extends ViewSpec {
       link1.text() must not be null
       link2.text() must not be null
       details_text
-        .text() mustBe "Rydym wrthi’n ailddylunio’r gwasanaeth er mwyn ei wneud yn fwy personol i chi. Bydd rhagor o swyddogaethau yn cael eu hychwanegu dros amser. Ar hyn o bryd, byddwch yn cael hysbysiad i wirio’ch Negeseuon am unrhyw ohebiaeth gan wasanaethau ar-lein eraill sydd gan CThEF, neu fel allwch gael mynediad at y gwasanaethau drwy fynd at y dudalen ynghylch Trethi a budd-daliadau."
+        .text() mustBe "Rydym wrthi’n ailddylunio’r cyfrif treth personol er mwyn ei wneud yn fwy personol i chi. Bydd rhagor o wasanaethau yn cael eu hychwanegu dros amser. Am y tro, byddwch yn cael hysbysiad yn gofyn i chi wirio’ch Negeseuon am unrhyw ohebiaeth gan wasanaethau ar-lein eraill sydd gan CThEF. Fel arall, gallwch gael mynediad at y gwasanaethau drwy fynd at y dudalen ynghylch Trethi a budd-daliadau."
+    }
+    "show the default inset text in welsh when the Recent activity tab is selected" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
 
+      val activityNav                   = defaultSecondaryNav.copy(
+        items = defaultSecondaryNav.items.map(i => i.copy(current = i.href == Activity.href()))
+      )
+      val welshModel: PtapHomeViewModel = PtapHomeViewModel(
+        showUserResearchBanner = true,
+        saUtr = None,
+        breathingSpaceIndicator = true,
+        alertBannerContent = None,
+        name = None,
+        secondaryNav = activityNav,
+        tabContent = List(
+          CardContainerModel(
+            defaultInset = Activity.defaultInset(Some("true"))(welshMessages),
+            cards = HmrcCardModelFixtures.activityCards,
+            cardHeadingLevel = "h2",
+            listAriaLabel = Some("Recent activity")
+          )
+        )
+      )
+      val doc                           = asDocument(home(welshModel)(userRequest, welshMessages).toString)
+
+      val placeholder_text = doc
+        .select("div.govuk-grid-column-two-thirds")
+        .select("div.govuk-inset-text")
+      placeholder_text.size mustBe 1
+      placeholder_text.select("p.govuk-body").size mustBe 1
+
+      val first_line = placeholder_text.select("p.govuk-body")
+      first_line
+        .text() mustBe "Mae’r dudalen hon yn dangos eich gweithgarwch diweddar"
+
+      val details = doc.select("div.govuk-grid-column-two-thirds").select("details.govuk-details")
+      val summary = details.select("summary.govuk-details__summary")
+      summary.text() mustBe "Pam na allaf weld fy holl weithgarwch?"
+
+      val details_text = details.select("p.govuk-details__text")
+      val link1        = details_text.select("a[href=/personal-account/messages].govuk-link")
+      val link2        = details_text.select("a[href=/personal-account?ptap=true].govuk-link")
+      link1.text() must not be null
+      link2.text() must not be null
+      details_text
+        .text() mustBe "Dim ond gweithgarwch sy’n ymwneud â Thalu Wrth Ennill (TWE) a newidiadau i’ch cod treth y gallwch ei weld. Wrth i ni barhau i wella’r cyfrif treth personol, byddwch yn gallu edrych dros weithgarwch diweddar o wasanaethau ar-lein eraill CThEF. Ar gyfer gwasanaethau eraill, ewch i’r adran ynghylch Trethi a budd-daliadau."
+    }
+    "show the default inset text in welsh when the Recent activity tab is selected and there are no cards to load." in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+
+      val activityNav                   = defaultSecondaryNav.copy(
+        items = defaultSecondaryNav.items.map(i => i.copy(current = i.href == Activity.href()))
+      )
+      val welshModel: PtapHomeViewModel = PtapHomeViewModel(
+        showUserResearchBanner = true,
+        saUtr = None,
+        breathingSpaceIndicator = true,
+        alertBannerContent = None,
+        name = None,
+        secondaryNav = activityNav,
+        tabContent = List(
+          CardContainerModel(
+            defaultInset = Activity.defaultInset(Some("true"))(welshMessages),
+            cards = Seq.empty,
+            cardHeadingLevel = "h2",
+            listAriaLabel = Some("Recent activity")
+          )
+        )
+      )
+      val doc                           = asDocument(home(welshModel)(userRequest, welshMessages).toString)
+
+      val placeholder_text = doc
+        .select("div.govuk-grid-column-two-thirds")
+        .select("div.govuk-inset-text")
+      placeholder_text.size mustBe 1
+      placeholder_text.select("p.govuk-body").size mustBe 1
+
+      val first_line = placeholder_text.select("p.govuk-body")
+      first_line
+        .text() mustBe "Mae’r dudalen hon yn dangos eich gweithgarwch diweddar"
+
+      val details = doc.select("div.govuk-grid-column-two-thirds").select("details.govuk-details")
+      val summary = details.select("summary.govuk-details__summary")
+      summary.text() mustBe "Pam na allaf weld fy holl weithgarwch?"
+
+      val details_text = details.select("p.govuk-details__text")
+      val link1        = details_text.select("a[href=/personal-account/messages].govuk-link")
+      val link2        = details_text.select("a[href=/personal-account?ptap=true].govuk-link")
+      link1.text() must not be null
+      link2.text() must not be null
+      details_text
+        .text() mustBe "Dim ond gweithgarwch sy’n ymwneud â Thalu Wrth Ennill (TWE) a newidiadau i’ch cod treth y gallwch ei weld. Wrth i ni barhau i wella’r cyfrif treth personol, byddwch yn gallu edrych dros weithgarwch diweddar o wasanaethau ar-lein eraill CThEF. Ar gyfer gwasanaethau eraill, ewch i’r adran ynghylch Trethi a budd-daliadau."
     }
     "render task completed message when enabled" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =

@@ -871,22 +871,26 @@ head.label.mtdit.claim.error=Dewiswch ‘Iawn’ i ychwanegu’r cynllun Troi Tr
 #************************************************************
 # Default case (no tasks)
 #************************************************************
-ptap.your-tasks.container.default_text.p.line1=Mae’r dudalen hon yn dangos ad-daliadau a threthi sydd arnoch ar gyfer TWE yn unig.
+ptap.your-tasks.container.default_text.p.line1=Mae’r dudalen hon yn dangos ad-daliadau a threthi sydd arnoch ar gyfer Talu Wrth Ennill (TWE) yn unig.
 
-ptap.your-tasks.container.details.heading=Pam nad ydy fy nhasgau eraill wedi cael eu rhestru yma?
-ptap.your-tasks.container.details.p.line.1=Rydym wrthi’n ailddylunio’r gwasanaeth er mwyn ei wneud yn fwy personol i chi. Bydd rhagor o swyddogaethau yn cael eu hychwanegu dros amser.
-ptap.your-tasks.container.details.p.line.2.1=Ar hyn o bryd, byddwch yn cael hysbysiad i wirio’ch
+ptap.your-tasks.container.details.heading=Pam nad yw fy nhasgau eraill wedi’u rhestru yma?
+ptap.your-tasks.container.details.p.line.1=Rydym wrthi’n ailddylunio’r cyfrif treth personol er mwyn ei wneud yn fwy personol i chi. Bydd rhagor o wasanaethau yn cael eu hychwanegu dros amser.
+ptap.your-tasks.container.details.p.line.2.1=Am y tro, byddwch yn cael hysbysiad yn gofyn i chi wirio’ch
 ptap.your-tasks.container.details.p.line.2.2=Negeseuon
-ptap.your-tasks.container.details.p.line.2.3=am unrhyw ohebiaeth gan wasanaethau ar-lein eraill sydd gan CThEF, neu fel allwch gael mynediad at y gwasanaethau drwy fynd at y dudalen ynghylch
+ptap.your-tasks.container.details.p.line.2.3=am unrhyw ohebiaeth gan wasanaethau ar-lein eraill sydd gan CThEF. Fel arall, gallwch gael mynediad at y gwasanaethau drwy fynd at y dudalen ynghylch
 ptap.your-tasks.container.details.p.line.2.4=Trethi a budd-daliadau
 ptap.your-tasks.container.details.p.line.2.5=.
 
 #************************************************************
 # Default case (no activity)
 #************************************************************
-ptap.recent-activity.container.default_text.p.line1=Mae’r dudalen hon yn dangos eich gweithgarwch diweddar.
-ptap.recent-activity.container.default_text.p.line2.2=Eich tasgau
-ptap.recent-activity.container.default_text.p.line2.3=am unrhyw beth arall rydych am ei wybod.
+ptap.recent-activity.container.default_text.p.line1=Mae’r dudalen hon yn dangos eich gweithgarwch diweddar
+
+ptap.recent-activity.container.details.heading=Pam na allaf weld fy holl weithgarwch?
+ptap.recent-activity.container.details.p.line.1=Dim ond gweithgarwch sy’n ymwneud â Thalu Wrth Ennill (TWE) a newidiadau i’ch cod treth y gallwch ei weld. Wrth i ni barhau i wella’r cyfrif treth personol, byddwch yn gallu edrych dros weithgarwch diweddar o wasanaethau ar-lein eraill CThEF.
+ptap.recent-activity.container.details.p.line.2.1=Ar gyfer gwasanaethau eraill, ewch i’r adran ynghylch
+ptap.recent-activity.container.details.p.line.2.2=Trethi a budd-daliadau
+ptap.recent-activity.container.details.p.line.2.3=.
 
 ptap.support.uya.title=Deall eich Cyfrif Treth Personol
 ptap.support.uya.p1=Mae’ch Cyfrif Treth Personol yn caniatáu i chi reoli’ch trethi a’ch budd-daliadau mewn un lle. Gallwch ddefnyddio’ch cyfrif i gael mynediad at y canlynol:
