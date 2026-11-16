@@ -276,9 +276,8 @@ class HomeController @Inject() (
       case None        => errorRenderer.futureError(NOT_FOUND)
     }
 
-  private def enforceInterrupts(block: => Future[Result])(implicit request: UserRequest[AnyContent]): Future[Result] = {
+  private def enforceInterrupts(block: => Future[Result])(implicit request: UserRequest[AnyContent]): Future[Result] =
     rlsInterruptHelper.enforceByRlsStatus(
       paperlessInterruptHelper.enforcePaperlessPreference(block)
     )
-  }
 }

@@ -52,7 +52,7 @@
 }
 
 @cardTag(cardHint: CardHint)={
-    @cardHint.tag_colour.map{(colour: TagColour)=> @tag(Tag(content=HtmlContent(cardHint.content), classes=colour.style+" govuk-tag--no-max"))}.getOrElse{@{cardHint.content}}
+    @cardHint.tag_colour.map{(colour: TagColour)=> @tag(Tag(content=HtmlContent(cardHint.content), classes=String.join(" ", colour.style, "govuk-tag--no-max")))}.getOrElse{@{cardHint.content}}
 }
 
 @cardBody(cardBody: CardBody)={
