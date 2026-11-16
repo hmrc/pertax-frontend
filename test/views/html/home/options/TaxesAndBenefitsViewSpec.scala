@@ -173,10 +173,10 @@ class TaxesAndBenefitsViewSpec extends ViewSpec {
       containers.get(1).attr("aria-labelledby") mustBe "other-services-heading"
     }
 
-    "render myService hints when present" in {
+    "render myService text when present" in {
       val payeWithHint = payeService.copy(hintText = Some("PAYE hint text"))
       val document     = asDocument(page(Seq(payeWithHint), Seq.empty).toString)
-      document.select("div.hmrc-card p.govuk-hint").text() mustBe "PAYE hint text"
+      document.select("div.hmrc-card p.govuk-body").text() mustBe "PAYE hint text"
     }
 
     "render combined Self Assessment and MTD supporting text in the tabular redesign" in {
@@ -190,7 +190,7 @@ class TaxesAndBenefitsViewSpec extends ViewSpec {
       val document = asDocument(page(Seq(combinedService), Seq.empty).toString)
 
       document.select("div.hmrc-card h4.hmrc-card__heading").text() mustBe messages("label.mtd_for_itsa")
-      document.select("div.hmrc-card p.govuk-hint").text() mustBe messages(
+      document.select("div.hmrc-card p.govuk-body").text() mustBe messages(
         "label.view_and_manage_your_income_tax_obligations_and_payments"
       )
     }
@@ -198,12 +198,12 @@ class TaxesAndBenefitsViewSpec extends ViewSpec {
     "render otherService hints when present" in {
       val childBenefitWithHint = childBenefitService.copy(hintText = Some("Child Benefit hint text"))
       val document             = asDocument(page(Seq.empty, Seq(childBenefitWithHint)).toString)
-      document.select("div.hmrc-card p.govuk-hint").text() mustBe "Child Benefit hint text"
+      document.select("div.hmrc-card p.govuk-body").text() mustBe "Child Benefit hint text"
     }
 
     "not render hints when not present" in {
       val document = asDocument(page(Seq(payeService), Seq(childBenefitService)).toString)
-      document.select("div.hmrc-card p.govuk-hint").size() mustBe 0
+      document.select("div.hmrc-card div.govuk-hint").size() mustBe 0
     }
   }
 }
