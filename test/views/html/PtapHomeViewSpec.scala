@@ -522,7 +522,7 @@ class PtapHomeViewSpec extends ViewSpec {
 
       val details = doc.select("div.govuk-grid-column-two-thirds").select("details.govuk-details")
       val summary = details.select("summary.govuk-details__summary")
-      summary.text() mustBe "Pam na allaf weld fy holl weithgarwch?"
+      summary.text() mustBe "Pam nad yw fy nhasgau eraill wedi’u rhestru yma?"
 
       val details_text = details.select("p.govuk-details__text")
       val link1        = details_text.select("a[href=/personal-account/messages].govuk-link")
