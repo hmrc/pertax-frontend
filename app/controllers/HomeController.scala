@@ -277,7 +277,6 @@ class HomeController @Inject() (
     }
 
   private def enforceInterrupts(block: => Future[Result])(implicit request: UserRequest[AnyContent]): Future[Result] = {
-    request.request.getQueryString("ptap").getOrElse("false") == "true"
     rlsInterruptHelper.enforceByRlsStatus(
       paperlessInterruptHelper.enforcePaperlessPreference(block)
     )
