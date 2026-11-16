@@ -81,23 +81,25 @@ class PtapHomeViewSpec extends ViewSpec {
   )
 
   private def taskTabContent(
-    cards: Seq[models.HmrcCardModel] = Seq.empty
+    cards: Seq[models.HmrcCardModel] = Seq.empty,
+    headerId: String = "tab-content-header"
   ): CardContainerModel =
     CardContainerModel(
       defaultInset = Task.defaultInset(Some("true")),
+      header = Task.cardContainerHeading,
       cards = cards,
-      cardHeadingLevel = "h2",
-      listAriaLabel = Some("Your tasks")
+      headerId = Some(headerId)
     )
 
   private def activityTabContent(
-    cards: Seq[models.HmrcCardModel] = Seq.empty
+    cards: Seq[models.HmrcCardModel] = Seq.empty,
+    headerId: String = "tab-content-header"
   ): CardContainerModel =
     CardContainerModel(
       defaultInset = Activity.defaultInset(Some("true")),
+      header = Activity.cardContainerHeading,
       cards = cards,
-      cardHeadingLevel = "h2",
-      listAriaLabel = Some("Recent activity")
+      headerId = Some(headerId)
     )
 
   val homeViewModel: PtapHomeViewModel =
@@ -207,10 +209,12 @@ class PtapHomeViewSpec extends ViewSpec {
       doc.select("a[href=/personal-account/support].x-govuk-secondary-navigation__link")            must not be null
     }
 
-    "not render a duplicate heading for Task tab content" in {
+    "render the Your tasks heading for Task tab content" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val doc                                                       = asDocument(home(homeViewModel).toString)
-      doc.getElementById("tab-content-header") mustBe null
+      val header                                                    = doc.getElementById("tab-content-header")
+      header.tagName() mustBe "h2"
+      header.text() mustBe "Your tasks"
     }
 
     "render task cards from fixtures when provided" in {
@@ -218,7 +222,7 @@ class PtapHomeViewSpec extends ViewSpec {
       val viewModel                                                 = homeViewModel.copy(tabContent = List(taskTabContent(HmrcCardModelFixtures.taskCards)))
       val doc                                                       = asDocument(home(viewModel).toString)
       doc.select(".hmrc-card").size() mustBe 2
-      doc.select("h2.hmrc-card__heading").size() mustBe 2
+      doc.select("h3.hmrc-card__heading").size() mustBe 2
       doc.select(".hmrc-card__heading").text() must include("You owe tax for 2023-24")
       doc.select(".hmrc-card__heading").text() must include("HMRC owes you a refund for 2022-23")
     }
@@ -229,7 +233,7 @@ class PtapHomeViewSpec extends ViewSpec {
       doc.select(".hmrc-notification-badge").text() mustBe "2"
     }
 
-    "render Activity cards without a duplicate visible heading" in {
+    "render the Recent activity heading with Activity cards" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       when(mockFeatureFlagService.get(PtapActivityTabToggle))
         .thenReturn(Future.successful(FeatureFlag(PtapActivityTabToggle, isEnabled = true)))
@@ -244,19 +248,21 @@ class PtapHomeViewSpec extends ViewSpec {
           )
         ).toString
       )
-      doc.getElementById("tab-content-header") mustBe null
-      doc.select("ul.hmrc-card__container").attr("aria-label") mustBe "Recent activity"
+      val header                                                    = doc.getElementById("tab-content-header")
+      header.tagName() mustBe "h2"
+      header.text() mustBe "Recent activity"
+      doc.select("ul.hmrc-card__container").attr("aria-labelledby") mustBe "tab-content-header"
       doc.select(".hmrc-card").size() mustBe 2
-      doc.select("h2.hmrc-card__heading").size() mustBe 2
+      doc.select("h3.hmrc-card__heading").size() mustBe 2
       doc.select(".hmrc-card__heading").text() must include("Tax code change")
     }
 
-    "render a list of accessible card containers without duplicate headings" in {
+    "render accessible card containers labelled by their headings" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
       val viewModel                                                 = homeViewModel.copy(
         tabContent = List(
-          taskTabContent(HmrcCardModelFixtures.taskCards),
-          activityTabContent(HmrcCardModelFixtures.activityCards)
+          taskTabContent(HmrcCardModelFixtures.taskCards, headerId = "tasks-content-header"),
+          activityTabContent(HmrcCardModelFixtures.activityCards, headerId = "activity-content-header")
         )
       )
       val doc                                                       = asDocument(home(viewModel).toString)
@@ -265,8 +271,10 @@ class PtapHomeViewSpec extends ViewSpec {
       doc
         .select(".hmrc-card")
         .size() mustBe HmrcCardModelFixtures.taskCards.size + HmrcCardModelFixtures.activityCards.size
-      containers.get(0).attr("aria-label") mustBe "Your tasks"
-      containers.get(1).attr("aria-label") mustBe "Recent activity"
+      containers.get(0).attr("aria-labelledby") mustBe "tasks-content-header"
+      containers.get(1).attr("aria-labelledby") mustBe "activity-content-header"
+      doc.getElementById("tasks-content-header").text() mustBe "Your tasks"
+      doc.getElementById("activity-content-header").text() mustBe "Recent activity"
       doc.select(".hmrc-card__heading").text() must include("You owe tax for 2023-24")
       doc.select(".hmrc-card__heading").text() must include("Tax code change")
     }

@@ -131,9 +131,9 @@ class HomeController @Inject() (
               List(
                 CardContainerModel(
                   defaultInset = currentTab.defaultInset(ptapParam),
+                  header = currentTab.cardContainerHeading,
                   cards = tabContentCards.tabCards,
-                  cardHeadingLevel = "h2",
-                  listAriaLabel = secondaryNav.items.find(_.current).map(_.text)
+                  headerId = Some("tab-content-header")
                 )
               )
             case _               => List.empty
