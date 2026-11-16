@@ -884,7 +884,7 @@ ptap.your-tasks.container.details.p.line.2.5=.
 #************************************************************
 # Default case (no activity)
 #************************************************************
-ptap.recent-activity.container.default_text.p.line1=Mae’r dudalen hon yn dangos eich gweithgarwch diweddar
+ptap.recent-activity.container.default_text.p.line1=Mae’r dudalen hon yn dangos rhestr o dasgau a chamau sydd wedi’u cwblhau. Gall gymryd rhai diwrnodau i’r gweithgarwch ymddangos.
 
 ptap.recent-activity.container.details.heading=Pam na allaf weld fy holl weithgarwch?
 ptap.recent-activity.container.details.p.line.1=Dim ond gweithgarwch sy’n ymwneud â Thalu Wrth Ennill (TWE) a newidiadau i’ch cod treth y gallwch ei weld. Wrth i ni barhau i wella’r cyfrif treth personol, byddwch yn gallu edrych dros weithgarwch diweddar o wasanaethau ar-lein eraill CThEF.
