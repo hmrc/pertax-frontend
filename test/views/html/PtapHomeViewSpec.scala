@@ -518,11 +518,11 @@ class PtapHomeViewSpec extends ViewSpec {
 
       val first_line = placeholder_text.select("p.govuk-body")
       first_line
-        .text() mustBe "Mae’r dudalen hon yn dangos eich gweithgarwch diweddar"
+        .text() mustBe "Mae’r dudalen hon yn dangos rhestr o dasgau a chamau sydd wedi’u cwblhau. Gall gymryd rhai diwrnodau i’r gweithgarwch ymddangos."
 
       val details = doc.select("div.govuk-grid-column-two-thirds").select("details.govuk-details")
       val summary = details.select("summary.govuk-details__summary")
-      summary.text() mustBe "Pam nad yw fy nhasgau eraill wedi’u rhestru yma?"
+      summary.text() mustBe "Pam na allaf weld fy holl weithgarwch?"
 
       val details_text = details.select("p.govuk-details__text")
       val link1        = details_text.select("a[href=/personal-account/messages].govuk-link")
