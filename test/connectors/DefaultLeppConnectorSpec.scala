@@ -66,5 +66,13 @@ class DefaultLeppConnectorSpec extends ConnectorSpec with WireMockHelper with In
 
       result mustBe a[Left[UpstreamErrorResponse, _]]
     }
+
+    "return Right when the LEPP backend returns an Unauthorised error" in {
+      stubGet(url, UNAUTHORIZED, None)
+
+      val result = connector.getLeppSummary.value.futureValue
+
+      result mustBe Right(LeppSummaryResponse("Unauthorised"))
+    }
   }
 }

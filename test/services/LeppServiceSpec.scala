@@ -118,6 +118,17 @@ class LeppServiceSpec extends BaseSpec {
       sut.getLeppLink.futureValue mustBe None
     }
 
+    "return None when the LEPP backend returns an unauthorised error" in {
+      when(mockLeppConnector.getLeppSummary(any(), any(), any()))
+        .thenReturn(
+          EitherT.rightT[Future, LeppSummaryResponse](
+            LeppSummaryResponse("Unauthorised")
+          )
+        )
+
+      sut.getLeppLink.futureValue mustBe None
+    }
+
     "return None when the LEPP backend does not respond" in {
       when(mockLeppConnector.getLeppSummary(any(), any(), any()))
         .thenReturn(

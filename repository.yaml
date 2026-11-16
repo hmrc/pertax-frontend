@@ -6,3 +6,4 @@ test-repositories:
   - pertax-performance-tests
   - platform-performance-tests
   - pertax-acceptance-tests
+serviceNowMapping: SNSVC0005026

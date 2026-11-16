@@ -51,6 +51,37 @@ class HmrcCardSpec extends ViewSpec with Matchers {
       doc.select("p.govuk-body").size mustBe 1
       doc.select("span.govuk-tag").size mustBe 1
       doc.select("span.govuk-tag").text mustBe "Due 31 January 2025"
+      doc.select("span.govuk-tag--orange.govuk-tag--no-max").size mustBe 1
+    }
+    "render each supported date tag colour without a maximum width" in
+      Seq(
+        TagColour.Green  -> "govuk-tag--green",
+        TagColour.Orange -> "govuk-tag--orange",
+        TagColour.Red    -> "govuk-tag--red"
+      ).foreach { case (tagColour, cssClass) =>
+        val model = HmrcCardModel(
+          CardType.BasicCard,
+          CardHeading("Test Heading", Some("/test"), false),
+          None,
+          Some(CardHint(Html("Status 31 January 2025"), Some(tagColour)))
+        )
+
+        val doc = asDocument(views.html.components.HmrcCard(model)(messages).toString)
+
+        doc.select(s"span.govuk-tag.$cssClass.govuk-tag--no-max").size mustBe 1
+      }
+    "render an untagged date hint as plain text" in {
+      val model = HmrcCardModel(
+        CardType.BasicCard,
+        CardHeading("Test Heading", Some("/test"), false),
+        None,
+        Some(CardHint(Html("Sent 31 January 2025"), None))
+      )
+
+      val doc = asDocument(views.html.components.HmrcCard(model)(messages).toString)
+
+      doc.select("p.govuk-hint").text mustBe "Sent 31 January 2025"
+      doc.select("span.govuk-tag").size mustBe 0
     }
     "render correctly with SectionCard type HmrcCardModel." in {
       val model = HmrcCardModel(
