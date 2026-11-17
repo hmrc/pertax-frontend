@@ -305,7 +305,7 @@ class PtapHomeViewSpec extends ViewSpec {
       link1.text() must not be null
       link2.text() must not be null
       details_text
-        .text() mustBe "We are currently redesigning the personal tax account to make it more personalised to you. More services will be added over time."
+        .text() mustBe "We are currently redesigning the personal tax account to make it more personalised to you. More services will be added over time. For now, you will be notified to check your Messages for any communications from other HMRC online services, or you can go to Taxes and benefits to access the services."
 
     }
     "show the default inset text when the Recent activity tab is selected." in {
@@ -484,7 +484,7 @@ class PtapHomeViewSpec extends ViewSpec {
       link1.text() must not be null
       link2.text() must not be null
       details_text
-        .text() mustBe "Rydym wrthi’n ailddylunio’r cyfrif treth personol er mwyn ei wneud yn fwy personol i chi. Am y tro, byddwch yn cael hysbysiad yn gofyn i chi wirio’ch Negeseuon am unrhyw ohebiaeth gan wasanaethau ar-lein eraill sydd gan CThEF. Fel arall, gallwch gael mynediad at y gwasanaethau drwy fynd at y dudalen ynghylch Trethi a budd-daliadau."
+        .text() mustBe "Rydym wrthi’n ailddylunio’r cyfrif treth personol er mwyn ei wneud yn fwy personol i chi. Bydd rhagor o wasanaethau yn cael eu hychwanegu dros amser. Am y tro, byddwch yn cael hysbysiad yn gofyn i chi wirio’ch Negeseuon am unrhyw ohebiaeth gan wasanaethau ar-lein eraill sydd gan CThEF. Fel arall, gallwch gael mynediad at y gwasanaethau drwy fynd at y dudalen ynghylch Trethi a budd-daliadau."
     }
     "show the default inset text in welsh when the Recent activity tab is selected" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
