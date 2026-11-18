@@ -685,7 +685,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       content.select("div.hmrc-card").size mustBe 2
       content.getElementsContainingText("Pay As You Earn (PAYE)").attr("href") mustBe "/paye"
       content.getElementsContainingText("Child Benefit").attr("href") mustBe "/child-benefit"
-      content.select("div.hmrc-card p.govuk-hint").size mustBe 2
+      content.select("div.hmrc-card p.govuk-body").size mustBe 2
       content.text() must include("PAYE hint")
       content.text() must include("Child Benefit hint")
     }

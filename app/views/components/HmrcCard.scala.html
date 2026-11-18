@@ -21,7 +21,13 @@
 @import play.twirl.api.HtmlFormat
 @import play.api.i18n.Messages
 
+@this(
+    tag:GovukTag,
+    hint:GovukHint
+)
+
 @(hmrcCard: HmrcCardModel, headingLevel: String = "h3")(implicit messages: Messages)
+
 @headingTag = @{
     val normalizedHeadingLevel = headingLevel.trim.toLowerCase
     require(Set("h1", "h2", "h3", "h4", "h5", "h6").contains(normalizedHeadingLevel), s"Invalid heading level: $headingLevel. Must be h1-h6.")
@@ -46,8 +52,9 @@
 }
 
 @cardTag(cardHint: CardHint)={
-    @cardHint.tag_colour.map{(t: TagColour)=> <span class="@t.style govuk-tag--no-max">@cardHint.content</span>}.getOrElse{@cardHint.content}
+    @cardHint.tag_colour.map{(colour: TagColour)=> @tag(Tag(content=HtmlContent(cardHint.content), classes=String.join(" ", colour.style, "govuk-tag--no-max")))}.getOrElse{@{cardHint.content}}
 }
+
 @cardBody(cardBody: CardBody)={
     <p class="govuk-body">
         @cardBody.content
@@ -56,11 +63,12 @@
 @cardHint(cardHint: CardHint) = {
     @if(hmrcCard.cardType == CardType.BasicCardWithDueDate){
         <p class="govuk-body">
+            @cardTag(cardHint)
+        </p>
     }else {
-        <p class="govuk-hint">
+        @hint(Hint(content=HtmlContent(cardTag(cardHint))))
     }
-    @cardTag(cardHint)
-    </p>
+
 }
 <div class="hmrc-card">
     <@headingTag class="hmrc-card__heading">
