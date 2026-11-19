@@ -973,3 +973,4 @@ ptap.support.tab.card.insurance.state.pension.link.ni=Dysgwch ragor am Yswiriant
 ptap.support.tab.card.insurance.state.pension.link.ni.url=https://www.gov.uk/yswiriant-gwladol
 ptap.support.tab.card.insurance.state.pension.link.enquiries=Ymholiadau cyffredinol am Dreth Incwm, gan gynnwys manylion cyswllt ar gyfer Yswiriant Gwladol a Phensiwn y Wladwriaeth
 ptap.support.tab.card.insurance.state.pension.link.enquiries.url=https://www.gov.uk/find-hmrc-contacts/treth-incwm-hunanasesiad-a-mwy
+ptap.contactPreferences.returnLinkText=Yn ôl i’ch tasgau

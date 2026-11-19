@@ -49,6 +49,7 @@ class HomeController @Inject() (
   homePageServicesProvider: HomePageServicesProvider,
   tasksService: TasksService,
   tabContentService: TabContentService,
+  contactPreferencesExperimentService: ContactPreferencesExperimentService,
   homeOptionsGenerator: HomeOptionsGenerator,
   configDecorator: ConfigDecorator,
   authJourney: AuthJourney,
@@ -105,21 +106,28 @@ class HomeController @Inject() (
 
         logger.info(s"PTAP: ${currentTab.name}")
 
-        val fBreathingSpaceIndicator = breathingSpaceService.getBreathingSpaceIndicator(nino)
-        val fEitherPersonDetails     = citizenDetailsService.personDetails(nino).value
-        val fTabContentCards         = tabContentService.getTaskAndTabCards(currentTab)
-        val fHomePageServices        =
+        val fBreathingSpaceIndicator      = breathingSpaceService.getBreathingSpaceIndicator(nino)
+        val fEitherPersonDetails          = citizenDetailsService.personDetails(nino).value
+        val fTabContentCards              = tabContentService.getTaskAndTabCards(currentTab)
+        val fHomePageServices             =
           if (currentTab == Tax) homePageServicesProvider.getHomePageServices(isRedesign = true)
           else Future.successful(HomePageServices(Seq.empty))
-        val fActivityTabEnabled      = featureFlagService.get(PtapActivityTabToggle).map(_.isEnabled)
+        val fActivityTabEnabled           = featureFlagService.get(PtapActivityTabToggle).map(_.isEnabled)
+        val fContactPreferencesExperiment = contactPreferencesExperimentService.get.map(
+          _.map(experiment =>
+            if (currentTab == Task) experiment
+            else experiment.copy(paperlessUrl = None)
+          )
+        )
 
         for {
-          breathingSpaceIndicator <- fBreathingSpaceIndicator
-          eitherPersonDetails     <- fEitherPersonDetails
-          alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten)
-          tabContentCards         <- fTabContentCards
-          homePageServices        <- fHomePageServices
-          activityTabEnabled      <- fActivityTabEnabled
+          breathingSpaceIndicator      <- fBreathingSpaceIndicator
+          eitherPersonDetails          <- fEitherPersonDetails
+          alertBannerContent           <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten)
+          tabContentCards              <- fTabContentCards
+          homePageServices             <- fHomePageServices
+          activityTabEnabled           <- fActivityTabEnabled
+          contactPreferencesExperiment <- fContactPreferencesExperiment
         } yield {
           val personDetailsOpt = eitherPersonDetails.toOption.flatten
           val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
@@ -154,7 +162,8 @@ class HomeController @Inject() (
                 showTaxesAndBenefitsView = currentTab == Tax,
                 showTaskCompletedMessage = currentTab == Task && tabContentCards.tabCards.nonEmpty,
                 myServices = homePageServices.myServices,
-                otherServices = homePageServices.otherServices
+                otherServices = homePageServices.otherServices,
+                contactPreferencesExperiment = contactPreferencesExperiment
               )
             )
           )

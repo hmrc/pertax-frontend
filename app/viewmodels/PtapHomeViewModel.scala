@@ -45,6 +45,8 @@ enum TabEnum(val name: String):
 
 final case class PtapAlertBanner(content: Html) extends AnyVal
 
+final case class PtapContactPreferencesExperiment(paperlessUrl: Option[String]) extends AnyVal
+
 final case class PtapHomeViewModel(
   showUserResearchBanner: Boolean,
   saUtr: Option[String],
@@ -58,5 +60,6 @@ final case class PtapHomeViewModel(
   showTaxesAndBenefitsView: Boolean = false,
   showTaskCompletedMessage: Boolean = false,
   myServices: Seq[MyService] = Seq.empty,
-  otherServices: Seq[OtherService] = Seq.empty
+  otherServices: Seq[OtherService] = Seq.empty,
+  contactPreferencesExperiment: Option[PtapContactPreferencesExperiment] = None
 )

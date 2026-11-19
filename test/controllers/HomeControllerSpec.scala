@@ -48,7 +48,7 @@ import uk.gov.hmrc.http.{HeaderNames, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import util.AlertBannerHelper
-import viewmodels.TabEnum
+import viewmodels.{PtapContactPreferencesExperiment, TabEnum}
 
 import scala.concurrent.Future
 
@@ -58,15 +58,17 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
   val fakeRlsInterruptHelper       = new FakeRlsInterruptHelper
   val fakePaperlessInterruptHelper = new FakePaperlessInterruptHelper
 
-  val mockBreathingSpaceService: BreathingSpaceService       = mock[BreathingSpaceService]
-  val mockHomeOptionsGenerator: HomeOptionsGenerator         = mock[HomeOptionsGenerator]
-  val mockAlertBannerHelper: AlertBannerHelper               = mock[AlertBannerHelper]
-  val mockTaiService: TaiService                             = mock[TaiService]
-  val mockHomePageServicesProvider: HomePageServicesProvider = mock[HomePageServicesProvider]
-  val mockTasksService: TasksService                         = mock[TasksService]
-  val mockTabContentService: TabContentService               = mock[TabContentService]
-  val mockConfigDecorator: ConfigDecorator                   = mock[ConfigDecorator]
-  val mockCitizenDetailsService: CitizenDetailsService       = mock[CitizenDetailsService]
+  val mockBreathingSpaceService: BreathingSpaceService                             = mock[BreathingSpaceService]
+  val mockHomeOptionsGenerator: HomeOptionsGenerator                               = mock[HomeOptionsGenerator]
+  val mockAlertBannerHelper: AlertBannerHelper                                     = mock[AlertBannerHelper]
+  val mockTaiService: TaiService                                                   = mock[TaiService]
+  val mockHomePageServicesProvider: HomePageServicesProvider                       = mock[HomePageServicesProvider]
+  val mockTasksService: TasksService                                               = mock[TasksService]
+  val mockTabContentService: TabContentService                                     = mock[TabContentService]
+  val mockContactPreferencesExperimentService: ContactPreferencesExperimentService =
+    mock[ContactPreferencesExperimentService]
+  val mockConfigDecorator: ConfigDecorator                                         = mock[ConfigDecorator]
+  val mockCitizenDetailsService: CitizenDetailsService                             = mock[CitizenDetailsService]
 
   val taskCompletedMessage = "It can take up to 10 days for completed tasks to be removed from the list."
 
@@ -83,6 +85,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
         bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
         bind[TasksService].toInstance(mockTasksService),
         bind[TabContentService].toInstance(mockTabContentService),
+        bind[ContactPreferencesExperimentService].toInstance(mockContactPreferencesExperimentService),
         bind[ConfigDecorator].toInstance(mockConfigDecorator),
         bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
         bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
@@ -103,6 +106,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     reset(mockHomePageServicesProvider)
     reset(mockTasksService)
     reset(mockTabContentService)
+    reset(mockContactPreferencesExperimentService)
     reset(mockConfigDecorator)
     reset(mockCitizenDetailsService)
 
@@ -123,6 +127,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
     when(mockTabContentService.getTaskAndTabCards(any[TabEnum]())(any(), any()))
       .thenReturn(Future.successful(TabContentCards(Seq.empty, Seq.empty)))
+
+    when(mockContactPreferencesExperimentService.get(any(), any()))
+      .thenReturn(Future.successful(None))
 
     when(mockTaiService.getTaxComponentsList(any(), any())(any(), any()))
       .thenReturn(Future.successful(taxComponents))
@@ -170,6 +177,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
         bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
         bind[TasksService].toInstance(mockTasksService),
         bind[TabContentService].toInstance(mockTabContentService),
+        bind[ContactPreferencesExperimentService].toInstance(mockContactPreferencesExperimentService),
         bind[ConfigDecorator].toInstance(mockConfigDecorator),
         bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
         bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
@@ -314,6 +322,74 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       content.text() must not include "Tax code change"
 
       content.text() must include(taskCompletedMessage)
+    }
+
+    "render contact preferences experiment data for an eligible Your tasks request" in {
+      val request      = FakeRequest("GET", "/personal-account/your-tasks?ptap=true")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+      val paperlessUrl =
+        "https://www.qa.tax.service.gov.uk/paperless/check-settings" +
+          "?returnUrl=encrypted-return-url&returnLinkText=encrypted-link-text"
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+      when(mockContactPreferencesExperimentService.get(any(), any()))
+        .thenReturn(Future.successful(Some(PtapContactPreferencesExperiment(Some(paperlessUrl)))))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.homePageTab("your-tasks")(request)
+
+      status(result) mustBe OK
+
+      val marker = Jsoup.parse(contentAsString(result)).getElementById("ptap-review-contact-preferences-experiment")
+      marker must not be null
+      marker.attr("data-contact-preference") mustBe "PAPER"
+      marker.attr("data-paperless-url") mustBe paperlessUrl
+      marker.hasAttr("hidden") mustBe true
+    }
+
+    "not render contact preferences experiment data for an ineligible Your tasks request" in {
+      val request = FakeRequest("GET", "/personal-account/your-tasks?ptap=true")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.homePageTab("your-tasks")(request)
+
+      status(result) mustBe OK
+      Jsoup
+        .parse(contentAsString(result))
+        .getElementById("ptap-review-contact-preferences-experiment") mustBe null
+    }
+
+    "render PAPER eligibility without the Paperless URL on another tab" in {
+      val request = FakeRequest("GET", "/personal-account/hmrc-news?ptap=true")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+      when(mockContactPreferencesExperimentService.get(any(), any()))
+        .thenReturn(Future.successful(Some(PtapContactPreferencesExperiment(Some("paperless-url")))))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.homePageTab("hmrc-news")(request)
+
+      status(result) mustBe OK
+      verify(mockContactPreferencesExperimentService).get(any(), any())
+      val marker = Jsoup
+        .parse(contentAsString(result))
+        .getElementById("ptap-review-contact-preferences-experiment")
+      marker must not be null
+      marker.attr("data-contact-preference") mustBe "PAPER"
+      marker.hasAttr("data-paperless-url") mustBe false
     }
 
     "fetch tab content once for the Activity tab and render only activity cards" in {
