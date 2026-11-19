@@ -33,8 +33,8 @@ import scala.concurrent.Future
 
 class ContactPreferencesExperimentServiceSpec extends BaseSpec {
 
-  private val mockPreferencesFrontendConnector = mock[PreferencesFrontendConnector]
-  private implicit val messages: Messages       = mock[Messages]
+  private val mockPreferencesFrontendConnector                      = mock[PreferencesFrontendConnector]
+  private implicit val messages: Messages                           = mock[Messages]
   private implicit val request: UserRequest[AnyContentAsEmpty.type] =
     UserRequestFixture.buildUserRequest(
       request = FakeRequest("GET", "/personal-account/your-tasks?ptap=true")
