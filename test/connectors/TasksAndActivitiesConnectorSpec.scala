@@ -28,7 +28,7 @@ class TasksAndActivitiesConnectorSpec extends ConnectorSpec with WireMockHelper 
 
   private val url         = "/pta-tasks-and-events/retrieve-tasks-and-events"
   private val requestBody =
-    s"""{"userId":"${generatedNino.nino}","serviceList":["p800"]}"""
+    s"""{"userId":"${generatedNino.nino}","serviceList":["p800","p2"]}"""
 
   override implicit lazy val app: Application = app(
     Map(
