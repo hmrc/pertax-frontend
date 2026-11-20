@@ -23,7 +23,7 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.{GetPersonFromCitizenDetailsToggle, HomePagePersonalisationToggle, PtapActivityTabToggle, ShowPlannedOutageBannerToggle}
-import models.{BreathingSpaceIndicatorResponse, HomePageServices, MyService, OtherService}
+import models.{BreathingSpaceIndicatorResponse, HomePageServices, MyService, OtherService, PaperlessStatusOptOut}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentMatchers.{any, anyBoolean}
@@ -47,8 +47,8 @@ import uk.gov.hmrc.sca.models.TrustedHelper
 import uk.gov.hmrc.http.{HeaderNames, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import util.AlertBannerHelper
-import viewmodels.{PtapContactPreferencesExperiment, TabEnum}
+import util.{AlertBannerHelper, AlertBannerResult}
+import viewmodels.TabEnum
 
 import scala.concurrent.Future
 
@@ -58,17 +58,15 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
   val fakeRlsInterruptHelper       = new FakeRlsInterruptHelper
   val fakePaperlessInterruptHelper = new FakePaperlessInterruptHelper
 
-  val mockBreathingSpaceService: BreathingSpaceService                             = mock[BreathingSpaceService]
-  val mockHomeOptionsGenerator: HomeOptionsGenerator                               = mock[HomeOptionsGenerator]
-  val mockAlertBannerHelper: AlertBannerHelper                                     = mock[AlertBannerHelper]
-  val mockTaiService: TaiService                                                   = mock[TaiService]
-  val mockHomePageServicesProvider: HomePageServicesProvider                       = mock[HomePageServicesProvider]
-  val mockTasksService: TasksService                                               = mock[TasksService]
-  val mockTabContentService: TabContentService                                     = mock[TabContentService]
-  val mockContactPreferencesExperimentService: ContactPreferencesExperimentService =
-    mock[ContactPreferencesExperimentService]
-  val mockConfigDecorator: ConfigDecorator                                         = mock[ConfigDecorator]
-  val mockCitizenDetailsService: CitizenDetailsService                             = mock[CitizenDetailsService]
+  val mockBreathingSpaceService: BreathingSpaceService       = mock[BreathingSpaceService]
+  val mockHomeOptionsGenerator: HomeOptionsGenerator         = mock[HomeOptionsGenerator]
+  val mockAlertBannerHelper: AlertBannerHelper               = mock[AlertBannerHelper]
+  val mockTaiService: TaiService                             = mock[TaiService]
+  val mockHomePageServicesProvider: HomePageServicesProvider = mock[HomePageServicesProvider]
+  val mockTasksService: TasksService                         = mock[TasksService]
+  val mockTabContentService: TabContentService               = mock[TabContentService]
+  val mockConfigDecorator: ConfigDecorator                   = mock[ConfigDecorator]
+  val mockCitizenDetailsService: CitizenDetailsService       = mock[CitizenDetailsService]
 
   val taskCompletedMessage = "It can take up to 10 days for completed tasks to be removed from the list."
 
@@ -85,7 +83,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
         bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
         bind[TasksService].toInstance(mockTasksService),
         bind[TabContentService].toInstance(mockTabContentService),
-        bind[ContactPreferencesExperimentService].toInstance(mockContactPreferencesExperimentService),
         bind[ConfigDecorator].toInstance(mockConfigDecorator),
         bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
         bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
@@ -106,7 +103,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     reset(mockHomePageServicesProvider)
     reset(mockTasksService)
     reset(mockTabContentService)
-    reset(mockContactPreferencesExperimentService)
     reset(mockConfigDecorator)
     reset(mockCitizenDetailsService)
 
@@ -122,14 +118,14 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     when(mockAlertBannerHelper.getContent(any())(any(), any(), any()))
       .thenReturn(Future.successful(None))
 
+    when(mockAlertBannerHelper.getContentAndPaperlessStatus(any(), any())(any(), any(), any()))
+      .thenReturn(Future.successful(AlertBannerResult(None, None)))
+
     when(mockTasksService.getListOfTasks(any(), any()))
       .thenReturn(Future.successful(Seq.empty))
 
     when(mockTabContentService.getTaskAndTabCards(any[TabEnum]())(any(), any()))
       .thenReturn(Future.successful(TabContentCards(Seq.empty, Seq.empty)))
-
-    when(mockContactPreferencesExperimentService.get(any(), any()))
-      .thenReturn(Future.successful(None))
 
     when(mockTaiService.getTaxComponentsList(any(), any())(any(), any()))
       .thenReturn(Future.successful(taxComponents))
@@ -177,7 +173,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
         bind[HomePageServicesProvider].toInstance(mockHomePageServicesProvider),
         bind[TasksService].toInstance(mockTasksService),
         bind[TabContentService].toInstance(mockTabContentService),
-        bind[ContactPreferencesExperimentService].toInstance(mockContactPreferencesExperimentService),
         bind[ConfigDecorator].toInstance(mockConfigDecorator),
         bind[CitizenDetailsService].toInstance(mockCitizenDetailsService),
         bind[JourneyCacheRepository].toInstance(mock[JourneyCacheRepository])
@@ -334,8 +329,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
-      when(mockContactPreferencesExperimentService.get(any(), any()))
-        .thenReturn(Future.successful(Some(PtapContactPreferencesExperiment(Some(paperlessUrl)))))
+      when(mockAlertBannerHelper.getContentAndPaperlessStatus(any(), any())(any(), any(), any()))
+        .thenReturn(Future.successful(AlertBannerResult(None, Some(PaperlessStatusOptOut(paperlessUrl)))))
 
       val appLocal   = appBuilder.build()
       val controller = appLocal.injector.instanceOf[HomeController]
@@ -375,15 +370,15 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
-      when(mockContactPreferencesExperimentService.get(any(), any()))
-        .thenReturn(Future.successful(Some(PtapContactPreferencesExperiment(Some("paperless-url")))))
+      when(mockAlertBannerHelper.getContentAndPaperlessStatus(any(), any())(any(), any(), any()))
+        .thenReturn(Future.successful(AlertBannerResult(None, Some(PaperlessStatusOptOut("paperless-url")))))
 
       val appLocal   = appBuilder.build()
       val controller = appLocal.injector.instanceOf[HomeController]
       val result     = controller.homePageTab("hmrc-news")(request)
 
       status(result) mustBe OK
-      verify(mockContactPreferencesExperimentService).get(any(), any())
+      verify(mockAlertBannerHelper).getContentAndPaperlessStatus(any(), any())(any(), any(), any())
       val marker = Jsoup
         .parse(contentAsString(result))
         .getElementById("ptap-review-contact-preferences-experiment")
