@@ -75,6 +75,17 @@
 
     @{SecondaryNav(viewModel.secondaryNav)}
 
+    @viewModel.contactPreferencesExperiment.map { experiment =>
+        <span
+            id="ptap-review-contact-preferences-experiment"
+            data-contact-preference="PAPER"
+            @experiment.paperlessUrl.map { paperlessUrl =>
+                data-paperless-url="@paperlessUrl"
+            }
+            hidden>
+        </span>
+    }
+
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             @for(container <- viewModel.tabContent) {

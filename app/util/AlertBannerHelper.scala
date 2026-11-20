@@ -47,16 +47,42 @@ class AlertBannerHelper @Inject() (
     request: UserRequest[AnyContent],
     ec: ExecutionContext,
     messages: Messages
-  ): Future[Option[Html]] = {
+  ): Future[Option[Html]] =
+    getContent(personDetails, getPaperlessStatusBannerContent)
+
+  def getContentAndPaperlessStatus(personDetails: Option[PersonDetails], returnLinkText: String)(implicit
+    request: UserRequest[AnyContent],
+    ec: ExecutionContext,
+    messages: Messages
+  ): Future[AlertBannerResult] =
+    getPaperlessStatus(returnLinkText).flatMap { paperlessStatus =>
+      getContent(personDetails, getPaperlessStatusBannerContent(paperlessStatus))
+        .map(AlertBannerResult(_, paperlessStatus))
+    }
+
+  private def getContent(
+    personDetails: Option[PersonDetails],
+    paperlessStatusBannerContent: Future[Option[Html]]
+  )(implicit ec: ExecutionContext, messages: Messages): Future[Option[Html]] = {
     val contentFutures = List(
       getShutteringBannerContent,
       getPeakDemandBannerContent,
       getAddressFixBannerContent(personDetails),
-      getPaperlessStatusBannerContent,
+      paperlessStatusBannerContent,
       getHomePageChangesBannerContent
     )
     Future.sequence(contentFutures).map(_.collectFirst { case Some(html) => html })
   }
+
+  private def getPaperlessStatus(returnLinkText: String)(implicit
+    request: UserRequest[AnyContent],
+    ec: ExecutionContext
+  ): Future[Option[PaperlessMessagesStatus]] =
+    preferencesFrontendConnector
+      .getPaperlessStatus(request.uri, returnLinkText)
+      .value
+      .map(_.toOption)
+      .recover { case _ => None }
 
   private def getPaperlessStatusBannerContent(implicit
     request: UserRequest[AnyContent],
@@ -77,6 +103,24 @@ class AlertBannerHelper @Inject() (
           )
       case _                          =>
         Future.successful(None)
+    }
+
+  private def getPaperlessStatusBannerContent(paperlessStatus: Option[PaperlessMessagesStatus])(implicit
+    ec: ExecutionContext,
+    messages: Messages
+  ): Future[Option[Html]] =
+    featureFlagService.get(AlertBannerPaperlessStatusToggle).map {
+      case toggle if toggle.isEnabled => paperlessStatus.flatMap(paperlessStatusBannerContent)
+      case _                          => None
+    }
+
+  private def paperlessStatusBannerContent(paperlessStatus: PaperlessMessagesStatus)(implicit
+    messages: Messages
+  ): Option[Html] =
+    paperlessStatus match {
+      case PaperlessStatusBounced(link)    => Some(bouncedEmailView(link))
+      case PaperlessStatusUnverified(link) => Some(unverifiedEmailView(link))
+      case _                               => None
     }
 
   private def getPeakDemandBannerContent(implicit ec: ExecutionContext, messages: Messages): Future[Option[Html]] =
@@ -117,3 +161,5 @@ class AlertBannerHelper @Inject() (
       case _                          => None
     }
 }
+
+final case class AlertBannerResult(content: Option[Html], paperlessStatus: Option[PaperlessMessagesStatus])

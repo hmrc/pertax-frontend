@@ -23,7 +23,7 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.{GetPersonFromCitizenDetailsToggle, HomePagePersonalisationToggle, PtapActivityTabToggle, ShowPlannedOutageBannerToggle}
-import models.{BreathingSpaceIndicatorResponse, HomePageServices, MyService, OtherService}
+import models.{BreathingSpaceIndicatorResponse, HomePageServices, MyService, OtherService, PaperlessStatusOptOut}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentMatchers.{any, anyBoolean}
@@ -47,7 +47,7 @@ import uk.gov.hmrc.sca.models.TrustedHelper
 import uk.gov.hmrc.http.{HeaderNames, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import util.AlertBannerHelper
+import util.{AlertBannerHelper, AlertBannerResult}
 import viewmodels.TabEnum
 
 import scala.concurrent.Future
@@ -117,6 +117,9 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
     when(mockAlertBannerHelper.getContent(any())(any(), any(), any()))
       .thenReturn(Future.successful(None))
+
+    when(mockAlertBannerHelper.getContentAndPaperlessStatus(any(), any())(any(), any(), any()))
+      .thenReturn(Future.successful(AlertBannerResult(None, None)))
 
     when(mockTasksService.getListOfTasks(any(), any()))
       .thenReturn(Future.successful(Seq.empty))
@@ -314,6 +317,74 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       content.text() must not include "Tax code change"
 
       content.text() must include(taskCompletedMessage)
+    }
+
+    "render contact preferences experiment data for an eligible Your tasks request" in {
+      val request      = FakeRequest("GET", "/personal-account/your-tasks?ptap=true")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+      val paperlessUrl =
+        "https://www.qa.tax.service.gov.uk/paperless/check-settings" +
+          "?returnUrl=encrypted-return-url&returnLinkText=encrypted-link-text"
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+      when(mockAlertBannerHelper.getContentAndPaperlessStatus(any(), any())(any(), any(), any()))
+        .thenReturn(Future.successful(AlertBannerResult(None, Some(PaperlessStatusOptOut(paperlessUrl)))))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.homePageTab("your-tasks")(request)
+
+      status(result) mustBe OK
+
+      val marker = Jsoup.parse(contentAsString(result)).getElementById("ptap-review-contact-preferences-experiment")
+      marker must not be null
+      marker.attr("data-contact-preference") mustBe "PAPER"
+      marker.attr("data-paperless-url") mustBe paperlessUrl
+      marker.hasAttr("hidden") mustBe true
+    }
+
+    "not render contact preferences experiment data for an ineligible Your tasks request" in {
+      val request = FakeRequest("GET", "/personal-account/your-tasks?ptap=true")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.homePageTab("your-tasks")(request)
+
+      status(result) mustBe OK
+      Jsoup
+        .parse(contentAsString(result))
+        .getElementById("ptap-review-contact-preferences-experiment") mustBe null
+    }
+
+    "render PAPER eligibility without the Paperless URL on another tab" in {
+      val request = FakeRequest("GET", "/personal-account/hmrc-news?ptap=true")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+      when(mockAlertBannerHelper.getContentAndPaperlessStatus(any(), any())(any(), any(), any()))
+        .thenReturn(Future.successful(AlertBannerResult(None, Some(PaperlessStatusOptOut("paperless-url")))))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.homePageTab("hmrc-news")(request)
+
+      status(result) mustBe OK
+      verify(mockAlertBannerHelper).getContentAndPaperlessStatus(any(), any())(any(), any(), any())
+      val marker = Jsoup
+        .parse(contentAsString(result))
+        .getElementById("ptap-review-contact-preferences-experiment")
+      marker must not be null
+      marker.attr("data-contact-preference") mustBe "PAPER"
+      marker.hasAttr("data-paperless-url") mustBe false
     }
 
     "fetch tab content once for the Activity tab and render only activity cards" in {

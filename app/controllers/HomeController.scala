@@ -23,7 +23,7 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import error.ErrorRenderer
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
-import models.{HomePageServices, SelfAssessmentUser}
+import models.{HomePageServices, PaperlessStatusOptOut, SelfAssessmentUser}
 import models.admin.{HomePagePersonalisationToggle, PtapActivityTabToggle}
 import play.api.Logging
 import play.api.i18n.Messages
@@ -34,7 +34,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AlertBannerHelper
-import viewmodels.{AlertBanner, CardContainerModel, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapHomeViewModel, SecondaryNavModel, TabEnum, TabModel}
+import viewmodels.{AlertBanner, CardContainerModel, HomeViewModel, NewsAndUpdates, PtapAlertBanner, PtapContactPreferencesExperiment, PtapHomeViewModel, SecondaryNavModel, TabEnum, TabModel}
 import viewmodels.TabEnum.*
 import views.html.{HomeView, PtapHomeView}
 
@@ -116,13 +116,21 @@ class HomeController @Inject() (
         for {
           breathingSpaceIndicator <- fBreathingSpaceIndicator
           eitherPersonDetails     <- fEitherPersonDetails
-          alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten)
+          alertBannerResult       <- alertBannerHelper.getContentAndPaperlessStatus(
+                                       eitherPersonDetails.toOption.flatten,
+                                       messages("ptap.contactPreferences.returnLinkText")
+                                     )
           tabContentCards         <- fTabContentCards
           homePageServices        <- fHomePageServices
           activityTabEnabled      <- fActivityTabEnabled
         } yield {
           val personDetailsOpt = eitherPersonDetails.toOption.flatten
           val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))
+
+          val contactPreferencesExperiment = alertBannerResult.paperlessStatus.collect {
+            case PaperlessStatusOptOut(link) =>
+              PtapContactPreferencesExperiment(Option.when(currentTab == Task)(link))
+          }
 
           val taskCount    = tabContentCards.taskCount
           val secondaryNav = buildSecondaryNav(currentTab, taskCount, activityTabEnabled)
@@ -145,7 +153,7 @@ class HomeController @Inject() (
                 showUserResearchBanner = false,
                 utr,
                 breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
-                alertBannerContent = alertBannerContent.map(PtapAlertBanner.apply),
+                alertBannerContent = alertBannerResult.content.map(PtapAlertBanner.apply),
                 name = nameToDisplay,
                 secondaryNav = secondaryNav,
                 tabContent = tabContent,
@@ -154,7 +162,8 @@ class HomeController @Inject() (
                 showTaxesAndBenefitsView = currentTab == Tax,
                 showTaskCompletedMessage = currentTab == Task && tabContentCards.tabCards.nonEmpty,
                 myServices = homePageServices.myServices,
-                otherServices = homePageServices.otherServices
+                otherServices = homePageServices.otherServices,
+                contactPreferencesExperiment = contactPreferencesExperiment
               )
             )
           )

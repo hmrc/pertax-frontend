@@ -23,7 +23,7 @@ import models.admin.{AlertBannerPaperlessStatusToggle, HomePageChangesBannerTogg
 import models.{PaperlessMessagesStatus, PaperlessStatusBounced, PaperlessStatusNewCustomer, PaperlessStatusNoEmail, PaperlessStatusOptIn, PaperlessStatusOptOut, PaperlessStatusReopt, PaperlessStatusReoptModified, PaperlessStatusUnverified}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
@@ -178,6 +178,47 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
           result mustBe None
         }
       }
+  }
+
+  "AlertBannerHelper.getContentAndPaperlessStatus" must {
+    "return PAPER status and banner content from one preferences call" in {
+      val paperlessStatus = PaperlessStatusOptOut("paperless-url")
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
+        EitherT.rightT[Future, UpstreamErrorResponse](paperlessStatus: PaperlessMessagesStatus)
+      )
+
+      val result = alertBannerHelper.getContentAndPaperlessStatus(None, "Back to your tasks").futureValue
+
+      result.content mustBe None
+      result.paperlessStatus mustBe Some(paperlessStatus)
+      verify(mockPreferencesFrontendConnector, times(1))
+        .getPaperlessStatus("/", "Back to your tasks")
+    }
+
+    "reuse a bounced status for the banner content" in {
+      val paperlessStatus = PaperlessStatusBounced("/link")
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
+        EitherT.rightT[Future, UpstreamErrorResponse](paperlessStatus: PaperlessMessagesStatus)
+      )
+
+      val result = alertBannerHelper.getContentAndPaperlessStatus(None, "Back to your tasks").futureValue
+
+      result.content mustBe Some(bouncedEmailView("/link"))
+      result.paperlessStatus mustBe Some(paperlessStatus)
+      verify(mockPreferencesFrontendConnector, times(1))
+        .getPaperlessStatus("/", "Back to your tasks")
+    }
+
+    "fail safely when preferences-frontend returns an error" in {
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
+        EitherT.leftT[Future, PaperlessMessagesStatus](UpstreamErrorResponse("failed", 500))
+      )
+
+      val result = alertBannerHelper.getContentAndPaperlessStatus(None, "Back to your tasks").futureValue
+
+      result.content mustBe None
+      result.paperlessStatus mustBe None
+    }
   }
 
   "AlertBannerHelper.getVoluntaryContributionsAlertBannerContent" must {
