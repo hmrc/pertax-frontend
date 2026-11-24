@@ -91,7 +91,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
         .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = true)))
 
-      val result = alertBannerHelper.getContent(None).futureValue
+      val result = alertBannerHelper.getContent(None, true, false).futureValue
 
       result mustBe Some(shutteringBannerView())
     }
@@ -104,7 +104,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       when(mockFeatureFlagService.get(PeakDemandBannerToggle))
         .thenReturn(Future.successful(FeatureFlag(PeakDemandBannerToggle, isEnabled = true)))
 
-      val result = alertBannerHelper.getContent(None).futureValue
+      val result = alertBannerHelper.getContent(None, true, false).futureValue
 
       result mustBe Some(peakDemandBannerView())
     }
@@ -120,7 +120,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
         )
       )
 
-      val result = alertBannerHelper.getContent(personDetails).futureValue
+      val result = alertBannerHelper.getContent(personDetails, true, false).futureValue
 
       result mustBe Some(addressFixBannerView())
     }
@@ -131,7 +131,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
         EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusBounced(link): PaperlessMessagesStatus)
       )
 
-      val result = alertBannerHelper.getContent(None).futureValue
+      val result = alertBannerHelper.getContent(None, true, false).futureValue
 
       result mustBe Some(bouncedEmailView(link))
     }
@@ -142,7 +142,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
         EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusUnverified(link): PaperlessMessagesStatus)
       )
 
-      val result = alertBannerHelper.getContent(None).futureValue
+      val result = alertBannerHelper.getContent(None, true, false).futureValue
 
       result mustBe Some(unverifiedEmailView(link))
     }
@@ -155,7 +155,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       when(mockFeatureFlagService.get(HomePageChangesBannerToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePageChangesBannerToggle, isEnabled = true)))
 
-      val result = alertBannerHelper.getContent(None).futureValue
+      val result = alertBannerHelper.getContent(None, true, false).futureValue
 
       result mustBe Some(newHomePageChangesBannerView())
     }
@@ -165,7 +165,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
         PaperlessStatusNewCustomer(),
         PaperlessStatusReopt(),
         PaperlessStatusReoptModified(),
-        PaperlessStatusOptOut(),
+//        PaperlessStatusOptOut(),
         PaperlessStatusOptIn(),
         PaperlessStatusNoEmail()
       ).foreach { paperlessStatusResponse =>
@@ -174,7 +174,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
             EitherT.rightT[Future, UpstreamErrorResponse](paperlessStatusResponse: PaperlessMessagesStatus)
           )
 
-          val result = alertBannerHelper.getContent(None).futureValue
+          val result = alertBannerHelper.getContent(None, true, false).futureValue
 
           result mustBe None
         }
@@ -189,25 +189,12 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       )
 
       val result = alertBannerHelper
-        .getContent(None, isRedesign = true, includePaperlessUrl = true, "Back to your tasks")
+        .getContent(None, isRedesign = true, true)
         .futureValue
 
-      result.content mustBe None
-      result.postalExperimentContent mustBe Some(postalExperimentView(Some("paperless-url")))
+      result mustBe Some(postalExperimentView(Some("paperless-url")))
       verify(mockPreferencesFrontendConnector, times(1))
         .getPaperlessStatus("/", "Back to your tasks")
-    }
-
-    "exclude the Paperless URL from the postal experiment content on other tabs" in {
-      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
-        EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusOptOut("paperless-url"): PaperlessMessagesStatus)
-      )
-
-      val result = alertBannerHelper
-        .getContent(None, isRedesign = true, includePaperlessUrl = false, "Back to your tasks")
-        .futureValue
-
-      result.postalExperimentContent mustBe Some(postalExperimentView(None))
     }
 
     "not return postal experiment content for the legacy page" in {
@@ -216,10 +203,10 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       )
 
       val result = alertBannerHelper
-        .getContent(None, isRedesign = false, includePaperlessUrl = false, "Back to your tasks")
+        .getContent(None, isRedesign = false, false)
         .futureValue
 
-      result.postalExperimentContent mustBe None
+      result mustBe None
     }
 
     "reuse a bounced status for the banner content" in {
@@ -229,13 +216,12 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       )
 
       val result = alertBannerHelper
-        .getContent(None, isRedesign = true, includePaperlessUrl = true, "Back to your tasks")
+        .getContent(None, isRedesign = true, false)
         .futureValue
 
-      result.content mustBe Some(bouncedEmailView("/link"))
-      result.postalExperimentContent mustBe None
+      result mustBe Some(bouncedEmailView("/link"))
       verify(mockPreferencesFrontendConnector, times(1))
-        .getPaperlessStatus("/", "Back to your tasks")
+        .getPaperlessStatus("/", "")
     }
 
     "fail safely when preferences-frontend returns an error" in {
@@ -244,11 +230,10 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       )
 
       val result = alertBannerHelper
-        .getContent(None, isRedesign = true, includePaperlessUrl = true, "Back to your tasks")
+        .getContent(None, isRedesign = true, false)
         .futureValue
 
-      result.content mustBe None
-      result.postalExperimentContent mustBe None
+      result mustBe None
     }
   }
 

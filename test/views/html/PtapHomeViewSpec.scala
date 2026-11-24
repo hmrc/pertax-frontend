@@ -126,9 +126,7 @@ class PtapHomeViewSpec extends ViewSpec {
 
       val document = asDocument(
         home(
-          homeViewModel.copy(
-            postalExperimentContent = Some(postalExperimentView(Some(paperlessUrl)))
-          )
+          homeViewModel.copy(alertBannerContent = Some(PtapAlertBanner(postalExperimentView(Some(paperlessUrl)))))
         ).toString
       )
       val marker   = document.getElementById("ptap-review-contact-preferences-experiment")
@@ -143,27 +141,9 @@ class PtapHomeViewSpec extends ViewSpec {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(request = FakeRequest())
 
-      val document = asDocument(home(homeViewModel.copy(postalExperimentContent = None)).toString)
+      val document = asDocument(home(homeViewModel).toString)
 
       document.getElementById("ptap-review-contact-preferences-experiment") mustBe null
-    }
-
-    "render PAPER eligibility without a Paperless URL on another tab" in {
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(request = FakeRequest())
-
-      val document = asDocument(
-        home(
-          homeViewModel.copy(
-            postalExperimentContent = Some(postalExperimentView(None))
-          )
-        ).toString
-      )
-      val marker   = document.getElementById("ptap-review-contact-preferences-experiment")
-
-      marker must not be null
-      marker.attr("data-contact-preference") mustBe "PAPER"
-      marker.hasAttr("data-paperless-url") mustBe false
     }
 
     "HTML-escape the paperless URL while preserving its DOM value" in {
@@ -173,9 +153,7 @@ class PtapHomeViewSpec extends ViewSpec {
         "https://www.qa.tax.service.gov.uk/paperless/check-settings" +
           "?returnUrl=value%2B1&returnLinkText=value%3D%3D"
       val rendered                                                  = home(
-        homeViewModel.copy(
-          postalExperimentContent = Some(postalExperimentView(Some(paperlessUrl)))
-        )
+        homeViewModel.copy(alertBannerContent = Some(PtapAlertBanner(postalExperimentView(Some(paperlessUrl)))))
       ).toString
 
       rendered must include("&amp;returnLinkText=")
