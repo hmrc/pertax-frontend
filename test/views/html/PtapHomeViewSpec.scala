@@ -34,14 +34,16 @@ import testUtils.HmrcCardModelFixtures
 import testUtils.UserRequestFixture.buildUserRequest
 import uk.gov.hmrc.domain.SaUtrGenerator
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
-import viewmodels.{CardContainerModel, PtapAlertBanner, PtapContactPreferencesExperiment, PtapHomeViewModel, SecondaryNavModel, TabModel}
+import viewmodels.{CardContainerModel, PtapAlertBanner, PtapHomeViewModel, SecondaryNavModel, TabModel}
 import viewmodels.TabEnum.*
+import views.html.components.alertBanner.paperlessStatus.postalExperiment
 
 import scala.concurrent.Future
 
 class PtapHomeViewSpec extends ViewSpec {
 
   lazy val home: PtapHomeView                       = inject[PtapHomeView]
+  lazy val postalExperimentView: postalExperiment   = inject[postalExperiment]
   implicit val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
 
   val taskCompletedMessage      = "It can take up to 10 days for completed tasks to be removed from the list."
@@ -125,7 +127,7 @@ class PtapHomeViewSpec extends ViewSpec {
       val document = asDocument(
         home(
           homeViewModel.copy(
-            contactPreferencesExperiment = Some(PtapContactPreferencesExperiment(Some(paperlessUrl)))
+            postalExperimentContent = Some(postalExperimentView(Some(paperlessUrl)))
           )
         ).toString
       )
@@ -141,7 +143,7 @@ class PtapHomeViewSpec extends ViewSpec {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(request = FakeRequest())
 
-      val document = asDocument(home(homeViewModel.copy(contactPreferencesExperiment = None)).toString)
+      val document = asDocument(home(homeViewModel.copy(postalExperimentContent = None)).toString)
 
       document.getElementById("ptap-review-contact-preferences-experiment") mustBe null
     }
@@ -153,7 +155,7 @@ class PtapHomeViewSpec extends ViewSpec {
       val document = asDocument(
         home(
           homeViewModel.copy(
-            contactPreferencesExperiment = Some(PtapContactPreferencesExperiment(None))
+            postalExperimentContent = Some(postalExperimentView(None))
           )
         ).toString
       )
@@ -172,7 +174,7 @@ class PtapHomeViewSpec extends ViewSpec {
           "?returnUrl=value%2B1&returnLinkText=value%3D%3D"
       val rendered                                                  = home(
         homeViewModel.copy(
-          contactPreferencesExperiment = Some(PtapContactPreferencesExperiment(Some(paperlessUrl)))
+          postalExperimentContent = Some(postalExperimentView(Some(paperlessUrl)))
         )
       ).toString
 

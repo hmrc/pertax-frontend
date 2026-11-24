@@ -23,7 +23,7 @@ import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.{HomeOptionsGenerator, PaperlessInterruptHelper, RlsInterruptHelper}
 import models.BreathingSpaceIndicatorResponse.WithinPeriod
 import models.admin.{GetPersonFromCitizenDetailsToggle, HomePagePersonalisationToggle, PtapActivityTabToggle, ShowPlannedOutageBannerToggle}
-import models.{BreathingSpaceIndicatorResponse, HomePageServices, MyService, OtherService, PaperlessStatusOptOut}
+import models.{BreathingSpaceIndicatorResponse, HomePageServices, MyService, OtherService}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.mockito.ArgumentMatchers.{any, anyBoolean}
@@ -53,6 +53,13 @@ import viewmodels.TabEnum
 import scala.concurrent.Future
 
 class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetailsFixtures {
+
+  private def experimentMarker(paperlessUrl: Option[String]): Html = Html(
+    s"""<span id="ptap-review-contact-preferences-experiment"
+       |data-contact-preference="PAPER"
+       |${paperlessUrl.fold("")(url => s"data-paperless-url=\"$url\"")}
+       |hidden></span>""".stripMargin
+  )
 
   val fakeAuthJourney              = new FakeAuthJourney
   val fakeRlsInterruptHelper       = new FakeRlsInterruptHelper
@@ -118,7 +125,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     when(mockAlertBannerHelper.getContent(any())(any(), any(), any()))
       .thenReturn(Future.successful(None))
 
-    when(mockAlertBannerHelper.getContentAndPaperlessStatus(any(), any())(any(), any(), any()))
+    when(mockAlertBannerHelper.getContent(any(), anyBoolean(), anyBoolean(), any())(any(), any(), any()))
       .thenReturn(Future.successful(AlertBannerResult(None, None)))
 
     when(mockTasksService.getListOfTasks(any(), any()))
@@ -329,8 +336,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
-      when(mockAlertBannerHelper.getContentAndPaperlessStatus(any(), any())(any(), any(), any()))
-        .thenReturn(Future.successful(AlertBannerResult(None, Some(PaperlessStatusOptOut(paperlessUrl)))))
+      when(mockAlertBannerHelper.getContent(any(), anyBoolean(), anyBoolean(), any())(any(), any(), any()))
+        .thenReturn(Future.successful(AlertBannerResult(None, Some(experimentMarker(Some(paperlessUrl))))))
 
       val appLocal   = appBuilder.build()
       val controller = appLocal.injector.instanceOf[HomeController]
@@ -370,15 +377,15 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
-      when(mockAlertBannerHelper.getContentAndPaperlessStatus(any(), any())(any(), any(), any()))
-        .thenReturn(Future.successful(AlertBannerResult(None, Some(PaperlessStatusOptOut("paperless-url")))))
+      when(mockAlertBannerHelper.getContent(any(), anyBoolean(), anyBoolean(), any())(any(), any(), any()))
+        .thenReturn(Future.successful(AlertBannerResult(None, Some(experimentMarker(None)))))
 
       val appLocal   = appBuilder.build()
       val controller = appLocal.injector.instanceOf[HomeController]
       val result     = controller.homePageTab("hmrc-news")(request)
 
       status(result) mustBe OK
-      verify(mockAlertBannerHelper).getContentAndPaperlessStatus(any(), any())(any(), any(), any())
+      verify(mockAlertBannerHelper).getContent(any(), anyBoolean(), anyBoolean(), any())(any(), any(), any())
       val marker = Jsoup
         .parse(contentAsString(result))
         .getElementById("ptap-review-contact-preferences-experiment")

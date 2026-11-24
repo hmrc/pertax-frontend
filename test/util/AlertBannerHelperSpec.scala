@@ -72,6 +72,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
   implicit lazy val messages: Messages                            = MessagesImpl(Lang("en"), messagesApi)
   lazy val alertBannerHelper: AlertBannerHelper                   = app.injector.instanceOf[AlertBannerHelper]
   lazy val bouncedEmailView: bouncedEmail                         = app.injector.instanceOf[bouncedEmail]
+  lazy val postalExperimentView: postalExperiment                 = app.injector.instanceOf[postalExperiment]
   lazy val unverifiedEmailView: unverifiedEmail                   = app.injector.instanceOf[unverifiedEmail]
   lazy val peakDemandBannerView: peakDemandBanner                 = app.injector.instanceOf[peakDemandBanner]
   lazy val addressFixBannerView: addressFixBanner                 = app.injector.instanceOf[addressFixBanner]
@@ -180,19 +181,45 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       }
   }
 
-  "AlertBannerHelper.getContentAndPaperlessStatus" must {
-    "return PAPER status and banner content from one preferences call" in {
+  "AlertBannerHelper.getContent for the redesign" must {
+    "return the postal experiment content from one preferences call" in {
       val paperlessStatus = PaperlessStatusOptOut("paperless-url")
       when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
         EitherT.rightT[Future, UpstreamErrorResponse](paperlessStatus: PaperlessMessagesStatus)
       )
 
-      val result = alertBannerHelper.getContentAndPaperlessStatus(None, "Back to your tasks").futureValue
+      val result = alertBannerHelper
+        .getContent(None, isRedesign = true, includePaperlessUrl = true, "Back to your tasks")
+        .futureValue
 
       result.content mustBe None
-      result.paperlessStatus mustBe Some(paperlessStatus)
+      result.postalExperimentContent mustBe Some(postalExperimentView(Some("paperless-url")))
       verify(mockPreferencesFrontendConnector, times(1))
         .getPaperlessStatus("/", "Back to your tasks")
+    }
+
+    "exclude the Paperless URL from the postal experiment content on other tabs" in {
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
+        EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusOptOut("paperless-url"): PaperlessMessagesStatus)
+      )
+
+      val result = alertBannerHelper
+        .getContent(None, isRedesign = true, includePaperlessUrl = false, "Back to your tasks")
+        .futureValue
+
+      result.postalExperimentContent mustBe Some(postalExperimentView(None))
+    }
+
+    "not return postal experiment content for the legacy page" in {
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
+        EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusOptOut("paperless-url"): PaperlessMessagesStatus)
+      )
+
+      val result = alertBannerHelper
+        .getContent(None, isRedesign = false, includePaperlessUrl = false, "Back to your tasks")
+        .futureValue
+
+      result.postalExperimentContent mustBe None
     }
 
     "reuse a bounced status for the banner content" in {
@@ -201,10 +228,12 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
         EitherT.rightT[Future, UpstreamErrorResponse](paperlessStatus: PaperlessMessagesStatus)
       )
 
-      val result = alertBannerHelper.getContentAndPaperlessStatus(None, "Back to your tasks").futureValue
+      val result = alertBannerHelper
+        .getContent(None, isRedesign = true, includePaperlessUrl = true, "Back to your tasks")
+        .futureValue
 
       result.content mustBe Some(bouncedEmailView("/link"))
-      result.paperlessStatus mustBe Some(paperlessStatus)
+      result.postalExperimentContent mustBe None
       verify(mockPreferencesFrontendConnector, times(1))
         .getPaperlessStatus("/", "Back to your tasks")
     }
@@ -214,10 +243,12 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
         EitherT.leftT[Future, PaperlessMessagesStatus](UpstreamErrorResponse("failed", 500))
       )
 
-      val result = alertBannerHelper.getContentAndPaperlessStatus(None, "Back to your tasks").futureValue
+      val result = alertBannerHelper
+        .getContent(None, isRedesign = true, includePaperlessUrl = true, "Back to your tasks")
+        .futureValue
 
       result.content mustBe None
-      result.paperlessStatus mustBe None
+      result.postalExperimentContent mustBe None
     }
   }
 

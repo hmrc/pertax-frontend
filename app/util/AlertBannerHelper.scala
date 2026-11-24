@@ -26,7 +26,7 @@ import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.twirl.api.Html
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import views.html.components.alertBanner.paperlessStatus.{bouncedEmail, unverifiedEmail}
+import views.html.components.alertBanner.paperlessStatus.{bouncedEmail, postalExperiment, unverifiedEmail}
 import views.html.components.alertBanner.{addressFixBanner, newHomePageChangesBanner, peakDemandBanner, shutteringBanner, voluntaryContributionsAlertView}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,6 +35,7 @@ class AlertBannerHelper @Inject() (
   preferencesFrontendConnector: PreferencesFrontendConnector,
   featureFlagService: FeatureFlagService,
   bouncedEmailView: bouncedEmail,
+  postalExperimentView: postalExperiment,
   unverifiedEmailView: unverifiedEmail,
   voluntaryContributionsAlertView: voluntaryContributionsAlertView,
   peakDemandBannerView: peakDemandBanner,
@@ -50,14 +51,21 @@ class AlertBannerHelper @Inject() (
   ): Future[Option[Html]] =
     getContent(personDetails, getPaperlessStatusBannerContent)
 
-  def getContentAndPaperlessStatus(personDetails: Option[PersonDetails], returnLinkText: String)(implicit
+  def getContent(
+    personDetails: Option[PersonDetails],
+    isRedesign: Boolean,
+    includePaperlessUrl: Boolean,
+    returnLinkText: String
+  )(implicit
     request: UserRequest[AnyContent],
     ec: ExecutionContext,
     messages: Messages
   ): Future[AlertBannerResult] =
     getPaperlessStatus(returnLinkText).flatMap { paperlessStatus =>
-      getContent(personDetails, getPaperlessStatusBannerContent(paperlessStatus))
-        .map(AlertBannerResult(_, paperlessStatus))
+      getPaperlessStatusContent(paperlessStatus, isRedesign, includePaperlessUrl).flatMap { paperlessContent =>
+        getContent(personDetails, Future.successful(paperlessContent.bannerContent))
+          .map(AlertBannerResult(_, paperlessContent.postalExperimentContent))
+      }
     }
 
   private def getContent(
@@ -105,22 +113,26 @@ class AlertBannerHelper @Inject() (
         Future.successful(None)
     }
 
-  private def getPaperlessStatusBannerContent(paperlessStatus: Option[PaperlessMessagesStatus])(implicit
+  private def getPaperlessStatusContent(
+    paperlessStatus: Option[PaperlessMessagesStatus],
+    isRedesign: Boolean,
+    includePaperlessUrl: Boolean
+  )(implicit
     ec: ExecutionContext,
     messages: Messages
-  ): Future[Option[Html]] =
-    featureFlagService.get(AlertBannerPaperlessStatusToggle).map {
-      case toggle if toggle.isEnabled => paperlessStatus.flatMap(paperlessStatusBannerContent)
-      case _                          => None
-    }
-
-  private def paperlessStatusBannerContent(paperlessStatus: PaperlessMessagesStatus)(implicit
-    messages: Messages
-  ): Option[Html] =
-    paperlessStatus match {
-      case PaperlessStatusBounced(link)    => Some(bouncedEmailView(link))
-      case PaperlessStatusUnverified(link) => Some(unverifiedEmailView(link))
-      case _                               => None
+  ): Future[PaperlessStatusContent] =
+    featureFlagService.get(AlertBannerPaperlessStatusToggle).map { case toggle =>
+      paperlessStatus match {
+        case Some(PaperlessStatusBounced(link)) if toggle.isEnabled    =>
+          PaperlessStatusContent(bannerContent = Some(bouncedEmailView(link)))
+        case Some(PaperlessStatusUnverified(link)) if toggle.isEnabled =>
+          PaperlessStatusContent(bannerContent = Some(unverifiedEmailView(link)))
+        case Some(PaperlessStatusOptOut(link)) if isRedesign           =>
+          PaperlessStatusContent(
+            postalExperimentContent = Some(postalExperimentView(Option.when(includePaperlessUrl)(link)))
+          )
+        case _                                                         => PaperlessStatusContent()
+      }
     }
 
   private def getPeakDemandBannerContent(implicit ec: ExecutionContext, messages: Messages): Future[Option[Html]] =
@@ -162,4 +174,9 @@ class AlertBannerHelper @Inject() (
     }
 }
 
-final case class AlertBannerResult(content: Option[Html], paperlessStatus: Option[PaperlessMessagesStatus])
+final case class AlertBannerResult(content: Option[Html], postalExperimentContent: Option[Html])
+
+private final case class PaperlessStatusContent(
+  bannerContent: Option[Html] = None,
+  postalExperimentContent: Option[Html] = None
+)
