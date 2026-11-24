@@ -34,6 +34,7 @@ import viewmodels.{ActivityType, Task, TaskStatus}
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
+import java.util.UUID.randomUUID
 
 class TasksAndActivitiesConnector @Inject() (
   httpClientV2: HttpClientV2,
@@ -48,11 +49,15 @@ class TasksAndActivitiesConnector @Inject() (
     val url     = configDecorator.tasksAndActivitiesUrl
     val request = TasksAndActivitiesRequest(nino.nino, List("p800"))
 
+    implicit val tasksHeaderCarrier: HeaderCarrier = hc.withExtraHeaders(
+      "correlationId" -> randomUUID.toString
+    )
+
     EitherT(
       httpClientResponse
         .read(
           httpClientV2
-            .post(url"$url")
+            .post(url"$url")(tasksHeaderCarrier)
             .withBody(Json.toJson(request))
             .transform(_.withRequestTimeout(configDecorator.tasksAndActivitiesTimeoutInMilliseconds.milliseconds))
             .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOf(readRaw), ec)

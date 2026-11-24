@@ -16,7 +16,7 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock.{equalTo, postRequestedFor, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{equalTo, matching, postRequestedFor, urlEqualTo}
 import play.api.Application
 import play.api.i18n.Lang
 import models.TagColour
@@ -117,6 +117,22 @@ class TasksAndActivitiesConnectorSpec extends ConnectorSpec with WireMockHelper 
       server.verify(
         postRequestedFor(urlEqualTo(url))
           .withHeader(AUTHORIZATION, equalTo("Bearer test-token"))
+      )
+    }
+
+    "send correlationId header to Tasks and Events" in {
+      stubPost(url, OK, Some(requestBody), Some(response))
+
+      connector.getTasks(generatedNino, Lang("en")).value.futureValue
+
+      server.verify(
+        postRequestedFor(urlEqualTo(url))
+          .withHeader(
+            "correlationId",
+            matching(
+              "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
+            )
+          )
       )
     }
 
