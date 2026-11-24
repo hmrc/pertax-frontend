@@ -116,12 +116,8 @@ class HomeController @Inject() (
         for {
           breathingSpaceIndicator <- fBreathingSpaceIndicator
           eitherPersonDetails     <- fEitherPersonDetails
-          alertBannerResult       <- alertBannerHelper.getContent(
-                                       personDetails = eitherPersonDetails.toOption.flatten,
-                                       isRedesign = true,
-                                       includePaperlessUrl = currentTab == Task,
-                                       returnLinkText = messages("ptap.contactPreferences.returnLinkText")
-                                     )
+          alertBannerContent      <-
+            alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten, true, currentTab == Task)
           tabContentCards         <- fTabContentCards
           homePageServices        <- fHomePageServices
           activityTabEnabled      <- fActivityTabEnabled
@@ -150,7 +146,7 @@ class HomeController @Inject() (
                 showUserResearchBanner = false,
                 utr,
                 breathingSpaceIndicator = breathingSpaceIndicator == WithinPeriod,
-                alertBannerContent = alertBannerResult.content.map(PtapAlertBanner.apply),
+                alertBannerContent = alertBannerContent.map(PtapAlertBanner.apply),
                 name = nameToDisplay,
                 secondaryNav = secondaryNav,
                 tabContent = tabContent,
@@ -159,8 +155,7 @@ class HomeController @Inject() (
                 showTaxesAndBenefitsView = currentTab == Tax,
                 showTaskCompletedMessage = currentTab == Task && tabContentCards.tabCards.nonEmpty,
                 myServices = homePageServices.myServices,
-                otherServices = homePageServices.otherServices,
-                postalExperimentContent = alertBannerResult.postalExperimentContent
+                otherServices = homePageServices.otherServices
               )
             )
           )
@@ -235,7 +230,8 @@ class HomeController @Inject() (
         listOfTasks             <- fListOfTasks
         homePageServices        <- fHomePageServices
         eitherPersonDetails     <- fEitherPersonDetails
-        alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten)
+        alertBannerContent      <-
+          alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten, isRedesign = false, isTaskTab = false)
       } yield {
         val personDetailsOpt = eitherPersonDetails.toOption.flatten
         val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))

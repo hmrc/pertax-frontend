@@ -58,6 +58,5 @@ final case class PtapHomeViewModel(
   showTaxesAndBenefitsView: Boolean = false,
   showTaskCompletedMessage: Boolean = false,
   myServices: Seq[MyService] = Seq.empty,
-  otherServices: Seq[OtherService] = Seq.empty,
-  postalExperimentContent: Option[Html] = None
+  otherServices: Seq[OtherService] = Seq.empty
 )

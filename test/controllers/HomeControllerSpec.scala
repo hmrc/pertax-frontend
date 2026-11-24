@@ -47,7 +47,7 @@ import uk.gov.hmrc.sca.models.TrustedHelper
 import uk.gov.hmrc.http.{HeaderNames, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import util.{AlertBannerHelper, AlertBannerResult}
+import util.AlertBannerHelper
 import viewmodels.TabEnum
 
 import scala.concurrent.Future
@@ -122,11 +122,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     when(mockHomeOptionsGenerator.getLatestNewsAndUpdatesCard()(any[Messages], any[UserRequest[AnyContent]]))
       .thenReturn(None)
 
-    when(mockAlertBannerHelper.getContent(any())(any(), any(), any()))
+    when(mockAlertBannerHelper.getContent(any(), any(), any())(any(), any(), any()))
       .thenReturn(Future.successful(None))
-
-    when(mockAlertBannerHelper.getContent(any(), anyBoolean(), anyBoolean(), any())(any(), any(), any()))
-      .thenReturn(Future.successful(AlertBannerResult(None, None)))
 
     when(mockTasksService.getListOfTasks(any(), any()))
       .thenReturn(Future.successful(Seq.empty))
@@ -336,8 +333,8 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
 
       when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
-      when(mockAlertBannerHelper.getContent(any(), anyBoolean(), anyBoolean(), any())(any(), any(), any()))
-        .thenReturn(Future.successful(AlertBannerResult(None, Some(experimentMarker(Some(paperlessUrl))))))
+      when(mockAlertBannerHelper.getContent(any(), any(), any())(any(), any(), any()))
+        .thenReturn(Future.successful(Some(experimentMarker(Some(paperlessUrl)))))
 
       val appLocal   = appBuilder.build()
       val controller = appLocal.injector.instanceOf[HomeController]
@@ -368,30 +365,6 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       Jsoup
         .parse(contentAsString(result))
         .getElementById("ptap-review-contact-preferences-experiment") mustBe null
-    }
-
-    "render PAPER eligibility without the Paperless URL on another tab" in {
-      val request = FakeRequest("GET", "/personal-account/hmrc-news?ptap=true")
-        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
-        .asInstanceOf[Request[AnyContent]]
-
-      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
-        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
-      when(mockAlertBannerHelper.getContent(any(), anyBoolean(), anyBoolean(), any())(any(), any(), any()))
-        .thenReturn(Future.successful(AlertBannerResult(None, Some(experimentMarker(None)))))
-
-      val appLocal   = appBuilder.build()
-      val controller = appLocal.injector.instanceOf[HomeController]
-      val result     = controller.homePageTab("hmrc-news")(request)
-
-      status(result) mustBe OK
-      verify(mockAlertBannerHelper).getContent(any(), anyBoolean(), anyBoolean(), any())(any(), any(), any())
-      val marker = Jsoup
-        .parse(contentAsString(result))
-        .getElementById("ptap-review-contact-preferences-experiment")
-      marker must not be null
-      marker.attr("data-contact-preference") mustBe "PAPER"
-      marker.hasAttr("data-paperless-url") mustBe false
     }
 
     "fetch tab content once for the Activity tab and render only activity cards" in {
@@ -702,7 +675,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       val expectedHtmlString = "<div class='alertBannerContent'></div>"
       val expectedHtml       = Html(expectedHtmlString)
 
-      when(mockAlertBannerHelper.getContent(any())(any(), any(), any()))
+      when(mockAlertBannerHelper.getContent(any(), any(), any())(any(), any(), any()))
         .thenReturn(Future.successful(Some(expectedHtml)))
 
       val appLocal   = appBuilder.build()
@@ -714,7 +687,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     }
 
     "Alert Banner content is not displayed if empty" in {
-      when(mockAlertBannerHelper.getContent(any())(any(), any(), any()))
+      when(mockAlertBannerHelper.getContent(any(), any(), any())(any(), any(), any()))
         .thenReturn(Future.successful(None))
 
       val appLocal   = appBuilder.build()

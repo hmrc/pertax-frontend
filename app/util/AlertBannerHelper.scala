@@ -44,55 +44,22 @@ class AlertBannerHelper @Inject() (
   newHomePageChangesBannerView: newHomePageChangesBanner
 ) {
 
-  def getContent(personDetails: Option[PersonDetails])(implicit
+  def getContent(personDetails: Option[PersonDetails], isRedesign: Boolean, isTaskTab: Boolean)(implicit
     request: UserRequest[AnyContent],
     ec: ExecutionContext,
     messages: Messages
-  ): Future[Option[Html]] =
-    getContent(personDetails, getPaperlessStatusBannerContent)
-
-  def getContent(
-    personDetails: Option[PersonDetails],
-    isRedesign: Boolean,
-    includePaperlessUrl: Boolean,
-    returnLinkText: String
-  )(implicit
-    request: UserRequest[AnyContent],
-    ec: ExecutionContext,
-    messages: Messages
-  ): Future[AlertBannerResult] =
-    getPaperlessStatus(returnLinkText).flatMap { paperlessStatus =>
-      getPaperlessStatusContent(paperlessStatus, isRedesign, includePaperlessUrl).flatMap { paperlessContent =>
-        getContent(personDetails, Future.successful(paperlessContent.bannerContent))
-          .map(AlertBannerResult(_, paperlessContent.postalExperimentContent))
-      }
-    }
-
-  private def getContent(
-    personDetails: Option[PersonDetails],
-    paperlessStatusBannerContent: Future[Option[Html]]
-  )(implicit ec: ExecutionContext, messages: Messages): Future[Option[Html]] = {
+  ): Future[Option[Html]] = {
     val contentFutures = List(
       getShutteringBannerContent,
       getPeakDemandBannerContent,
       getAddressFixBannerContent(personDetails),
-      paperlessStatusBannerContent,
+      getPaperlessStatusBannerContent(isRedesign, isTaskTab),
       getHomePageChangesBannerContent
     )
     Future.sequence(contentFutures).map(_.collectFirst { case Some(html) => html })
   }
 
-  private def getPaperlessStatus(returnLinkText: String)(implicit
-    request: UserRequest[AnyContent],
-    ec: ExecutionContext
-  ): Future[Option[PaperlessMessagesStatus]] =
-    preferencesFrontendConnector
-      .getPaperlessStatus(request.uri, returnLinkText)
-      .value
-      .map(_.toOption)
-      .recover { case _ => None }
-
-  private def getPaperlessStatusBannerContent(implicit
+  private def getPaperlessStatusBannerContent(isRedesign: Boolean, isTaskTab: Boolean)(implicit
     request: UserRequest[AnyContent],
     ec: ExecutionContext,
     messages: Messages
@@ -100,39 +67,26 @@ class AlertBannerHelper @Inject() (
     featureFlagService.get(AlertBannerPaperlessStatusToggle).flatMap {
       case toggle if toggle.isEnabled =>
         preferencesFrontendConnector
-          .getPaperlessStatus(request.uri, "")
+          .getPaperlessStatus(
+            request.uri,
+            if (isTaskTab) {
+              messages("ptap.contactPreferences.returnLinkText")
+            } else {
+              ""
+            }
+          )
           .fold(
             _ => None,
             {
-              case PaperlessStatusBounced(link)    => Some(bouncedEmailView(link))
-              case PaperlessStatusUnverified(link) => Some(unverifiedEmailView(link))
-              case _                               => None
+              case PaperlessStatusBounced(link)              => Some(bouncedEmailView(link))
+              case PaperlessStatusUnverified(link)           => Some(unverifiedEmailView(link))
+              case PaperlessStatusOptOut(link) if isRedesign =>
+                Some(postalExperimentView(Option.when(link.trim.nonEmpty)(link)))
+              case _                                         => None
             }
           )
       case _                          =>
         Future.successful(None)
-    }
-
-  private def getPaperlessStatusContent(
-    paperlessStatus: Option[PaperlessMessagesStatus],
-    isRedesign: Boolean,
-    includePaperlessUrl: Boolean
-  )(implicit
-    ec: ExecutionContext,
-    messages: Messages
-  ): Future[PaperlessStatusContent] =
-    featureFlagService.get(AlertBannerPaperlessStatusToggle).map { case toggle =>
-      paperlessStatus match {
-        case Some(PaperlessStatusBounced(link)) if toggle.isEnabled    =>
-          PaperlessStatusContent(bannerContent = Some(bouncedEmailView(link)))
-        case Some(PaperlessStatusUnverified(link)) if toggle.isEnabled =>
-          PaperlessStatusContent(bannerContent = Some(unverifiedEmailView(link)))
-        case Some(PaperlessStatusOptOut(link)) if isRedesign           =>
-          PaperlessStatusContent(
-            postalExperimentContent = Some(postalExperimentView(Option.when(includePaperlessUrl)(link)))
-          )
-        case _                                                         => PaperlessStatusContent()
-      }
     }
 
   private def getPeakDemandBannerContent(implicit ec: ExecutionContext, messages: Messages): Future[Option[Html]] =
@@ -173,10 +127,3 @@ class AlertBannerHelper @Inject() (
       case _                          => None
     }
 }
-
-final case class AlertBannerResult(content: Option[Html], postalExperimentContent: Option[Html])
-
-private final case class PaperlessStatusContent(
-  bannerContent: Option[Html] = None,
-  postalExperimentContent: Option[Html] = None
-)
