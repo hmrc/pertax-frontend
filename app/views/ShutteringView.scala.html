@@ -36,23 +36,12 @@ showBackLink = true
 ) {
     @h1("alertBannerShuttering.title", classes = Some("govuk-heading-xl"))
     @p(Text(paragraphText))
-    <ul class="govuk-list govuk-list--bullet">
-        @Seq("alertBannerShuttering.cysp",
-        "alertBannerShuttering.childBenefit",
-        "alertBannerShuttering.c2ni",
-        "alertBannerShuttering.cocar",
-        "alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc",
-        "alertBannerShuttering.helpToSave",
-        "alertBannerShuttering.tamc",
-        "alertBannerShuttering.medben",
-        "alertBannerShuttering.paye",
-        "alertBannerShuttering.pensionLifetimeAllowance",
-        "alertBannerShuttering.repayments",
-        "alertBannerShuttering.taxcalc",
-        "alertBannerShuttering.fandf"
-        ).map{item=>
-            <li>@messages(item)</li>
-        }
-
-    </ul>
+    @for(section <- configDecorator.shutterPageSections) {
+        <h2 class="govuk-heading-m">@section.heading(messages.lang.code)</h2>
+        <ul class="govuk-list govuk-list--bullet">
+            @for(serviceMessageKey <- section.serviceMessageKeys) {
+                <li>@messages(serviceMessageKey)</li>
+            }
+        </ul>
+    }
 }

@@ -120,4 +120,49 @@ class ConfigDecoratorSpec extends BaseSpec {
     }
 
   }
+
+  "shutterPageSections" must {
+
+    "read the outage periods and affected services from the default application config" in {
+      val sections = config.shutterPageSections
+
+      sections.map(_.serviceMessageKeys.size) mustBe Seq(22, 3)
+      sections.head.heading("en") must startWith("Services unavailable or disrupted from approximately 8:05am")
+      sections.head.heading("cy") must startWith("Ni fydd pob gwasanaeth ar gael rhwng 8:05am")
+      sections(1).serviceMessageKeys mustBe Seq(
+        "alertBannerShuttering.viewChildBenefit",
+        "alertBannerShuttering.taxCalculations",
+        "alertBannerShuttering.p800OnlinePayments"
+      )
+    }
+
+    "use empty values for a section with no heading or services" in {
+      val appLocal = localGuiceApplicationBuilder(
+        extraConfigValues = Map("feature.alert-shuttering.page.sections" -> Seq(Map.empty[String, String]))
+      ).build()
+
+      appLocal.injector.instanceOf[ConfigDecorator].shutterPageSections mustBe Seq(
+        ShutterPageSection("", "", Seq.empty)
+      )
+    }
+
+    "return no sections when none are configured" in {
+      val configWithoutSections =
+        Configuration(inject[Configuration].underlying.withoutPath("feature.alert-shuttering.page.sections"))
+
+      new ConfigDecorator(configWithoutSections, inject[ServicesConfig]).shutterPageSections mustBe empty
+    }
+  }
+
+  "ShutterBanner.splitAtLink" must {
+
+    "split the paragraph around the {link} marker" in {
+      ShutterBanner.splitAtLink("{link} on Saturday 28 November.") mustBe Some(("", " on Saturday 28 November."))
+      ShutterBanner.splitAtLink("Before {link} after") mustBe Some(("Before ", " after"))
+    }
+
+    "return None when there is no {link} marker" in {
+      ShutterBanner.splitAtLink("A number of services will be unavailable.") mustBe None
+    }
+  }
 }

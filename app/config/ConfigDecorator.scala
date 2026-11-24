@@ -250,6 +250,19 @@ class ConfigDecorator @Inject() (
   lazy val shutterPageParagraphCy: String =
     runModeConfiguration.getOptional[String]("feature.alert-shuttering.page.paragraph.cy").getOrElse("")
 
+  // Each section is one outage period: a heading plus the message keys of the services affected
+  lazy val shutterPageSections: Seq[ShutterPageSection] =
+    runModeConfiguration
+      .getOptional[Seq[Configuration]]("feature.alert-shuttering.page.sections")
+      .getOrElse(Seq.empty)
+      .map { section =>
+        ShutterPageSection(
+          headingEn = section.getOptional[String]("heading.en").getOrElse(""),
+          headingCy = section.getOptional[String]("heading.cy").getOrElse(""),
+          serviceMessageKeys = section.getOptional[Seq[String]]("services").getOrElse(Seq.empty)
+        )
+      }
+
   lazy val breathingSpaceBaseUrl: String                 = servicesConfig.baseUrl("breathing-space-if-proxy")
   private lazy val tasksAndActivitiesBaseUrl: String     = servicesConfig.baseUrl("pta-tasks-and-events")
   lazy val breathingSpaceTimeoutInMilliseconds: Int      =
@@ -343,4 +356,20 @@ class ConfigDecorator @Inject() (
       .get[String]("feature.address-change-error.start-date.paragraph.cy")
       .replace("{0}", addressType)
       .replace("{1}", date)
+}
+
+final case class ShutterPageSection(headingEn: String, headingCy: String, serviceMessageKeys: Seq[String]) {
+  def heading(langCode: String): String = if (langCode == "cy") headingCy else headingEn
+}
+
+object ShutterBanner {
+  // Marker in the banner paragraph config showing where the link text goes,
+  // e.g. "{link} on Saturday 28 November and Sunday 29 November 2026."
+  val linkMarker = "{link}"
+
+  def splitAtLink(paragraph: String): Option[(String, String)] =
+    paragraph.indexOf(linkMarker) match {
+      case -1    => None
+      case index => Some((paragraph.take(index), paragraph.drop(index + linkMarker.length)))
+    }
 }
