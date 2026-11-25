@@ -46,7 +46,7 @@ class TasksAndActivitiesConnector @Inject() (
     ec: ExecutionContext
   ): EitherT[Future, UpstreamErrorResponse, Seq[Task]] = {
     val url     = configDecorator.tasksAndActivitiesUrl
-    val request = TasksAndActivitiesRequest(nino.nino, List("p800"))
+    val request = TasksAndActivitiesRequest(nino.nino, List("p800", "p2"))
 
     EitherT(
       httpClientResponse
