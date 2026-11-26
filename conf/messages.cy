@@ -726,20 +726,22 @@ label.return_to_your_profile_page = Dychwelyd i’ch proffil
 #*************************************************************
 # Shuttering Page
 #*************************************************************
-alertBannerShuttering.title = Y gwasanaethau na fyddant ar gael
-alertBannerShuttering.cysp = Gwirioʼch Pensiwn y Wladwriaeth
+alertBannerShuttering.title = Gwasanaethau nad ydynt ar gael
+alertBannerShuttering.cysp = Gwirio’ch Pensiwn y Wladwriaeth
 alertBannerShuttering.c2ni = Yswiriant Gwladol Dosbarth 2
-alertBannerShuttering.cocar = Car cwmni
+alertBannerShuttering.cocar = Car Cwmni
 alertBannerShuttering.helpToSave = Cymorth i Gynilo
 alertBannerShuttering.tamc = Lwfans Priodasol
 alertBannerShuttering.medben = Buddiannau meddygol
-alertBannerShuttering.paye = TWE – Gwasanaeth Gwirio’ch Treth Incwm
-alertBannerShuttering.pensionLifetimeAllowance = Gwiriwch Eich Diogelu Pensiwn
+alertBannerShuttering.paye = TWE - Gwasanaeth  – Gwirio’ch Treth Incwm
+alertBannerShuttering.pensionLifetimeAllowance = Gwirio’ch Diogelwch Pensiwn
 alertBannerShuttering.repayments = Ad-daliadau
 alertBannerShuttering.taxcalc = Cyfrifiad Treth
 alertBannerShuttering.fandf = Cynorthwywyr Dibynadwy
-alertBannerShuttering.childBenefit = Budd-dal Plant
-alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Treuliau Cyfradd Unffurf, yn cynnwys gwisg unffurf, dillad gwaith ac offer
+alertBannerShuttering.childBenefit = Budd-daliadau Plant
+alertBannerShuttering.flatRateExpenses = Treuliau cyfradd unffurf, gan gynnwys gwisg unffurf, dillad gwaith ac offer
+alertBannerShuttering.taxCalculations = Cyfrifiad Treth
+alertBannerShuttering.p800OnlinePayments = Taliadau Ar-lein P800
 
 #*************************************************************
 # Alert Banner

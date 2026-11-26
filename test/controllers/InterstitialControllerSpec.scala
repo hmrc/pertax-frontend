@@ -380,9 +380,18 @@ class InterstitialControllerSpec extends BaseSpec {
 
       val result = controller.displayShutteringPage()(fakeRequest)
       status(result) mustBe OK
-      contentAsString(result) must include(
-        "The following services will be unavailable from"
+      val page   = contentAsString(result)
+      page must include("Services unavailable or disrupted")
+      page must include("There are two periods of planned maintenance over the weekend")
+      page must include(
+        "Services unavailable or disrupted from approximately 8:05am on Saturday 28 November to 4:15pm on Sunday 29 November"
       )
+      page must include("Medical Benefits")
+      page must include("Check your State Pension")
+      page must include("Child Benefits")
+      page must include("Services unavailable from 10pm on Saturday 28 November to 4pm on Sunday 29 November")
+      page must include("Tax Calculation")
+      page must include("P800 Online Payments")
     }
 
     "return redirect back to the home page when NpsShutteringToggle is false" in {

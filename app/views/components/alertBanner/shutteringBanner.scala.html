@@ -14,12 +14,22 @@
  * limitations under the License.
  *@
 
-@import config.ConfigDecorator
+@import config.{ConfigDecorator, ShutterBanner}
 
 @this(configDecorator: ConfigDecorator)
 
 @()(implicit messages: Messages)
+@paragraph = @{ if(messages.lang.code == "cy") configDecorator.shutterBannerParagraphCy else configDecorator.shutterBannerParagraphEn }
+@linkText = @{ if(messages.lang.code == "cy") configDecorator.shutterBannerLinkTextCy else configDecorator.shutterBannerLinkTextEn }
+@link = {<a class="govuk-notification-banner__link" href="@controllers.interstitials.routes.InterstitialController.displayShutteringPage.url">@linkText</a>}
+@* If the configured paragraph contains {link}, the link goes there, e.g. "{link} on Saturday 28 November...".
+   Otherwise the link goes on its own line after the paragraph, as before. *@
 <p class="govuk-notification-banner__heading">
- @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerParagraphCy }else {@configDecorator.shutterBannerParagraphEn}<br/>
-<a class="govuk-notification-banner__link" href="@controllers.interstitials.routes.InterstitialController.displayShutteringPage.url"> @if(messages.lang.code == "cy"){ @configDecorator.shutterBannerLinkTextCy }else {@configDecorator.shutterBannerLinkTextEn}</a>.
+@ShutterBanner.splitAtLink(paragraph) match {
+    case Some(parts) => {@parts._1@link@parts._2}
+    case None => {
+    @paragraph<br/>
+    @link.
+    }
+}
 </p>

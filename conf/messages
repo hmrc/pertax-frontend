@@ -731,7 +731,7 @@ label.return_to_your_profile_page=Return to your profile
 #*************************************************************
 # Shuttering Page
 #*************************************************************
-alertBannerShuttering.title = Services unavailable
+alertBannerShuttering.title = Services unavailable or disrupted
 alertBannerShuttering.cysp = Check your State Pension
 alertBannerShuttering.c2ni = Class 2 National Insurance
 alertBannerShuttering.cocar = Company Car
@@ -743,8 +743,10 @@ alertBannerShuttering.pensionLifetimeAllowance = Check Your Pension Protection
 alertBannerShuttering.repayments = Repayments
 alertBannerShuttering.taxcalc = Tax Calculation
 alertBannerShuttering.fandf = Trusted Helpers
-alertBannerShuttering.childBenefit = Child Benefit
-alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Flat Rate Expenses, including  uniform, work clothing and tools
+alertBannerShuttering.childBenefit = Child Benefits
+alertBannerShuttering.flatRateExpenses = Flat Rate Expenses, including uniform, work clothing and tools
+alertBannerShuttering.taxCalculations = Tax Calculation
+alertBannerShuttering.p800OnlinePayments = P800 Online Payments
 
 #*************************************************************
 # Alert Banner
