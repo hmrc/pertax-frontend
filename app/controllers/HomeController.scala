@@ -116,7 +116,8 @@ class HomeController @Inject() (
         for {
           breathingSpaceIndicator <- fBreathingSpaceIndicator
           eitherPersonDetails     <- fEitherPersonDetails
-          alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten)
+          alertBannerContent      <-
+            alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten, true, currentTab == Task)
           tabContentCards         <- fTabContentCards
           homePageServices        <- fHomePageServices
           activityTabEnabled      <- fActivityTabEnabled
@@ -229,7 +230,8 @@ class HomeController @Inject() (
         listOfTasks             <- fListOfTasks
         homePageServices        <- fHomePageServices
         eitherPersonDetails     <- fEitherPersonDetails
-        alertBannerContent      <- alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten)
+        alertBannerContent      <-
+          alertBannerHelper.getContent(eitherPersonDetails.toOption.flatten, isRedesign = false, isTaskTab = false)
       } yield {
         val personDetailsOpt = eitherPersonDetails.toOption.flatten
         val nameToDisplay    = Some(personalDetailsNameOrDefault(personDetailsOpt))

@@ -23,7 +23,7 @@ import models.admin.{AlertBannerPaperlessStatusToggle, HomePageChangesBannerTogg
 import models.{PaperlessMessagesStatus, PaperlessStatusBounced, PaperlessStatusNewCustomer, PaperlessStatusNoEmail, PaperlessStatusOptIn, PaperlessStatusOptOut, PaperlessStatusReopt, PaperlessStatusReoptModified, PaperlessStatusUnverified}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
@@ -72,6 +72,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
   implicit lazy val messages: Messages                            = MessagesImpl(Lang("en"), messagesApi)
   lazy val alertBannerHelper: AlertBannerHelper                   = app.injector.instanceOf[AlertBannerHelper]
   lazy val bouncedEmailView: bouncedEmail                         = app.injector.instanceOf[bouncedEmail]
+  lazy val postalExperimentView: postalExperiment                 = app.injector.instanceOf[postalExperiment]
   lazy val unverifiedEmailView: unverifiedEmail                   = app.injector.instanceOf[unverifiedEmail]
   lazy val peakDemandBannerView: peakDemandBanner                 = app.injector.instanceOf[peakDemandBanner]
   lazy val addressFixBannerView: addressFixBanner                 = app.injector.instanceOf[addressFixBanner]
@@ -90,7 +91,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       when(mockFeatureFlagService.get(ShowPlannedOutageBannerToggle))
         .thenReturn(Future.successful(FeatureFlag(ShowPlannedOutageBannerToggle, isEnabled = true)))
 
-      val result = alertBannerHelper.getContent(None).futureValue
+      val result = alertBannerHelper.getContent(None, true, false).futureValue
 
       result mustBe Some(shutteringBannerView())
     }
@@ -103,7 +104,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       when(mockFeatureFlagService.get(PeakDemandBannerToggle))
         .thenReturn(Future.successful(FeatureFlag(PeakDemandBannerToggle, isEnabled = true)))
 
-      val result = alertBannerHelper.getContent(None).futureValue
+      val result = alertBannerHelper.getContent(None, true, false).futureValue
 
       result mustBe Some(peakDemandBannerView())
     }
@@ -119,7 +120,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
         )
       )
 
-      val result = alertBannerHelper.getContent(personDetails).futureValue
+      val result = alertBannerHelper.getContent(personDetails, true, false).futureValue
 
       result mustBe Some(addressFixBannerView())
     }
@@ -130,7 +131,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
         EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusBounced(link): PaperlessMessagesStatus)
       )
 
-      val result = alertBannerHelper.getContent(None).futureValue
+      val result = alertBannerHelper.getContent(None, true, false).futureValue
 
       result mustBe Some(bouncedEmailView(link))
     }
@@ -141,7 +142,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
         EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusUnverified(link): PaperlessMessagesStatus)
       )
 
-      val result = alertBannerHelper.getContent(None).futureValue
+      val result = alertBannerHelper.getContent(None, true, false).futureValue
 
       result mustBe Some(unverifiedEmailView(link))
     }
@@ -154,7 +155,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
       when(mockFeatureFlagService.get(HomePageChangesBannerToggle))
         .thenReturn(Future.successful(FeatureFlag(HomePageChangesBannerToggle, isEnabled = true)))
 
-      val result = alertBannerHelper.getContent(None).futureValue
+      val result = alertBannerHelper.getContent(None, true, false).futureValue
 
       result mustBe Some(newHomePageChangesBannerView())
     }
@@ -164,7 +165,7 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
         PaperlessStatusNewCustomer(),
         PaperlessStatusReopt(),
         PaperlessStatusReoptModified(),
-        PaperlessStatusOptOut(),
+//        PaperlessStatusOptOut(),
         PaperlessStatusOptIn(),
         PaperlessStatusNoEmail()
       ).foreach { paperlessStatusResponse =>
@@ -173,11 +174,67 @@ class AlertBannerHelperSpec extends BaseSpec with IntegrationPatience {
             EitherT.rightT[Future, UpstreamErrorResponse](paperlessStatusResponse: PaperlessMessagesStatus)
           )
 
-          val result = alertBannerHelper.getContent(None).futureValue
+          val result = alertBannerHelper.getContent(None, true, false).futureValue
 
           result mustBe None
         }
       }
+  }
+
+  "AlertBannerHelper.getContent for the redesign" must {
+    "return the postal experiment content from one preferences call" in {
+      val paperlessStatus = PaperlessStatusOptOut("paperless-url")
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
+        EitherT.rightT[Future, UpstreamErrorResponse](paperlessStatus: PaperlessMessagesStatus)
+      )
+
+      val result = alertBannerHelper
+        .getContent(None, isRedesign = true, true)
+        .futureValue
+
+      result mustBe Some(postalExperimentView(Some("paperless-url")))
+      verify(mockPreferencesFrontendConnector, times(1))
+        .getPaperlessStatus("/", "Back to your tasks")
+    }
+
+    "not return postal experiment content for the legacy page" in {
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
+        EitherT.rightT[Future, UpstreamErrorResponse](PaperlessStatusOptOut("paperless-url"): PaperlessMessagesStatus)
+      )
+
+      val result = alertBannerHelper
+        .getContent(None, isRedesign = false, false)
+        .futureValue
+
+      result mustBe None
+    }
+
+    "reuse a bounced status for the banner content" in {
+      val paperlessStatus = PaperlessStatusBounced("/link")
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
+        EitherT.rightT[Future, UpstreamErrorResponse](paperlessStatus: PaperlessMessagesStatus)
+      )
+
+      val result = alertBannerHelper
+        .getContent(None, isRedesign = true, false)
+        .futureValue
+
+      result mustBe Some(bouncedEmailView("/link"))
+      verify(mockPreferencesFrontendConnector, times(1))
+        .getPaperlessStatus("/", "")
+    }
+
+    "fail safely when preferences-frontend returns an error" in {
+      when(mockPreferencesFrontendConnector.getPaperlessStatus(any(), any())(any())).thenReturn(
+        EitherT.leftT[Future, PaperlessMessagesStatus](UpstreamErrorResponse("failed", 500))
+      )
+
+      val result = alertBannerHelper
+        .getContent(None, isRedesign = true, false)
+        .futureValue
+
+      result mustBe None
+    }
   }
 
   "AlertBannerHelper.getVoluntaryContributionsAlertBannerContent" must {

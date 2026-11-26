@@ -36,12 +36,14 @@ import uk.gov.hmrc.domain.SaUtrGenerator
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import viewmodels.{CardContainerModel, PtapAlertBanner, PtapHomeViewModel, SecondaryNavModel, TabModel}
 import viewmodels.TabEnum.*
+import views.html.components.alertBanner.paperlessStatus.postalExperiment
 
 import scala.concurrent.Future
 
 class PtapHomeViewSpec extends ViewSpec {
 
   lazy val home: PtapHomeView                       = inject[PtapHomeView]
+  lazy val postalExperimentView: postalExperiment   = inject[postalExperiment]
   implicit val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
 
   val taskCompletedMessage      = "It can take up to 10 days for completed tasks to be removed from the list."
@@ -114,6 +116,51 @@ class PtapHomeViewSpec extends ViewSpec {
     )
 
   "Rendering PtapHomeView.scala.html" must {
+
+    "render the contact preferences experiment marker when experiment data is supplied" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest())
+      val paperlessUrl                                              =
+        "https://www.qa.tax.service.gov.uk/paperless/check-settings" +
+          "?returnUrl=encrypted-return-url&returnLinkText=encrypted-link-text"
+
+      val document = asDocument(
+        home(
+          homeViewModel.copy(alertBannerContent = Some(PtapAlertBanner(postalExperimentView(Some(paperlessUrl)))))
+        ).toString
+      )
+      val marker   = document.getElementById("ptap-review-contact-preferences-experiment")
+
+      marker must not be null
+      marker.attr("data-contact-preference") mustBe "PAPER"
+      marker.attr("data-paperless-url") mustBe paperlessUrl
+      marker.hasAttr("hidden") mustBe true
+    }
+
+    "not render the contact preferences experiment marker when experiment data is absent" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest())
+
+      val document = asDocument(home(homeViewModel).toString)
+
+      document.getElementById("ptap-review-contact-preferences-experiment") mustBe null
+    }
+
+    "HTML-escape the paperless URL while preserving its DOM value" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest())
+      val paperlessUrl                                              =
+        "https://www.qa.tax.service.gov.uk/paperless/check-settings" +
+          "?returnUrl=value%2B1&returnLinkText=value%3D%3D"
+      val rendered                                                  = home(
+        homeViewModel.copy(alertBannerContent = Some(PtapAlertBanner(postalExperimentView(Some(paperlessUrl)))))
+      ).toString
+
+      rendered must include("&amp;returnLinkText=")
+      asDocument(rendered)
+        .getElementById("ptap-review-contact-preferences-experiment")
+        .attr("data-paperless-url") mustBe paperlessUrl
+    }
 
     "show the users name and not 'Your account' when the user has details and is not a GG user" in {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =

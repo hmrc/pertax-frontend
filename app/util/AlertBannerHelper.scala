@@ -26,7 +26,7 @@ import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import play.twirl.api.Html
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
-import views.html.components.alertBanner.paperlessStatus.{bouncedEmail, unverifiedEmail}
+import views.html.components.alertBanner.paperlessStatus.{bouncedEmail, postalExperiment, unverifiedEmail}
 import views.html.components.alertBanner.{addressFixBanner, newHomePageChangesBanner, peakDemandBanner, shutteringBanner, voluntaryContributionsAlertView}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,6 +35,7 @@ class AlertBannerHelper @Inject() (
   preferencesFrontendConnector: PreferencesFrontendConnector,
   featureFlagService: FeatureFlagService,
   bouncedEmailView: bouncedEmail,
+  postalExperimentView: postalExperiment,
   unverifiedEmailView: unverifiedEmail,
   voluntaryContributionsAlertView: voluntaryContributionsAlertView,
   peakDemandBannerView: peakDemandBanner,
@@ -43,7 +44,7 @@ class AlertBannerHelper @Inject() (
   newHomePageChangesBannerView: newHomePageChangesBanner
 ) {
 
-  def getContent(personDetails: Option[PersonDetails])(implicit
+  def getContent(personDetails: Option[PersonDetails], isRedesign: Boolean, isTaskTab: Boolean)(implicit
     request: UserRequest[AnyContent],
     ec: ExecutionContext,
     messages: Messages
@@ -52,13 +53,13 @@ class AlertBannerHelper @Inject() (
       getShutteringBannerContent,
       getPeakDemandBannerContent,
       getAddressFixBannerContent(personDetails),
-      getPaperlessStatusBannerContent,
+      getPaperlessStatusBannerContent(isRedesign, isTaskTab),
       getHomePageChangesBannerContent
     )
     Future.sequence(contentFutures).map(_.collectFirst { case Some(html) => html })
   }
 
-  private def getPaperlessStatusBannerContent(implicit
+  private def getPaperlessStatusBannerContent(isRedesign: Boolean, isTaskTab: Boolean)(implicit
     request: UserRequest[AnyContent],
     ec: ExecutionContext,
     messages: Messages
@@ -66,13 +67,22 @@ class AlertBannerHelper @Inject() (
     featureFlagService.get(AlertBannerPaperlessStatusToggle).flatMap {
       case toggle if toggle.isEnabled =>
         preferencesFrontendConnector
-          .getPaperlessStatus(request.uri, "")
+          .getPaperlessStatus(
+            request.uri,
+            if (isTaskTab) {
+              messages("ptap.contactPreferences.returnLinkText")
+            } else {
+              ""
+            }
+          )
           .fold(
             _ => None,
             {
-              case PaperlessStatusBounced(link)    => Some(bouncedEmailView(link))
-              case PaperlessStatusUnverified(link) => Some(unverifiedEmailView(link))
-              case _                               => None
+              case PaperlessStatusBounced(link)              => Some(bouncedEmailView(link))
+              case PaperlessStatusUnverified(link)           => Some(unverifiedEmailView(link))
+              case PaperlessStatusOptOut(link) if isRedesign =>
+                Some(postalExperimentView(Option.when(link.trim.nonEmpty)(link)))
+              case _                                         => None
             }
           )
       case _                          =>

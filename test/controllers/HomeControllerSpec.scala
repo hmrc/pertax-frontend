@@ -54,6 +54,13 @@ import scala.concurrent.Future
 
 class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetailsFixtures {
 
+  private def experimentMarker(paperlessUrl: Option[String]): Html = Html(
+    s"""<span id="ptap-review-contact-preferences-experiment"
+       |data-contact-preference="PAPER"
+       |${paperlessUrl.fold("")(url => s"data-paperless-url=\"$url\"")}
+       |hidden></span>""".stripMargin
+  )
+
   val fakeAuthJourney              = new FakeAuthJourney
   val fakeRlsInterruptHelper       = new FakeRlsInterruptHelper
   val fakePaperlessInterruptHelper = new FakePaperlessInterruptHelper
@@ -115,7 +122,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     when(mockHomeOptionsGenerator.getLatestNewsAndUpdatesCard()(any[Messages], any[UserRequest[AnyContent]]))
       .thenReturn(None)
 
-    when(mockAlertBannerHelper.getContent(any())(any(), any(), any()))
+    when(mockAlertBannerHelper.getContent(any(), any(), any())(any(), any(), any()))
       .thenReturn(Future.successful(None))
 
     when(mockTasksService.getListOfTasks(any(), any()))
@@ -314,6 +321,50 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       content.text() must not include "Tax code change"
 
       content.text() must include(taskCompletedMessage)
+    }
+
+    "render contact preferences experiment data for an eligible Your tasks request" in {
+      val request      = FakeRequest("GET", "/personal-account/your-tasks?ptap=true")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+      val paperlessUrl =
+        "https://www.qa.tax.service.gov.uk/paperless/check-settings" +
+          "?returnUrl=encrypted-return-url&returnLinkText=encrypted-link-text"
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+      when(mockAlertBannerHelper.getContent(any(), any(), any())(any(), any(), any()))
+        .thenReturn(Future.successful(Some(experimentMarker(Some(paperlessUrl)))))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.homePageTab("your-tasks")(request)
+
+      status(result) mustBe OK
+
+      val marker = Jsoup.parse(contentAsString(result)).getElementById("ptap-review-contact-preferences-experiment")
+      marker must not be null
+      marker.attr("data-contact-preference") mustBe "PAPER"
+      marker.attr("data-paperless-url") mustBe paperlessUrl
+      marker.hasAttr("hidden") mustBe true
+    }
+
+    "not render contact preferences experiment data for an ineligible Your tasks request" in {
+      val request = FakeRequest("GET", "/personal-account/your-tasks?ptap=true")
+        .withSession(HeaderNames.xSessionId -> "FAKE_SESSION_ID")
+        .asInstanceOf[Request[AnyContent]]
+
+      when(mockFeatureFlagService.get(HomePagePersonalisationToggle))
+        .thenReturn(Future.successful(FeatureFlag(HomePagePersonalisationToggle, isEnabled = true)))
+
+      val appLocal   = appBuilder.build()
+      val controller = appLocal.injector.instanceOf[HomeController]
+      val result     = controller.homePageTab("your-tasks")(request)
+
+      status(result) mustBe OK
+      Jsoup
+        .parse(contentAsString(result))
+        .getElementById("ptap-review-contact-preferences-experiment") mustBe null
     }
 
     "fetch tab content once for the Activity tab and render only activity cards" in {
@@ -624,7 +675,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
       val expectedHtmlString = "<div class='alertBannerContent'></div>"
       val expectedHtml       = Html(expectedHtmlString)
 
-      when(mockAlertBannerHelper.getContent(any())(any(), any(), any()))
+      when(mockAlertBannerHelper.getContent(any(), any(), any())(any(), any(), any()))
         .thenReturn(Future.successful(Some(expectedHtml)))
 
       val appLocal   = appBuilder.build()
@@ -636,7 +687,7 @@ class HomeControllerSpec extends BaseSpec with WireMockHelper with CitizenDetail
     }
 
     "Alert Banner content is not displayed if empty" in {
-      when(mockAlertBannerHelper.getContent(any())(any(), any(), any()))
+      when(mockAlertBannerHelper.getContent(any(), any(), any())(any(), any(), any()))
         .thenReturn(Future.successful(None))
 
       val appLocal   = appBuilder.build()
