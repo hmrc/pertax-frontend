@@ -45,7 +45,7 @@
     accountHome = true
 ) {
 
-    @if(viewModel.alertBannerContent.exists(_.content.body.strip().startsWith("<span"))) {
+    @if(viewModel.alertBannerContent.exists(_.content.body.contains("ptap-review-contact-preferences-experiment"))) {
         @viewModel.alertBannerContent.map(_.content)
     } else {
         @alertBanner(viewModel.alertBannerContent.map(_.content))
