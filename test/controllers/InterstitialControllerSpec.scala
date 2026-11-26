@@ -388,9 +388,9 @@ class InterstitialControllerSpec extends BaseSpec {
       )
       page must include("Medical Benefits")
       page must include("Check your State Pension")
-      page must include("Child Benefit")
+      page must include("Child Benefits")
       page must include("Services unavailable from 10pm on Saturday 28 November to 4pm on Sunday 29 November")
-      page must include("Tax Calculations")
+      page must include("Tax Calculation")
       page must include("P800 Online Payments")
     }
 
