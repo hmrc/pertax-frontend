@@ -727,39 +727,21 @@ label.return_to_your_profile_page = Dychwelyd i’ch proffil
 # Shuttering Page
 #*************************************************************
 alertBannerShuttering.title = Gwasanaethau nad ydynt ar gael
-alertBannerShuttering.cysp = Gwirioʼch Pensiwn y Wladwriaeth
+alertBannerShuttering.cysp = Gwirio’ch Pensiwn y Wladwriaeth
 alertBannerShuttering.c2ni = Yswiriant Gwladol Dosbarth 2
 alertBannerShuttering.cocar = Car Cwmni
 alertBannerShuttering.helpToSave = Cymorth i Gynilo
-alertBannerShuttering.tamc = Lwfans Priodasol
+alertBannerShuttering.tamc = Lwfans Priodas
 alertBannerShuttering.medben = Buddiannau meddygol
-alertBannerShuttering.paye = TWE – Gwasanaeth Gwirio’ch Treth Incwm
-alertBannerShuttering.pensionLifetimeAllowance = Gwiriwch Eich Diogelu Pensiwn
+alertBannerShuttering.paye = Gwasanaeth TWE – Gwirio’ch Treth Incwm
+alertBannerShuttering.pensionLifetimeAllowance = Gwirio’ch Diogelwch Pensiwn
 alertBannerShuttering.repayments = Ad-daliadau
-alertBannerShuttering.taxcalc = Cyfrifiad Treth
+alertBannerShuttering.taxcalc = Cyfrifiadau Treth
 alertBannerShuttering.fandf = Cynorthwywyr Dibynadwy
 alertBannerShuttering.childBenefit = Budd-dal Plant
-alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Treuliau Cyfradd Unffurf, yn cynnwys gwisg unffurf, dillad gwaith ac offer
-alertBannerShuttering.childBenefitView = Dangosydd Budd-dal Plant
-alertBannerShuttering.friendsAndFamily = Teulu a Ffrindiau
-alertBannerShuttering.nisp = Gwasanaethau Yswiriant Gwladol i’r Diwydiant Pensiynau
-alertBannerShuttering.nispModelling = Gwasanaethau Yswiriant Gwladol i’r Diwydiant Pensiynau – Modelu
-alertBannerShuttering.taxpayerAccountInformation = Gwybodaeth Cyfrif y Trethdalwr
-alertBannerShuttering.taxAccountManagementCentre = Canolfan Reoli Cyfrif Treth
-alertBannerShuttering.findMyNino = Dod o hyd i fy rhif Yswiriant Gwladol
-alertBannerShuttering.storeMyNino = Storio fy rhif Yswiriant Gwladol
-alertBannerShuttering.pensionsLifetimeAllowance = Lwfans Oes Pensiwn
-alertBannerShuttering.gmp = Isafswm Pensiwn Gwarantedig
-alertBannerShuttering.cgtPropertyDisposals = Treth Enillion Cyfalaf – Gwarediad Eiddo
-alertBannerShuttering.lifetimeIsa = Cyfrif Cynilo Unigol Gydol Oes
-alertBannerShuttering.pbik = Talu buddiannau drwy’r gyflogres
-alertBannerShuttering.reliefAtSource = Rhyddhad Wrth y Ffynhonnell
-alertBannerShuttering.taxHistory = Cofnod Treth / Dangosydd Cofnodion Incwm
-alertBannerShuttering.maintainATrust = Cynnal Ymddiriedolaeth
-alertBannerShuttering.trusts = Ymddiriedolaethau
-alertBannerShuttering.viewChildBenefit = Dangosydd Budd-dal Plant
-alertBannerShuttering.taxCalculations = Cyfrifiadau Treth
-alertBannerShuttering.p800OnlinePayments = Taliadau ar-lein P800
+alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Treuliau cyfradd unffurf, gan gynnwys gwisg unffurf, dillad gwaith ac offer
+alertBannerShuttering.taxCalculations = Cyfrifiad Treth
+alertBannerShuttering.p800OnlinePayments = Taliadau Ar-lein P800
 
 #*************************************************************
 # Alert Banner

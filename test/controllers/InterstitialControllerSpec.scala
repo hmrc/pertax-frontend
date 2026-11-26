@@ -387,9 +387,11 @@ class InterstitialControllerSpec extends BaseSpec {
         "Services unavailable or disrupted from approximately 8:05am on Saturday 28 November to 4:15pm on Sunday 29 November"
       )
       page must include("Medical Benefits")
+      page must include("Check your State Pension")
+      page must include("Child Benefit")
       page must include("Services unavailable from 10pm on Saturday 28 November to 4pm on Sunday 29 November")
-      page must include("TaxCalculations")
-      page must include("P800 online payments")
+      page must include("Tax Calculations")
+      page must include("P800 Online Payments")
     }
 
     "return redirect back to the home page when NpsShutteringToggle is false" in {

@@ -741,30 +741,12 @@ alertBannerShuttering.medben = Medical Benefits
 alertBannerShuttering.paye = PAYE Check Your Income Tax Service
 alertBannerShuttering.pensionLifetimeAllowance = Check Your Pension Protection
 alertBannerShuttering.repayments = Repayments
-alertBannerShuttering.taxcalc = Tax Calculation
+alertBannerShuttering.taxcalc = Tax Calculations
 alertBannerShuttering.fandf = Trusted Helpers
 alertBannerShuttering.childBenefit = Child Benefit
-alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Flat Rate Expenses, including  uniform, work clothing and tools
-alertBannerShuttering.childBenefitView = Child Benefit View
-alertBannerShuttering.friendsAndFamily = Friends and Family
-alertBannerShuttering.nisp = National Insurance Services to the Pensions Industry
-alertBannerShuttering.nispModelling = National Insurance Services to the Pensions Industry – Modelling
-alertBannerShuttering.taxpayerAccountInformation = Taxpayer Account Information
-alertBannerShuttering.taxAccountManagementCentre = Tax Account Management Centre
-alertBannerShuttering.findMyNino = Find My National Insurance Number
-alertBannerShuttering.storeMyNino = Store My National Insurance Number
-alertBannerShuttering.pensionsLifetimeAllowance = Pensions Lifetime Allowance
-alertBannerShuttering.gmp = Guaranteed Minimum Pension
-alertBannerShuttering.cgtPropertyDisposals = Capital Gains Tax – Property Disposals
-alertBannerShuttering.lifetimeIsa = Lifetime Individual Savings Account
-alertBannerShuttering.pbik = Payrolling Benefits in Kind
-alertBannerShuttering.reliefAtSource = Relief at Source
-alertBannerShuttering.taxHistory = Tax History / Income Record Viewer
-alertBannerShuttering.maintainATrust = Maintain a Trust
-alertBannerShuttering.trusts = Trusts
-alertBannerShuttering.viewChildBenefit = View Child Benefit
-alertBannerShuttering.taxCalculations = TaxCalculations
-alertBannerShuttering.p800OnlinePayments = P800 online payments
+alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Flat Rate Expenses, including uniform, work clothing and tools
+alertBannerShuttering.taxCalculations = Tax Calculations
+alertBannerShuttering.p800OnlinePayments = P800 Online Payments
 
 #*************************************************************
 # Alert Banner

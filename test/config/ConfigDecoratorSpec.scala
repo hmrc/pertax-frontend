@@ -126,11 +126,11 @@ class ConfigDecoratorSpec extends BaseSpec {
     "read the outage periods and affected services from the default application config" in {
       val sections = config.shutterPageSections
 
-      sections.map(_.serviceMessageKeys.size) mustBe Seq(22, 3)
+      sections.map(_.serviceMessageKeys.size) mustBe Seq(13, 3)
       sections.head.heading("en") must startWith("Services unavailable or disrupted from approximately 8:05am")
       sections.head.heading("cy") must startWith("Ni fydd pob gwasanaeth ar gael rhwng 8:05am")
       sections(1).serviceMessageKeys mustBe Seq(
-        "alertBannerShuttering.viewChildBenefit",
+        "alertBannerShuttering.childBenefit",
         "alertBannerShuttering.taxCalculations",
         "alertBannerShuttering.p800OnlinePayments"
       )
