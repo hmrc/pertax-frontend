@@ -739,7 +739,7 @@ alertBannerShuttering.repayments = Ad-daliadau
 alertBannerShuttering.taxcalc = Cyfrifiadau Treth
 alertBannerShuttering.fandf = Cynorthwywyr Dibynadwy
 alertBannerShuttering.childBenefit = Budd-dal Plant
-alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Treuliau cyfradd unffurf, gan gynnwys gwisg unffurf, dillad gwaith ac offer
+alertBannerShuttering.flatRateExpenses = Treuliau cyfradd unffurf, gan gynnwys gwisg unffurf, dillad gwaith ac offer
 alertBannerShuttering.taxCalculations = Cyfrifiad Treth
 alertBannerShuttering.p800OnlinePayments = Taliadau Ar-lein P800
 

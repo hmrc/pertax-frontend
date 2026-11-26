@@ -744,7 +744,7 @@ alertBannerShuttering.repayments = Repayments
 alertBannerShuttering.taxcalc = Tax Calculations
 alertBannerShuttering.fandf = Trusted Helpers
 alertBannerShuttering.childBenefit = Child Benefit
-alertBannerShuttering.eeIncWfhUnfWorkClothesToolsProSubsc = Flat Rate Expenses, including uniform, work clothing and tools
+alertBannerShuttering.flatRateExpenses = Flat Rate Expenses, including uniform, work clothing and tools
 alertBannerShuttering.taxCalculations = Tax Calculations
 alertBannerShuttering.p800OnlinePayments = P800 Online Payments
 
