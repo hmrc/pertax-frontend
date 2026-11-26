@@ -97,7 +97,7 @@ private final case class TasksAndActivitiesCard(activityType: ActivityType, en: 
       title = content.header,
       status = TaskStatus.Incomplete,
       href = content.url,
-      hintText = Option(content.body).filter(_.trim.nonEmpty),
+      hintText = content.body.filter(_.trim.nonEmpty),
       dateText = content.hint,
       activityType = activityType,
       dateTag = content.dateTag.flatMap(DateTag.toTagColour)
@@ -110,7 +110,7 @@ private object TasksAndActivitiesCard:
 
 private final case class CardContent(
   header: String,
-  body: String,
+  body: Option[String],
   url: Option[String],
   hint: Option[String],
   dateTag: Option[String]
