@@ -45,8 +45,11 @@
     accountHome = true
 ) {
 
-    @alertBanner(viewModel.alertBannerContent.map(_.content))
-
+    @if(viewModel.alertBannerContent.exists(_.content.body.strip().startsWith("<span"))) {
+        @viewModel.alertBannerContent.map(_.content)
+    } else {
+        @alertBanner(viewModel.alertBannerContent.map(_.content))
+    }
 
     <header class="hmrc-page-heading">
         <span class="govuk-caption-xl">@viewModel.name.fold(messages("label.your_account"))(upperCaseToTitleCase)</span>
