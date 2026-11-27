@@ -28,7 +28,7 @@ class TasksAndActivitiesConnectorSpec extends ConnectorSpec with WireMockHelper 
 
   private val url         = "/pta-tasks-and-events/retrieve-tasks-and-events"
   private val requestBody =
-    s"""{"userId":"${generatedNino.nino}","serviceList":["p800"]}"""
+    s"""{"userId":"${generatedNino.nino}","serviceList":["p800","p2"]}"""
 
   override implicit lazy val app: Application = app(
     Map(
@@ -165,6 +165,46 @@ class TasksAndActivitiesConnectorSpec extends ConnectorSpec with WireMockHelper 
             dateText = Some("Updated 1 July 2026"),
             activityType = ActivityType.Event,
             dateTag = Some(TagColour.Green)
+          )
+        )
+      )
+    }
+
+    "accept cards with no body, such as P2 tax code change events" in {
+      val p2Response =
+        """
+          |{
+          |  "cards": [
+          |    {
+          |      "activityType": "event",
+          |      "en": {
+          |        "header": "Your tax code for Example Employer will change from 6 April 2027",
+          |        "url": "/paye/next-tax-year/tax-code-change?lang=en&id=12345",
+          |        "hint": "Issued 2 February 2027"
+          |      },
+          |      "cy": {
+          |        "header": "Bydd eich cod treth ar gyfer Example Employer yn newid o 6 Ebrill 2027 ymlaen",
+          |        "url": "/paye/next-tax-year/tax-code-change?lang=cy&id=12345",
+          |        "hint": "Cyhoeddwyd 2 Chwefror 2027"
+          |      }
+          |    }
+          |  ]
+          |}
+          |""".stripMargin
+      stubPost(url, OK, Some(requestBody), Some(p2Response))
+
+      val result = connector.getTasks(generatedNino, Lang("en")).value.futureValue
+
+      result mustBe Right(
+        Seq(
+          Task(
+            title = "Your tax code for Example Employer will change from 6 April 2027",
+            status = TaskStatus.Incomplete,
+            href = Some("/paye/next-tax-year/tax-code-change?lang=en&id=12345"),
+            hintText = None,
+            dateText = Some("Issued 2 February 2027"),
+            activityType = ActivityType.Event,
+            dateTag = None
           )
         )
       )
